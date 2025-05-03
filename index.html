@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Challenge PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul: #4e8cff;
+            --rojo: #ff6b6b;
+            --verde: #6bff6b;
+            --amarillo: #ffde59;
+            --morado: #a459ff;
+            --fondo: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --texto: #333;
+            --panel: white;
+            --borde: #ddd;
+            --sombra: rgba(0, 0, 0, 0.1);
+            --tiempo-normal: #a459ff;
+            --tiempo-alerta: #ff6b6b;
+        }
+
+        /* Modo Nocturno */
+        .dark-mode {
+            --fondo: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --texto: #f0f0f0;
+            --panel: #1e293b;
+            --borde: #334155;
+            --sombra: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            text-align: center;
+            margin: 0;
+            background: var(--fondo);
+            color: var(--texto);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-family: 'Fredoka One', cursive;
+            color: var(--texto);
+            text-shadow: 2px 2px 4px var(--sombra);
+            font-size: 2.5rem;
+        }
+
+        .container {
+            display: flex;
+            width: 90%;
+            justify-content: space-around;
+            margin: 20px auto;
+            flex-wrap: wrap;
+        }
+
+        .team {
+            width: 42%;
+            min-width: 300px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--sombra);
+            transition: all 0.4s ease;
+            margin: 10px;
+            background: var(--panel);
+            position: relative;
+            overflow: hidden;
+            border: 4px solid;
+        }
+
+        #team1 {
+            border-color: var(--azul);
+        }
+
+        #team2 {
+            border-color: var(--rojo);
+        }
+
+        .team::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--azul), var(--morado));
+            opacity: 0.7;
+        }
+
+        .team h2 {
+            font-family: 'Fredoka One', cursive;
+            margin-top: 0;
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        #team1 h2 {
+            color: var(--azul);
+        }
+
+        #team2 h2 {
+            color: var(--rojo);
+        }
+
+        .game {
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 15px;
+            background: var(--panel);
+            box-shadow: 0 10px 20px var(--sombra);
+            width: 80%;
+            max-width: 600px;
+            border: 4px solid var(--amarillo);
+        }
+
+        .question {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid var(--morado);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 1.3rem;
+            width: 120px;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-family: 'Comic Neue', cursive;
+            background: var(--panel);
+            color: var(--texto);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--morado);
+            box-shadow: 0 0 0 3px rgba(164, 89, 255, 0.2);
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 8px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Comic Neue', cursive;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--sombra);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255,255,255,0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        .result {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 70px);
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .key {
+            padding: 15px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            text-align: center;
+            background: var(--panel);
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            transition: all 0.2s;
+            font-family: 'Comic Neue', cursive;
+            font-weight: bold;
+        }
+
+        .key:hover {
+            background: var(--borde);
+            transform: scale(1.05);
+        }
+
+        .key:active {
+            transform: scale(0.95);
+        }
+
+        .victory {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 20px auto;
+            color: var(--morado);
+            min-height: 60px;
+            animation: bounce 1s infinite alternate;
+            text-shadow: 1px 1px 2px var(--sombra);
+            max-width: 80%;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            font-weight: bold;
+            color: var(--texto);
+        }
+
+        .correct {
+            color: #28a745;
+            animation: tada 1s ease;
+        }
+
+        .incorrect {
+            color: #dc3545;
+            animation: shake 0.5s ease;
+        }
+
+        .controls {
+            margin: 25px 0;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 5s linear forwards;
+        }
+
+        .emoji-celebration {
+            font-size: 3rem;
+            position: absolute;
+            animation: float 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes tada {
+            0% { transform: scale(1); }
+            10%, 20% { transform: scale(0.9) rotate(-3deg); }
+            30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+            40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .game-mode-btn {
+            background: linear-gradient(45deg, var(--amarillo), var(--morado));
+            color: white;
+            margin: 10px;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+        }
+
+        .game-mode-btn:hover {
+            background: linear-gradient(45deg, var(--morado), var(--amarillo));
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, var(--azul), #59a5ff);
+            color: white;
+        }
+
+        #team2 .submit-btn {
+            background: linear-gradient(45deg, var(--rojo), #ff8c8c);
+        }
+
+        .reset-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+        }
+
+        .reset-btn:hover {
+            background: linear-gradient(45deg, #495057, #6c757d);
+        }
+
+        .team-active {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 20px var(--sombra);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(74, 144, 226, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); }
+        }
+
+        .turn-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            background: var(--amarillo);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            animation: bounce 1s infinite;
+            display: none;
+        }
+
+        .progress-container {
+            width: 80%;
+            margin: 20px auto;
+            background: var(--borde);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--azul), var(--morado));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Temporizador Circular */
+        .timer-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .timer-svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .timer-circle {
+            fill: none;
+            stroke: var(--tiempo-normal);
+            stroke-width: 6;
+            stroke-dasharray: 251;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--tiempo-normal);
+        }
+
+        .timer-warning {
+            stroke: var(--tiempo-alerta);
+            color: var(--tiempo-alerta);
+        }
+
+        /* Botón Modo Nocturno */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--panel);
+            border: 2px solid var(--borde);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px var(--sombra);
+            z-index: 100;
+            font-size: 1.2rem;
+        }
+
+        /* Configuración de equipos */
+        .team-config {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--sombra);
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            border: 4px solid var(--verde);
+        }
+
+        .team-input {
+            margin: 15px 0;
+        }
+
+        .team-input label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--texto);
+        }
+
+        .team-input input {
+            width: 80%;
+            max-width: 300px;
+            padding: 10px;
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            font-family: 'Comic Neue', cursive;
+        }
+
+        .team-members {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--texto);
+        }
+
+        /* Ranking */
+        .ranking {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--sombra);
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            border: 4px solid var(--morado);
+        }
+
+        .ranking h2 {
+            color: var(--morado);
+            margin-top: 0;
+        }
+
+        .ranking-list {
+            text-align: left;
+            margin: 0 auto;
+            width: 80%;
+        }
+
+        .ranking-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--borde);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ranking-item:first-child {
+            font-weight: bold;
+            color: var(--morado);
+            font-size: 1.1rem;
+        }
+
+        .ranking-item:nth-child(2) {
+            font-weight: bold;
+            color: var(--amarillo);
+        }
+
+        .ranking-item:nth-child(3) {
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        /* CPU Thinking */
+        .cpu-thinking {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-style: italic;
+            color: var(--texto);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .team {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón Tema Nocturno -->
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+
+    <h1>✨ Math Challenge PRO ✨</h1>
+
+    <!-- Temporizador Circular -->
+    <div class="timer-container">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+            <circle class="timer-circle" cx="50" cy="50" r="40"></circle>
+        </svg>
+        <div class="timer-text" id="timerText">30</div>
+    </div>
+
+    <!-- Configuración de equipos -->
+    <div class="team-config" id="teamConfig">
+        <h2>⚙️ Configuración de Equipos ⚙️</h2>
+        <div class="team-input">
+            <label for="team1Name">Nombre del Equipo Azul:</label>
+            <input type="text" id="team1Name" placeholder="Ej: Los Matemágicos" value="Equipo Azul">
+            <div class="team-members">
+                <label>Integrantes (separados por comas):</label>
+                <input type="text" id="team1Members" placeholder="Ej: Ana, Juan, María" value="Jugador 1, Jugador 2">
+            </div>
+        </div>
+        <div class="team-input">
+            <label for="team2Name">Nombre del Equipo Rojo:</label>
+            <input type="text" id="team2Name" placeholder="Ej: Los Calculines" value="Equipo Rojo">
+            <div class="team-members">
+                <label>Integrantes (separados por comas):</label>
+                <input type="text" id="team2Members" placeholder="Ej: Pedro, Luisa, Carlos" value="Jugador 3, Jugador 4">
+            </div>
+        </div>
+        <button class="game-mode-btn" id="guardarConfig">Guardar Configuración ✅</button>
+        <button class="mode-toggle" id="cpuToggle">Modo: 2 Jugadores</button>
+    </div>
+
+    <!-- Selección del Juego -->
+    <div class="game" id="gameSelection" style="display: none;">
+        <h2>🏆 Elige un modo de juego 🏆</h2>
+        <button class="game-mode-btn" data-mode="operaciones">🔢 Operación Rápida</button>
+        <button class="game-mode-btn" data-mode="misterioso">❓ Número Misterioso</button>
+        <button class="game-mode-btn" data-mode="secuencia">📈 Secuencia Numérica</button>
+        <button class="game-mode-btn" data-mode="potenciacion">💪 Potenciación</button>
+        <button class="game-mode-btn" data-mode="combinadas">🧩 Operaciones Combinadas</button>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="container">
+        <!-- Equipo 1 -->
+        <div id="team1" class="team" style="display: none;">
+            <div class="turn-indicator" id="turn1">Tu turno!</div>
+            <h2 id="team1Title">Equipo Azul 🔵</h2>
+            <p class="score">Puntos: <span id="puntos1">0</span> 💎</p>
+            <p id="pregunta1" class="question">Haz clic en un juego para comenzar</p>
+            <div class="input-container">
+                <input type="text" id="respuesta1" readonly>
+                <div class="keyboard">
+                    <div class="key" data-number="1">1</div>
+                    <div class="key" data-number="2">2</div>
+                    <div class="key" data-number="3">3</div>
+                    <div class="key" data-number="4">4</div>
+                    <div class="key" data-number="5">5</div>
+                    <div class="key" data-number="6">6</div>
+                    <div class="key" data-number="7">7</div>
+                    <div class="key" data-number="8">8</div>
+                    <div class="key" data-number="9">9</div>
+                    <div class="key" data-action="clear">⌫</div>
+                    <div class="key" data-number="0">0</div>
+                    <div class="key" data-number="-">-</div>
+                </div>
+                <button class="submit-btn" id="responder1">Responder 🚀</button>
+                <p id="resultado1" class="result">Esperando respuesta... 🤔</p>
+            </div>
+            <div class="cpu-thinking" id="cpuThinking" style="display: none;">CPU pensando...</div>
+        </div>
+
+        <!-- Equipo 2 -->
+        <div id="team2" class="team" style="display: none;">
+            <div class="turn-indicator" id="turn2">Tu turno!</div>
+            <h2 id="team2Title">Equipo Rojo 🔴</h2>
+            <p class="score">Puntos: <span id="puntos2">0</span> 💎</p>
+            <p id="pregunta2" class="question">Haz clic en un juego para comenzar</p>
+            <div class="input-container">
+                <input type="text" id="respuesta2" readonly>
+                <div class="keyboard">
+                    <div class="key" data-number="1">1</div>
+                    <div class="key" data-number="2">2</div>
+                    <div class="key" data-number="3">3</div>
+                    <div class="key" data-number="4">4</div>
+                    <div class="key" data-number="5">5</div>
+                    <div class="key" data-number="6">6</div>
+                    <div class="key" data-number="7">7</div>
+                    <div class="key" data-number="8">8</div>
+                    <div class="key" data-number="9">9</div>
+                    <div class="key" data-action="clear">⌫</div>
+                    <div class="key" data-number="0">0</div>
+                    <div class="key" data-number="-">-</div>
+                </div>
+                <button class="submit-btn" id="responder2">Responder 🚀</button>
+                <p id="resultado2" class="result">Esperando respuesta... 🤔</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="reset-btn" id="reiniciarBtn" disabled>🔄 Reiniciar Juego</button>
+    </div>
+
+    <p id="mensajeVictoria" class="victory"></p>
+
+    <!-- Ranking de equipos -->
+    <div class="ranking" id="rankingSection" style="display: none;">
+        <h2>🏆 Ranking de Equipos 🏆</h2>
+        <div class="ranking-list" id="rankingList">
+            <!-- Aquí se generará el ranking dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+    <audio id="startSound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-suspense-waiting-668.mp3" preload="auto"></audio>
+
+    <script>
+        class GameManager {
+            constructor() {
+                // Configuración inicial
+                this.teams = [
+                    { id: 1, name: "Equipo Azul", color: "#4e8cff", points: 0, members: [] },
+                    { id: 2, name: "Equipo Rojo", color: "#ff6b6b", points: 0, members: [] }
+                ];
+                this.currentTurn = 0; // Índice del equipo actual (0 o 1)
+                this.questions = [];
+                this.currentQuestionIndex = 0;
+                this.gameMode = null;
+                this.isCpuEnabled = false;
+                this.timeLeft = 30;
+                this.timerDuration = 30;
+                this.timerInterval = null;
+                this.soundEnabled = true;
+                this.ranking = [];
+                
+                // Elementos UI
+                this.themeToggle = document.getElementById('themeToggle');
+                this.timerCircle = document.querySelector('.timer-circle');
+                this.timerText = document.getElementById('timerText');
+                
+                // Inicialización
+                this.cargarConfiguracion();
+                this.setupEventListeners();
+                this.initIndexedDB();
+            }
+
+            // ======================
+            // CONFIGURACIÓN INICIAL
+            // ======================
+            cargarConfiguracion() {
+                const savedConfig = localStorage.getItem('mathChallengeConfig');
+                if (savedConfig) {
+                    const config = JSON.parse(savedConfig);
+                    document.getElementById('team1Name').value = config.team1Name || "Equipo Azul";
+                    document.getElementById('team2Name').value = config.team2Name || "Equipo Rojo";
+                    document.getElementById('team1Members').value = config.team1Members || "Jugador 1, Jugador 2";
+                    document.getElementById('team2Members').value = config.team2Members || "Jugador 3, Jugador 4";
+                    
+                    this.teams[0].name = config.team1Name || "Equipo Azul";
+                    this.teams[1].name = config.team2Name || "Equipo Rojo";
+                    this.teams[0].members = (config.team1Members || "Jugador 1, Jugador 2").split(',').map(m => m.trim());
+                    this.teams[1].members = (config.team2Members || "Jugador 3, Jugador 4").split(',').map(m => m.trim());
+                }
+            }
+
+            guardarConfiguracion() {
+                this.playSound('clickSound');
+                
+                this.teams[0].name = document.getElementById('team1Name').value || "Equipo Azul";
+                this.teams[1].name = document.getElementById('team2Name').value || "Equipo Rojo";
+                this.teams[0].members = (document.getElementById('team1Members').value || "Jugador 1, Jugador 2").split(',').map(m => m.trim());
+                this.teams[1].members = (document.getElementById('team2Members').value || "Jugador 3, Jugador 4").split(',').map(m => m.trim());
+                
+                // Actualizar UI
+                document.getElementById('team1Title').textContent = this.teams[0].name + " 🔵";
+                document.getElementById('team2Title').textContent = this.teams[1].name + " 🔴";
+                
+                // Guardar en localStorage
+                const config = {
+                    team1Name: this.teams[0].name,
+                    team2Name: this.teams[1].name,
+                    team1Members: this.teams[0].members.join(', '),
+                    team2Members: this.teams[1].members.join(', ')
+                };
+                
+                localStorage.setItem('mathChallengeConfig', JSON.stringify(config));
+                
+                // Mostrar sección de juego
+                document.getElementById('teamConfig').style.display = 'none';
+                document.getElementById('gameSelection').style.display = 'block';
+                document.getElementById('team1').style.display = 'block';
+                document.getElementById('team2').style.display = 'block';
+                document.getElementById('rankingSection').style.display = 'block';
+            }
+
+            // ======================
+            // MANEJO DEL JUEGO
+            // ======================
+            iniciarJuego(mode) {
+                this.playSound('startSound');
+                this.gameMode = mode;
+                this.questions = this.generarPreguntas(mode, 7);
+                this.currentQuestionIndex = 0;
+                this.resetScores();
+                this.nextTurn();
+                this.startTimer();
+                
+                if (this.isCpuEnabled) {
+                    document.getElementById('cpuThinking').style.display = 'block';
+                }
+                
+                document.getElementById('reiniciarBtn').disabled = false;
+                document.getElementById('gameSelection').style.display = 'none';
+            }
+
+            generarPreguntas(mode, count) {
+                const preguntas = [];
+                
+                const generarOperacion = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let pregunta, respuesta;
+                    
+                    switch(operador) {
+                        case '+':
+                            pregunta = `${num1} + ${num2} = ?`;
+                            respuesta = num1 + num2;
+                            break;
+                        case '-':
+                            pregunta = `${num1} - ${num2} = ?`;
+                            respuesta = num1 - num2;
+                            break;
+                        case '*':
+                            pregunta = `${num1} × ${num2} = ?`;
+                            respuesta = num1 * num2;
+                            break;
+                        case '/':
+                            // Aseguramos división exacta
+                            respuesta = Math.floor(Math.random() * 5) + 1;
+                            const num2 = Math.floor(Math.random() * 3) + 1;
+                            const num1 = respuesta * num2;
+                            pregunta = `${num1} ÷ ${num2} = ?`;
+                            break;
+                    }
+                    
+                    return { pregunta, respuesta };
+                };
+                
+                const generarMisterioso = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const tipo = Math.random() > 0.5 ? 'suma' : 'resta';
+                    
+                    let pregunta, respuesta;
+                    
+                    if (tipo === 'suma') {
+                        respuesta = num1;
+                        pregunta = `? + ${num2} = ${num1 + num2}`;
+                    } else {
+                        respuesta = num1 + num2;
+                        pregunta = `? - ${num2} = ${num1}`;
+                    }
+                    
+                    return { pregunta, respuesta };
+                };
+                
+                const generarSecuencia = () => {
+                    const patrones = [
+                        { inicio: 2, paso: 2 }, // Pares
+                        { inicio: 1, paso: 2 }, // Impares
+                        { inicio: 5, paso: 5 }, // Múltiplos de 5
+                        { inicio: 3, paso: 3 }, // Múltiplos de 3
+                        { inicio: 10, paso: -1 } // Regresiva
+                    ];
+                    
+                    const patron = patrones[Math.floor(Math.random() * patrones.length)];
+                    const posicionFalta = Math.floor(Math.random() * 3) + 1;
+                    let secuencia = [];
+                    
+                    for (let j = 0; j < 5; j++) {
+                        if (j === posicionFalta) {
+                            secuencia.push("?");
+                        } else {
+                            secuencia.push(patron.inicio + j * patron.paso);
+                        }
+                    }
+                    
+                    const pregunta = `Completa: ${secuencia.join(", ")}`;
+                    const respuesta = patron.inicio + posicionFalta * patron.paso;
+                    
+                    return { pregunta, respuesta };
+                };
+                
+                const generarPotenciacion = () => {
+                    const base = Math.floor(Math.random() * 5) + 2;
+                    const exponente = Math.floor(Math.random() * 3) + 2;
+                    const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
+                    const pregunta = `${base}${superScripts[exponente]} = ?`;
+                    const respuesta = Math.pow(base, exponente);
+                    
+                    return { pregunta, respuesta };
+                };
+                
+                const generarCombinadas = () => {
+                    const operaciones = [
+                        { pregunta: "(5 + 3) × 2 = ?", respuesta: 16 },
+                        { pregunta: "10 + 4 × 3 = ?", respuesta: 22 },
+                        { pregunta: "20 ÷ (4 + 1) = ?", respuesta: 4 },
+                        { pregunta: "3² + 4² = ?", respuesta: 25 },
+                        { pregunta: "15 - (6 + 2) = ?", respuesta: 7 },
+                        { pregunta: "5 × 3 + 10 ÷ 2 = ?", respuesta: 20 },
+                        { pregunta: "(8 - 3)² = ?", respuesta: 25 }
+                    ];
+                    
+                    return operaciones[Math.floor(Math.random() * operaciones.length)];
+                };
+                
+                // Seleccionar generador según el modo
+                let generador;
+                switch(mode) {
+                    case 'operaciones': generador = generarOperacion; break;
+                    case 'misterioso': generador = generarMisterioso; break;
+                    case 'secuencia': generador = generarSecuencia; break;
+                    case 'potenciacion': generador = generarPotenciacion; break;
+                    case 'combinadas': generador = generarCombinadas; break;
+                    default: generador = generarOperacion;
+                }
+                
+                // Generar las preguntas
+                for (let i = 0; i < count; i++) {
+                    preguntas.push(generador());
+                }
+                
+                return preguntas;
+            }
+
+            nextTurn() {
+                this.currentTurn = (this.currentTurn + 1) % this.teams.length;
+                this.updateTurnUI();
+                this.displayQuestion();
+                
+                // Si es turno de la CPU y está habilitada
+                if (this.isCpuEnabled && this.currentTurn === 1) {
+                    this.cpuAnswer();
+                }
+            }
+
+            cpuAnswer() {
+                const thinkingTime = Math.random() * 3000 + 1000; // 1-4 segundos
+                const isCorrect = Math.random() > 0.3; // 70% de aciertos
+                
+                setTimeout(() => {
+                    const currentQuestion = this.questions[this.currentQuestionIndex];
+                    const answer = isCorrect ? 
+                        currentQuestion.respuesta : 
+                        Math.floor(Math.random() * 20) + 1;
+                    
+                    document.getElementById(`respuesta2`).value = answer;
+                    this.checkAnswer(answer.toString(), true);
+                }, thinkingTime);
+            }
+
+            displayQuestion() {
+                if (this.currentQuestionIndex < this.questions.length) {
+                    const currentQuestion = this.questions[this.currentQuestionIndex];
+                    document.getElementById("pregunta1").textContent = currentQuestion.pregunta;
+                    document.getElementById("pregunta2").textContent = currentQuestion.pregunta;
+                    document.getElementById("respuesta1").value = "";
+                    document.getElementById("respuesta2").value = "";
+                    document.getElementById("resultado1").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("resultado1").className = "result";
+                    document.getElementById("resultado2").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("resultado2").className = "result";
+                    
+                    // Actualizar barra de progreso
+                    const progreso = (this.currentQuestionIndex / this.questions.length) * 100;
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                } else {
+                    this.endGame();
+                }
+            }
+
+            checkAnswer(userAnswer, isCpu = false) {
+                const currentTeam = this.teams[this.currentTurn];
+                const currentQuestion = this.questions[this.currentQuestionIndex];
+                
+                // Validación mejorada
+                const userAnswerParsed = parseFloat(userAnswer.trim());
+                if (isNaN(userAnswerParsed)) {
+                    this.showResult(currentTeam, "¡Solo números!", false);
+                    return;
+                }
+                
+                const isCorrect = userAnswerParsed === currentQuestion.respuesta;
+                const timeBonus = Math.floor(this.timeLeft / 5); // Bonus por tiempo rápido
+                
+                if (isCorrect) {
+                    const pointsEarned = 1 + timeBonus;
+                    currentTeam.points += pointsEarned;
+                    this.updateTeamPoints(currentTeam.id);
+                    this.showResult(currentTeam, `✅ Correcto! +${pointsEarned} puntos`, true);
+                    
+                    // Efectos especiales
+                    if (!isCpu) this.playSound('correctSound');
+                    this.createConfetti(currentTeam.id);
+                } else {
+                    this.showResult(currentTeam, `❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
+                    if (!isCpu) this.playSound('wrongSound');
+                }
+                
+                // Avanzar a siguiente pregunta o finalizar
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    setTimeout(() => {
+                        this.nextTurn();
+                        this.resetTimer();
+                    }, 2000);
+                } else {
+                    this.endGame();
+                }
+            }
+
+            endGame() {
+                clearInterval(this.timerInterval);
+                const winner = this.determineWinner();
+                this.saveToRanking();
+                this.showWinner(winner);
+                document.getElementById('cpuThinking').style.display = 'none';
+            }
+
+            determineWinner() {
+                const team1 = this.teams[0];
+                const team2 = this.teams[1];
+                
+                if (team1.points > team2.points) {
+                    return team1;
+                } else if (team2.points > team1.points) {
+                    return team2;
+                } else {
+                    return null; // Empate
+                }
+            }
+
+            showWinner(winner) {
+                let mensaje = "";
+                
+                if (winner) {
+                    mensaje = `¡${winner.name} ha ganado! 🏆 (${this.teams[0].points} - ${this.teams[1].points})`;
+                    document.getElementById(`team${winner.id}`).style.backgroundColor = "#e6f7e6";
+                    this.createCelebration(winner.id);
+                    this.playSound('winSound');
+                } else {
+                    mensaje = `¡Empate! 🤝 (${this.teams[0].points} - ${this.teams[1].points})`;
+                }
+                
+                document.getElementById("mensajeVictoria").innerHTML = mensaje;
+            }
+
+            // ======================
+            // TEMPORIZADOR
+            // ======================
+            startTimer() {
+                this.timeLeft = this.timerDuration;
+                this.updateTimerUI();
+                
+                this.timerInterval = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimerUI();
+                    
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timerInterval);
+                        this.skipQuestion();
+                    }
+                }, 1000);
+            }
+
+            updateTimerUI() {
+                // Actualizar texto
+                this.timerText.textContent = this.timeLeft;
+                
+                // Actualizar círculo (animación SVG)
+                const circumference = 251; // 2 * π * r (r=40)
+                const offset = circumference - (this.timeLeft / this.timerDuration) * circumference;
+                this.timerCircle.style.strokeDashoffset = offset;
+                
+                // Cambiar color cuando queda poco tiempo
+                if (this.timeLeft <= 5) {
+                    this.timerCircle.classList.add('timer-warning');
+                    this.timerText.classList.add('timer-warning');
+                } else {
+                    this.timerCircle.classList.remove('timer-warning');
+                    this.timerText.classList.remove('timer-warning');
+                }
+            }
+
+            resetTimer() {
+                clearInterval(this.timerInterval);
+                this.startTimer();
+            }
+
+            skipQuestion() {
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.nextTurn();
+                } else {
+                    this.endGame();
+                }
+            }
+
+            // ======================
+            // MANEJO DE EQUIPOS
+            // ======================
+            updateTeamPoints(teamId) {
+                document.getElementById(`puntos${teamId}`).textContent = this.teams[teamId - 1].points;
+            }
+
+            updateTurnUI() {
+                // Resaltar equipo actual
+                document.getElementById('team1').classList.remove('team-active');
+                document.getElementById('team2').classList.remove('team-active');
+                document.getElementById(`team${this.currentTurn + 1}`).classList.add('team-active');
+                
+                // Mostrar indicador de turno
+                document.getElementById('turn1').style.display = 'none';
+                document.getElementById('turn2').style.display = 'none';
+                document.getElementById(`turn${this.currentTurn + 1}`).style.display = 'block';
+            }
+
+            resetScores() {
+                this.teams[0].points = 0;
+                this.teams[1].points = 0;
+                this.updateTeamPoints(1);
+                this.updateTeamPoints(2);
+            }
+
+            // ======================
+            // RANKING Y PERSISTENCIA
+            // ======================
+            initIndexedDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open('MathChallengeDB', 1);
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('ranking')) {
+                            const store = db.createObjectStore('ranking', { keyPath: 'id', autoIncrement: true });
+                            store.createIndex('byScore', 'points', { unique: false });
+                        }
+                    };
+                    
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        this.cargarRanking();
+                        resolve();
+                    };
+                    
+                    request.onerror = (event) => {
+                        console.error('IndexedDB error:', event.target.error);
+                        // Fallback a localStorage
+                        this.cargarRanking();
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            cargarRanking() {
+                if (this.db) {
+                    const transaction = this.db.transaction(['ranking'], 'readonly');
+                    const store = transaction.objectStore('ranking');
+                    const request = store.getAll();
+                    
+                    request.onsuccess = (event) => {
+                        this.ranking = event.target.result || [];
+                        this.actualizarRanking();
+                    };
+                } else {
+                    const savedRanking = localStorage.getItem('mathChallengeRanking');
+                    this.ranking = savedRanking ? JSON.parse(savedRanking) : [];
+                    this.actualizarRanking();
+                }
+            }
+
+            saveToRanking() {
+                const winner = this.determineWinner();
+                if (!winner) return;
+                
+                const record = {
+                    teamName: winner.name,
+                    points: winner.points,
+                    date: new Date().toISOString(),
+                    gameMode: this.gameMode
+                };
+                
+                if (this.db) {
+                    const transaction = this.db.transaction(['ranking'], 'readwrite');
+                    const store = transaction.objectStore('ranking');
+                    store.add(record);
+                } else {
+                    this.ranking.push(record);
+                    localStorage.setItem('mathChallengeRanking', JSON.stringify(this.ranking));
+                }
+                
+                this.actualizarRanking();
+            }
+
+            actualizarRanking() {
+                const rankingList = document.getElementById('rankingList');
+                rankingList.innerHTML = '';
+                
+                if (this.ranking.length === 0) {
+                    rankingList.innerHTML = '<p>No hay equipos en el ranking todavía.</p>';
+                    return;
+                }
+                
+                // Ordenar por puntos (mayor a menor)
+                const sortedRanking = [...this.ranking].sort((a, b) => b.points - a.points);
+                
+                // Mostrar top 5
+                const topRanking = sortedRanking.slice(0, 5);
+                
+                topRanking.forEach((team, index) => {
+                    const teamElement = document.createElement('div');
+                    teamElement.className = 'ranking-item';
+                    
+                    const nameElement = document.createElement('span');
+                    nameElement.textContent = `${index + 1}. ${team.teamName}`;
+                    
+                    const pointsElement = document.createElement('span');
+                    pointsElement.textContent = `${team.points} puntos`;
+                    
+                    teamElement.appendChild(nameElement);
+                    teamElement.appendChild(pointsElement);
+                    rankingList.appendChild(teamElement);
+                });
+            }
+
+            // ======================
+            // UI Y EFECTOS
+            // ======================
+            showResult(team, message, isCorrect) {
+                const resultElement = document.getElementById(`resultado${team.id}`);
+                resultElement.textContent = message;
+                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            }
+
+            createConfetti(teamId) {
+                const teamElement = document.getElementById(`team${teamId}`);
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement("div");
+                    confetti.className = "confetti";
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                    teamElement.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 5000);
+                }
+            }
+
+            createCelebration(teamId) {
+                const teamElement = document.getElementById(`team${teamId}`);
+                const emojis = ["🎉", "🎊", "🏆", "✨", "👏", "👍", "🎈"];
+                
+                for (let i = 0; i < 10; i++) {
+                    const emoji = document.createElement("div");
+                    emoji.className = "emoji-celebration";
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = `${Math.random() * 80 + 10}%`;
+                    emoji.style.animationDelay = `${i * 0.3}s`;
+                    teamElement.appendChild(emoji);
+                    setTimeout(() => emoji.remove(), 3000);
+                }
+            }
+
+            // ======================
+            // CONTROL DEL JUEGO
+            // ======================
+            reiniciarJuego() {
+                this.playSound('clickSound');
+                clearInterval(this.timerInterval);
+                
+                this.resetScores();
+                this.currentQuestionIndex = 0;
+                
+                document.getElementById("pregunta1").textContent = "Haz clic en un juego para comenzar";
+                document.getElementById("pregunta2").textContent = "Haz clic en un juego para comenzar";
+                document.getElementById("respuesta1").value = "";
+                document.getElementById("respuesta2").value = "";
+                document.getElementById("resultado1").textContent = "Esperando respuesta... 🤔";
+                document.getElementById("resultado1").className = "result";
+                document.getElementById("resultado2").textContent = "Esperando respuesta... 🤔";
+                document.getElementById("resultado2").className = "result";
+                document.getElementById("mensajeVictoria").innerHTML = "";
+                document.getElementById("team1").style.backgroundColor = "var(--panel)";
+                document.getElementById("team2").style.backgroundColor = "var(--panel)";
+                document.getElementById("progressBar").style.width = "0%";
+                document.getElementById('cpuThinking').style.display = 'none';
+                
+                // Mostrar selección de juego
+                document.getElementById('gameSelection').style.display = 'block';
+            }
+
+            addNumber(teamId, num) {
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.playSound('clickSound');
+                    document.getElementById(`respuesta${teamId}`).value += num;
+                }
+            }
+
+            clearNumber(teamId) {
+                this.playSound('clickSound');
+                document.getElementById(`respuesta${teamId}`).value = "";
+            }
+
+            verificarRespuesta(teamId) {
+                const respuesta = document.getElementById(`respuesta${teamId}`).value;
+                this.checkAnswer(respuesta);
+            }
+
+            // ======================
+            // HELPERS
+            // ======================
+            playSound(soundId) {
+                if (!this.soundEnabled) return;
+                const sound = document.getElementById(soundId);
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+            }
+
+            setupEventListeners() {
+                // Control de tema
+                this.themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    this.themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                    this.playSound('clickSound');
+                });
+                
+                // Modo CPU
+                document.getElementById('cpuToggle').addEventListener('click', () => {
+                    this.isCpuEnabled = !this.isCpuEnabled;
+                    document.getElementById('cpuToggle').textContent = 
+                        this.isCpuEnabled ? 'Modo: 1 Jugador' : 'Modo: 2 Jugadores';
+                    this.playSound('clickSound');
+                });
+                
+                // Guardar configuración
+                document.getElementById('guardarConfig').addEventListener('click', () => this.guardarConfiguracion());
+                
+                // Botones de modo de juego
+                document.querySelectorAll('.game-mode-btn[data-mode]').forEach(btn => {
+                    btn.addEventListener('click', () => this.iniciarJuego(btn.dataset.mode));
+                });
+                
+                // Teclados numéricos
+                document.querySelectorAll('.key[data-number]').forEach(key => {
+                    key.addEventListener('click', () => {
+                        const teamId = key.closest('.team').id.replace('team', '');
+                        this.addNumber(teamId, key.dataset.number);
+                    });
+                });
+                
+                // Botones de borrado
+                document.querySelectorAll('.key[data-action="clear"]').forEach(key => {
+                    key.addEventListener('click', () => {
+                        const teamId = key.closest('.team').id.replace('team', '');
+                        this.clearNumber(teamId);
+                    });
+                });
+                
+                // Botones de respuesta
+                document.getElementById('responder1').addEventListener('click', () => this.verificarRespuesta(1));
+                document.getElementById('responder2').addEventListener('click', () => this.verificarRespuesta(2));
+                
+                // Reiniciar juego
+                document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
+            }
+        }
+
+        // Inicialización cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            const game = new GameManager();
+        });
+    </script>
+</body>
+</html>

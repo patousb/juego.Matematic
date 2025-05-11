@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Math Challenge PRO - Multijugador</title>
+    <title>Math Challenge PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -48,59 +48,9 @@
 
         .container {
             display: flex;
+            flex-direction: column;
             width: 90%;
-            justify-content: space-around;
             margin: 20px auto;
-            flex-wrap: wrap;
-        }
-
-        .team {
-            width: 42%;
-            min-width: 300px;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            transition: all 0.4s ease;
-            margin: 10px;
-            background: var(--panel);
-            position: relative;
-            overflow: hidden;
-            border: 4px solid;
-        }
-
-        #team1 {
-            border-color: var(--azul);
-        }
-
-        #team2 {
-            border-color: var(--rojo);
-        }
-
-        .team::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, var(--azul), var(--morado));
-            opacity: 0.7;
-        }
-
-        .team h2 {
-            font-family: 'Fredoka One', cursive;
-            margin-top: 0;
-            font-size: 1.8rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        #team1 h2 {
-            color: var(--azul);
-        }
-
-        #team2 h2 {
-            color: var(--rojo);
         }
 
         .game {
@@ -112,6 +62,7 @@
             width: 80%;
             max-width: 600px;
             border: 4px solid var(--amarillo);
+            position: relative;
         }
 
         .question {
@@ -178,22 +129,9 @@
             transform: translateY(1px);
         }
 
-        button::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255,255,255,0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
-        }
-
-        button:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .result {
@@ -278,13 +216,6 @@
             animation: confetti-fall 5s linear forwards;
         }
 
-        .emoji-celebration {
-            font-size: 3rem;
-            position: absolute;
-            animation: float 3s ease-in-out infinite;
-            opacity: 0;
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -309,21 +240,6 @@
             to { transform: translateY(-10px); }
         }
 
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 1;
-            }
-            20% {
-                transform: scale(25, 25);
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                transform: scale(40, 40);
-            }
-        }
-
         @keyframes confetti-fall {
             0% {
                 transform: translateY(-100px) rotate(0deg);
@@ -332,19 +248,6 @@
             100% {
                 transform: translateY(100vh) rotate(360deg);
                 opacity: 0;
-            }
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) rotate(360deg);
             }
         }
 
@@ -366,10 +269,6 @@
             color: white;
         }
 
-        #team2 .submit-btn {
-            background: linear-gradient(45deg, var(--rojo), #ff8c8c);
-        }
-
         .reset-btn {
             background: linear-gradient(45deg, #6c757d, #495057);
             color: white;
@@ -379,46 +278,6 @@
 
         .reset-btn:hover {
             background: linear-gradient(45deg, #495057, #6c757d);
-        }
-
-        .team-active {
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 20px var(--sombra);
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(74, 144, 226, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(74, 144, 226, 0); }
-        }
-
-        .turn-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-            background: var(--amarillo);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            animation: bounce 1s infinite;
-            display: none;
-        }
-
-        .progress-container {
-            width: 80%;
-            margin: 20px auto;
-            background: var(--borde);
-            border-radius: 10px;
-            height: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--azul), var(--morado));
-            width: 0%;
-            transition: width 0.5s ease;
         }
 
         /* Temporizador Circular */
@@ -476,99 +335,6 @@
             box-shadow: 0 2px 10px var(--sombra);
             z-index: 100;
             font-size: 1.2rem;
-        }
-
-        /* Configuración de equipos */
-        .team-config {
-            background: var(--panel);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            margin: 20px auto;
-            width: 80%;
-            max-width: 600px;
-            border: 4px solid var(--verde);
-        }
-
-        .team-input {
-            margin: 15px 0;
-        }
-
-        .team-input label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: var(--texto);
-        }
-
-        .team-input input {
-            width: 80%;
-            max-width: 300px;
-            padding: 10px;
-            border: 2px solid var(--borde);
-            border-radius: 8px;
-            font-family: 'Comic Neue', cursive;
-        }
-
-        .team-members {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--texto);
-        }
-
-        /* Ranking */
-        .ranking {
-            background: var(--panel);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            margin: 20px auto;
-            width: 80%;
-            max-width: 600px;
-            border: 4px solid var(--morado);
-        }
-
-        .ranking h2 {
-            color: var(--morado);
-            margin-top: 0;
-        }
-
-        .ranking-list {
-            text-align: left;
-            margin: 0 auto;
-            width: 80%;
-        }
-
-        .ranking-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--borde);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .ranking-item:first-child {
-            font-weight: bold;
-            color: var(--morado);
-            font-size: 1.1rem;
-        }
-
-        .ranking-item:nth-child(2) {
-            font-weight: bold;
-            color: var(--amarillo);
-        }
-
-        .ranking-item:nth-child(3) {
-            font-weight: bold;
-            color: #aaa;
-        }
-
-        /* CPU Thinking */
-        .cpu-thinking {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-style: italic;
-            color: var(--texto);
         }
 
         /* Modo Multijugador */
@@ -654,17 +420,6 @@
             justify-content: space-between;
         }
 
-        /* Ajustes para el modo multijugador */
-        .multiplayer-mode .team {
-            width: 100%;
-            max-width: 600px;
-            margin: 10px auto;
-        }
-
-        .multiplayer-mode .container {
-            flex-direction: column;
-        }
-
         /* Pantalla de unión */
         .join-screen {
             position: fixed;
@@ -731,15 +486,75 @@
             color: white;
         }
 
+        /* Progress bar */
+        .progress-container {
+            width: 80%;
+            margin: 20px auto;
+            background: var(--borde);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--azul), var(--morado));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Player info */
+        .player-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--panel);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            z-index: 100;
+        }
+
+        /* Formulario de registro */
+        .registration-form {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--sombra);
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            font-family: 'Comic Neue', cursive;
+        }
+
+        /* Mensaje de error */
+        .error-message {
+            color: var(--rojo);
+            margin: 10px 0;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .team {
-                width: 90%;
-                margin-bottom: 20px;
-            }
             .mode-selector {
                 flex-direction: column;
             }
@@ -767,15 +582,28 @@
         <div class="join-form">
             <h2>¡Únete al juego!</h2>
             <div class="input-group">
-                <label for="playerName">Tu nombre:</label>
-                <input type="text" id="playerName" placeholder="Ej: Juan (4° Primaria)">
-            </div>
-            <div class="input-group">
                 <label for="gamePin">Código PIN:</label>
                 <input type="text" id="gamePin" placeholder="Ej: 4567">
             </div>
-            <button class="game-mode-btn" id="joinGame">Unirse</button>
-            <p id="joinError" style="color: var(--rojo); margin-top: 10px;"></p>
+            <button class="game-mode-btn" id="joinGame">Continuar</button>
+            <p id="joinError" class="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Pantalla de registro para jugadores -->
+    <div class="join-screen" id="registrationScreen" style="display: none;">
+        <div class="registration-form">
+            <h2>Registro de Jugador</h2>
+            <div class="form-group">
+                <label for="fullName">Nombre Completo:</label>
+                <input type="text" id="fullName" placeholder="Ej: Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label for="grade">Grado:</label>
+                <input type="text" id="grade" placeholder="Ej: 4° Primaria">
+            </div>
+            <button class="submit-btn" id="registerPlayer">Unirse al Juego</button>
+            <p id="registerError" class="error-message"></p>
         </div>
     </div>
 
@@ -801,12 +629,18 @@
             
             <div class="admin-controls" id="adminControls" style="display: none;">
                 <button class="game-mode-btn" id="startMultiplayerGame">Iniciar Juego</button>
+                <p id="startError" class="error-message"></p>
             </div>
         </div>
     </div>
 
     <!-- Botón Tema Nocturno -->
     <div class="theme-toggle" id="themeToggle">🌙</div>
+
+    <!-- Player info (solo multijugador) -->
+    <div class="player-info" id="playerInfo" style="display: none;">
+        <strong id="currentPlayerName"></strong>: <span id="currentPlayerPoints">0</span> pts
+    </div>
 
     <!-- Juego principal -->
     <div id="gameContainer" style="display: none;">
@@ -820,104 +654,38 @@
             <div class="timer-text" id="timerText">30</div>
         </div>
 
-        <!-- Configuración de equipos (solo local) -->
-        <div class="team-config" id="teamConfig">
-            <h2>⚙️ Configuración de Equipos ⚙️</h2>
-            <div class="team-input">
-                <label for="team1Name">Nombre del Equipo Azul:</label>
-                <input type="text" id="team1Name" placeholder="Ej: Los Matemágicos" value="Equipo Azul">
-                <div class="team-members">
-                    <label>Integrantes (separados por comas):</label>
-                    <input type="text" id="team1Members" placeholder="Ej: Ana, Juan, María" value="Jugador 1, Jugador 2">
+        <div class="game">
+            <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
+            <p id="currentQuestion" class="question">Haz clic en un juego para comenzar</p>
+            <div class="input-container">
+                <input type="text" id="playerAnswer" readonly>
+                <div class="keyboard">
+                    <div class="key" data-number="1">1</div>
+                    <div class="key" data-number="2">2</div>
+                    <div class="key" data-number="3">3</div>
+                    <div class="key" data-number="4">4</div>
+                    <div class="key" data-number="5">5</div>
+                    <div class="key" data-number="6">6</div>
+                    <div class="key" data-number="7">7</div>
+                    <div class="key" data-number="8">8</div>
+                    <div class="key" data-number="9">9</div>
+                    <div class="key" data-action="clear">⌫</div>
+                    <div class="key" data-number="0">0</div>
+                    <div class="key" data-number="-">-</div>
                 </div>
+                <button class="submit-btn" id="submitAnswer">Responder 🚀</button>
+                <p id="answerResult" class="result">Esperando respuesta... 🤔</p>
             </div>
-            <div class="team-input">
-                <label for="team2Name">Nombre del Equipo Rojo:</label>
-                <input type="text" id="team2Name" placeholder="Ej: Los Calculines" value="Equipo Rojo">
-                <div class="team-members">
-                    <label>Integrantes (separados por comas):</label>
-                    <input type="text" id="team2Members" placeholder="Ej: Pedro, Luisa, Carlos" value="Jugador 3, Jugador 4">
-                </div>
-            </div>
-            <button class="game-mode-btn" id="guardarConfig">Guardar Configuración ✅</button>
-            <button class="mode-toggle" id="cpuToggle">Modo: 2 Jugadores</button>
-        </div>
-
-        <!-- Selección del Juego -->
-        <div class="game" id="gameSelection" style="display: none;">
-            <h2>🏆 Elige un modo de juego 🏆</h2>
-            <button class="game-mode-btn" data-mode="operaciones">🔢 Operación Rápida</button>
-            <button class="game-mode-btn" data-mode="misterioso">❓ Número Misterioso</button>
-            <button class="game-mode-btn" data-mode="secuencia">📈 Secuencia Numérica</button>
-            <button class="game-mode-btn" data-mode="potenciacion">💪 Potenciación</button>
-            <button class="game-mode-btn" data-mode="combinadas">🧩 Operaciones Combinadas</button>
         </div>
 
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <!-- Ranking en vivo (para multijugador) -->
+        <!-- Ranking en vivo -->
         <div class="live-ranking" id="liveRanking">
             <h3>🏆 Ranking Live</h3>
             <ol id="rankingLiveList"></ol>
-        </div>
-
-        <div class="container">
-            <!-- Equipo 1 -->
-            <div id="team1" class="team" style="display: none;">
-                <div class="turn-indicator" id="turn1">Tu turno!</div>
-                <h2 id="team1Title">Equipo Azul 🔵</h2>
-                <p class="score">Puntos: <span id="puntos1">0</span> 💎</p>
-                <p id="pregunta1" class="question">Haz clic en un juego para comenzar</p>
-                <div class="input-container">
-                    <input type="text" id="respuesta1" readonly>
-                    <div class="keyboard">
-                        <div class="key" data-number="1">1</div>
-                        <div class="key" data-number="2">2</div>
-                        <div class="key" data-number="3">3</div>
-                        <div class="key" data-number="4">4</div>
-                        <div class="key" data-number="5">5</div>
-                        <div class="key" data-number="6">6</div>
-                        <div class="key" data-number="7">7</div>
-                        <div class="key" data-number="8">8</div>
-                        <div class="key" data-number="9">9</div>
-                        <div class="key" data-action="clear">⌫</div>
-                        <div class="key" data-number="0">0</div>
-                        <div class="key" data-number="-">-</div>
-                    </div>
-                    <button class="submit-btn" id="responder1">Responder 🚀</button>
-                    <p id="resultado1" class="result">Esperando respuesta... 🤔</p>
-                </div>
-                <div class="cpu-thinking" id="cpuThinking" style="display: none;">CPU pensando...</div>
-            </div>
-
-            <!-- Equipo 2 -->
-            <div id="team2" class="team" style="display: none;">
-                <div class="turn-indicator" id="turn2">Tu turno!</div>
-                <h2 id="team2Title">Equipo Rojo 🔴</h2>
-                <p class="score">Puntos: <span id="puntos2">0</span> 💎</p>
-                <p id="pregunta2" class="question">Haz clic en un juego para comenzar</p>
-                <div class="input-container">
-                    <input type="text" id="respuesta2" readonly>
-                    <div class="keyboard">
-                        <div class="key" data-number="1">1</div>
-                        <div class="key" data-number="2">2</div>
-                        <div class="key" data-number="3">3</div>
-                        <div class="key" data-number="4">4</div>
-                        <div class="key" data-number="5">5</div>
-                        <div class="key" data-number="6">6</div>
-                        <div class="key" data-number="7">7</div>
-                        <div class="key" data-number="8">8</div>
-                        <div class="key" data-number="9">9</div>
-                        <div class="key" data-action="clear">⌫</div>
-                        <div class="key" data-number="0">0</div>
-                        <div class="key" data-number="-">-</div>
-                    </div>
-                    <button class="submit-btn" id="responder2">Responder 🚀</button>
-                    <p id="resultado2" class="result">Esperando respuesta... 🤔</p>
-                </div>
-            </div>
         </div>
 
         <div class="controls">
@@ -925,14 +693,6 @@
         </div>
 
         <p id="mensajeVictoria" class="victory"></p>
-
-        <!-- Ranking de equipos -->
-        <div class="ranking" id="rankingSection" style="display: none;">
-            <h2>🏆 Ranking de Equipos 🏆</h2>
-            <div class="ranking-list" id="rankingList">
-                <!-- Aquí se generará el ranking dinámicamente -->
-            </div>
-        </div>
     </div>
 
     <!-- Audio elements -->
@@ -946,25 +706,25 @@
         class GameManager {
             constructor() {
                 // Configuración inicial
-                this.teams = [
-                    { id: 1, name: "Equipo Azul", color: "#4e8cff", points: 0, members: [] },
-                    { id: 2, name: "Equipo Rojo", color: "#ff6b6b", points: 0, members: [] }
-                ];
-                this.currentTurn = 0;
+                this.player = {
+                    id: null,
+                    name: "",
+                    grade: "",
+                    displayName: "",
+                    points: 0,
+                    hasAnswered: false
+                };
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.gameMode = null;
-                this.isCpuEnabled = false;
                 this.timeLeft = 30;
                 this.timerDuration = 30;
                 this.timerInterval = null;
                 this.soundEnabled = true;
-                this.ranking = [];
                 
                 // Multijugador
                 this.isMultiplayer = false;
                 this.isHost = false;
-                this.playerId = null;
                 this.gamePin = '';
                 this.players = [];
                 this.playerVotes = {};
@@ -988,88 +748,39 @@
                 const pin = params.get('pin');
                 
                 if (pin) {
-                    // Jugador uniéndose
                     document.getElementById('gamePin').value = pin;
                     document.getElementById('modeSelection').style.display = 'none';
                     document.getElementById('joinScreen').style.display = 'flex';
-                    document.getElementById('playerName').focus();
+                    document.getElementById('gamePin').focus();
                 } else {
-                    // Mostrar selección de modo
                     document.getElementById('modeSelection').style.display = 'flex';
                 }
             }
 
-            cargarConfiguracion() {
-                const savedConfig = localStorage.getItem('mathChallengeConfig');
-                if (savedConfig) {
-                    const config = JSON.parse(savedConfig);
-                    document.getElementById('team1Name').value = config.team1Name || "Equipo Azul";
-                    document.getElementById('team2Name').value = config.team2Name || "Equipo Rojo";
-                    document.getElementById('team1Members').value = config.team1Members || "Jugador 1, Jugador 2";
-                    document.getElementById('team2Members').value = config.team2Members || "Jugador 3, Jugador 4";
-                    
-                    this.teams[0].name = config.team1Name || "Equipo Azul";
-                    this.teams[1].name = config.team2Name || "Equipo Rojo";
-                    this.teams[0].members = (config.team1Members || "Jugador 1, Jugador 2").split(',').map(m => m.trim());
-                    this.teams[1].members = (config.team2Members || "Jugador 3, Jugador 4").split(',').map(m => m.trim());
-                }
-                
-                const savedRanking = localStorage.getItem('mathChallengeRanking');
-                if (savedRanking) {
-                    this.ranking = JSON.parse(savedRanking);
-                    this.actualizarRanking();
-                }
-            }
-
-            guardarConfiguracion() {
-                this.playSound('clickSound');
-                
-                this.teams[0].name = document.getElementById('team1Name').value || "Equipo Azul";
-                this.teams[1].name = document.getElementById('team2Name').value || "Equipo Rojo";
-                this.teams[0].members = (document.getElementById('team1Members').value || "Jugador 1, Jugador 2").split(',').map(m => m.trim());
-                this.teams[1].members = (document.getElementById('team2Members').value || "Jugador 3, Jugador 4").split(',').map(m => m.trim());
-                
-                // Actualizar UI
-                document.getElementById('team1Title').textContent = this.teams[0].name + " 🔵";
-                document.getElementById('team2Title').textContent = this.teams[1].name + " 🔴";
-                
-                // Guardar en localStorage
-                const config = {
-                    team1Name: this.teams[0].name,
-                    team2Name: this.teams[1].name,
-                    team1Members: this.teams[0].members.join(', '),
-                    team2Members: this.teams[1].members.join(', ')
-                };
-                
-                localStorage.setItem('mathChallengeConfig', JSON.stringify(config));
-                
-                // Mostrar sección de juego
-                document.getElementById('teamConfig').style.display = 'none';
-                document.getElementById('gameSelection').style.display = 'block';
-                document.getElementById('team1').style.display = 'block';
-                document.getElementById('team2').style.display = 'block';
-                document.getElementById('rankingSection').style.display = 'block';
-            }
-
             iniciarJuego(mode) {
-                this.playSound('startSound');
-                this.gameMode = mode;
-                this.questions = this.generarPreguntas(mode, 7);
-                this.currentQuestionIndex = 0;
-                this.resetScores();
-                this.nextTurn();
-                this.startTimer();
-                
-                if (this.isCpuEnabled) {
-                    document.getElementById('cpuThinking').style.display = 'block';
-                }
-                
-                document.getElementById('reiniciarBtn').disabled = false;
-                document.getElementById('gameSelection').style.display = 'none';
-                
-                if (this.isMultiplayer) {
-                    document.body.classList.add('multiplayer-mode');
-                    document.getElementById('liveRanking').style.display = 'block';
+                try {
+                    this.playSound('startSound');
+                    this.gameMode = mode;
+                    this.questions = this.generarPreguntas(mode, 7);
+                    this.currentQuestionIndex = 0;
+                    this.player.points = 0;
+                    this.updatePlayerScore();
+                    this.answerSubmitted = false;
+                    document.getElementById('submitAnswer').disabled = false;
+                    this.displayQuestion();
+                    this.startTimer();
+                    
+                    document.getElementById('reiniciarBtn').disabled = false;
+                    
+                    if (this.isMultiplayer) {
+                        document.getElementById('playerInfo').style.display = 'block';
+                        document.getElementById('currentPlayerName').textContent = this.player.displayName;
+                        document.getElementById('currentPlayerPoints').textContent = this.player.points;
+                        document.getElementById('liveRanking').style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error("Error al iniciar juego:", error);
+                    this.showError("Ocurrió un error al iniciar el juego");
                 }
             }
 
@@ -1098,7 +809,6 @@
                             respuesta = num1 * num2;
                             break;
                         case '/':
-                            // Aseguramos división exacta
                             respuesta = Math.floor(Math.random() * 5) + 1;
                             const num2 = Math.floor(Math.random() * 3) + 1;
                             const num1 = respuesta * num2;
@@ -1129,11 +839,11 @@
                 
                 const generarSecuencia = () => {
                     const patrones = [
-                        { inicio: 2, paso: 2 }, // Pares
-                        { inicio: 1, paso: 2 }, // Impares
-                        { inicio: 5, paso: 5 }, // Múltiplos de 5
-                        { inicio: 3, paso: 3 }, // Múltiplos de 3
-                        { inicio: 10, paso: -1 } // Regresiva
+                        { inicio: 2, paso: 2 },
+                        { inicio: 1, paso: 2 },
+                        { inicio: 5, paso: 5 },
+                        { inicio: 3, paso: 3 },
+                        { inicio: 10, paso: -1 }
                     ];
                     
                     const patron = patrones[Math.floor(Math.random() * patrones.length)];
@@ -1178,7 +888,6 @@
                     return operaciones[Math.floor(Math.random() * operaciones.length)];
                 };
                 
-                // Seleccionar generador según el modo
                 let generador;
                 switch(mode) {
                     case 'operaciones': generador = generarOperacion; break;
@@ -1189,7 +898,6 @@
                     default: generador = generarOperacion;
                 }
                 
-                // Generar las preguntas
                 for (let i = 0; i < count; i++) {
                     preguntas.push(generador());
                 }
@@ -1197,200 +905,183 @@
                 return preguntas;
             }
 
-            nextTurn() {
-                this.currentTurn = (this.currentTurn + 1) % this.teams.length;
-                this.updateTurnUI();
-                this.displayQuestion();
-                
-                // Si es turno de la CPU y está habilitada
-                if (this.isCpuEnabled && this.currentTurn === 1) {
-                    this.cpuAnswer();
-                }
-            }
-
-            cpuAnswer() {
-                const thinkingTime = Math.random() * 3000 + 1000; // 1-4 segundos
-                const isCorrect = Math.random() > 0.3; // 70% de aciertos
-                
-                setTimeout(() => {
-                    const currentQuestion = this.questions[this.currentQuestionIndex];
-                    const answer = isCorrect ? 
-                        currentQuestion.respuesta : 
-                        Math.floor(Math.random() * 20) + 1;
-                    
-                    document.getElementById(`respuesta${this.currentTurn + 1}`).value = answer;
-                    this.checkAnswer(answer.toString(), true);
-                }, thinkingTime);
-            }
-
             displayQuestion() {
-                if (this.currentQuestionIndex < this.questions.length) {
-                    const currentQuestion = this.questions[this.currentQuestionIndex];
-                    document.getElementById("pregunta1").textContent = currentQuestion.pregunta;
-                    document.getElementById("pregunta2").textContent = currentQuestion.pregunta;
-                    document.getElementById("respuesta1").value = "";
-                    document.getElementById("respuesta2").value = "";
-                    document.getElementById("resultado1").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("resultado1").className = "result";
-                    document.getElementById("resultado2").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("resultado2").className = "result";
-                    
-                    // Actualizar barra de progreso
-                    const progreso = (this.currentQuestionIndex / this.questions.length) * 100;
-                    document.getElementById("progressBar").style.width = `${progreso}%`;
-                } else {
-                    this.endGame();
-                }
-            }
-
-            checkAnswer(userAnswer, isCpu = false) {
-                if (this.isMultiplayer) {
-                    const currentPlayer = this.teams[this.currentTurn];
-                    const currentQuestion = this.questions[this.currentQuestionIndex];
-                    
-                    const isCorrect = parseFloat(userAnswer) === currentQuestion.respuesta;
-                    
-                    if (isCorrect) {
-                        const pointsEarned = 1 + Math.floor(this.timeLeft / 5);
-                        currentPlayer.points += pointsEarned;
-                        this.updateLiveRanking();
-                        this.playSound('correctSound');
-                        this.createConfetti(currentPlayer.id);
-                    } else {
-                        this.playSound('wrongSound');
-                    }
-                    
-                    // Enviar resultado al servidor
-                    if (this.socket) {
-                        this.socket.send(JSON.stringify({
-                            type: 'answer_result',
-                            playerId: currentPlayer.id,
-                            isCorrect: isCorrect,
-                            points: currentPlayer.points
-                        }));
-                    }
-                    
-                    // Avanzar a siguiente pregunta
-                    this.currentQuestionIndex++;
+                try {
                     if (this.currentQuestionIndex < this.questions.length) {
-                        setTimeout(() => {
-                            this.nextTurn();
-                            this.resetTimer();
-                        }, 2000);
+                        const currentQuestion = this.questions[this.currentQuestionIndex];
+                        document.getElementById("currentQuestion").textContent = currentQuestion.pregunta;
+                        document.getElementById("playerAnswer").value = "";
+                        document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                        document.getElementById("answerResult").className = "result";
+                        this.player.hasAnswered = false;
+                        document.getElementById('submitAnswer').disabled = false;
+                        
+                        const progreso = (this.currentQuestionIndex / this.questions.length) * 100;
+                        document.getElementById("progressBar").style.width = `${progreso}%`;
                     } else {
                         this.endGame();
                     }
-                } else {
-                    // Lógica original para modo local
-                    const currentTeam = this.teams[this.currentTurn];
-                    const currentQuestion = this.questions[this.currentQuestionIndex];
-                    
-                    // Validación mejorada
-                    const userAnswerParsed = parseFloat(userAnswer.trim());
-                    if (isNaN(userAnswerParsed)) {
-                        this.showResult(currentTeam, "¡Solo números!", false);
+                } catch (error) {
+                    console.error("Error al mostrar pregunta:", error);
+                    this.showError("Error al cargar la pregunta");
+                }
+            }
+
+            checkAnswer(userAnswer) {
+                try {
+                    if (this.player.hasAnswered) {
+                        console.log("Ya respondiste esta pregunta");
                         return;
                     }
-                    
+
+                    if (!userAnswer || userAnswer.trim() === "") {
+                        this.showResult("¡Escribe una respuesta!", false);
+                        return;
+                    }
+
+                    const userAnswerParsed = parseFloat(userAnswer.trim());
+                    if (isNaN(userAnswerParsed)) {
+                        this.showResult("¡Solo números!", false);
+                        return;
+                    }
+
+                    this.player.hasAnswered = true;
+                    document.getElementById('submitAnswer').disabled = true;
+
+                    const currentQuestion = this.questions[this.currentQuestionIndex];
                     const isCorrect = userAnswerParsed === currentQuestion.respuesta;
-                    const timeBonus = Math.floor(this.timeLeft / 5); // Bonus por tiempo rápido
+                    const timeBonus = Math.floor(this.timeLeft / 5);
                     
                     if (isCorrect) {
                         const pointsEarned = 1 + timeBonus;
-                        currentTeam.points += pointsEarned;
-                        this.updateTeamPoints(currentTeam.id);
-                        this.showResult(currentTeam, `✅ Correcto! +${pointsEarned} puntos`, true);
+                        this.player.points += pointsEarned;
+                        this.updatePlayerScore();
+                        this.showResult(`✅ Correcto! +${pointsEarned} puntos`, true);
                         
-                        // Efectos especiales
-                        if (!isCpu) this.playSound('correctSound');
-                        this.createConfetti(currentTeam.id);
+                        this.playSound('correctSound');
+                        this.createConfetti();
+                        
+                        if (this.isMultiplayer && this.socket) {
+                            this.socket.send(JSON.stringify({
+                                type: 'player_score',
+                                playerId: this.player.id,
+                                points: this.player.points,
+                                displayName: this.player.displayName
+                            }));
+                        }
                     } else {
-                        this.showResult(currentTeam, `❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
-                        if (!isCpu) this.playSound('wrongSound');
+                        this.showResult(`❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
+                        this.playSound('wrongSound');
                     }
                     
-                    // Avanzar a siguiente pregunta o finalizar
+                    if (!this.isMultiplayer) {
+                        this.moveToNextQuestion();
+                    }
+                } catch (error) {
+                    console.error("Error al verificar respuesta:", error);
+                    this.showError("Error al verificar respuesta");
+                }
+            }
+
+            moveToNextQuestion() {
+                try {
                     this.currentQuestionIndex++;
+                    this.player.hasAnswered = false;
+                    document.getElementById('submitAnswer').disabled = false;
+                    
                     if (this.currentQuestionIndex < this.questions.length) {
                         setTimeout(() => {
-                            this.nextTurn();
+                            this.displayQuestion();
                             this.resetTimer();
                         }, 2000);
                     } else {
                         this.endGame();
                     }
+                } catch (error) {
+                    console.error("Error al avanzar pregunta:", error);
+                    this.showError("Error al avanzar a la siguiente pregunta");
                 }
             }
 
             endGame() {
-                clearInterval(this.timerInterval);
-                const winner = this.determineWinner();
-                this.saveToRanking();
-                this.showWinner(winner);
-                document.getElementById('cpuThinking').style.display = 'none';
-                
-                if (this.isMultiplayer && this.isHost) {
-                    // Enviar resultados finales a todos los jugadores
-                    this.socket.send(JSON.stringify({
-                        type: 'game_over',
-                        finalRanking: this.playerRanking
-                    }));
+                try {
+                    clearInterval(this.timerInterval);
+                    this.showWinner();
+                    
+                    if (this.isMultiplayer && this.isHost) {
+                        this.socket.send(JSON.stringify({
+                            type: 'game_over',
+                            finalRanking: this.playerRanking
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Error al finalizar juego:", error);
+                    this.showError("Error al finalizar el juego");
                 }
             }
 
-            determineWinner() {
-                const team1 = this.teams[0];
-                const team2 = this.teams[1];
-                
-                if (team1.points > team2.points) {
-                    return team1;
-                } else if (team2.points > team1.points) {
-                    return team2;
-                } else {
-                    return null; // Empate
+            showWinner() {
+                try {
+                    let mensaje = "";
+                    
+                    if (this.isMultiplayer) {
+                        const playerPosition = this.playerRanking.findIndex(p => p.id === this.player.id) + 1;
+                        mensaje = `¡Terminaste en posición ${playerPosition} con ${this.player.points} puntos!`;
+                        
+                        if (playerPosition === 1) {
+                            mensaje = `¡Ganaste! 🏆 (${this.player.points} puntos)`;
+                            this.playSound('winSound');
+                        }
+                    } else {
+                        mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
+                        if (this.player.points > 0) {
+                            this.playSound('winSound');
+                        }
+                    }
+                    
+                    document.getElementById("mensajeVictoria").innerHTML = mensaje;
+                } catch (error) {
+                    console.error("Error al mostrar ganador:", error);
+                    this.showError("Error al determinar el ganador");
                 }
-            }
-
-            showWinner(winner) {
-                let mensaje = "";
-                
-                if (winner) {
-                    mensaje = `¡${winner.name} ha ganado! 🏆 (${this.teams[0].points} - ${this.teams[1].points})`;
-                    document.getElementById(`team${winner.id}`).style.backgroundColor = "#e6f7e6";
-                    this.createCelebration(winner.id);
-                    this.playSound('winSound');
-                } else {
-                    mensaje = `¡Empate! 🤝 (${this.teams[0].points} - ${this.teams[1].points})`;
-                }
-                
-                document.getElementById("mensajeVictoria").innerHTML = mensaje;
             }
 
             startTimer() {
-                this.timeLeft = this.timerDuration;
-                this.updateTimerUI();
-                
-                this.timerInterval = setInterval(() => {
-                    this.timeLeft--;
+                try {
+                    this.timeLeft = this.timerDuration;
                     this.updateTimerUI();
                     
-                    if (this.timeLeft <= 0) {
-                        clearInterval(this.timerInterval);
-                        this.skipQuestion();
-                    }
-                }, 1000);
+                    this.timerInterval = setInterval(() => {
+                        this.timeLeft--;
+                        this.updateTimerUI();
+                        
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timerInterval);
+                            if (this.isMultiplayer) {
+                                if (this.socket) {
+                                    this.socket.send(JSON.stringify({
+                                        type: 'next_question'
+                                    }));
+                                }
+                                this.moveToNextQuestion();
+                            } else {
+                                this.skipQuestion();
+                            }
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error("Error en el temporizador:", error);
+                    this.showError("Error en el temporizador");
+                }
             }
 
             updateTimerUI() {
-                // Actualizar texto
                 this.timerText.textContent = this.timeLeft;
                 
-                // Actualizar círculo (animación SVG)
-                const circumference = 251; // 2 * π * r (r=40)
+                const circumference = 251;
                 const offset = circumference - (this.timeLeft / this.timerDuration) * circumference;
                 this.timerCircle.style.strokeDashoffset = offset;
                 
-                // Cambiar color cuando queda poco tiempo
                 if (this.timeLeft <= 5) {
                     this.timerCircle.classList.add('timer-warning');
                     this.timerText.classList.add('timer-warning');
@@ -1408,169 +1099,104 @@
             skipQuestion() {
                 this.currentQuestionIndex++;
                 if (this.currentQuestionIndex < this.questions.length) {
-                    this.nextTurn();
+                    this.displayQuestion();
                 } else {
                     this.endGame();
                 }
             }
 
-            updateTeamPoints(teamId) {
-                document.getElementById(`puntos${teamId}`).textContent = this.teams[teamId - 1].points;
-            }
-
-            updateTurnUI() {
-                // Resaltar equipo actual
-                document.getElementById('team1').classList.remove('team-active');
-                document.getElementById('team2').classList.remove('team-active');
-                document.getElementById(`team${this.currentTurn + 1}`).classList.add('team-active');
-                
-                // Mostrar indicador de turno
-                document.getElementById('turn1').style.display = 'none';
-                document.getElementById('turn2').style.display = 'none';
-                document.getElementById(`turn${this.currentTurn + 1}`).style.display = 'block';
-            }
-
-            resetScores() {
-                this.teams[0].points = 0;
-                this.teams[1].points = 0;
-                this.updateTeamPoints(1);
-                this.updateTeamPoints(2);
-            }
-
-            saveToRanking() {
-                const winner = this.determineWinner();
-                if (!winner) return;
-                
-                const record = {
-                    teamName: winner.name,
-                    points: winner.points,
-                    date: new Date().toISOString(),
-                    gameMode: this.gameMode
-                };
-                
-                this.ranking.push(record);
-                localStorage.setItem('mathChallengeRanking', JSON.stringify(this.ranking));
-                this.actualizarRanking();
-            }
-
-            actualizarRanking() {
-                const rankingList = document.getElementById('rankingList');
-                rankingList.innerHTML = '';
-                
-                if (this.ranking.length === 0) {
-                    rankingList.innerHTML = '<p>No hay equipos en el ranking todavía.</p>';
-                    return;
+            updatePlayerScore() {
+                document.getElementById('playerScore').textContent = this.player.points;
+                if (this.isMultiplayer) {
+                    document.getElementById('currentPlayerPoints').textContent = this.player.points;
                 }
-                
-                // Ordenar por puntos (mayor a menor)
-                const sortedRanking = [...this.ranking].sort((a, b) => b.points - a.points);
-                
-                // Mostrar top 5
-                const topRanking = sortedRanking.slice(0, 5);
-                
-                topRanking.forEach((team, index) => {
-                    const teamElement = document.createElement('div');
-                    teamElement.className = 'ranking-item';
-                    
-                    const nameElement = document.createElement('span');
-                    nameElement.textContent = `${index + 1}. ${team.teamName}`;
-                    
-                    const pointsElement = document.createElement('span');
-                    pointsElement.textContent = `${team.points} puntos`;
-                    
-                    teamElement.appendChild(nameElement);
-                    teamElement.appendChild(pointsElement);
-                    rankingList.appendChild(teamElement);
-                });
             }
 
-            showResult(team, message, isCorrect) {
-                const resultElement = document.getElementById(`resultado${team.id}`);
+            showResult(message, isCorrect) {
+                const resultElement = document.getElementById("answerResult");
                 resultElement.textContent = message;
                 resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
             }
 
-            createConfetti(teamId) {
-                const teamElement = document.getElementById(`team${teamId}`);
-                for (let i = 0; i < 50; i++) {
-                    const confetti = document.createElement("div");
-                    confetti.className = "confetti";
-                    confetti.style.left = `${Math.random() * 100}%`;
-                    confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-                    confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
-                    teamElement.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 5000);
-                }
+            showError(message) {
+                const errorElement = document.getElementById("answerResult");
+                errorElement.textContent = message;
+                errorElement.className = "result incorrect";
             }
 
-            createCelebration(teamId) {
-                const teamElement = document.getElementById(`team${teamId}`);
-                const emojis = ["🎉", "🎊", "🏆", "✨", "👏", "👍", "🎈"];
-                
-                for (let i = 0; i < 10; i++) {
-                    const emoji = document.createElement("div");
-                    emoji.className = "emoji-celebration";
-                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    emoji.style.left = `${Math.random() * 80 + 10}%`;
-                    emoji.style.animationDelay = `${i * 0.3}s`;
-                    teamElement.appendChild(emoji);
-                    setTimeout(() => emoji.remove(), 3000);
+            createConfetti() {
+                try {
+                    const gameElement = document.querySelector('.game');
+                    for (let i = 0; i < 50; i++) {
+                        const confetti = document.createElement("div");
+                        confetti.className = "confetti";
+                        confetti.style.left = `${Math.random() * 100}%`;
+                        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                        gameElement.appendChild(confetti);
+                        setTimeout(() => confetti.remove(), 5000);
+                    }
+                } catch (error) {
+                    console.error("Error al crear confeti:", error);
                 }
             }
 
             reiniciarJuego() {
-                this.playSound('clickSound');
-                clearInterval(this.timerInterval);
-                
-                this.resetScores();
-                this.currentQuestionIndex = 0;
-                
-                document.getElementById("pregunta1").textContent = "Haz clic en un juego para comenzar";
-                document.getElementById("pregunta2").textContent = "Haz clic en un juego para comenzar";
-                document.getElementById("respuesta1").value = "";
-                document.getElementById("respuesta2").value = "";
-                document.getElementById("resultado1").textContent = "Esperando respuesta... 🤔";
-                document.getElementById("resultado1").className = "result";
-                document.getElementById("resultado2").textContent = "Esperando respuesta... 🤔";
-                document.getElementById("resultado2").className = "result";
-                document.getElementById("mensajeVictoria").innerHTML = "";
-                document.getElementById("team1").style.backgroundColor = "var(--panel)";
-                document.getElementById("team2").style.backgroundColor = "var(--panel)";
-                document.getElementById("progressBar").style.width = "0%";
-                document.getElementById('cpuThinking').style.display = 'none';
-                
-                if (this.isMultiplayer) {
-                    document.body.classList.remove('multiplayer-mode');
-                    document.getElementById('liveRanking').style.display = 'none';
-                    this.multiplayerLobby();
-                } else {
-                    // Mostrar selección de juego
-                    document.getElementById('gameSelection').style.display = 'block';
-                }
-            }
-
-            addNumber(teamId, num) {
-                if (this.currentQuestionIndex < this.questions.length) {
+                try {
                     this.playSound('clickSound');
-                    document.getElementById(`respuesta${teamId}`).value += num;
+                    clearInterval(this.timerInterval);
+                    
+                    this.player.points = 0;
+                    this.updatePlayerScore();
+                    this.currentQuestionIndex = 0;
+                    this.player.hasAnswered = false;
+                    
+                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result";
+                    document.getElementById("mensajeVictoria").innerHTML = "";
+                    document.getElementById("progressBar").style.width = "0%";
+                    document.getElementById('submitAnswer').disabled = false;
+                    
+                    if (this.isMultiplayer) {
+                        this.multiplayerLobby();
+                    } else {
+                        document.getElementById('gameContainer').style.display = 'none';
+                        document.getElementById('modeSelection').style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.error("Error al reiniciar juego:", error);
+                    this.showError("Error al reiniciar el juego");
                 }
             }
 
-            clearNumber(teamId) {
-                this.playSound('clickSound');
-                document.getElementById(`respuesta${teamId}`).value = "";
+            addNumber(num) {
+                if (this.currentQuestionIndex < this.questions.length && !this.player.hasAnswered) {
+                    this.playSound('clickSound');
+                    document.getElementById('playerAnswer').value += num;
+                }
             }
 
-            verificarRespuesta(teamId) {
-                const respuesta = document.getElementById(`respuesta${teamId}`).value;
+            clearNumber() {
+                this.playSound('clickSound');
+                document.getElementById('playerAnswer').value = "";
+            }
+
+            submitAnswer() {
+                const respuesta = document.getElementById('playerAnswer').value;
                 this.checkAnswer(respuesta);
             }
 
             playSound(soundId) {
                 if (!this.soundEnabled) return;
-                const sound = document.getElementById(soundId);
-                sound.currentTime = 0;
-                sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                try {
+                    const sound = document.getElementById(soundId);
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                } catch (error) {
+                    console.error("Error con el sonido:", error);
+                }
             }
 
             /* --------------------------
@@ -1582,55 +1208,96 @@
                 document.getElementById('modeSelection').style.display = 'none';
                 
                 if (isHost) {
-                    // Generar PIN aleatorio
                     this.gamePin = Math.floor(1000 + Math.random() * 9000);
                     document.getElementById('lobbyPin').textContent = this.gamePin;
                     document.getElementById('adminControls').style.display = 'block';
                     
-                    // El host es el primer jugador
-                    this.playerId = Math.random().toString(36).substr(2, 9);
-                    this.players.push({
-                        id: this.playerId,
-                        name: "Host",
-                        points: 0
-                    });
-                    
-                    this.multiplayerLobby();
+                    this.showRegistrationForm();
                 } else {
-                    // Jugador normal - mostrar pantalla de unión
                     document.getElementById('joinScreen').style.display = 'flex';
                 }
             }
 
+            showRegistrationForm() {
+                document.getElementById('joinScreen').style.display = 'none';
+                document.getElementById('registrationScreen').style.display = 'flex';
+                document.getElementById('registerError').textContent = "";
+            }
+
+            registerPlayer() {
+                try {
+                    const fullName = document.getElementById('fullName').value.trim();
+                    const grade = document.getElementById('grade').value.trim();
+                    
+                    if (!fullName || !grade) {
+                        document.getElementById('registerError').textContent = 'Por favor completa todos los campos';
+                        return;
+                    }
+                    
+                    if (fullName.length < 3 || grade.length < 3) {
+                        document.getElementById('registerError').textContent = 'Nombre y grado deben tener al menos 3 caracteres';
+                        return;
+                    }
+                    
+                    this.player = {
+                        id: Math.random().toString(36).substr(2, 9),
+                        name: fullName,
+                        grade: grade,
+                        points: 0,
+                        displayName: `${fullName} (${grade})`,
+                        hasAnswered: false
+                    };
+                    
+                    if (this.isHost) {
+                        this.players.push({
+                            id: this.player.id,
+                            name: this.player.displayName,
+                            points: 0
+                        });
+                        this.multiplayerLobby();
+                    } else {
+                        this.connectToServer();
+                    }
+                } catch (error) {
+                    console.error("Error al registrar jugador:", error);
+                    document.getElementById('registerError').textContent = 'Error al registrar jugador';
+                }
+            }
+
             multiplayerLobby() {
+                document.getElementById('registrationScreen').style.display = 'none';
                 document.getElementById('multiplayerLobby').style.display = 'flex';
                 this.updatePlayerList();
             }
 
             updatePlayerList() {
-                const playerList = document.getElementById('multiplayerPlayerList');
-                playerList.innerHTML = '';
-                
-                this.players.forEach(player => {
-                    const playerElement = document.createElement('div');
-                    playerElement.className = 'player-badge';
-                    playerElement.textContent = player.name;
-                    playerList.appendChild(playerElement);
-                });
-                
-                document.getElementById('playerCount').textContent = this.players.length;
+                try {
+                    const playerList = document.getElementById('multiplayerPlayerList');
+                    playerList.innerHTML = '';
+                    
+                    this.players.forEach(player => {
+                        const playerElement = document.createElement('div');
+                        playerElement.className = 'player-badge';
+                        playerElement.textContent = player.name;
+                        playerList.appendChild(playerElement);
+                    });
+                    
+                    document.getElementById('playerCount').textContent = this.players.length;
+                } catch (error) {
+                    console.error("Error al actualizar lista de jugadores:", error);
+                }
             }
 
             castVote(mode) {
                 if (!this.isMultiplayer || !this.socket) return;
                 
-                this.playerVotes[this.playerId] = mode;
+                this.playerVotes[this.player.id] = mode;
                 this.updateVoteResults();
                 
                 this.socket.send(JSON.stringify({
                     type: 'vote',
                     mode: mode,
-                    playerId: this.playerId
+                    playerId: this.player.id
                 }));
             }
 
@@ -1640,33 +1307,36 @@
             }
 
             updateVoteResults() {
-                const voteCounts = {
-                    operaciones: 0,
-                    misterioso: 0,
-                    secuencia: 0,
-                    potenciacion: 0,
-                    combinadas: 0
-                };
-                
-                Object.values(this.playerVotes).forEach(mode => {
-                    if (mode && voteCounts[mode] !== undefined) {
-                        voteCounts[mode]++;
+                try {
+                    const voteCounts = {
+                        operaciones: 0,
+                        misterioso: 0,
+                        secuencia: 0,
+                        potenciacion: 0,
+                        combinadas: 0
+                    };
+                    
+                    Object.values(this.playerVotes).forEach(mode => {
+                        if (mode && voteCounts[mode] !== undefined) {
+                            voteCounts[mode]++;
+                        }
+                    });
+                    
+                    const resultsElement = document.getElementById('voteResults');
+                    resultsElement.innerHTML = '';
+                    
+                    for (const [mode, count] of Object.entries(voteCounts)) {
+                        const modeElement = document.createElement('div');
+                        modeElement.textContent = `${this.getModeName(mode)}: ${count} votos`;
+                        resultsElement.appendChild(modeElement);
                     }
-                });
-                
-                const resultsElement = document.getElementById('voteResults');
-                resultsElement.innerHTML = '';
-                
-                for (const [mode, count] of Object.entries(voteCounts)) {
-                    const modeElement = document.createElement('div');
-                    modeElement.textContent = `${this.getModeName(mode)}: ${count} votos`;
-                    resultsElement.appendChild(modeElement);
+                    
+                    this.selectedGameMode = Object.entries(voteCounts).reduce(
+                        (a, b) => a[1] > b[1] ? a : b
+                    )[0];
+                } catch (error) {
+                    console.error("Error al actualizar votos:", error);
                 }
-                
-                // Determinar el modo con más votos
-                this.selectedGameMode = Object.entries(voteCounts).reduce(
-                    (a, b) => a[1] > b[1] ? a : b
-                )[0];
             }
 
             getModeName(mode) {
@@ -1681,184 +1351,233 @@
             }
 
             startMultiplayerGame() {
-                if (!this.isHost) return;
-                
-                document.getElementById('multiplayerLobby').style.display = 'none';
-                document.getElementById('gameContainer').style.display = 'block';
-                document.getElementById('liveRanking').style.display = 'block';
-                document.body.classList.add('multiplayer-mode');
-                
-                // Configurar equipos como jugadores individuales
-                this.teams = this.players.map(player => ({
-                    id: player.id,
-                    name: player.name,
-                    points: 0,
-                    members: [player.name]
-                }));
-                
-                this.iniciarJuego(this.selectedGameMode);
-                this.updateLiveRanking();
-                
-                // Enviar señal de inicio a todos los jugadores
-                this.socket.send(JSON.stringify({
-                    type: 'start_game',
-                    questions: this.questions,
-                    gameMode: this.selectedGameMode
-                }));
+                try {
+                    if (!this.isHost) return;
+                    
+                    if (this.players.length < 2) {
+                        document.getElementById('startError').textContent = "Se necesitan al menos 2 jugadores";
+                        return;
+                    }
+                    
+                    if (!this.selectedGameMode) {
+                        document.getElementById('startError').textContent = "Selecciona un modo de juego";
+                        return;
+                    }
+                    
+                    document.getElementById('startError').textContent = "";
+                    document.getElementById('multiplayerLobby').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'block';
+                    document.getElementById('liveRanking').style.display = 'block';
+                    document.getElementById('playerInfo').style.display = 'block';
+                    
+                    this.iniciarJuego(this.selectedGameMode);
+                    this.updateLiveRanking();
+                    
+                    this.socket.send(JSON.stringify({
+                        type: 'start_game',
+                        questions: this.questions,
+                        gameMode: this.selectedGameMode
+                    }));
+                } catch (error) {
+                    console.error("Error al iniciar juego multijugador:", error);
+                    document.getElementById('startError').textContent = "Error al iniciar el juego";
+                }
             }
 
             updateLiveRanking() {
-                this.playerRanking = [...this.teams].sort((a, b) => b.points - a.points);
-                
-                const rankingList = document.getElementById('rankingLiveList');
-                rankingList.innerHTML = '';
-                
-                this.playerRanking.forEach((player, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${index + 1}. ${player.name}</span>
-                        <span>${player.points} pts</span>
-                    `;
-                    rankingList.appendChild(li);
-                });
-                
-                // Enviar actualización a todos los jugadores
-                if (this.socket) {
-                    this.socket.send(JSON.stringify({
-                        type: 'ranking_update',
-                        ranking: this.playerRanking
-                    }));
+                try {
+                    this.playerRanking = [...this.players].sort((a, b) => b.points - a.points);
+                    
+                    const rankingList = document.getElementById('rankingLiveList');
+                    rankingList.innerHTML = '';
+                    
+                    this.playerRanking.forEach((player, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span>${index + 1}. ${player.name}</span>
+                            <span>${player.points} pts</span>
+                        `;
+                        rankingList.appendChild(li);
+                    });
+                    
+                    if (this.socket) {
+                        this.socket.send(JSON.stringify({
+                            type: 'ranking_update',
+                            ranking: this.playerRanking
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Error al actualizar ranking:", error);
                 }
             }
 
             connectToServer() {
-                this.socket = new WebSocket('wss://pollen-fortunate-kangaroo.glitch.me');
-                
-                this.socket.onopen = () => {
-                    if (this.isHost) {
-                        this.socket.send(JSON.stringify({
-                            type: 'create_room',
-                            pin: this.gamePin,
-                            maxPlayers: this.maxPlayers
-                        }));
-                    } else {
-                        const playerName = document.getElementById('playerName').value.trim();
-                        this.playerId = Math.random().toString(36).substr(2, 9);
-                        
+                try {
+                    const gamePin = document.getElementById('gamePin').value.trim();
+                    if (!gamePin) {
+                        document.getElementById('joinError').textContent = 'Ingresa un código PIN válido';
+                        return;
+                    }
+                    
+                    this.socket = new WebSocket('wss://pollen-fortunate-kangaroo.glitch.me');
+                    
+                    this.socket.onerror = (error) => {
+                        this.handleNetworkError(error, "Error de conexión con el servidor");
+                    };
+                    
+                    this.socket.onclose = () => {
+                        if (this.isMultiplayer) {
+                            this.handleNetworkError("Conexión cerrada", "Se perdió la conexión con el servidor");
+                        }
+                    };
+                    
+                    this.socket.onopen = () => {
+                        document.getElementById('joinError').textContent = "";
                         this.socket.send(JSON.stringify({
                             type: 'join_room',
-                            pin: this.gamePin,
+                            pin: gamePin,
                             player: {
-                                id: this.playerId,
-                                name: playerName,
+                                id: this.player.id,
+                                name: this.player.displayName,
                                 points: 0
                             }
                         }));
-                    }
-                };
-                
-                this.socket.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
+                    };
                     
-                    switch(data.type) {
-                        case 'room_created':
-                            console.log('Sala creada con éxito');
-                            break;
-                            
-                        case 'player_joined':
-                            this.players.push(data.player);
-                            this.updatePlayerList();
-                            break;
-                            
-                        case 'player_left':
-                            this.players = this.players.filter(p => p.id !== data.playerId);
-                            this.updatePlayerList();
-                            break;
-                            
-                        case 'vote_received':
-                            this.processVote(data.playerId, data.mode);
-                            break;
-                            
-                        case 'start_game':
-                            this.questions = data.questions;
-                            this.selectedGameMode = data.gameMode;
-                            document.getElementById('multiplayerLobby').style.display = 'none';
-                            document.getElementById('gameContainer').style.display = 'block';
-                            document.getElementById('liveRanking').style.display = 'block';
-                            document.body.classList.add('multiplayer-mode');
-                            
-                            // Configurar como jugador individual
-                            this.teams = [{
-                                id: this.playerId,
-                                name: document.getElementById('playerName').value.trim(),
-                                points: 0,
-                                members: []
-                            }];
-                            
-                            this.iniciarJuego(this.selectedGameMode);
-                            break;
-                            
-                        case 'ranking_update':
-                            this.playerRanking = data.ranking;
-                            this.updateLiveRankingUI();
-                            break;
-                            
-                        case 'game_over':
-                            this.showMultiplayerResults(data.finalRanking);
-                            break;
-                    }
-                };
-                
-                this.socket.onclose = () => {
-                    if (this.isMultiplayer) {
-                        alert('Se perdió la conexión con el servidor');
-                        location.reload();
-                    }
-                };
+                    this.socket.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleSocketMessage(data);
+                        } catch (error) {
+                            console.error("Error al procesar mensaje:", error);
+                        }
+                    };
+                } catch (error) {
+                    this.handleNetworkError(error, "Error al conectar con el servidor");
+                }
+            }
+
+            handleSocketMessage(data) {
+                switch(data.type) {
+                    case 'room_created':
+                        console.log('Sala creada con éxito');
+                        break;
+                        
+                    case 'player_joined':
+                        this.players.push(data.player);
+                        this.updatePlayerList();
+                        break;
+                        
+                    case 'player_left':
+                        this.players = this.players.filter(p => p.id !== data.playerId);
+                        this.updatePlayerList();
+                        break;
+                        
+                    case 'vote_received':
+                        this.processVote(data.playerId, data.mode);
+                        break;
+                        
+                    case 'start_game':
+                        this.questions = data.questions;
+                        this.selectedGameMode = data.gameMode;
+                        document.getElementById('multiplayerLobby').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'block';
+                        document.getElementById('liveRanking').style.display = 'block';
+                        document.getElementById('playerInfo').style.display = 'block';
+                        document.getElementById('currentPlayerName').textContent = this.player.displayName;
+                        document.getElementById('currentPlayerPoints').textContent = this.player.points;
+                        
+                        this.iniciarJuego(this.selectedGameMode);
+                        break;
+                        
+                    case 'ranking_update':
+                        this.playerRanking = data.ranking;
+                        this.updateLiveRankingUI();
+                        break;
+                        
+                    case 'game_over':
+                        this.showMultiplayerResults(data.finalRanking);
+                        break;
+                        
+                    case 'player_score':
+                        const player = this.players.find(p => p.id === data.playerId);
+                        if (player) {
+                            player.points = data.points;
+                            if (data.displayName) {
+                                player.name = data.displayName;
+                            }
+                            this.updateLiveRanking();
+                        }
+                        break;
+                        
+                    case 'next_question':
+                        this.moveToNextQuestion();
+                        break;
+                        
+                    case 'error':
+                        console.error("Error del servidor:", data.message);
+                        this.showError(data.message);
+                        break;
+                }
+            }
+
+            handleNetworkError(error, message = "Error de red") {
+                console.error(message, error);
+                alert(`${message}. Recargando...`);
+                setTimeout(() => location.reload(), 2000);
             }
 
             updateLiveRankingUI() {
-                const rankingList = document.getElementById('rankingLiveList');
-                rankingList.innerHTML = '';
-                
-                this.playerRanking.forEach((player, index) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span>${index + 1}. ${player.name}</span>
-                        <span>${player.points} pts</span>
-                    `;
-                    rankingList.appendChild(li);
-                });
+                try {
+                    const rankingList = document.getElementById('rankingLiveList');
+                    rankingList.innerHTML = '';
+                    
+                    this.playerRanking.forEach((player, index) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span>${index + 1}. ${player.name}</span>
+                            <span>${player.points} pts</span>
+                        `;
+                        rankingList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error("Error al actualizar ranking en UI:", error);
+                }
             }
 
             showMultiplayerResults(finalRanking) {
-                document.getElementById('gameContainer').style.display = 'none';
-                
-                const resultsContainer = document.createElement('div');
-                resultsContainer.className = 'game';
-                resultsContainer.innerHTML = `
-                    <h2>🏆 Resultados Finales 🏆</h2>
-                    <div class="ranking-list" id="finalRankingList"></div>
-                    <button class="reset-btn" id="returnToLobby">Volver al Lobby</button>
-                `;
-                
-                document.body.appendChild(resultsContainer);
-                
-                const rankingList = document.getElementById('finalRankingList');
-                finalRanking.forEach((player, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'ranking-item';
-                    item.innerHTML = `
-                        <span>${index + 1}. ${player.name}</span>
-                        <span>${player.points} puntos</span>
+                try {
+                    document.getElementById('gameContainer').style.display = 'none';
+                    
+                    const resultsContainer = document.createElement('div');
+                    resultsContainer.className = 'game';
+                    resultsContainer.innerHTML = `
+                        <h2>🏆 Resultados Finales 🏆</h2>
+                        <div class="ranking-list" id="finalRankingList"></div>
+                        <button class="reset-btn" id="returnToLobby">Volver al Lobby</button>
                     `;
-                    rankingList.appendChild(item);
-                });
-                
-                document.getElementById('returnToLobby').addEventListener('click', () => {
-                    resultsContainer.remove();
-                    this.multiplayerLobby();
-                });
+                    
+                    document.body.appendChild(resultsContainer);
+                    
+                    const rankingList = document.getElementById('finalRankingList');
+                    finalRanking.forEach((player, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'ranking-item';
+                        item.innerHTML = `
+                            <span>${index + 1}. ${player.name}</span>
+                            <span>${player.points} puntos</span>
+                        `;
+                        rankingList.appendChild(item);
+                    });
+                    
+                    document.getElementById('returnToLobby').addEventListener('click', () => {
+                        resultsContainer.remove();
+                        this.multiplayerLobby();
+                    });
+                } catch (error) {
+                    console.error("Error al mostrar resultados:", error);
+                    this.showError("Error al mostrar resultados");
+                }
             }
 
             setupEventListeners() {
@@ -1874,65 +1593,61 @@
                     this.isMultiplayer = false;
                     document.getElementById('modeSelection').style.display = 'none';
                     document.getElementById('gameContainer').style.display = 'block';
-                    this.cargarConfiguracion();
                 });
                 
                 document.getElementById('onlineMode').addEventListener('click', () => {
                     this.setupMultiplayer(true);
-                    this.connectToServer();
+                    this.showRegistrationForm();
                 });
                 
-                // Modo CPU
-                document.getElementById('cpuToggle').addEventListener('click', () => {
-                    this.isCpuEnabled = !this.isCpuEnabled;
-                    document.getElementById('cpuToggle').textContent = 
-                        this.isCpuEnabled ? 'Modo: 1 Jugador' : 'Modo: 2 Jugadores';
-                    this.playSound('clickSound');
-                });
-                
-                // Guardar configuración
-                document.getElementById('guardarConfig').addEventListener('click', () => this.guardarConfiguracion());
-                
-                // Botones de modo de juego
-                document.querySelectorAll('.game-mode-btn[data-mode]').forEach(btn => {
-                    btn.addEventListener('click', () => this.iniciarJuego(btn.dataset.mode));
-                });
-                
-                // Teclados numéricos
+                // Teclado numérico
                 document.querySelectorAll('.key[data-number]').forEach(key => {
                     key.addEventListener('click', () => {
-                        const teamId = key.closest('.team').id.replace('team', '');
-                        this.addNumber(teamId, key.dataset.number);
+                        this.addNumber(key.dataset.number);
                     });
                 });
                 
-                // Botones de borrado
-                document.querySelectorAll('.key[data-action="clear"]').forEach(key => {
-                    key.addEventListener('click', () => {
-                        const teamId = key.closest('.team').id.replace('team', '');
-                        this.clearNumber(teamId);
-                    });
+                // Botón de borrado
+                document.querySelector('.key[data-action="clear"]').addEventListener('click', () => {
+                    this.clearNumber();
                 });
                 
-                // Botones de respuesta
-                document.getElementById('responder1').addEventListener('click', () => this.verificarRespuesta(1));
-                document.getElementById('responder2').addEventListener('click', () => this.verificarRespuesta(2));
+                // Botón de respuesta
+                document.getElementById('submitAnswer').addEventListener('click', () => this.submitAnswer());
+                
+                // Permitir responder con Enter
+                document.getElementById('playerAnswer').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.submitAnswer();
+                });
                 
                 // Reiniciar juego
                 document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
                 
                 // Multijugador - Unirse al juego
                 document.getElementById('joinGame').addEventListener('click', () => {
-                    const playerName = document.getElementById('playerName').value.trim();
                     const gamePin = document.getElementById('gamePin').value.trim();
                     
-                    if (!playerName || !gamePin) {
-                        document.getElementById('joinError').textContent = 'Por favor ingresa tu nombre y el código PIN';
+                    if (!gamePin) {
+                        document.getElementById('joinError').textContent = 'Por favor ingresa el código PIN';
                         return;
                     }
                     
                     this.setupMultiplayer(false);
-                    this.connectToServer();
+                    this.showRegistrationForm();
+                });
+                
+                // Multijugador - Registro de jugador
+                document.getElementById('registerPlayer').addEventListener('click', () => {
+                    this.registerPlayer();
+                });
+                
+                // Permitir registro con Enter
+                document.getElementById('fullName').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') document.getElementById('registerPlayer').click();
+                });
+                
+                document.getElementById('grade').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') document.getElementById('registerPlayer').click();
                 });
                 
                 // Multijugador - Votar modo de juego
@@ -1944,21 +1659,17 @@
                 document.getElementById('startMultiplayerGame').addEventListener('click', () => {
                     this.startMultiplayerGame();
                 });
-                
-                // Permitir enviar con Enter
-                document.getElementById('playerName').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') document.getElementById('joinGame').click();
-                });
-                
-                document.getElementById('gamePin').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') document.getElementById('joinGame').click();
-                });
             }
         }
 
-        // Inicialización cuando el DOM esté listo
+        // Inicialización con manejo de errores
         document.addEventListener('DOMContentLoaded', () => {
-            const game = new GameManager();
+            try {
+                const game = new GameManager();
+            } catch (error) {
+                console.error("Error al iniciar el juego:", error);
+                alert("Ocurrió un error al cargar el juego. Por favor recarga la página.");
+            }
         });
     </script>
 </body>

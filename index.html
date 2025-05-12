@@ -691,13 +691,41 @@
                 
                 this.updatePlayerList();
                 
-                // Si es host y hay al menos 2 jugadores, iniciar votación
-                if (this.isHost && this.players.length >= 2) {
+                // ✅ CORRECCIÓN: Iniciar conteo si ya hay 2+ jugadores al unirse
+                if (this.isHost && this.players.length >= 2 && !this.voteInterval) {
+                    this.startVoteCountdown(30);
+                }
+            }
+
+            updatePlayerList() {
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                this.players.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.textContent = player.name;
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+                
+                // ✅ CORRECCIÓN: Iniciar conteo si se alcanzan 2+ jugadores
+                if (this.isHost && this.players.length >= 2 && !this.voteInterval) {
                     this.startVoteCountdown(30);
                 }
             }
 
             startVoteCountdown(time) {
+                // ✅ CORRECCIÓN: Limpiar intervalo previo correctamente
+                if (this.voteInterval) {
+                    clearInterval(this.voteInterval);
+                    this.voteInterval = null;
+                }
+                
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
@@ -715,6 +743,7 @@
                         
                         if (this.voteTime <= 0) {
                             clearInterval(this.voteInterval);
+                            this.voteInterval = null; // ✅ CORRECCIÓN: Limpiar la referencia
                             this.startSelectedGameMode();
                         }
                     }, 1000);
@@ -1197,23 +1226,6 @@
             submitAnswer() {
                 const respuesta = document.getElementById('playerAnswer').value;
                 this.checkAnswer(respuesta);
-            }
-
-            updatePlayerList() {
-                const playerList = document.getElementById('multiplayerPlayerList');
-                playerList.innerHTML = '';
-                
-                this.players.forEach(player => {
-                    const playerElement = document.createElement('div');
-                    playerElement.className = 'player-badge';
-                    playerElement.textContent = player.name;
-                    if (player.id === this.player.id) {
-                        playerElement.style.border = '2px solid var(--amarillo)';
-                    }
-                    playerList.appendChild(playerElement);
-                });
-                
-                document.getElementById('playerCount').textContent = this.players.length;
             }
 
             handleNetworkError(error, message = "Error de red") {

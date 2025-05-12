@@ -350,7 +350,6 @@
             transition: width 0.5s ease;
         }
 
-        /* Nuevos estilos para el ranking */
         .live-ranking {
             position: fixed;
             top: 20px;
@@ -430,7 +429,6 @@
             color: var(--azul);
         }
 
-        /* Estilos para la pantalla final */
         .final-results {
             position: fixed;
             top: 0;
@@ -507,6 +505,10 @@
             width: 80%;
             max-width: 500px;
             margin-top: 20px;
+            padding: 10px;
+            background: var(--panel);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--sombra);
         }
 
         .other-player {
@@ -514,8 +516,13 @@
             justify-content: space-between;
             padding: 10px;
             margin: 5px 0;
-            background: var(--panel);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .other-player:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         @keyframes tada {
@@ -545,6 +552,14 @@
                 width: 200px;
                 left: 10px;
                 top: 10px;
+            }
+
+            .podium-place {
+                margin: 0 5px;
+            }
+
+            .podium-1, .podium-2, .podium-3 {
+                width: 80px;
             }
         }
     </style>
@@ -699,6 +714,7 @@
                 this.timerDuration = 30;
                 this.timerInterval = null;
                 this.soundEnabled = true;
+                this.currentQuestionData = null;
                 
                 // Multijugador
                 this.isMultiplayer = false;
@@ -845,14 +861,18 @@
             }
 
             handleSocketMessage(data) {
+                console.log("Mensaje recibido:", data);
+                
                 switch(data.type) {
                     case 'room_joined':
                         this.handleRoomJoined(data);
                         break;
                         
                     case 'player_joined':
-                        this.players.push(data.player);
-                        this.updatePlayerList();
+                        if (!this.players.some(p => p.id === data.player.id)) {
+                            this.players.push(data.player);
+                            this.updatePlayerList();
+                        }
                         break;
                         
                     case 'start_voting':
@@ -871,12 +891,19 @@
                         this.startGame(data.mode);
                         break;
                         
-                    case 'next_question':
-                        this.moveToNextQuestion();
+                    case 'question_update':
+                        this.currentQuestionData = data.question;
+                        this.displayQuestion(data.question);
                         break;
                         
                     case 'game_over':
-                        this.showMultiplayerResults(data.finalRanking);
+                        const finalRanking = Array.isArray(data.finalRanking) ? 
+                            data.finalRanking.map(p => ({
+                                id: p.id,
+                                name: p.name || p.displayName,
+                                points: p.points || 0
+                            })) : [];
+                        this.showMultiplayerResults(finalRanking);
                         break;
                         
                     case 'player_score':
@@ -891,7 +918,7 @@
 
             handleRoomJoined(data) {
                 this.isMultiplayer = true;
-                this.players = data.players;
+                this.players = data.players || [];
                 this.isHost = data.isHost;
                 
                 document.getElementById('joinScreen').style.display = 'none';
@@ -1015,17 +1042,38 @@
                 document.getElementById('gameContainer').style.display = 'block';
                 document.getElementById('liveRanking').style.display = 'block';
                 
+                // Solo el host genera preguntas
+                if (this.isHost) {
+                    this.questions = this.generarPreguntas(mode, 10);
+                    this.currentQuestionIndex = 0;
+                    this.shareQuestionWithPlayers();
+                }
+                
+                this.player.points = 0;
+                this.updatePlayerScore();
+                
                 // Iniciar actualización del ranking en vivo
-                this.lastRanking = [...this.players].sort((a, b) => b.points - a.points);
+                this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
+            }
+
+            shareQuestionWithPlayers() {
+                if (!this.isHost || !this.questions.length) return;
                 
-                this.iniciarJuego(mode);
+                const question = this.questions[this.currentQuestionIndex];
+                this.socket.send(JSON.stringify({
+                    type: 'question_update',
+                    pin: this.gamePin,
+                    question: question
+                }));
+                
+                this.displayQuestion(question);
             }
 
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
-                const currentRanking = [...this.players].sort((a, b) => b.points - a.points);
+                const currentRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 
                 rankingList.innerHTML = '';
                 
@@ -1050,7 +1098,7 @@
                     playerElement.innerHTML = `
                         <span class="ranking-position">${index + 1}°</span>
                         <span class="ranking-name">${this.extractName(player.name)}</span>
-                        <span class="ranking-points">${player.points}</span>
+                        <span class="ranking-points">${player.points || 0}</span>
                     `;
                     
                     rankingList.appendChild(playerElement);
@@ -1063,16 +1111,27 @@
                 return fullName.split('(')[0].trim();
             }
 
-            iniciarJuego(mode) {
-                this.playSound('clickSound');
-                this.gameMode = mode;
-                this.questions = this.generarPreguntas(mode, 10);
-                this.currentQuestionIndex = 0;
-                this.player.points = 0;
-                this.updatePlayerScore();
-                document.getElementById('submitAnswer').disabled = false;
-                this.displayQuestion();
-                this.startTimer();
+            displayQuestion(questionData = null) {
+                try {
+                    const question = questionData || this.currentQuestionData;
+                    if (!question) return;
+                    
+                    document.getElementById("currentQuestion").textContent = question.pregunta;
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result";
+                    this.player.hasAnswered = false;
+                    document.getElementById('submitAnswer').disabled = false;
+                    
+                    // Actualizar progreso
+                    if (this.currentQuestionIndex !== undefined && this.questions.length > 0) {
+                        const progreso = (this.currentQuestionIndex / this.questions.length) * 100;
+                        document.getElementById("progressBar").style.width = `${progreso}%`;
+                    }
+                } catch (error) {
+                    console.error("Error al mostrar pregunta:", error);
+                    this.showError("Error al cargar la pregunta");
+                }
             }
 
             generarPreguntas(mode, count) {
@@ -1196,28 +1255,6 @@
                 return preguntas;
             }
 
-            displayQuestion() {
-                try {
-                    if (this.currentQuestionIndex < this.questions.length) {
-                        const currentQuestion = this.questions[this.currentQuestionIndex];
-                        document.getElementById("currentQuestion").textContent = currentQuestion.pregunta;
-                        document.getElementById("playerAnswer").value = "";
-                        document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
-                        document.getElementById("answerResult").className = "result";
-                        this.player.hasAnswered = false;
-                        document.getElementById('submitAnswer').disabled = false;
-                        
-                        const progreso = (this.currentQuestionIndex / this.questions.length) * 100;
-                        document.getElementById("progressBar").style.width = `${progreso}%`;
-                    } else {
-                        this.endGame();
-                    }
-                } catch (error) {
-                    console.error("Error al mostrar pregunta:", error);
-                    this.showError("Error al cargar la pregunta");
-                }
-            }
-
             checkAnswer(userAnswer) {
                 try {
                     if (this.player.hasAnswered) {
@@ -1239,7 +1276,7 @@
                     this.player.hasAnswered = true;
                     document.getElementById('submitAnswer').disabled = true;
 
-                    const currentQuestion = this.questions[this.currentQuestionIndex];
+                    const currentQuestion = this.currentQuestionData;
                     const isCorrect = userAnswerParsed === currentQuestion.respuesta;
                     const timeBonus = Math.floor(this.timeLeft / 5);
                     
@@ -1263,15 +1300,17 @@
                         this.playSound('wrongSound');
                     }
                     
-                    if (!this.isMultiplayer) {
-                        this.moveToNextQuestion();
-                    } else if (this.socket) {
-                        this.socket.send(JSON.stringify({
-                            type: 'player_answer',
-                            playerId: this.player.id,
-                            isCorrect: isCorrect,
-                            timeLeft: this.timeLeft
-                        }));
+                    // Solo el host controla el flujo de preguntas
+                    if (this.isHost) {
+                        setTimeout(() => {
+                            this.currentQuestionIndex++;
+                            if (this.currentQuestionIndex < this.questions.length) {
+                                this.shareQuestionWithPlayers();
+                                this.resetTimer();
+                            } else {
+                                this.endGame();
+                            }
+                        }, 2000);
                     }
                 } catch (error) {
                     console.error("Error al verificar respuesta:", error);
@@ -1290,128 +1329,6 @@
                 document.getElementById('playerScore').textContent = this.player.points;
             }
 
-            moveToNextQuestion() {
-                try {
-                    this.currentQuestionIndex++;
-                    this.player.hasAnswered = false;
-                    document.getElementById('submitAnswer').disabled = false;
-                    
-                    if (this.currentQuestionIndex < this.questions.length) {
-                        setTimeout(() => {
-                            this.displayQuestion();
-                            this.resetTimer();
-                        }, 2000);
-                    } else {
-                        this.endGame();
-                    }
-                } catch (error) {
-                    console.error("Error al avanzar pregunta:", error);
-                    this.showError("Error al avanzar a la siguiente pregunta");
-                }
-            }
-
-            endGame() {
-                try {
-                    clearInterval(this.timerInterval);
-                    
-                    if (this.isMultiplayer && this.isHost) {
-                        const finalRanking = this.getFinalRanking();
-                        this.showMultiplayerResults(finalRanking);
-                        
-                        this.socket.send(JSON.stringify({
-                            type: 'game_over',
-                            finalRanking: finalRanking
-                        }));
-                    } else if (!this.isMultiplayer) {
-                        this.showWinner();
-                    }
-                } catch (error) {
-                    console.error("Error al finalizar juego:", error);
-                    this.showError("Error al finalizar el juego");
-                }
-            }
-
-            getFinalRanking() {
-                return [...this.players].sort((a, b) => b.points - a.points);
-            }
-
-            showWinner() {
-                try {
-                    let mensaje = "";
-                    
-                    if (this.isMultiplayer) {
-                        const ranking = this.getFinalRanking();
-                        const playerPosition = ranking.findIndex(p => p.id === this.player.id) + 1;
-                        mensaje = `¡Terminaste en posición ${playerPosition} con ${this.player.points} puntos!`;
-                        
-                        if (playerPosition === 1) {
-                            mensaje = `¡Ganaste! 🏆 (${this.player.points} puntos)`;
-                            this.playSound('winSound');
-                        }
-                    } else {
-                        mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
-                        if (this.player.points > 0) {
-                            this.playSound('winSound');
-                        }
-                    }
-                    
-                    document.getElementById("mensajeVictoria").innerHTML = mensaje;
-                } catch (error) {
-                    console.error("Error al mostrar ganador:", error);
-                    this.showError("Error al determinar el ganador");
-                }
-            }
-
-            showMultiplayerResults(finalRanking) {
-                document.getElementById('gameContainer').style.display = 'none';
-                document.getElementById('liveRanking').style.display = 'none';
-                document.getElementById('finalResults').style.display = 'flex';
-                
-                // Mostrar podio
-                const firstPlace = document.getElementById('firstPlace');
-                const secondPlace = document.getElementById('secondPlace');
-                const thirdPlace = document.getElementById('thirdPlace');
-                const otherPlayers = document.getElementById('otherPlayers');
-                
-                // Limpiar contenido previo
-                otherPlayers.innerHTML = '';
-                
-                // Mostrar los 3 primeros
-                if (finalRanking.length > 0) {
-                    firstPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[0].name);
-                    firstPlace.querySelector('.podium-points').textContent = `${finalRanking[0].points} pts`;
-                    
-                    if (finalRanking.length > 1) {
-                        secondPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[1].name);
-                        secondPlace.querySelector('.podium-points').textContent = `${finalRanking[1].points} pts`;
-                    }
-                    
-                    if (finalRanking.length > 2) {
-                        thirdPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[2].name);
-                        thirdPlace.querySelector('.podium-points').textContent = `${finalRanking[2].points} pts`;
-                    }
-                }
-                
-                // Mostrar otros jugadores
-                for (let i = 3; i < finalRanking.length; i++) {
-                    const player = finalRanking[i];
-                    const playerElement = document.createElement('div');
-                    playerElement.className = 'other-player';
-                    playerElement.innerHTML = `
-                        <span>${i + 1}. ${this.extractName(player.name)}</span>
-                        <span>${player.points} pts</span>
-                    `;
-                    if (player.id === this.player.id) {
-                        playerElement.style.fontWeight = 'bold';
-                        playerElement.style.color = 'var(--amarillo)';
-                    }
-                    otherPlayers.appendChild(playerElement);
-                }
-                
-                // Reproducir sonido de victoria
-                this.playSound('winSound');
-            }
-
             startTimer() {
                 try {
                     this.timeLeft = this.timerDuration;
@@ -1426,8 +1343,11 @@
                             if (this.isMultiplayer) {
                                 if (this.socket) {
                                     this.socket.send(JSON.stringify({
-                                        type: 'next_question',
-                                        pin: this.gamePin
+                                        type: 'player_answer',
+                                        playerId: this.player.id,
+                                        isCorrect: false,
+                                        timeLeft: 0,
+                                        points: this.player.points
                                     }));
                                 }
                             } else {
@@ -1468,6 +1388,132 @@
                     this.displayQuestion();
                 } else {
                     this.endGame();
+                }
+            }
+
+            endGame() {
+                try {
+                    clearInterval(this.timerInterval);
+                    
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
+                    
+                    if (this.isMultiplayer && this.isHost) {
+                        const finalRanking = this.getFinalRanking();
+                        this.showMultiplayerResults(finalRanking);
+                        
+                        this.socket.send(JSON.stringify({
+                            type: 'game_over',
+                            finalRanking: finalRanking
+                        }));
+                    } else if (!this.isMultiplayer) {
+                        this.showWinner();
+                    }
+                } catch (error) {
+                    console.error("Error al finalizar juego:", error);
+                    this.showError("Error al finalizar el juego");
+                }
+            }
+
+            getFinalRanking() {
+                return [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
+            }
+
+            showWinner() {
+                try {
+                    let mensaje = "";
+                    
+                    if (this.isMultiplayer) {
+                        const ranking = this.getFinalRanking();
+                        const playerPosition = ranking.findIndex(p => p.id === this.player.id) + 1;
+                        mensaje = `¡Terminaste en posición ${playerPosition} con ${this.player.points} puntos!`;
+                        
+                        if (playerPosition === 1) {
+                            mensaje = `¡Ganaste! 🏆 (${this.player.points} puntos)`;
+                            this.playSound('winSound');
+                        }
+                    } else {
+                        mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
+                        if (this.player.points > 0) {
+                            this.playSound('winSound');
+                        }
+                    }
+                    
+                    document.getElementById("mensajeVictoria").innerHTML = mensaje;
+                } catch (error) {
+                    console.error("Error al mostrar ganador:", error);
+                    this.showError("Error al determinar el ganador");
+                }
+            }
+
+            showMultiplayerResults(finalRanking) {
+                try {
+                    console.log("Mostrando resultados finales:", finalRanking);
+                    
+                    document.getElementById('gameContainer').style.display = 'none';
+                    document.getElementById('liveRanking').style.display = 'none';
+                    document.getElementById('finalResults').style.display = 'flex';
+                    
+                    // Obtener elementos del DOM
+                    const firstPlace = document.getElementById('firstPlace');
+                    const secondPlace = document.getElementById('secondPlace');
+                    const thirdPlace = document.getElementById('thirdPlace');
+                    const otherPlayers = document.getElementById('otherPlayers');
+                    
+                    // Limpiar contenido previo
+                    otherPlayers.innerHTML = '';
+                    
+                    // Verificar que finalRanking es un array válido
+                    if (!Array.isArray(finalRanking)) {
+                        console.error("finalRanking no es un array:", finalRanking);
+                        finalRanking = [];
+                    }
+                    
+                    // Mostrar los 3 primeros lugares
+                    if (finalRanking.length > 0) {
+                        const first = finalRanking[0];
+                        firstPlace.querySelector('.podium-name').textContent = this.extractName(first.name);
+                        firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
+                        
+                        if (finalRanking.length > 1) {
+                            const second = finalRanking[1];
+                            secondPlace.querySelector('.podium-name').textContent = this.extractName(second.name);
+                            secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
+                        }
+                        
+                        if (finalRanking.length > 2) {
+                            const third = finalRanking[2];
+                            thirdPlace.querySelector('.podium-name').textContent = this.extractName(third.name);
+                            thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
+                        }
+                    }
+                    
+                    // Mostrar otros jugadores (posición 4 en adelante)
+                    for (let i = 3; i < finalRanking.length; i++) {
+                        const player = finalRanking[i];
+                        const playerPoints = player.points || 0;
+                        
+                        const playerElement = document.createElement('div');
+                        playerElement.className = 'other-player';
+                        playerElement.innerHTML = `
+                            <span>${i + 1}. ${this.extractName(player.name)}</span>
+                            <span>${playerPoints} pts</span>
+                        `;
+                        
+                        if (player.id === this.player.id) {
+                            playerElement.style.fontWeight = 'bold';
+                            playerElement.style.color = 'var(--amarillo)';
+                        }
+                        
+                        otherPlayers.appendChild(playerElement);
+                    }
+                    
+                    this.playSound('winSound');
+                } catch (error) {
+                    console.error("Error al mostrar resultados:", error);
+                    alert("Ocurrió un error al mostrar los resultados finales");
                 }
             }
 
@@ -1523,7 +1569,7 @@
             }
 
             addNumber(num) {
-                if (this.currentQuestionIndex < this.questions.length && !this.player.hasAnswered) {
+                if (this.currentQuestionData && !this.player.hasAnswered) {
                     this.playSound('clickSound');
                     document.getElementById('playerAnswer').value += num;
                 }

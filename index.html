@@ -350,6 +350,174 @@
             transition: width 0.5s ease;
         }
 
+        /* Nuevos estilos para el ranking */
+        .live-ranking {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 250px;
+            background: var(--panel);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            padding: 15px;
+            z-index: 50;
+            display: none;
+            border: 3px solid var(--morado);
+        }
+
+        .live-ranking h3 {
+            margin-bottom: 10px;
+            color: var(--morado);
+            text-align: center;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: rgba(78, 140, 255, 0.1);
+            transition: all 0.5s ease;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .ranking-item.current-player {
+            background: rgba(255, 222, 89, 0.2);
+            border-left: 4px solid var(--amarillo);
+        }
+
+        .ranking-item.move-up {
+            animation: moveUp 0.5s ease;
+        }
+
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
+        }
+
+        @keyframes moveUp {
+            0% { transform: translateY(0); background: var(--verde); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes moveDown {
+            0% { transform: translateY(0); background: var(--rojo); }
+            50% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }
+
+        .ranking-position {
+            font-weight: bold;
+            color: var(--morado);
+        }
+
+        .ranking-name {
+            flex-grow: 1;
+            margin: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ranking-points {
+            font-weight: bold;
+            color: var(--azul);
+        }
+
+        /* Estilos para la pantalla final */
+        .final-results {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--fondo);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin: 30px 0;
+            height: 250px;
+        }
+
+        .podium-place {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 10px;
+        }
+
+        .podium-1 {
+            height: 200px;
+            background: linear-gradient(to top, #ffd700, #ffec80);
+            width: 100px;
+            border-radius: 8px 8px 0 0;
+            animation: bounce 1s ease;
+        }
+
+        .podium-2 {
+            height: 150px;
+            background: linear-gradient(to top, #c0c0c0, #e0e0e0);
+            width: 100px;
+            border-radius: 8px 8px 0 0;
+            animation: bounce 1s 0.2s ease;
+        }
+
+        .podium-3 {
+            height: 100px;
+            background: linear-gradient(to top, #cd7f32, #e0a76c);
+            width: 100px;
+            border-radius: 8px 8px 0 0;
+            animation: bounce 1s 0.4s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .podium-name {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .podium-points {
+            font-size: 1rem;
+            color: var(--texto);
+        }
+
+        .other-players {
+            max-height: 200px;
+            overflow-y: auto;
+            width: 80%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .other-player {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: var(--panel);
+            border-radius: 8px;
+        }
+
         @keyframes tada {
             0% { transform: scale(1); }
             10%, 20% { transform: scale(0.9) rotate(-3deg); }
@@ -371,6 +539,12 @@
             
             .keyboard {
                 grid-template-columns: repeat(3, 70px);
+            }
+
+            .live-ranking {
+                width: 200px;
+                left: 10px;
+                top: 10px;
             }
         }
     </style>
@@ -424,6 +598,12 @@
         </div>
     </div>
 
+    <!-- Ranking en vivo -->
+    <div class="live-ranking" id="liveRanking">
+        <h3>🏆 Ranking en Vivo</h3>
+        <div id="rankingList"></div>
+    </div>
+
     <!-- Juego principal -->
     <div id="gameContainer">
         <h1>✨ Math Challenge PRO ✨</h1>
@@ -467,6 +647,30 @@
         <p id="mensajeVictoria" class="result"></p>
     </div>
 
+    <!-- Pantalla final de resultados -->
+    <div class="final-results" id="finalResults">
+        <h1>🏆 ¡Juego Terminado! 🏆</h1>
+        <div class="podium">
+            <div class="podium-place" id="secondPlace">
+                <div class="podium-2"></div>
+                <div class="podium-name">-</div>
+                <div class="podium-points">0 pts</div>
+            </div>
+            <div class="podium-place" id="firstPlace">
+                <div class="podium-1"></div>
+                <div class="podium-name">-</div>
+                <div class="podium-points">0 pts</div>
+            </div>
+            <div class="podium-place" id="thirdPlace">
+                <div class="podium-3"></div>
+                <div class="podium-name">-</div>
+                <div class="podium-points">0 pts</div>
+            </div>
+        </div>
+        <div class="other-players" id="otherPlayers"></div>
+        <button class="btn" id="backToLobby">Volver al Lobby</button>
+    </div>
+
     <!-- Botón Tema Nocturno -->
     <div class="theme-toggle" id="themeToggle">🌙</div>
 
@@ -506,7 +710,7 @@
                 this.playerRanking = [];
                 this.maxPlayers = 15;
                 this.socket = null;
-                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; // ✅ Correcto
+                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me';
                 
                 // Votación
                 this.voteTime = 30;
@@ -518,6 +722,10 @@
                     potenciacion: 0,
                     combinadas: 0
                 };
+                
+                // Ranking
+                this.lastRanking = [];
+                this.rankingUpdateInterval = null;
                 
                 // Elementos UI
                 this.themeToggle = document.getElementById('themeToggle');
@@ -560,6 +768,7 @@
                 
                 // Reiniciar juego
                 document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
+                document.getElementById('backToLobby').addEventListener('click', () => this.reiniciarJuego());
                 
                 // Votar modo de juego
                 document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -691,7 +900,6 @@
                 
                 this.updatePlayerList();
                 
-                // ✅ CORRECCIÓN: Iniciar conteo si ya hay 2+ jugadores al unirse
                 if (this.isHost && this.players.length >= 2 && !this.voteInterval) {
                     this.startVoteCountdown(30);
                 }
@@ -713,14 +921,12 @@
                 
                 document.getElementById('playerCount').textContent = this.players.length;
                 
-                // ✅ CORRECCIÓN: Iniciar conteo si se alcanzan 2+ jugadores
                 if (this.isHost && this.players.length >= 2 && !this.voteInterval) {
                     this.startVoteCountdown(30);
                 }
             }
 
             startVoteCountdown(time) {
-                // ✅ CORRECCIÓN: Limpiar intervalo previo correctamente
                 if (this.voteInterval) {
                     clearInterval(this.voteInterval);
                     this.voteInterval = null;
@@ -734,7 +940,6 @@
                         this.voteTime--;
                         document.getElementById('voteTime').textContent = this.voteTime;
                         
-                        // Actualizar a todos los jugadores
                         this.socket.send(JSON.stringify({
                             type: 'update_vote_timer',
                             pin: this.gamePin,
@@ -743,7 +948,7 @@
                         
                         if (this.voteTime <= 0) {
                             clearInterval(this.voteInterval);
-                            this.voteInterval = null; // ✅ CORRECCIÓN: Limpiar la referencia
+                            this.voteInterval = null;
                             this.startSelectedGameMode();
                         }
                     }, 1000);
@@ -787,7 +992,6 @@
             startSelectedGameMode() {
                 if (!this.isHost) return;
                 
-                // Determinar el modo más votado
                 let maxVotes = 0;
                 let selectedMode = 'operaciones';
                 
@@ -798,7 +1002,6 @@
                     }
                 }
                 
-                // Iniciar el juego para todos
                 this.socket.send(JSON.stringify({
                     type: 'start_game',
                     pin: this.gamePin,
@@ -810,7 +1013,54 @@
                 this.selectedGameMode = mode;
                 document.getElementById('multiplayerLobby').style.display = 'none';
                 document.getElementById('gameContainer').style.display = 'block';
+                document.getElementById('liveRanking').style.display = 'block';
+                
+                // Iniciar actualización del ranking en vivo
+                this.lastRanking = [...this.players].sort((a, b) => b.points - a.points);
+                this.updateLiveRanking();
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
+                
                 this.iniciarJuego(mode);
+            }
+
+            updateLiveRanking() {
+                const rankingList = document.getElementById('rankingList');
+                const currentRanking = [...this.players].sort((a, b) => b.points - a.points);
+                
+                rankingList.innerHTML = '';
+                
+                currentRanking.forEach((player, index) => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'ranking-item';
+                    
+                    // Añadir clase si el jugador subió/bajó
+                    const lastPosition = this.lastRanking.findIndex(p => p.id === player.id);
+                    if (lastPosition !== -1) {
+                        if (index < lastPosition) {
+                            playerElement.classList.add('move-up');
+                        } else if (index > lastPosition) {
+                            playerElement.classList.add('move-down');
+                        }
+                    }
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.classList.add('current-player');
+                    }
+                    
+                    playerElement.innerHTML = `
+                        <span class="ranking-position">${index + 1}°</span>
+                        <span class="ranking-name">${this.extractName(player.name)}</span>
+                        <span class="ranking-points">${player.points}</span>
+                    `;
+                    
+                    rankingList.appendChild(playerElement);
+                });
+                
+                this.lastRanking = currentRanking;
+            }
+
+            extractName(fullName) {
+                return fullName.split('(')[0].trim();
             }
 
             iniciarJuego(mode) {
@@ -1063,13 +1313,17 @@
             endGame() {
                 try {
                     clearInterval(this.timerInterval);
-                    this.showWinner();
                     
                     if (this.isMultiplayer && this.isHost) {
+                        const finalRanking = this.getFinalRanking();
+                        this.showMultiplayerResults(finalRanking);
+                        
                         this.socket.send(JSON.stringify({
                             type: 'game_over',
-                            finalRanking: this.getFinalRanking()
+                            finalRanking: finalRanking
                         }));
+                    } else if (!this.isMultiplayer) {
+                        this.showWinner();
                     }
                 } catch (error) {
                     console.error("Error al finalizar juego:", error);
@@ -1106,6 +1360,56 @@
                     console.error("Error al mostrar ganador:", error);
                     this.showError("Error al determinar el ganador");
                 }
+            }
+
+            showMultiplayerResults(finalRanking) {
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('liveRanking').style.display = 'none';
+                document.getElementById('finalResults').style.display = 'flex';
+                
+                // Mostrar podio
+                const firstPlace = document.getElementById('firstPlace');
+                const secondPlace = document.getElementById('secondPlace');
+                const thirdPlace = document.getElementById('thirdPlace');
+                const otherPlayers = document.getElementById('otherPlayers');
+                
+                // Limpiar contenido previo
+                otherPlayers.innerHTML = '';
+                
+                // Mostrar los 3 primeros
+                if (finalRanking.length > 0) {
+                    firstPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[0].name);
+                    firstPlace.querySelector('.podium-points').textContent = `${finalRanking[0].points} pts`;
+                    
+                    if (finalRanking.length > 1) {
+                        secondPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[1].name);
+                        secondPlace.querySelector('.podium-points').textContent = `${finalRanking[1].points} pts`;
+                    }
+                    
+                    if (finalRanking.length > 2) {
+                        thirdPlace.querySelector('.podium-name').textContent = this.extractName(finalRanking[2].name);
+                        thirdPlace.querySelector('.podium-points').textContent = `${finalRanking[2].points} pts`;
+                    }
+                }
+                
+                // Mostrar otros jugadores
+                for (let i = 3; i < finalRanking.length; i++) {
+                    const player = finalRanking[i];
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'other-player';
+                    playerElement.innerHTML = `
+                        <span>${i + 1}. ${this.extractName(player.name)}</span>
+                        <span>${player.points} pts</span>
+                    `;
+                    if (player.id === this.player.id) {
+                        playerElement.style.fontWeight = 'bold';
+                        playerElement.style.color = 'var(--amarillo)';
+                    }
+                    otherPlayers.appendChild(playerElement);
+                }
+                
+                // Reproducir sonido de victoria
+                this.playSound('winSound');
             }
 
             startTimer() {
@@ -1183,6 +1487,10 @@
                 try {
                     this.playSound('clickSound');
                     clearInterval(this.timerInterval);
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
                     
                     this.player.points = 0;
                     this.updatePlayerScore();
@@ -1196,6 +1504,9 @@
                     document.getElementById("mensajeVictoria").innerHTML = "";
                     document.getElementById("progressBar").style.width = "0%";
                     document.getElementById('submitAnswer').disabled = false;
+                    
+                    document.getElementById('finalResults').style.display = 'none';
+                    document.getElementById('liveRanking').style.display = 'none';
                     
                     if (this.isMultiplayer) {
                         document.getElementById('multiplayerLobby').style.display = 'flex';
@@ -1247,40 +1558,6 @@
                 } catch (error) {
                     console.error("Error con el sonido:", error);
                 }
-            }
-
-            showMultiplayerResults(finalRanking) {
-                document.getElementById('gameContainer').style.display = 'none';
-                
-                const resultsContainer = document.createElement('div');
-                resultsContainer.className = 'game';
-                resultsContainer.innerHTML = `
-                    <h2>🏆 Resultados Finales 🏆</h2>
-                    <div class="ranking-list" id="finalRankingList"></div>
-                    <button class="btn" id="returnToLobby">Volver al Lobby</button>
-                `;
-                
-                document.body.appendChild(resultsContainer);
-                
-                const rankingList = document.getElementById('finalRankingList');
-                finalRanking.forEach((player, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'ranking-item';
-                    item.innerHTML = `
-                        <span>${index + 1}. ${player.name}</span>
-                        <span>${player.points} puntos</span>
-                    `;
-                    if (player.id === this.player.id) {
-                        item.style.fontWeight = 'bold';
-                        item.style.color = 'var(--amarillo)';
-                    }
-                    rankingList.appendChild(item);
-                });
-                
-                document.getElementById('returnToLobby').addEventListener('click', () => {
-                    resultsContainer.remove();
-                    this.reiniciarJuego();
-                });
             }
         }
 

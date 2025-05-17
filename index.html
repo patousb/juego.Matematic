@@ -76,6 +76,18 @@
             margin-bottom: 20px;
         }
 
+        .loader-small {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(78, 140, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--morado);
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -176,6 +188,11 @@
             color: var(--texto);
         }
 
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .error-message {
             color: var(--rojo);
             margin-top: 10px;
@@ -215,7 +232,7 @@
         }
 
         .player-badge {
-            background: linear-gradient(45deg, var(--azul), var(--morado);
+            background: linear-gradient(45deg, var(--azul), var(--morado));
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
@@ -267,6 +284,27 @@
             background: var(--morado);
             color: white;
             border-color: var(--morado);
+        }
+
+        .mode-btn.voted {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn.voted::after {
+            content: "✓";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--verde);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
 
         .vote-results {
@@ -347,6 +385,10 @@
 
         .key:hover {
             background: var(--borde);
+        }
+
+        .key.negative {
+            grid-column: span 3;
         }
 
         .result {
@@ -479,22 +521,20 @@
 
         .ranking-item.move-up {
             animation: moveUp 0.5s ease;
-            background-color: rgba(107, 255, 107, 0.3);
         }
 
         .ranking-item.move-down {
             animation: moveDown 0.5s ease;
-            background-color: rgba(255, 107, 107, 0.3);
         }
 
         @keyframes moveUp {
-            0% { transform: translateY(0); }
+            0% { transform: translateY(0); background: var(--verde); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0); }
         }
 
         @keyframes moveDown {
-            0% { transform: translateY(0); }
+            0% { transform: translateY(0); background: var(--rojo); }
             50% { transform: translateY(10px); }
             100% { transform: translateY(0); }
         }
@@ -502,7 +542,6 @@
         .ranking-position {
             font-weight: bold;
             color: var(--morado);
-            min-width: 30px;
         }
 
         .ranking-name {
@@ -516,8 +555,6 @@
         .ranking-points {
             font-weight: bold;
             color: var(--azul);
-            min-width: 50px;
-            text-align: right;
         }
 
         .ranking-avatar {
@@ -690,6 +727,10 @@
             animation: pulse 1.5s infinite;
         }
 
+        .connection-status.connecting {
+            color: var(--amarillo);
+        }
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -783,6 +824,15 @@
 
             .podium-1, .podium-2, .podium-3 {
                 width: 80px;
+            }
+
+            .true-false-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .true-false-btn {
+                width: 100%;
             }
         }
     </style>
@@ -895,7 +945,7 @@
                     <div class="key" data-number="9">9</div>
                     <div class="key" data-action="clear">⌫</div>
                     <div class="key" data-number="0">0</div>
-                    <div class="key" data-number="-">-</div>
+                    <div class="key negative" data-number="-">-</div>
                 </div>
                 <button class="btn" id="submitAnswer">Responder 🚀</button>
                 <p id="answerResult" class="result">Esperando respuesta... 🤔</p>
@@ -963,12 +1013,21 @@
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
-    <audio id="rankUpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
-    <audio id="rankDownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" preload="auto"></audio>
 
     <script>
         class GameManager {
             constructor() {
+                // Estados del juego
+                this.STATES = {
+                    LOADING: 0,
+                    JOIN_SCREEN: 1,
+                    LOBBY: 2,
+                    VOTING: 3,
+                    PLAYING: 4,
+                    RESULTS: 5
+                };
+                this.state = this.STATES.LOADING;
+
                 this.player = {
                     id: null,
                     name: "",
@@ -980,8 +1039,12 @@
                     hasVoted: false,
                     streak: 0,
                     maxStreak: 0,
-                    history: []
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false
                 };
+                
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.gameMode = null;
@@ -993,8 +1056,8 @@
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
-                this.isProfessor = false;
                 this.closestAnswerMode = false;
+                this.lastAnswerTime = null;
                 
                 // Multijugador
                 this.isMultiplayer = false;
@@ -1007,6 +1070,8 @@
                 this.maxPlayers = 15;
                 this.socket = null;
                 this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me';
+                this.heartbeatInterval = null;
+                this.lastPongTime = null;
                 
                 // Votación
                 this.voteTime = 30;
@@ -1025,7 +1090,7 @@
                 // Ranking
                 this.lastRanking = [];
                 this.rankingUpdateInterval = null;
-                this.lastPlayerPosition = 0;
+                this.animationPending = false;
                 
                 // Elementos UI
                 this.themeToggle = document.getElementById('themeToggle');
@@ -1039,8 +1104,46 @@
                 
                 // Simular carga inicial
                 setTimeout(() => {
+                    this.setState(this.STATES.JOIN_SCREEN);
                     document.getElementById('loadingScreen').style.display = 'none';
                 }, 1500);
+            }
+
+            setState(newState) {
+                this.state = newState;
+                this.updateUIForState();
+            }
+
+            updateUIForState() {
+                // Ocultar todos los elementos principales primero
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('joinScreen').style.display = 'none';
+                document.getElementById('multiplayerLobby').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('finalResults').style.display = 'none';
+                document.getElementById('liveRanking').style.display = 'none';
+
+                switch(this.state) {
+                    case this.STATES.LOADING:
+                        document.getElementById('loadingScreen').style.display = 'flex';
+                        break;
+                    case this.STATES.JOIN_SCREEN:
+                        document.getElementById('joinScreen').style.display = 'flex';
+                        break;
+                    case this.STATES.LOBBY:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        break;
+                    case this.STATES.VOTING:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        break;
+                    case this.STATES.PLAYING:
+                        document.getElementById('gameContainer').style.display = 'block';
+                        document.getElementById('liveRanking').style.display = 'block';
+                        break;
+                    case this.STATES.RESULTS:
+                        document.getElementById('finalResults').style.display = 'flex';
+                        break;
+                }
             }
 
             setupEventListeners() {
@@ -1104,6 +1207,13 @@
                 
                 // Saltar pregunta (modo profesor)
                 this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
+
+                // Manejar conexión/desconexión de red
+                window.addEventListener('online', () => {
+                    if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
+                        this.attemptReconnect();
+                    }
+                });
             }
 
             checkDarkModePreference() {
@@ -1114,13 +1224,22 @@
                 }
             }
 
+            sanitizeInput(input) {
+                return input.replace(/[<>]/g, '').substring(0, 20);
+            }
+
             joinGame() {
-                const playerName = document.getElementById('playerName').value.trim();
-                const grade = document.getElementById('grade').value.trim();
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
                 const gamePin = document.getElementById('gamePin').value.trim();
 
-                if (!playerName || !grade) {
-                    document.getElementById('joinError').textContent = 'Ingresa nombre y grado';
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
+
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
                     return;
                 }
 
@@ -1140,7 +1259,10 @@
                     hasVoted: false,
                     streak: 0,
                     maxStreak: 0,
-                    history: []
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false
                 };
 
                 this.gamePin = gamePin;
@@ -1148,25 +1270,37 @@
             }
 
             createGame() {
-                const playerName = document.getElementById('playerName').value.trim();
-                const grade = document.getElementById('grade').value.trim();
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
                 
-                if (!playerName || !grade) {
-                    document.getElementById('joinError').textContent = 'Ingresa nombre y grado';
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
                     return;
                 }
+
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
+                    return;
+                }
+
+                // Mostrar loader en el botón
+                const createBtn = document.getElementById('createGame');
+                createBtn.disabled = true;
+                createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
 
                 this.player = {
                     id: this.generateId(),
                     name: playerName,
                     grade: grade,
-                    displayName: `${playerName} (${grade})`,
+                    displayName: `${playerName} (Profesor)`,
                     avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
                     streak: 0,
                     maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
                     history: [],
                     isProfessor: true
                 };
@@ -1175,20 +1309,36 @@
                 this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
                 document.getElementById('gamePin').value = this.gamePin;
                 
-                // Marcar como profesor/host
+                // Configurar controles de profesor
                 this.isProfessor = true;
                 this.skipQuestionBtn.style.display = 'block';
                 
                 this.connectToServer();
+                this.showNotification(`Sala ${this.gamePin} creada. Eres el profesor.`);
+                
+                // Restaurar botón
+                setTimeout(() => {
+                    createBtn.disabled = false;
+                    createBtn.textContent = 'Crear nueva sala';
+                }, 2000);
             }
 
             connectToServer() {
                 try {
-                    this.updateConnectionStatus(false);
+                    this.updateConnectionStatus('connecting', '🟡 Conectando...');
                     
+                    // Verificar conexión a internet
+                    if (!navigator.onLine) {
+                        this.handleNetworkError(new Error('Sin conexión a internet'));
+                        return;
+                    }
+
                     // Intentar reconexión con ID de jugador
                     const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
                     this.socket = new WebSocket(wsUrl);
+                    
+                    // Configurar heartbeat
+                    this.setupHeartbeat();
                     
                     this.socket.onerror = (error) => {
                         console.error("Error de conexión:", error);
@@ -1198,7 +1348,13 @@
                     
                     this.socket.onclose = (event) => {
                         console.log("Conexión cerrada:", event.code, event.reason);
-                        if (this.isMultiplayer && event.code !== 1000) {
+                        clearInterval(this.heartbeatInterval);
+                        
+                        let message = "Conexión cerrada";
+                        if (event.code === 1000) {
+                            message = "Conexión finalizada";
+                            this.updateConnectionStatus('disconnected', `🔴 ${message}`);
+                        } else if (this.isMultiplayer) {
                             this.handleNetworkError("Conexión cerrada", "Se perdió la conexión con el servidor");
                             this.attemptReconnect();
                         }
@@ -1207,7 +1363,8 @@
                     this.socket.onopen = () => {
                         console.log("Conexión establecida");
                         this.reconnectAttempts = 0;
-                        this.updateConnectionStatus(true);
+                        this.lastPongTime = Date.now();
+                        this.updateConnectionStatus('connected', '🟢 Conectado');
                         
                         this.socket.send(JSON.stringify({
                             type: 'join_room',
@@ -1225,6 +1382,13 @@
                     this.socket.onmessage = (event) => {
                         try {
                             const data = JSON.parse(event.data);
+                            
+                            // Manejar mensaje pong
+                            if (data.type === 'pong') {
+                                this.lastPongTime = Date.now();
+                                return;
+                            }
+                            
                             this.handleSocketMessage(data);
                         } catch (error) {
                             console.error("Error al procesar mensaje:", error);
@@ -1236,19 +1400,41 @@
                 }
             }
 
+            setupHeartbeat() {
+                clearInterval(this.heartbeatInterval);
+                
+                this.heartbeatInterval = setInterval(() => {
+                    // Verificar si la conexión sigue activa
+                    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        const now = Date.now();
+                        
+                        // Si no hemos recibido pong en los últimos 30 segundos
+                        if (this.lastPongTime && now - this.lastPongTime > 30000) {
+                            console.log("No se recibió pong, cerrando conexión...");
+                            this.socket.close();
+                            return;
+                        }
+                        
+                        // Enviar ping
+                        this.socket.send(JSON.stringify({ type: 'ping' }));
+                    }
+                }, 15000); // Enviar ping cada 15 segundos
+            }
+
             attemptReconnect() {
                 if (this.reconnectAttempts >= this.maxReconnectAttempts) {
                     console.log("Máximo de intentos de reconexión alcanzado");
+                    this.showReconnectButton();
                     return;
                 }
                 
                 this.reconnectAttempts++;
-                const delay = this.reconnectAttempts * this.reconnectDelay;
+                const delay = Math.min(30000, this.reconnectAttempts * this.reconnectDelay); // Backoff exponencial con máximo de 30s
                 
                 console.log(`Intentando reconectar en ${delay/1000} segundos... (Intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
                 
                 this.showNotification(`Reconectando... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-                this.updateConnectionStatus(false);
+                this.updateConnectionStatus('connecting', '🟡 Reconectando...');
                 
                 setTimeout(() => {
                     if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
@@ -1257,25 +1443,34 @@
                 }, delay);
             }
 
-            updateConnectionStatus(connected) {
-                if (connected) {
-                    this.connectionStatus.textContent = "🟢 Conectado";
-                    this.connectionStatus.className = "connection-status connected";
-                } else {
-                    this.connectionStatus.textContent = "🔴 Desconectado";
-                    this.connectionStatus.className = "connection-status disconnected";
-                }
+            showReconnectButton() {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.innerHTML = '🔴 Desconectado <button id="reconnectBtn">Reconectar</button>';
+                document.getElementById('reconnectBtn').addEventListener('click', () => {
+                    this.reconnectAttempts = 0;
+                    this.connectToServer();
+                });
             }
 
-            showNotification(message) {
-                const notification = document.createElement('div');
-                notification.className = 'notification';
-                notification.textContent = message;
-                document.body.appendChild(notification);
+            updateConnectionStatus(status, message = null) {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.className = `connection-status ${status}`;
                 
-                setTimeout(() => {
-                    notification.remove();
-                }, 3000);
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    switch(status) {
+                        case 'connected':
+                            statusElement.textContent = '🟢 Conectado';
+                            break;
+                        case 'disconnected':
+                            statusElement.textContent = '🔴 Desconectado';
+                            break;
+                        case 'connecting':
+                            statusElement.textContent = '🟡 Conectando...';
+                            break;
+                    }
+                }
             }
 
             handleSocketMessage(data) {
@@ -1336,8 +1531,7 @@
                 this.players = data.players || [];
                 this.isHost = data.isHost;
                 
-                document.getElementById('joinScreen').style.display = 'none';
-                document.getElementById('multiplayerLobby').style.display = 'flex';
+                this.setState(this.STATES.LOBBY);
                 document.getElementById('lobbyPin').textContent = this.gamePin;
                 
                 this.updatePlayerList();
@@ -1345,6 +1539,7 @@
                 // Sincronizar estado de votación si ya está en curso
                 if (data.voteTime !== undefined) {
                     this.startVoteCountdown(data.voteTime);
+                    this.setState(this.STATES.VOTING);
                 }
                 
                 if (data.votes) {
@@ -1361,28 +1556,16 @@
             }
 
             handlePlayerJoined(data) {
-                const newPlayer = {
-                    id: data.player.id,
-                    name: data.player.name || data.player.displayName,
-                    avatar: data.player.avatar || '1',
-                    points: data.player.points || 0,
-                    streak: data.player.streak || 0,
-                    maxStreak: data.player.maxStreak || 0,
-                    isProfessor: data.player.isProfessor || false
-                };
-                
-                if (!this.players.some(p => p.id === newPlayer.id)) {
-                    this.players.push(newPlayer);
+                if (!this.players.some(p => p.id === data.player.id)) {
+                    this.players.push(data.player);
                     this.updatePlayerList();
-                    this.updateLiveRanking();
-                    this.showNotification(`${newPlayer.name} se ha unido`);
+                    this.showNotification(`${data.player.name} se ha unido`);
                 }
             }
 
             handlePlayerLeft(data) {
                 this.players = this.players.filter(p => p.id !== data.playerId);
                 this.updatePlayerList();
-                this.updateLiveRanking();
                 
                 const player = this.players.find(p => p.id === data.playerId);
                 if (player) {
@@ -1392,6 +1575,7 @@
 
             handleQuestionUpdate(data) {
                 this.currentQuestionData = data.question;
+                this.lastAnswerTime = Date.now();
                 this.displayQuestion(data.question);
                 
                 // Actualizar progreso si está disponible
@@ -1447,6 +1631,7 @@
                 // Solo el host puede iniciar votación
                 if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
                     this.startVoteCountdown(30);
+                    this.setState(this.STATES.VOTING);
                 }
             }
 
@@ -1474,7 +1659,7 @@
                 
                 // Resetear selección de botones
                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.remove('selected');
+                    btn.classList.remove('selected', 'voted');
                 });
                 
                 this.voteTime = time;
@@ -1513,11 +1698,13 @@
                 
                 // Resaltar botón seleccionado
                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.remove('selected');
+                    btn.classList.remove('selected', 'voted');
                     if (btn.dataset.mode === mode) {
-                        btn.classList.add('selected');
+                        btn.classList.add('selected', 'voted');
                     }
                 });
+                
+                this.playSound('clickSound');
                 
                 this.socket.send(JSON.stringify({
                     type: 'cast_vote',
@@ -1531,13 +1718,20 @@
                 this.voteCounts = votes;
                 let resultsHTML = '';
                 
-                for (const [mode, count] of Object.entries(this.voteCounts)) {
-                    if (count > 0) {
-                        resultsHTML += `<p>${this.getModeName(mode)}: ${count} votos</p>`;
-                    }
+                // Ordenar modos por número de votos
+                const sortedModes = Object.entries(this.voteCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .filter(([_, count]) => count > 0);
+                
+                if (sortedModes.length > 0) {
+                    sortedModes.forEach(([mode, count]) => {
+                        resultsHTML += `<p>${this.getModeName(mode)}: ${count} ${count === 1 ? 'voto' : 'votos'}</p>`;
+                    });
+                } else {
+                    resultsHTML = '<p>Esperando votos...</p>';
                 }
                 
-                document.getElementById('voteResults').innerHTML = resultsHTML || '<p>Esperando votos...</p>';
+                document.getElementById('voteResults').innerHTML = resultsHTML;
             }
 
             getModeName(mode) {
@@ -1614,9 +1808,7 @@
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
                 }
                 
-                document.getElementById('multiplayerLobby').style.display = 'none';
-                document.getElementById('gameContainer').style.display = 'block';
-                document.getElementById('liveRanking').style.display = 'block';
+                this.setState(this.STATES.PLAYING);
                 
                 // Mostrar controles adecuados según el modo
                 if (mode === 'verdadero-falso') {
@@ -1636,13 +1828,13 @@
                 
                 this.player.points = 0;
                 this.player.streak = 0;
+                this.player.responseTimes = [];
                 this.updatePlayerScore();
                 
                 // Iniciar actualización del ranking en vivo
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
-                this.lastPlayerPosition = this.lastRanking.findIndex(p => p.id === this.player.id);
                 this.updateLiveRanking();
-                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 1000); // Actualizar cada segundo
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
             }
 
             shareQuestionWithPlayers() {
@@ -1868,6 +2060,7 @@
                     document.getElementById("answerResult").className = "result";
                     this.player.hasAnswered = false;
                     document.getElementById('submitAnswer').disabled = false;
+                    this.lastAnswerTime = Date.now();
                     
                     // Mostrar imagen si la pregunta tiene una
                     const questionImage = document.getElementById('questionImage');
@@ -1900,6 +2093,11 @@
 
                     this.player.hasAnswered = true;
                     document.getElementById('submitAnswer').disabled = true;
+
+                    // Calcular tiempo de respuesta
+                    const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
+                    this.player.responseTimes.push(responseTime);
+                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
 
                     const currentQuestion = this.currentQuestionData;
                     let isCorrect = false;
@@ -1969,7 +2167,8 @@
                         answer: userAnswer,
                         correct: isCorrect,
                         points: pointsEarned,
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        responseTime: responseTime
                     });
                     
                     if (isCorrect) {
@@ -1981,9 +2180,12 @@
                     if (this.isMultiplayer && this.socket) {
                         this.socket.send(JSON.stringify({
                             type: 'player_score',
+                            pin: this.gamePin,
                             playerId: this.player.id,
                             points: this.player.points,
-                            streak: this.player.streak
+                            streak: this.player.streak,
+                            maxStreak: this.player.maxStreak,
+                            avgResponseTime: this.player.avgResponseTime
                         }));
                     }
                     
@@ -2011,7 +2213,9 @@
                         player.points = points;
                         if (streak !== null) {
                             player.streak = streak;
-                            player.maxStreak = Math.max(player.maxStreak || 0, streak);
+                            if (streak > (player.maxStreak || 0)) {
+                                player.maxStreak = streak;
+                            }
                         }
                     }
                 }
@@ -2020,54 +2224,62 @@
             }
 
             updateLiveRanking() {
-                const rankingList = document.getElementById('rankingList');
+                if (this.animationPending) return;
+                this.animationPending = true;
                 
-                // Asegurarnos de que todos los jugadores tengan puntos definidos
-                this.players.forEach(player => {
-                    if (player.points === undefined) player.points = 0;
-                    if (player.streak === undefined) player.streak = 0;
-                    if (player.maxStreak === undefined) player.maxStreak = 0;
-                });
-                
-                // Ordenar por puntos (mayor a menor)
-                const currentRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
-                
-                rankingList.innerHTML = '';
-                
-                currentRanking.forEach((player, index) => {
-                    const playerElement = document.createElement('div');
-                    playerElement.className = 'ranking-item';
+                requestAnimationFrame(() => {
+                    const rankingList = document.getElementById('rankingList');
+                    const currentRanking = [...this.players].sort((a, b) => {
+                        if (b.points !== a.points) return b.points - a.points;
+                        if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                        return (b.streak || 0) - (a.streak || 0);
+                    });
                     
-                    // Verificar cambios de posición
-                    const lastPosition = this.lastRanking.findIndex(p => p.id === player.id);
-                    if (lastPosition !== -1 && lastPosition !== index) {
-                        playerElement.classList.add(index < lastPosition ? 'move-up' : 'move-down');
+                    // Solo actualizar si hay cambios
+                    if (JSON.stringify(currentRanking) === JSON.stringify(this.lastRanking)) {
+                        this.animationPending = false;
+                        return;
+                    }
+                    
+                    rankingList.innerHTML = '';
+                    
+                    currentRanking.forEach((player, index) => {
+                        const playerElement = document.createElement('div');
+                        playerElement.className = 'ranking-item';
                         
-                        // Reproducir sonido si es el jugador actual
-                        if (player.id === this.player.id) {
-                            this.playSound(index < lastPosition ? 'rankUpSound' : 'rankDownSound');
+                        // Limpiar clases de animación previas
+                        playerElement.classList.remove('move-up', 'move-down');
+                        
+                        const lastPosition = this.lastRanking.findIndex(p => p.id === player.id);
+                        if (lastPosition !== -1 && lastPosition !== index) {
+                            playerElement.classList.add(index < lastPosition ? 'move-up' : 'move-down');
+                            
+                            // Remover la clase después de la animación
+                            setTimeout(() => {
+                                playerElement.classList.remove('move-up', 'move-down');
+                            }, 500);
                         }
-                    }
+                        
+                        if (player.id === this.player.id) {
+                            playerElement.classList.add('current-player');
+                        }
+                        
+                        // Mostrar racha si es mayor a 3
+                        const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
+                        
+                        playerElement.innerHTML = `
+                            <span class="ranking-position">${index + 1}°</span>
+                            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                            <span class="ranking-name">${this.extractName(player.name)}</span>
+                            <span class="ranking-points">${player.points || 0}${streakBadge}</span>
+                        `;
+                        
+                        rankingList.appendChild(playerElement);
+                    });
                     
-                    if (player.id === this.player.id) {
-                        playerElement.classList.add('current-player');
-                        this.lastPlayerPosition = index;
-                    }
-                    
-                    // Mostrar racha si es mayor a 3
-                    const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
-                    
-                    playerElement.innerHTML = `
-                        <span class="ranking-position">${index + 1}°</span>
-                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
-                        <span class="ranking-name">${this.extractName(player.name)}</span>
-                        <span class="ranking-points">${player.points || 0} pts${streakBadge}</span>
-                    `;
-                    
-                    rankingList.appendChild(playerElement);
+                    this.lastRanking = currentRanking;
+                    this.animationPending = false;
                 });
-                
-                this.lastRanking = currentRanking;
             }
 
             extractName(fullName) {
@@ -2177,6 +2389,8 @@
                     } else if (!this.isMultiplayer) {
                         this.showWinner();
                     }
+                    
+                    this.setState(this.STATES.RESULTS);
                 } catch (error) {
                     console.error("Error al finalizar juego:", error);
                     this.showError("Error al finalizar el juego");
@@ -2184,7 +2398,11 @@
             }
 
             getFinalRanking() {
-                return [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
+                return [...this.players].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    return (b.maxStreak || 0) - (a.maxStreak || 0);
+                });
             }
 
             showWinner() {
@@ -2218,9 +2436,7 @@
                 try {
                     console.log("Mostrando resultados finales:", finalRanking);
                     
-                    document.getElementById('gameContainer').style.display = 'none';
-                    document.getElementById('liveRanking').style.display = 'none';
-                    document.getElementById('finalResults').style.display = 'flex';
+                    this.setState(this.STATES.RESULTS);
                     
                     // Obtener elementos del DOM
                     const firstPlace = document.getElementById('firstPlace');
@@ -2268,7 +2484,7 @@
                         playerElement.className = 'other-player';
                         playerElement.innerHTML = `
                             <div class="player-info">
-                                <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar">
+                                <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
                                 <span>${i + 1}. ${this.extractName(player.name)}</span>
                             </div>
                             <span>${playerPoints} pts</span>
@@ -2306,6 +2522,17 @@
                 errorElement.className = "result incorrect";
             }
 
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
             reiniciarJuego() {
                 try {
                     this.playSound('clickSound');
@@ -2317,6 +2544,7 @@
                     
                     this.player.points = 0;
                     this.player.streak = 0;
+                    this.player.responseTimes = [];
                     this.updatePlayerScore();
                     this.currentQuestionIndex = 0;
                     this.player.hasAnswered = false;
@@ -2332,24 +2560,17 @@
                     document.getElementById('submitAnswer').disabled = false;
                     document.getElementById('questionImage').style.display = 'none';
                     
-                    document.getElementById('finalResults').style.display = 'none';
-                    document.getElementById('liveRanking').style.display = 'none';
-                    document.getElementById('gameContainer').classList.remove('lightning-mode');
-                    document.getElementById('standardInput').style.display = 'block';
-                    document.getElementById('trueFalseButtons').style.display = 'none';
-                    
                     if (this.isMultiplayer) {
-                        document.getElementById('multiplayerLobby').style.display = 'flex';
-                        document.getElementById('gameContainer').style.display = 'none';
                         this.player.hasVoted = false;
                         
                         // Resetear selección de botones de voto
                         document.querySelectorAll('.mode-btn').forEach(btn => {
-                            btn.classList.remove('selected');
+                            btn.classList.remove('selected', 'voted');
                         });
+                        
+                        this.setState(this.STATES.LOBBY);
                     } else {
-                        document.getElementById('gameContainer').style.display = 'none';
-                        document.getElementById('joinScreen').style.display = 'flex';
+                        this.setState(this.STATES.JOIN_SCREEN);
                     }
                 } catch (error) {
                     console.error("Error al reiniciar juego:", error);
@@ -2387,8 +2608,10 @@
                 if (!this.soundEnabled) return;
                 try {
                     const sound = document.getElementById(soundId);
-                    sound.currentTime = 0;
-                    sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                    if (sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                    }
                 } catch (error) {
                     console.error("Error con el sonido:", error);
                 }

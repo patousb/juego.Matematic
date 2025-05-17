@@ -215,7 +215,7 @@
         }
 
         .player-badge {
-            background: linear-gradient(45deg, var(--azul), var(--morado));
+            background: linear-gradient(45deg, var(--azul), var(--morado);
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
@@ -479,20 +479,22 @@
 
         .ranking-item.move-up {
             animation: moveUp 0.5s ease;
+            background-color: rgba(107, 255, 107, 0.3);
         }
 
         .ranking-item.move-down {
             animation: moveDown 0.5s ease;
+            background-color: rgba(255, 107, 107, 0.3);
         }
 
         @keyframes moveUp {
-            0% { transform: translateY(0); background: var(--verde); }
+            0% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0); }
         }
 
         @keyframes moveDown {
-            0% { transform: translateY(0); background: var(--rojo); }
+            0% { transform: translateY(0); }
             50% { transform: translateY(10px); }
             100% { transform: translateY(0); }
         }
@@ -500,6 +502,7 @@
         .ranking-position {
             font-weight: bold;
             color: var(--morado);
+            min-width: 30px;
         }
 
         .ranking-name {
@@ -513,6 +516,8 @@
         .ranking-points {
             font-weight: bold;
             color: var(--azul);
+            min-width: 50px;
+            text-align: right;
         }
 
         .ranking-avatar {
@@ -958,6 +963,8 @@
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
+    <audio id="rankUpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
+    <audio id="rankDownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" preload="auto"></audio>
 
     <script>
         class GameManager {
@@ -1018,6 +1025,7 @@
                 // Ranking
                 this.lastRanking = [];
                 this.rankingUpdateInterval = null;
+                this.lastPlayerPosition = 0;
                 
                 // Elementos UI
                 this.themeToggle = document.getElementById('themeToggle');
@@ -1159,7 +1167,8 @@
                     hasVoted: false,
                     streak: 0,
                     maxStreak: 0,
-                    history: []
+                    history: [],
+                    isProfessor: true
                 };
 
                 // Generar PIN aleatorio de 4 dígitos
@@ -1352,16 +1361,28 @@
             }
 
             handlePlayerJoined(data) {
-                if (!this.players.some(p => p.id === data.player.id)) {
-                    this.players.push(data.player);
+                const newPlayer = {
+                    id: data.player.id,
+                    name: data.player.name || data.player.displayName,
+                    avatar: data.player.avatar || '1',
+                    points: data.player.points || 0,
+                    streak: data.player.streak || 0,
+                    maxStreak: data.player.maxStreak || 0,
+                    isProfessor: data.player.isProfessor || false
+                };
+                
+                if (!this.players.some(p => p.id === newPlayer.id)) {
+                    this.players.push(newPlayer);
                     this.updatePlayerList();
-                    this.showNotification(`${data.player.name} se ha unido`);
+                    this.updateLiveRanking();
+                    this.showNotification(`${newPlayer.name} se ha unido`);
                 }
             }
 
             handlePlayerLeft(data) {
                 this.players = this.players.filter(p => p.id !== data.playerId);
                 this.updatePlayerList();
+                this.updateLiveRanking();
                 
                 const player = this.players.find(p => p.id === data.playerId);
                 if (player) {
@@ -1387,7 +1408,8 @@
                         name: p.name || p.displayName,
                         avatar: p.avatar || '1',
                         points: p.points || 0,
-                        streak: p.streak || 0
+                        streak: p.streak || 0,
+                        maxStreak: p.maxStreak || 0
                     })) : [];
                 this.showMultiplayerResults(finalRanking);
             }
@@ -1618,8 +1640,9 @@
                 
                 // Iniciar actualización del ranking en vivo
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
+                this.lastPlayerPosition = this.lastRanking.findIndex(p => p.id === this.player.id);
                 this.updateLiveRanking();
-                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 1000); // Actualizar cada segundo
             }
 
             shareQuestionWithPlayers() {
@@ -1988,9 +2011,7 @@
                         player.points = points;
                         if (streak !== null) {
                             player.streak = streak;
-                            if (streak > (player.maxStreak || 0)) {
-                                player.maxStreak = streak;
-                            }
+                            player.maxStreak = Math.max(player.maxStreak || 0, streak);
                         }
                     }
                 }
@@ -2000,6 +2021,15 @@
 
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
+                
+                // Asegurarnos de que todos los jugadores tengan puntos definidos
+                this.players.forEach(player => {
+                    if (player.points === undefined) player.points = 0;
+                    if (player.streak === undefined) player.streak = 0;
+                    if (player.maxStreak === undefined) player.maxStreak = 0;
+                });
+                
+                // Ordenar por puntos (mayor a menor)
                 const currentRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 
                 rankingList.innerHTML = '';
@@ -2008,18 +2038,20 @@
                     const playerElement = document.createElement('div');
                     playerElement.className = 'ranking-item';
                     
-                    // Añadir clase si el jugador subió/bajó
+                    // Verificar cambios de posición
                     const lastPosition = this.lastRanking.findIndex(p => p.id === player.id);
-                    if (lastPosition !== -1) {
-                        if (index < lastPosition) {
-                            playerElement.classList.add('move-up');
-                        } else if (index > lastPosition) {
-                            playerElement.classList.add('move-down');
+                    if (lastPosition !== -1 && lastPosition !== index) {
+                        playerElement.classList.add(index < lastPosition ? 'move-up' : 'move-down');
+                        
+                        // Reproducir sonido si es el jugador actual
+                        if (player.id === this.player.id) {
+                            this.playSound(index < lastPosition ? 'rankUpSound' : 'rankDownSound');
                         }
                     }
                     
                     if (player.id === this.player.id) {
                         playerElement.classList.add('current-player');
+                        this.lastPlayerPosition = index;
                     }
                     
                     // Mostrar racha si es mayor a 3
@@ -2029,7 +2061,7 @@
                         <span class="ranking-position">${index + 1}°</span>
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
                         <span class="ranking-name">${this.extractName(player.name)}</span>
-                        <span class="ranking-points">${player.points || 0}${streakBadge}</span>
+                        <span class="ranking-points">${player.points || 0} pts${streakBadge}</span>
                     `;
                     
                     rankingList.appendChild(playerElement);

@@ -1,7 +1,3 @@
-sigue incompleto
-
-ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a este
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -55,6 +51,36 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             margin-bottom: 20px;
         }
 
+        /* Pantalla de carga */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--fondo);
+            z-index: 2000;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(78, 140, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--morado);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Pantalla de unión */
         .join-screen {
             position: fixed;
             top: 0;
@@ -90,13 +116,39 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             font-weight: bold;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 12px;
             border: 2px solid var(--borde);
             border-radius: 8px;
             font-size: 1rem;
             font-family: 'Comic Neue', cursive;
+        }
+
+        .avatar-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .avatar-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--morado);
+            transform: scale(1.1);
         }
 
         .btn {
@@ -118,12 +170,19 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             box-shadow: 0 5px 15px var(--sombra);
         }
 
+        .btn-secondary {
+            background: var(--panel);
+            border: 2px solid var(--borde);
+            color: var(--texto);
+        }
+
         .error-message {
             color: var(--rojo);
             margin-top: 10px;
             font-weight: bold;
         }
 
+        /* Lobby multijugador */
         .multiplayer-lobby {
             position: fixed;
             top: 0;
@@ -161,6 +220,15 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             padding: 8px 15px;
             border-radius: 20px;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .player-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
         }
 
         .vote-section {
@@ -209,6 +277,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             border: 2px solid var(--borde);
         }
 
+        /* Juego principal */
         #gameContainer {
             display: none;
             max-width: 800px;
@@ -235,6 +304,13 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             padding: 15px;
             border-radius: 10px;
             border-left: 5px solid var(--morado);
+        }
+
+        .question-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px auto;
+            border-radius: 8px;
         }
 
         .input-container {
@@ -290,6 +366,21 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             animation: shake 0.5s ease;
         }
 
+        @keyframes tada {
+            0% { transform: scale(1); }
+            10%, 20% { transform: scale(0.9) rotate(-3deg); }
+            30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+            40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Temporizador */
         .timer-container {
             width: 100px;
             height: 100px;
@@ -327,23 +418,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             color: var(--tiempo-alerta);
         }
 
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--panel);
-            border: 2px solid var(--borde);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px var(--sombra);
-            z-index: 100;
-        }
-
+        /* Barra de progreso */
         .progress-container {
             width: 80%;
             height: 10px;
@@ -360,6 +435,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             transition: width 0.5s ease;
         }
 
+        /* Ranking en vivo */
         .live-ranking {
             position: fixed;
             top: 20px;
@@ -439,6 +515,14 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             color: var(--azul);
         }
 
+        .ranking-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* Resultados finales */
         .final-results {
             position: fixed;
             top: 0;
@@ -502,11 +586,20 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             margin-top: 10px;
             font-weight: bold;
             font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .podium-points {
             font-size: 1rem;
             color: var(--texto);
+        }
+
+        .podium-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
         }
 
         .other-players {
@@ -529,12 +622,26 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             transition: all 0.3s ease;
+            align-items: center;
         }
 
         .other-player:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .other-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        /* Notificaciones */
         .notification {
             position: fixed;
             top: 20px;
@@ -557,6 +664,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
 
+        /* Estado de conexión */
         .connection-status {
             position: fixed;
             bottom: 10px;
@@ -583,6 +691,72 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
             100% { opacity: 1; }
         }
 
+        /* Botón tema nocturno */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--panel);
+            border: 2px solid var(--borde);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px var(--sombra);
+            z-index: 100;
+        }
+
+        /* Botón saltar pregunta (modo profesor) */
+        .skip-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+        }
+
+        /* Modo relámpago */
+        .lightning-mode .timer-container {
+            width: 70px;
+            height: 70px;
+        }
+
+        .lightning-mode .timer-text {
+            font-size: 1.5rem;
+        }
+
+        /* Modo verdadero/falso */
+        .true-false-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .true-false-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .true-btn {
+            background-color: var(--verde);
+            color: white;
+        }
+
+        .false-btn {
+            background-color: var(--rojo);
+            color: white;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
                 grid-template-columns: 1fr;
@@ -609,6 +783,12 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
     </style>
 </head>
 <body>
+    <!-- Pantalla de carga -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <h2>Cargando Math Challenge PRO...</h2>
+    </div>
+
     <!-- Pantalla de unión -->
     <div class="join-screen" id="joinScreen">
         <h1>✨ Math Challenge PRO ✨</h1>
@@ -626,7 +806,21 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 <label for="gamePin">Código PIN:</label>
                 <input type="text" id="gamePin" placeholder="Ej: 1234" maxlength="4">
             </div>
+            
+            <div class="input-group">
+                <label>Elige tu avatar:</label>
+                <div class="avatar-selector" id="avatarSelector">
+                    <img src="https://i.pravatar.cc/150?img=1" class="avatar-option" data-avatar="1">
+                    <img src="https://i.pravatar.cc/150?img=2" class="avatar-option" data-avatar="2">
+                    <img src="https://i.pravatar.cc/150?img=3" class="avatar-option" data-avatar="3">
+                    <img src="https://i.pravatar.cc/150?img=4" class="avatar-option" data-avatar="4">
+                    <img src="https://i.pravatar.cc/150?img=5" class="avatar-option" data-avatar="5">
+                    <img src="https://i.pravatar.cc/150?img=6" class="avatar-option" data-avatar="6">
+                </div>
+            </div>
+            
             <button class="btn" id="joinGame">Unirse</button>
+            <button class="btn btn-secondary" id="createGame">Crear nueva sala</button>
             <p id="joinError" class="error-message"></p>
         </div>
     </div>
@@ -646,6 +840,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     <button class="mode-btn" data-mode="secuencia">📈 Secuencia Numérica</button>
                     <button class="mode-btn" data-mode="potenciacion">💪 Potenciación</button>
                     <button class="mode-btn" data-mode="combinadas">🧩 Operaciones Combinadas</button>
+                    <button class="mode-btn" data-mode="relampago">⚡ Modo Relámpago</button>
+                    <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
+                    <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
                 </div>
                 <div class="vote-results">
                     <h4>Resultados:</h4>
@@ -677,7 +874,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
         <div class="game">
             <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
             <p id="currentQuestion" class="question">Haz clic en un juego para comenzar</p>
-            <div class="input-container">
+            <img id="questionImage" class="question-image" style="display: none;">
+            
+            <div class="input-container" id="standardInput">
                 <input type="text" id="playerAnswer" readonly>
                 <div class="keyboard">
                     <div class="key" data-number="1">1</div>
@@ -696,6 +895,11 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 <button class="btn" id="submitAnswer">Responder 🚀</button>
                 <p id="answerResult" class="result">Esperando respuesta... 🤔</p>
             </div>
+            
+            <div class="true-false-buttons" id="trueFalseButtons" style="display: none;">
+                <button class="true-false-btn true-btn" id="trueBtn">✅ Verdadero</button>
+                <button class="true-false-btn false-btn" id="falseBtn">❌ Falso</button>
+            </div>
         </div>
 
         <div class="progress-container">
@@ -712,17 +916,26 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
         <div class="podium">
             <div class="podium-place" id="secondPlace">
                 <div class="podium-2"></div>
-                <div class="podium-name">-</div>
+                <div class="podium-name">
+                    <img class="podium-avatar" id="secondAvatar">
+                    <span id="secondName">-</span>
+                </div>
                 <div class="podium-points">0 pts</div>
             </div>
             <div class="podium-place" id="firstPlace">
                 <div class="podium-1"></div>
-                <div class="podium-name">-</div>
+                <div class="podium-name">
+                    <img class="podium-avatar" id="firstAvatar">
+                    <span id="firstName">-</span>
+                </div>
                 <div class="podium-points">0 pts</div>
             </div>
             <div class="podium-place" id="thirdPlace">
                 <div class="podium-3"></div>
-                <div class="podium-name">-</div>
+                <div class="podium-name">
+                    <img class="podium-avatar" id="thirdAvatar">
+                    <span id="thirdName">-</span>
+                </div>
                 <div class="podium-points">0 pts</div>
             </div>
         </div>
@@ -732,6 +945,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
 
     <!-- Botón Tema Nocturno -->
     <div class="theme-toggle" id="themeToggle">🌙</div>
+    
+    <!-- Botón saltar pregunta (modo profesor) -->
+    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
 
     <!-- Estado de conexión -->
     <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
@@ -741,6 +957,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
     <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+    <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
 
     <script>
         class GameManager {
@@ -750,9 +967,13 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     name: "",
                     grade: "",
                     displayName: "",
+                    avatar: "1",
                     points: 0,
                     hasAnswered: false,
-                    hasVoted: false
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    history: []
                 };
                 this.questions = [];
                 this.currentQuestionIndex = 0;
@@ -765,6 +986,8 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
+                this.isProfessor = false;
+                this.closestAnswerMode = false;
                 
                 // Multijugador
                 this.isMultiplayer = false;
@@ -786,7 +1009,10 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     misterioso: 0,
                     secuencia: 0,
                     potenciacion: 0,
-                    combinadas: 0
+                    combinadas: 0,
+                    relampago: 0,
+                    "verdadero-falso": 0,
+                    "mas-cercano": 0
                 };
                 
                 // Ranking
@@ -798,9 +1024,15 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 this.timerCircle = document.querySelector('.timer-circle');
                 this.timerText = document.getElementById('timerText');
                 this.connectionStatus = document.getElementById('connectionStatus');
+                this.skipQuestionBtn = document.getElementById('skipQuestion');
                 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
+                
+                // Simular carga inicial
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 1500);
             }
 
             setupEventListeners() {
@@ -812,8 +1044,22 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
                 });
                 
+                // Selección de avatar
+                document.querySelectorAll('.avatar-option').forEach(avatar => {
+                    avatar.addEventListener('click', () => {
+                        document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+                        avatar.classList.add('selected');
+                        this.player.avatar = avatar.dataset.avatar;
+                        this.playSound('clickSound');
+                    });
+                });
+                
+                // Seleccionar primer avatar por defecto
+                document.querySelector('.avatar-option').click();
+                
                 // Unirse al juego
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
+                document.getElementById('createGame').addEventListener('click', () => this.createGame());
                 
                 // Teclado numérico
                 document.querySelectorAll('.key[data-number]').forEach(key => {
@@ -835,6 +1081,10 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     if (e.key === 'Enter') this.submitAnswer();
                 });
                 
+                // Botones verdadero/falso
+                document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
+                document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
+                
                 // Reiniciar juego
                 document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
                 document.getElementById('backToLobby').addEventListener('click', () => this.reiniciarJuego());
@@ -843,6 +1093,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
                 });
+                
+                // Saltar pregunta (modo profesor)
+                this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
             }
 
             checkDarkModePreference() {
@@ -873,12 +1126,50 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     name: playerName,
                     grade: grade,
                     displayName: `${playerName} (${grade})`,
+                    avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
-                    hasVoted: false
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    history: []
                 };
 
                 this.gamePin = gamePin;
+                this.connectToServer();
+            }
+
+            createGame() {
+                const playerName = document.getElementById('playerName').value.trim();
+                const grade = document.getElementById('grade').value.trim();
+                
+                if (!playerName || !grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa nombre y grado';
+                    return;
+                }
+
+                this.player = {
+                    id: this.generateId(),
+                    name: playerName,
+                    grade: grade,
+                    displayName: `${playerName} (${grade})`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    history: []
+                };
+
+                // Generar PIN aleatorio de 4 dígitos
+                this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
+                document.getElementById('gamePin').value = this.gamePin;
+                
+                // Marcar como profesor/host
+                this.isProfessor = true;
+                this.skipQuestionBtn.style.display = 'block';
+                
                 this.connectToServer();
             }
 
@@ -915,7 +1206,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                             player: {
                                 id: this.player.id,
                                 name: this.player.displayName,
-                                points: 0
+                                avatar: this.player.avatar,
+                                points: 0,
+                                isProfessor: this.isProfessor
                             }
                         }));
                     };
@@ -1005,7 +1298,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         break;
                         
                     case 'start_game':
-                        this.startGame(data.mode);
+                        this.startGame(data.mode, data.closestAnswerMode);
                         break;
                         
                     case 'question_update':
@@ -1017,7 +1310,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         break;
                         
                     case 'player_score':
-                        this.updatePlayerScore(data.playerId, data.points);
+                        this.updatePlayerScore(data.playerId, data.points, data.streak);
                         break;
                         
                     case 'error':
@@ -1054,7 +1347,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 }
                 
                 if (data.isGameRunning) {
-                    this.startGame(data.gameMode);
+                    this.startGame(data.gameMode, data.closestAnswerMode);
                 }
             }
 
@@ -1092,7 +1385,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     data.finalRanking.map(p => ({
                         id: p.id,
                         name: p.name || p.displayName,
-                        points: p.points || 0
+                        avatar: p.avatar || '1',
+                        points: p.points || 0,
+                        streak: p.streak || 0
                     })) : [];
                 this.showMultiplayerResults(finalRanking);
             }
@@ -1109,10 +1404,19 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 this.players.forEach(player => {
                     const playerElement = document.createElement('div');
                     playerElement.className = 'player-badge';
-                    playerElement.textContent = player.name;
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
+                        <span>${player.name}</span>
+                    `;
+                    
                     if (player.id === this.player.id) {
                         playerElement.style.border = '2px solid var(--amarillo)';
                     }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
                     playerList.appendChild(playerElement);
                 });
                 
@@ -1136,7 +1440,10 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     misterioso: 0,
                     secuencia: 0,
                     potenciacion: 0,
-                    combinadas: 0
+                    combinadas: 0,
+                    relampago: 0,
+                    "verdadero-falso": 0,
+                    "mas-cercano": 0
                 };
                 
                 // Resetear estado de votación
@@ -1203,7 +1510,9 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 let resultsHTML = '';
                 
                 for (const [mode, count] of Object.entries(this.voteCounts)) {
-                    resultsHTML += `<p>${this.getModeName(mode)}: ${count} votos</p>`;
+                    if (count > 0) {
+                        resultsHTML += `<p>${this.getModeName(mode)}: ${count} votos</p>`;
+                    }
                 }
                 
                 document.getElementById('voteResults').innerHTML = resultsHTML || '<p>Esperando votos...</p>';
@@ -1215,7 +1524,10 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     misterioso: '❓ Número Misterioso',
                     secuencia: '📈 Secuencia Numérica',
                     potenciacion: '💪 Potenciación',
-                    combinadas: '🧩 Operaciones Combinadas'
+                    combinadas: '🧩 Operaciones Combinadas',
+                    relampago: '⚡ Modo Relámpago',
+                    "verdadero-falso": '✅❌ Verdadero/Falso',
+                    "mas-cercano": '🎯 El más cercano gana'
                 };
                 return names[mode] || mode;
             }
@@ -1225,6 +1537,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 
                 let maxVotes = 0;
                 let selectedMode = 'operaciones'; // Modo por defecto
+                let closestAnswerMode = false;
                 
                 // Contar votos válidos
                 const totalVotes = Object.values(this.voteCounts).reduce((a, b) => a + b, 0);
@@ -1248,20 +1561,49 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     selectedMode = modesWithMaxVotes[Math.floor(Math.random() * modesWithMaxVotes.length)];
                 }
                 
+                // Configurar modo especial "El más cercano gana"
+                if (selectedMode === 'mas-cercano') {
+                    closestAnswerMode = true;
+                    selectedMode = 'operaciones'; // Usar operaciones normales pero con puntuación diferente
+                }
+                
                 console.log(`Iniciando modo de juego: ${selectedMode} con ${maxVotes} votos`);
                 
                 this.socket.send(JSON.stringify({
                     type: 'start_game',
                     pin: this.gamePin,
-                    mode: selectedMode
+                    mode: selectedMode,
+                    closestAnswerMode: closestAnswerMode
                 }));
             }
 
-            startGame(mode) {
+            startGame(mode, closestAnswerMode = false) {
                 this.selectedGameMode = mode;
+                this.closestAnswerMode = closestAnswerMode;
+                
+                // Configurar temporizador según el modo
+                if (mode === 'relampago') {
+                    this.timerDuration = 5;
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                } else if (mode === 'verdadero-falso') {
+                    this.timerDuration = 15;
+                } else {
+                    this.timerDuration = 30;
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                }
+                
                 document.getElementById('multiplayerLobby').style.display = 'none';
                 document.getElementById('gameContainer').style.display = 'block';
                 document.getElementById('liveRanking').style.display = 'block';
+                
+                // Mostrar controles adecuados según el modo
+                if (mode === 'verdadero-falso') {
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'flex';
+                } else {
+                    document.getElementById('standardInput').style.display = 'block';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                }
                 
                 // Solo el host genera preguntas
                 if (this.isHost) {
@@ -1271,6 +1613,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 }
                 
                 this.player.points = 0;
+                this.player.streak = 0;
                 this.updatePlayerScore();
                 
                 // Iniciar actualización del ranking en vivo
@@ -1329,7 +1672,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                             break;
                     }
                     
-                    return { pregunta, respuesta };
+                    return { pregunta, respuesta, tipo: 'operacion' };
                 };
                 
                 const generarMisterioso = () => {
@@ -1347,7 +1690,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         pregunta = `? - ${num2} = ${num1}`;
                     }
                     
-                    return { pregunta, respuesta };
+                    return { pregunta, respuesta, tipo: 'misterioso' };
                 };
                 
                 const generarSecuencia = () => {
@@ -1374,7 +1717,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     const pregunta = `Completa: ${secuencia.join(", ")}`;
                     const respuesta = patron.inicio + posicionFalta * patron.paso;
                     
-                    return { pregunta, respuesta };
+                    return { pregunta, respuesta, tipo: 'secuencia' };
                 };
                 
                 const generarPotenciacion = () => {
@@ -1384,7 +1727,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     const pregunta = `${base}${superScripts[exponente]} = ?`;
                     const respuesta = Math.pow(base, exponente);
                     
-                    return { pregunta, respuesta };
+                    return { pregunta, respuesta, tipo: 'potenciacion' };
                 };
                 
                 const generarCombinadas = () => {
@@ -1398,7 +1741,57 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         { pregunta: "(8 - 3)² = ?", respuesta: 25 }
                     ];
                     
-                    return operaciones[Math.floor(Math.random() * operaciones.length)];
+                    const op = operaciones[Math.floor(Math.random() * operaciones.length)];
+                    return { pregunta: op.pregunta, respuesta: op.respuesta, tipo: 'combinadas' };
+                };
+                
+                const generarVerdaderoFalso = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let operacion, respuesta, esCorrecta;
+                    
+                    // 70% de probabilidad de ser verdadero
+                    esCorrecta = Math.random() < 0.7;
+                    
+                    switch(operador) {
+                        case '+':
+                            operacion = `${num1} + ${num2} = ${num1 + num2}`;
+                            respuesta = esCorrecta;
+                            break;
+                        case '-':
+                            operacion = `${num1} - ${num2} = ${num1 - num2}`;
+                            respuesta = esCorrecta;
+                            if (!esCorrecta) {
+                                operacion = `${num1} - ${num2} = ${num1 - num2 + (Math.random() > 0.5 ? 1 : -1)}`;
+                            }
+                            break;
+                        case '*':
+                            operacion = `${num1} × ${num2} = ${num1 * num2}`;
+                            respuesta = esCorrecta;
+                            if (!esCorrecta) {
+                                operacion = `${num1} × ${num2} = ${num1 * num2 + (Math.random() > 0.5 ? 1 : -1)}`;
+                            }
+                            break;
+                        case '/':
+                            const divisor = Math.floor(Math.random() * 3) + 1;
+                            const dividendo = divisor * (Math.floor(Math.random() * 5) + 1);
+                            operacion = `${dividendo} ÷ ${divisor} = ${dividendo / divisor}`;
+                            respuesta = esCorrecta;
+                            if (!esCorrecta) {
+                                operacion = `${dividendo} ÷ ${divisor} = ${(dividendo / divisor) + (Math.random() > 0.5 ? 1 : -1)}`;
+                            }
+                            break;
+                    }
+                    
+                    return { 
+                        pregunta: `¿Es correcta esta operación?<br>${operacion}`, 
+                        respuesta: respuesta,
+                        tipo: 'verdadero-falso',
+                        explicacion: respuesta ? "La operación es correcta" : "La operación es incorrecta"
+                    };
                 };
                 
                 let generador;
@@ -1408,11 +1801,34 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     case 'secuencia': generador = generarSecuencia; break;
                     case 'potenciacion': generador = generarPotenciacion; break;
                     case 'combinadas': generador = generarCombinadas; break;
+                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
                     default: generador = generarOperacion;
                 }
                 
                 for (let i = 0; i < count; i++) {
                     preguntas.push(generador());
+                }
+                
+                // Añadir algunas preguntas con imágenes (20% de probabilidad)
+                if (Math.random() < 0.2) {
+                    const preguntasConImagen = [
+                        {
+                            pregunta: "¿Cuántos cuadrados hay en esta figura?",
+                            imagen: "https://via.placeholder.com/300/4e8cff/ffffff?text=Cuadrados",
+                            respuesta: 5,
+                            tipo: "imagen"
+                        },
+                        {
+                            pregunta: "¿Cuántas frutas hay en total?",
+                            imagen: "https://via.placeholder.com/300/6bff6b/ffffff?text=Manzanas+y+Naranjas",
+                            respuesta: 8,
+                            tipo: "imagen"
+                        }
+                    ];
+                    
+                    // Reemplazar una pregunta aleatoria por una con imagen
+                    const index = Math.floor(Math.random() * preguntas.length);
+                    preguntas[index] = preguntasConImagen[Math.floor(Math.random() * preguntasConImagen.length)];
                 }
                 
                 return preguntas;
@@ -1423,12 +1839,21 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     const question = questionData || this.currentQuestionData;
                     if (!question) return;
                     
-                    document.getElementById("currentQuestion").textContent = question.pregunta;
+                    document.getElementById("currentQuestion").innerHTML = question.pregunta;
                     document.getElementById("playerAnswer").value = "";
                     document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
                     document.getElementById("answerResult").className = "result";
                     this.player.hasAnswered = false;
                     document.getElementById('submitAnswer').disabled = false;
+                    
+                    // Mostrar imagen si la pregunta tiene una
+                    const questionImage = document.getElementById('questionImage');
+                    if (question.imagen) {
+                        questionImage.src = question.imagen;
+                        questionImage.style.display = 'block';
+                    } else {
+                        questionImage.style.display = 'none';
+                    }
                     
                     // Iniciar temporizador para esta pregunta
                     this.resetTimer();
@@ -1445,14 +1870,8 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         return;
                     }
 
-                    if (!userAnswer || userAnswer.trim() === "") {
+                    if ((!userAnswer || userAnswer.trim() === "") && this.selectedGameMode !== 'verdadero-falso') {
                         this.showResult("¡Escribe una respuesta!", false);
-                        return;
-                    }
-
-                    const userAnswerParsed = parseFloat(userAnswer.trim());
-                    if (isNaN(userAnswerParsed)) {
-                        this.showResult("¡Solo números!", false);
                         return;
                     }
 
@@ -1460,27 +1879,89 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     document.getElementById('submitAnswer').disabled = true;
 
                     const currentQuestion = this.currentQuestionData;
-                    const isCorrect = userAnswerParsed === currentQuestion.respuesta;
-                    const timeBonus = Math.floor(this.timeLeft / 5);
+                    let isCorrect = false;
+                    let pointsEarned = 0;
+                    let timeBonus = Math.floor(this.timeLeft / 5);
                     
-                    if (isCorrect) {
-                        const pointsEarned = 1 + timeBonus;
-                        this.player.points += pointsEarned;
-                        this.updatePlayerScore();
-                        this.showResult(`✅ Correcto! +${pointsEarned} puntos`, true);
+                    if (this.selectedGameMode === 'verdadero-falso') {
+                        const userResponse = userAnswer === 'true';
+                        isCorrect = userResponse === currentQuestion.respuesta;
                         
-                        this.playSound('correctSound');
-                        
-                        if (this.isMultiplayer && this.socket) {
-                            this.socket.send(JSON.stringify({
-                                type: 'player_score',
-                                playerId: this.player.id,
-                                points: this.player.points
-                            }));
+                        if (isCorrect) {
+                            pointsEarned = 1 + timeBonus;
+                            this.player.streak++;
+                            if (this.player.streak > this.player.maxStreak) {
+                                this.player.maxStreak = this.player.streak;
+                            }
+                            
+                            this.player.points += pointsEarned;
+                            this.showResult(`✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}`, true);
+                        } else {
+                            this.player.streak = 0;
+                            this.showResult(`❌ Incorrecto! ${currentQuestion.explicacion}`, false);
                         }
                     } else {
-                        this.showResult(`❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
+                        const userAnswerParsed = parseFloat(userAnswer.trim());
+                        if (isNaN(userAnswerParsed)) {
+                            this.showResult("¡Solo números!", false);
+                            return;
+                        }
+                        
+                        if (this.closestAnswerMode) {
+                            // Modo "El más cercano gana" - todos pueden ganar puntos
+                            const diferencia = Math.abs(userAnswerParsed - currentQuestion.respuesta);
+                            pointsEarned = Math.max(1, 5 - diferencia); // Máximo 5 puntos si es exacto
+                            isCorrect = true; // Todos "aciertan" en este modo
+                            
+                            this.player.points += pointsEarned;
+                            this.player.streak++;
+                            if (this.player.streak > this.player.maxStreak) {
+                                this.player.maxStreak = this.player.streak;
+                            }
+                            
+                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
+                        } else {
+                            // Modo normal - respuesta exacta
+                            isCorrect = userAnswerParsed === currentQuestion.respuesta;
+                            
+                            if (isCorrect) {
+                                pointsEarned = 1 + timeBonus;
+                                this.player.streak++;
+                                if (this.player.streak > this.player.maxStreak) {
+                                    this.player.maxStreak = this.player.streak;
+                                }
+                                
+                                this.player.points += pointsEarned;
+                                this.showResult(`✅ Correcto! +${pointsEarned} puntos`, true);
+                            } else {
+                                this.player.streak = 0;
+                                this.showResult(`❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
+                            }
+                        }
+                    }
+                    
+                    // Registrar en el historial
+                    this.player.history.push({
+                        question: currentQuestion.pregunta,
+                        answer: userAnswer,
+                        correct: isCorrect,
+                        points: pointsEarned,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    if (isCorrect) {
+                        this.playSound('correctSound');
+                    } else {
                         this.playSound('wrongSound');
+                    }
+                    
+                    if (this.isMultiplayer && this.socket) {
+                        this.socket.send(JSON.stringify({
+                            type: 'player_score',
+                            playerId: this.player.id,
+                            points: this.player.points,
+                            streak: this.player.streak
+                        }));
                     }
                     
                     // Solo el host controla el flujo de preguntas
@@ -1500,11 +1981,17 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 }
             }
 
-            updatePlayerScore(playerId = null, points = null) {
-                if (playerId && points) {
+            updatePlayerScore(playerId = null, points = null, streak = null) {
+                if (playerId && points !== null) {
                     const player = this.players.find(p => p.id === playerId);
                     if (player) {
                         player.points = points;
+                        if (streak !== null) {
+                            player.streak = streak;
+                            if (streak > (player.maxStreak || 0)) {
+                                player.maxStreak = streak;
+                            }
+                        }
                     }
                 }
                 
@@ -1535,10 +2022,14 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         playerElement.classList.add('current-player');
                     }
                     
+                    // Mostrar racha si es mayor a 3
+                    const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
+                    
                     playerElement.innerHTML = `
                         <span class="ranking-position">${index + 1}°</span>
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
                         <span class="ranking-name">${this.extractName(player.name)}</span>
-                        <span class="ranking-points">${player.points || 0}</span>
+                        <span class="ranking-points">${player.points || 0}${streakBadge}</span>
                     `;
                     
                     rankingList.appendChild(playerElement);
@@ -1560,6 +2051,11 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         this.timeLeft--;
                         this.updateTimerUI();
                         
+                        // Sonido de cuenta regresiva en los últimos 5 segundos
+                        if (this.timeLeft <= 5 && this.timeLeft > 0) {
+                            this.playSound('countdownSound');
+                        }
+                        
                         if (this.timeLeft <= 0) {
                             clearInterval(this.timerInterval);
                             if (this.isMultiplayer) {
@@ -1569,7 +2065,8 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                                         playerId: this.player.id,
                                         isCorrect: false,
                                         timeLeft: 0,
-                                        points: this.player.points
+                                        points: this.player.points,
+                                        streak: this.player.streak
                                     }));
                                 }
                             } else {
@@ -1613,6 +2110,20 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                 }
             }
 
+            skipQuestionAsProfessor() {
+                if (!this.isProfessor || !this.isHost) return;
+                
+                this.playSound('clickSound');
+                this.skipQuestion();
+                
+                if (this.isMultiplayer && this.socket) {
+                    this.socket.send(JSON.stringify({
+                        type: 'skip_question',
+                        pin: this.gamePin
+                    }));
+                }
+            }
+
             endGame() {
                 try {
                     clearInterval(this.timerInterval);
@@ -1628,6 +2139,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         
                         this.socket.send(JSON.stringify({
                             type: 'game_over',
+                            pin: this.gamePin,
                             finalRanking: finalRanking
                         }));
                     } else if (!this.isMultiplayer) {
@@ -1696,18 +2208,21 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     // Mostrar los 3 primeros lugares
                     if (finalRanking.length > 0) {
                         const first = finalRanking[0];
-                        firstPlace.querySelector('.podium-name').textContent = this.extractName(first.name);
+                        document.getElementById('firstName').textContent = this.extractName(first.name);
+                        document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
                         firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
                         
                         if (finalRanking.length > 1) {
                             const second = finalRanking[1];
-                            secondPlace.querySelector('.podium-name').textContent = this.extractName(second.name);
+                            document.getElementById('secondName').textContent = this.extractName(second.name);
+                            document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
                             secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
                         }
                         
                         if (finalRanking.length > 2) {
                             const third = finalRanking[2];
-                            thirdPlace.querySelector('.podium-name').textContent = this.extractName(third.name);
+                            document.getElementById('thirdName').textContent = this.extractName(third.name);
+                            document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
                             thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
                         }
                     }
@@ -1720,13 +2235,21 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                         const playerElement = document.createElement('div');
                         playerElement.className = 'other-player';
                         playerElement.innerHTML = `
-                            <span>${i + 1}. ${this.extractName(player.name)}</span>
+                            <div class="player-info">
+                                <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar">
+                                <span>${i + 1}. ${this.extractName(player.name)}</span>
+                            </div>
                             <span>${playerPoints} pts</span>
                         `;
                         
                         if (player.id === this.player.id) {
                             playerElement.style.fontWeight = 'bold';
                             playerElement.style.color = 'var(--amarillo)';
+                        }
+                        
+                        // Mostrar racha máxima si es relevante
+                        if (player.maxStreak >= 5) {
+                            playerElement.innerHTML += `<span>🔥${player.maxStreak}</span>`;
                         }
                         
                         otherPlayers.appendChild(playerElement);
@@ -1741,7 +2264,7 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
 
             showResult(message, isCorrect) {
                 const resultElement = document.getElementById("answerResult");
-                resultElement.textContent = message;
+                resultElement.innerHTML = message;
                 resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
             }
 
@@ -1761,10 +2284,12 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     }
                     
                     this.player.points = 0;
+                    this.player.streak = 0;
                     this.updatePlayerScore();
                     this.currentQuestionIndex = 0;
                     this.player.hasAnswered = false;
                     this.selectedGameMode = null;
+                    this.closestAnswerMode = false;
                     
                     document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
                     document.getElementById("playerAnswer").value = "";
@@ -1773,9 +2298,13 @@ ya que este es el codigo anterior que tenia ahora añade todo eso y adaptalo a e
                     document.getElementById("mensajeVictoria").innerHTML = "";
                     document.getElementById("progressBar").style.width = "0%";
                     document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('questionImage').style.display = 'none';
                     
                     document.getElementById('finalResults').style.display = 'none';
                     document.getElementById('liveRanking').style.display = 'none';
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                    document.getElementById('standardInput').style.display = 'block';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
                     
                     if (this.isMultiplayer) {
                         document.getElementById('multiplayerLobby').style.display = 'flex';

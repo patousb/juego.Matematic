@@ -344,6 +344,28 @@
             border-left: 5px solid var(--morado);
         }
 
+        .math-question {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .number {
+            font-weight: bold;
+            color: var(--morado);
+        }
+
+        .equals {
+            color: var(--texto);
+        }
+
+        .question-mark {
+            color: var(--amarillo);
+            animation: pulse 1.5s infinite;
+        }
+
         .question-image {
             max-width: 100%;
             max-height: 200px;
@@ -398,6 +420,26 @@
             min-height: 40px;
         }
 
+        .result-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .operation {
+            font-size: 1.2rem;
+        }
+
+        .correct-answer {
+            color: var(--verde);
+            font-weight: bold;
+        }
+
+        .points {
+            font-size: 1.1rem;
+            color: var(--amarillo);
+        }
+
         .correct {
             color: var(--verde);
             animation: tada 1s ease;
@@ -420,6 +462,12 @@
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         /* Temporizador */
@@ -729,12 +777,6 @@
 
         .connection-status.connecting {
             color: var(--amarillo);
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
         }
 
         /* Botón tema nocturno */
@@ -1192,6 +1234,7 @@
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
+                this.animationFrameId = null;
                 
                 // Multijugador
                 this.isMultiplayer = false;
@@ -1518,7 +1561,8 @@
             }
 
             sanitizeInput(input) {
-                return input.replace(/[<>]/g, '').substring(0, 20);
+                if (typeof input !== 'string') return '';
+                return input.replace(/[<>'"&]/g, '').substring(0, 20).trim();
             }
 
             joinGame() {
@@ -2352,36 +2396,46 @@
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 
-                const generarOperacion = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
-                    const operadores = ['+', '-', '*', '/'];
+                const generarOperacionRapida = () => {
+                    const operadores = ['+', '-', '×', '÷'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    let num1, num2, pregunta, respuesta;
                     
-                    let pregunta, respuesta;
-                    
-                    switch(operador) {
-                        case '+':
-                            pregunta = `${num1} + ${num2} = ?`;
-                            respuesta = num1 + num2;
-                            break;
-                        case '-':
-                            pregunta = `${num1} - ${num2} = ?`;
-                            respuesta = num1 - num2;
-                            break;
-                        case '*':
-                            pregunta = `${num1} × ${num2} = ?`;
-                            respuesta = num1 * num2;
-                            break;
-                        case '/':
-                            respuesta = Math.floor(Math.random() * 5) + 1;
-                            const num2 = Math.floor(Math.random() * 3) + 1;
-                            const num1 = respuesta * num2;
-                            pregunta = `${num1} ÷ ${num2} = ?`;
-                            break;
+                    // Asegurar que las divisiones sean exactas y no haya división por cero
+                    if (operador === '÷') {
+                        respuesta = Math.floor(Math.random() * 10) + 1;
+                        num2 = Math.floor(Math.random() * 5) + 1; // Divisor entre 1 y 5
+                        num1 = respuesta * num2;
+                        pregunta = `${num1} ÷ ${num2} = ?`;
+                    } 
+                    // Evitar resultados negativos en restas
+                    else if (operador === '-') {
+                        num1 = Math.floor(Math.random() * 20) + 10; // Minuendo entre 10 y 30
+                        num2 = Math.floor(Math.random() * 10) + 1;  // Sustraendo entre 1 y 10
+                        pregunta = `${num1} - ${num2} = ?`;
+                        respuesta = num1 - num2;
+                    }
+                    // Multiplicaciones controladas
+                    else if (operador === '×') {
+                        num1 = Math.floor(Math.random() * 10) + 1; // Factor 1 entre 1 y 10
+                        num2 = Math.floor(Math.random() * 10) + 1; // Factor 2 entre 1 y 10
+                        pregunta = `${num1} × ${num2} = ?`;
+                        respuesta = num1 * num2;
+                    }
+                    // Sumas estándar
+                    else {
+                        num1 = Math.floor(Math.random() * 50) + 1; // Sumando 1 entre 1 y 50
+                        num2 = Math.floor(Math.random() * 50) + 1; // Sumando 2 entre 1 y 50
+                        pregunta = `${num1} + ${num2} = ?`;
+                        respuesta = num1 + num2;
                     }
                     
-                    return { pregunta, respuesta, tipo: 'operacion' };
+                    return { 
+                        pregunta, 
+                        respuesta,
+                        tipo: 'operacion-rapida',
+                        operador
+                    };
                 };
                 
                 const generarMisterioso = () => {
@@ -2457,7 +2511,7 @@
                 const generarVerdaderoFalso = () => {
                     const num1 = Math.floor(Math.random() * 10) + 1;
                     const num2 = Math.floor(Math.random() * 10) + 1;
-                    const operadores = ['+', '-', '*', '/'];
+                    const operadores = ['+', '-', '×', '÷'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
                     
                     let operacion, respuesta, esCorrecta;
@@ -2477,14 +2531,14 @@
                                 operacion = `${num1} - ${num2} = ${num1 - num2 + (Math.random() > 0.5 ? 1 : -1)}`;
                             }
                             break;
-                        case '*':
+                        case '×':
                             operacion = `${num1} × ${num2} = ${num1 * num2}`;
                             respuesta = esCorrecta;
                             if (!esCorrecta) {
                                 operacion = `${num1} × ${num2} = ${num1 * num2 + (Math.random() > 0.5 ? 1 : -1)}`;
                             }
                             break;
-                        case '/':
+                        case '÷':
                             const divisor = Math.floor(Math.random() * 3) + 1;
                             const dividendo = divisor * (Math.floor(Math.random() * 5) + 1);
                             operacion = `${dividendo} ÷ ${divisor} = ${dividendo / divisor}`;
@@ -2505,13 +2559,13 @@
                 
                 let generador;
                 switch(mode) {
-                    case 'operaciones': generador = generarOperacion; break;
+                    case 'operaciones': generador = generarOperacionRapida; break;
                     case 'misterioso': generador = generarMisterioso; break;
                     case 'secuencia': generador = generarSecuencia; break;
                     case 'potenciacion': generador = generarPotenciacion; break;
                     case 'combinadas': generador = generarCombinadas; break;
                     case 'verdadero-falso': generador = generarVerdaderoFalso; break;
-                    default: generador = generarOperacion;
+                    default: generador = generarOperacionRapida;
                 }
                 
                 for (let i = 0; i < count; i++) {
@@ -2549,7 +2603,19 @@
                     if (!question) return;
                     
                     const questionElement = document.getElementById("currentQuestion");
-                    questionElement.innerHTML = question.pregunta;
+                    
+                    // Formatear mejor las preguntas matemáticas
+                    if (question.tipo === 'operacion-rapida') {
+                        questionElement.innerHTML = `
+                            <div class="math-question">
+                                <span class="number">${question.pregunta.split('=')[0]}</span>
+                                <span class="equals">=</span>
+                                <span class="question-mark">?</span>
+                            </div>
+                        `;
+                    } else {
+                        questionElement.innerHTML = question.pregunta;
+                    }
                     
                     // Aplicar animación de nueva pregunta
                     questionElement.classList.remove('question-animation');
@@ -2644,7 +2710,13 @@
                             this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
                         } else {
                             // Modo normal - respuesta exacta
-                            isCorrect = userAnswerParsed === currentQuestion.respuesta;
+                            // Manejo especial para divisiones con decimales
+                            if (currentQuestion.operador === '÷') {
+                                const precision = 0.01; // Margen para errores de redondeo
+                                isCorrect = Math.abs(userAnswerParsed - currentQuestion.respuesta) < precision;
+                            } else {
+                                isCorrect = userAnswerParsed === currentQuestion.respuesta;
+                            }
                             
                             if (isCorrect) {
                                 pointsEarned = 1 + timeBonus;
@@ -2707,6 +2779,27 @@
                 }
             }
 
+            showResult(message, isCorrect) {
+                const resultElement = document.getElementById("answerResult");
+                
+                if (this.selectedGameMode === 'operaciones') {
+                    const operacion = this.currentQuestionData.pregunta;
+                    const respuesta = this.currentQuestionData.respuesta;
+                    
+                    resultElement.innerHTML = `
+                        <div class="result-content ${isCorrect ? 'correct' : 'incorrect'}">
+                            <div class="operation">${operacion} ${isCorrect ? '✅' : '❌'}</div>
+                            ${!isCorrect ? `<div class="correct-answer">Respuesta correcta: ${respuesta}</div>` : ''}
+                            <div class="points">${message}</div>
+                        </div>
+                    `;
+                } else {
+                    resultElement.innerHTML = message;
+                }
+                
+                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            }
+
             updatePlayerScore(playerId = null, points = null, streak = null) {
                 if (playerId && points !== null) {
                     const player = this.players.find(p => p.id === playerId);
@@ -2722,6 +2815,15 @@
                 }
                 
                 document.getElementById('playerScore').textContent = this.player.points;
+            }
+
+            animateRanking() {
+                if (!this.animationFrameId) {
+                    this.animationFrameId = requestAnimationFrame(() => {
+                        this.updateLiveRanking();
+                        this.animationFrameId = null;
+                    });
+                }
             }
 
             updateLiveRanking() {
@@ -2878,6 +2980,11 @@
                         this.rankingUpdateInterval = null;
                     }
                     
+                    if (this.animationFrameId) {
+                        cancelAnimationFrame(this.animationFrameId);
+                        this.animationFrameId = null;
+                    }
+                    
                     if (this.isMultiplayer && this.isHost) {
                         const finalRanking = this.getFinalRanking();
                         this.showMultiplayerResults(finalRanking);
@@ -3016,12 +3123,6 @@
                 }
             }
 
-            showResult(message, isCorrect) {
-                const resultElement = document.getElementById("answerResult");
-                resultElement.innerHTML = message;
-                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
-            }
-
             showError(message) {
                 const errorElement = document.getElementById("answerResult");
                 errorElement.textContent = message;
@@ -3046,6 +3147,11 @@
                     if (this.rankingUpdateInterval) {
                         clearInterval(this.rankingUpdateInterval);
                         this.rankingUpdateInterval = null;
+                    }
+                    
+                    if (this.animationFrameId) {
+                        cancelAnimationFrame(this.animationFrameId);
+                        this.animationFrameId = null;
                     }
                     
                     this.player.points = 0;
@@ -3129,6 +3235,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const game = new GameManager();
+                // Hacer accesible para depuración
+                window.game = game;
             } catch (error) {
                 console.error("Error al iniciar el juego:", error);
                 alert("Ocurrió un error al cargar el juego. Por favor recarga la página.");

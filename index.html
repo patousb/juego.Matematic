@@ -2210,51 +2210,44 @@
             }
 
             updatePlayerList() {
-                const playerList = document.getElementById('multiplayerPlayerList');
-                playerList.innerHTML = '';
-                
-                this.players.forEach(player => {
-                    const playerElement = document.createElement('div');
-                    playerElement.className = 'player-badge';
-                    playerElement.innerHTML = `
-                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
-                        <span>${player.name}</span>
-                    `;
-                    
-                    if (player.id === this.player.id) {
-                        playerElement.style.border = '2px solid var(--amarillo)';
-                    }
-                    
-                    if (player.isProfessor) {
-                        playerElement.innerHTML += ' 👨‍🏫';
-                    }
-                    
-                    if (player.isReady) {
-                        playerElement.innerHTML += ' ✓';
-                    }
-                    
-                    playerList.appendChild(playerElement);
-                });
-                
-                document.getElementById('playerCount').textContent = this.players.length;
-                
-                // Solo el host puede iniciar votación
-                if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
-                    // Iniciar votación solo si todos están listos o después de 30 segundos
-                    if (this.players.every(p => p.isReady)) {
-                        this.startVoteCountdown(30);
-                        this.setState(this.STATES.VOTING);
-                    } else {
-                        // Temporizador para iniciar votación automáticamente
-                        setTimeout(() => {
-                            if (this.state === this.STATES.LOBBY && !this.voteInterval) {
-                                this.startVoteCountdown(30);
-                                this.setState(this.STATES.VOTING);
-                            }
-                        }, 30000);
-                    }
-                }
-            }
+    const playerList = document.getElementById('multiplayerPlayerList');
+    playerList.innerHTML = '';
+    
+    this.players.forEach(player => {
+        const playerElement = document.createElement('div');
+        playerElement.className = 'player-badge';
+        playerElement.innerHTML = `
+            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
+            <span>${player.name}</span>
+        `;
+        
+        if (player.id === this.player.id) {
+            playerElement.style.border = '2px solid var(--amarillo)';
+        }
+        
+        if (player.isProfessor) {
+            playerElement.innerHTML += ' 👨‍🏫';
+        }
+        
+        if (player.isReady) {
+            playerElement.innerHTML += ' ✓';
+        }
+        
+        playerList.appendChild(playerElement);
+    });
+    
+    document.getElementById('playerCount').textContent = this.players.length;
+    
+    // Solo el host puede iniciar votación y solo cuando todos estén listos
+    if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
+        // Iniciar votación solo si todos están listos
+        if (this.players.every(p => p.isReady)) {
+            this.startVoteCountdown(30);
+            this.setState(this.STATES.VOTING);
+        }
+        // Eliminamos el temporizador automático que iniciaba la votación después de 30 segundos
+    }
+}
 
             startVoteCountdown(time) {
                 if (this.voteInterval) {

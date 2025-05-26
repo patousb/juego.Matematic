@@ -19,6 +19,9 @@
             --sombra: rgba(0, 0, 0, 0.1);
             --tiempo-normal: #a459ff;
             --tiempo-alerta: #ff6b6b;
+            --facil: #6bff6b;
+            --medio: #ffde59;
+            --dificil: #ff6b6b;
         }
 
         .dark-mode {
@@ -389,7 +392,7 @@
 
         .keyboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr));
             gap: 10px;
             max-width: 300px;
             margin: 0 auto;
@@ -949,6 +952,44 @@
             color: var(--azul);
         }
 
+        /* Selector de dificultad */
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .difficulty-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .difficulty-btn.easy {
+            background-color: var(--facil);
+            color: #333;
+        }
+
+        .difficulty-btn.medium {
+            background-color: var(--medio);
+            color: #333;
+        }
+
+        .difficulty-btn.hard {
+            background-color: var(--dificil);
+            color: white;
+        }
+
+        .difficulty-btn.selected {
+            border-color: var(--morado);
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px var(--sombra);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
@@ -987,6 +1028,11 @@
                 right: 10px;
                 max-width: 200px;
             }
+
+            .difficulty-selector {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -1024,6 +1070,15 @@
                     <img src="https://i.pravatar.cc/150?img=4" class="avatar-option" data-avatar="4">
                     <img src="https://i.pravatar.cc/150?img=5" class="avatar-option" data-avatar="5">
                     <img src="https://i.pravatar.cc/150?img=6" class="avatar-option" data-avatar="6">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>Dificultad:</label>
+                <div class="difficulty-selector" id="difficultySelector">
+                    <div class="difficulty-btn easy selected" data-difficulty="easy">Fácil</div>
+                    <div class="difficulty-btn medium" data-difficulty="medium">Medio</div>
+                    <div class="difficulty-btn hard" data-difficulty="hard">Difícil</div>
                 </div>
             </div>
             
@@ -1250,6 +1305,10 @@
                 this.heartbeatInterval = null;
                 this.lastPongTime = null;
                 
+                // Dificultad
+                this.difficulty = 'medium'; // 'easy', 'medium', 'hard'
+                this.difficultyMultipliers = { easy: 1, medium: 2, hard: 4 };
+                
                 // Votación
                 this.voteTime = 30;
                 this.voteInterval = null;
@@ -1303,6 +1362,12 @@
                             const modes = Object.keys(player.modeStats || {});
                             return modes.length >= 5 && modes.every(mode => player.modeStats[mode].wins > 0);
                         }
+                    },
+                    difficultyMaster: {
+                        title: "Experto en Dificultad",
+                        description: "Completa una partida en dificultad difícil",
+                        icon: "🏋️",
+                        condition: (player) => player.history.some(h => h.difficulty === 'hard')
                     }
                 };
                 
@@ -1392,8 +1457,19 @@
                     });
                 });
                 
-                // Seleccionar primer avatar por defecto
+                // Selección de dificultad
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        this.difficulty = btn.dataset.difficulty;
+                        this.playSound('clickSound');
+                    });
+                });
+                
+                // Seleccionar primer avatar y dificultad media por defecto
                 document.querySelector('.avatar-option').click();
+                document.querySelector('.difficulty-btn.medium').click();
                 
                 // Unirse al juego
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
@@ -1514,6 +1590,10 @@
                         <span class="stat-label">Partidas jugadas:</span>
                         <span class="stat-value">${this.player.gamesPlayed}</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Dificultad actual:</span>
+                        <span class="stat-value">${this.getDifficultyName(this.difficulty)}</span>
+                    </div>
                 `;
 
                 if (this.player.favoriteMode) {
@@ -1558,6 +1638,15 @@
 
                 this.statsContent.innerHTML = statsHTML;
                 this.playerStats.style.display = 'block';
+            }
+
+            getDifficultyName(difficulty) {
+                const names = {
+                    easy: 'Fácil',
+                    medium: 'Medio',
+                    hard: 'Difícil'
+                };
+                return names[difficulty] || difficulty;
             }
 
             sanitizeInput(input) {
@@ -2396,36 +2485,43 @@
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 
+                const getRange = (base, difficultyFactor) => {
+                    switch(this.difficulty) {
+                        case 'easy': return Math.floor(base * 0.5);
+                        case 'medium': return base;
+                        case 'hard': return Math.floor(base * difficultyFactor);
+                    }
+                };
+
                 const generarOperacionRapida = () => {
                     const operadores = ['+', '-', '×', '÷'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
                     let num1, num2, pregunta, respuesta;
                     
-                    // Asegurar que las divisiones sean exactas y no haya división por cero
+                    const baseRange = this.difficulty === 'hard' ? 50 : 20;
+                    const difficultyFactor = this.difficulty === 'hard' ? 3 : 1;
+                    
                     if (operador === '÷') {
-                        respuesta = Math.floor(Math.random() * 10) + 1;
-                        num2 = Math.floor(Math.random() * 5) + 1; // Divisor entre 1 y 5
+                        respuesta = Math.floor(Math.random() * getRange(10, 2)) + 1;
+                        num2 = Math.floor(Math.random() * getRange(5, 2)) + 1;
                         num1 = respuesta * num2;
                         pregunta = `${num1} ÷ ${num2} = ?`;
                     } 
-                    // Evitar resultados negativos en restas
                     else if (operador === '-') {
-                        num1 = Math.floor(Math.random() * 20) + 10; // Minuendo entre 10 y 30
-                        num2 = Math.floor(Math.random() * 10) + 1;  // Sustraendo entre 1 y 10
+                        num1 = Math.floor(Math.random() * getRange(30, 2)) + 10;
+                        num2 = Math.floor(Math.random() * getRange(15, 2)) + 1;
                         pregunta = `${num1} - ${num2} = ?`;
                         respuesta = num1 - num2;
                     }
-                    // Multiplicaciones controladas
                     else if (operador === '×') {
-                        num1 = Math.floor(Math.random() * 10) + 1; // Factor 1 entre 1 y 10
-                        num2 = Math.floor(Math.random() * 10) + 1; // Factor 2 entre 1 y 10
+                        num1 = Math.floor(Math.random() * getRange(12, 2)) + 1;
+                        num2 = Math.floor(Math.random() * getRange(12, 2)) + 1;
                         pregunta = `${num1} × ${num2} = ?`;
                         respuesta = num1 * num2;
                     }
-                    // Sumas estándar
                     else {
-                        num1 = Math.floor(Math.random() * 50) + 1; // Sumando 1 entre 1 y 50
-                        num2 = Math.floor(Math.random() * 50) + 1; // Sumando 2 entre 1 y 50
+                        num1 = Math.floor(Math.random() * getRange(50, 3)) + 1;
+                        num2 = Math.floor(Math.random() * getRange(50, 3)) + 1;
                         pregunta = `${num1} + ${num2} = ?`;
                         respuesta = num1 + num2;
                     }
@@ -2434,13 +2530,50 @@
                         pregunta, 
                         respuesta,
                         tipo: 'operacion-rapida',
-                        operador
+                        operador,
+                        dificultad: this.difficulty
                     };
                 };
                 
+                const generarOperacionRelampago = () => {
+                    const operadores = ['+', '-', '×'];
+                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    let num1, num2, pregunta, respuesta;
+                    
+                    // Rango más pequeño para mayor velocidad
+                    const maxNum = this.difficulty === 'hard' ? 15 : 
+                                   this.difficulty === 'medium' ? 10 : 5;
+                    
+                    num1 = Math.floor(Math.random() * maxNum) + 1;
+                    num2 = Math.floor(Math.random() * maxNum) + 1;
+                    
+                    if (operador === '+') {
+                        pregunta = `${num1} + ${num2} = ?`;
+                        respuesta = num1 + num2;
+                    } 
+                    else if (operador === '-') {
+                        // Asegurar resultado positivo
+                        if (num1 < num2) [num1, num2] = [num2, num1];
+                        pregunta = `${num1} - ${num2} = ?`;
+                        respuesta = num1 - num2;
+                    }
+                    else { // Multiplicación
+                        pregunta = `${num1} × ${num2} = ?`;
+                        respuesta = num1 * num2;
+                    }
+                    
+                    return { 
+                        pregunta, 
+                        respuesta,
+                        tipo: 'operacion-relampago',
+                        operador,
+                        dificultad: this.difficulty
+                    };
+                };
+
                 const generarMisterioso = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const num1 = Math.floor(Math.random() * getRange(10, 2)) + 1;
+                    const num2 = Math.floor(Math.random() * getRange(10, 2)) + 1;
                     const tipo = Math.random() > 0.5 ? 'suma' : 'resta';
                     
                     let pregunta, respuesta;
@@ -2453,7 +2586,12 @@
                         pregunta = `? - ${num2} = ${num1}`;
                     }
                     
-                    return { pregunta, respuesta, tipo: 'misterioso' };
+                    return { 
+                        pregunta, 
+                        respuesta, 
+                        tipo: 'misterioso',
+                        dificultad: this.difficulty
+                    };
                 };
                 
                 const generarSecuencia = () => {
@@ -2480,17 +2618,27 @@
                     const pregunta = `Completa: ${secuencia.join(", ")}`;
                     const respuesta = patron.inicio + posicionFalta * patron.paso;
                     
-                    return { pregunta, respuesta, tipo: 'secuencia' };
+                    return { 
+                        pregunta, 
+                        respuesta, 
+                        tipo: 'secuencia',
+                        dificultad: this.difficulty
+                    };
                 };
                 
                 const generarPotenciacion = () => {
-                    const base = Math.floor(Math.random() * 5) + 2;
-                    const exponente = Math.floor(Math.random() * 3) + 2;
+                    const base = Math.floor(Math.random() * getRange(5, 2)) + 2;
+                    const exponente = Math.floor(Math.random() * getRange(3, 2)) + 2;
                     const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
                     const pregunta = `${base}${superScripts[exponente]} = ?`;
                     const respuesta = Math.pow(base, exponente);
                     
-                    return { pregunta, respuesta, tipo: 'potenciacion' };
+                    return { 
+                        pregunta, 
+                        respuesta, 
+                        tipo: 'potenciacion',
+                        dificultad: this.difficulty
+                    };
                 };
                 
                 const generarCombinadas = () => {
@@ -2505,12 +2653,17 @@
                     ];
                     
                     const op = operaciones[Math.floor(Math.random() * operaciones.length)];
-                    return { pregunta: op.pregunta, respuesta: op.respuesta, tipo: 'combinadas' };
+                    return { 
+                        pregunta: op.pregunta, 
+                        respuesta: op.respuesta, 
+                        tipo: 'combinadas',
+                        dificultad: this.difficulty
+                    };
                 };
                 
                 const generarVerdaderoFalso = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const num1 = Math.floor(Math.random() * getRange(10, 2)) + 1;
+                    const num2 = Math.floor(Math.random() * getRange(10, 2)) + 1;
                     const operadores = ['+', '-', '×', '÷'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
                     
@@ -2553,13 +2706,15 @@
                         pregunta: `¿Es correcta esta operación?<br>${operacion}`, 
                         respuesta: respuesta,
                         tipo: 'verdadero-falso',
-                        explicacion: respuesta ? "La operación es correcta" : "La operación es incorrecta"
+                        explicacion: respuesta ? "La operación es correcta" : "La operación es incorrecta",
+                        dificultad: this.difficulty
                     };
                 };
                 
                 let generador;
                 switch(mode) {
                     case 'operaciones': generador = generarOperacionRapida; break;
+                    case 'relampago': generador = generarOperacionRelampago; break;
                     case 'misterioso': generador = generarMisterioso; break;
                     case 'secuencia': generador = generarSecuencia; break;
                     case 'potenciacion': generador = generarPotenciacion; break;
@@ -2579,13 +2734,15 @@
                             pregunta: "¿Cuántos cuadrados hay en esta figura?",
                             imagen: "https://via.placeholder.com/300/4e8cff/ffffff?text=Cuadrados",
                             respuesta: 5,
-                            tipo: "imagen"
+                            tipo: "imagen",
+                            dificultad: this.difficulty
                         },
                         {
                             pregunta: "¿Cuántas frutas hay en total?",
                             imagen: "https://via.placeholder.com/300/6bff6b/ffffff?text=Manzanas+y+Naranjas",
                             respuesta: 8,
-                            tipo: "imagen"
+                            tipo: "imagen",
+                            dificultad: this.difficulty
                         }
                     ];
                     
@@ -2605,7 +2762,7 @@
                     const questionElement = document.getElementById("currentQuestion");
                     
                     // Formatear mejor las preguntas matemáticas
-                    if (question.tipo === 'operacion-rapida') {
+                    if (question.tipo === 'operacion-rapida' || question.tipo === 'operacion-relampago') {
                         questionElement.innerHTML = `
                             <div class="math-question">
                                 <span class="number">${question.pregunta.split('=')[0]}</span>
@@ -2615,6 +2772,14 @@
                         `;
                     } else {
                         questionElement.innerHTML = question.pregunta;
+                    }
+                    
+                    // Mostrar dificultad
+                    if (question.dificultad) {
+                        const difficultyBadge = document.createElement('span');
+                        difficultyBadge.className = `difficulty-badge ${question.dificultad}`;
+                        difficultyBadge.textContent = this.getDifficultyName(question.dificultad);
+                        questionElement.appendChild(difficultyBadge);
                     }
                     
                     // Aplicar animación de nueva pregunta
@@ -2671,19 +2836,28 @@
                     let pointsEarned = 0;
                     let timeBonus = Math.floor(this.timeLeft / 5);
                     
+                    // Multiplicador por dificultad
+                    const difficultyMultiplier = this.difficultyMultipliers[this.difficulty] || 1;
+                    
                     if (this.selectedGameMode === 'verdadero-falso') {
                         const userResponse = userAnswer === 'true';
                         isCorrect = userResponse === currentQuestion.respuesta;
                         
                         if (isCorrect) {
-                            pointsEarned = 1 + timeBonus;
+                            pointsEarned = (1 + timeBonus) * difficultyMultiplier;
                             this.player.streak++;
                             if (this.player.streak > this.player.maxStreak) {
                                 this.player.maxStreak = this.player.streak;
                             }
                             
                             this.player.points += pointsEarned;
-                            this.showResult(`✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}`, true);
+                            
+                            let pointsMessage = `✅ Correcto! +${pointsEarned} puntos`;
+                            if (difficultyMultiplier > 1) {
+                                pointsMessage += ` (Dificultad ${this.difficulty} x${difficultyMultiplier})`;
+                            }
+                            
+                            this.showResult(`${pointsMessage}<br>${currentQuestion.explicacion}`, true);
                         } else {
                             this.player.streak = 0;
                             this.showResult(`❌ Incorrecto! ${currentQuestion.explicacion}`, false);
@@ -2698,7 +2872,7 @@
                         if (this.closestAnswerMode) {
                             // Modo "El más cercano gana" - todos pueden ganar puntos
                             const diferencia = Math.abs(userAnswerParsed - currentQuestion.respuesta);
-                            pointsEarned = Math.max(1, 5 - diferencia); // Máximo 5 puntos si es exacto
+                            pointsEarned = Math.max(1, 5 - diferencia) * difficultyMultiplier; // Máximo 5 puntos si es exacto
                             isCorrect = true; // Todos "aciertan" en este modo
                             
                             this.player.points += pointsEarned;
@@ -2707,7 +2881,12 @@
                                 this.player.maxStreak = this.player.streak;
                             }
                             
-                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
+                            let pointsMessage = `🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`;
+                            if (difficultyMultiplier > 1) {
+                                pointsMessage += ` (Dificultad ${this.difficulty} x${difficultyMultiplier})`;
+                            }
+                            
+                            this.showResult(pointsMessage, true);
                         } else {
                             // Modo normal - respuesta exacta
                             // Manejo especial para divisiones con decimales
@@ -2719,14 +2898,20 @@
                             }
                             
                             if (isCorrect) {
-                                pointsEarned = 1 + timeBonus;
+                                pointsEarned = (1 + timeBonus) * difficultyMultiplier;
                                 this.player.streak++;
                                 if (this.player.streak > this.player.maxStreak) {
                                     this.player.maxStreak = this.player.streak;
                                 }
                                 
                                 this.player.points += pointsEarned;
-                                this.showResult(`✅ Correcto! +${pointsEarned} puntos`, true);
+                                
+                                let pointsMessage = `✅ Correcto! +${pointsEarned} puntos`;
+                                if (difficultyMultiplier > 1) {
+                                    pointsMessage += ` (Dificultad ${this.difficulty} x${difficultyMultiplier})`;
+                                }
+                                
+                                this.showResult(pointsMessage, true);
                             } else {
                                 this.player.streak = 0;
                                 this.showResult(`❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
@@ -2741,7 +2926,8 @@
                         correct: isCorrect,
                         points: pointsEarned,
                         timestamp: new Date().toISOString(),
-                        responseTime: responseTime
+                        responseTime: responseTime,
+                        difficulty: this.difficulty
                     });
                     
                     if (isCorrect) {
@@ -2782,7 +2968,7 @@
             showResult(message, isCorrect) {
                 const resultElement = document.getElementById("answerResult");
                 
-                if (this.selectedGameMode === 'operaciones') {
+                if (this.selectedGameMode === 'operaciones' || this.selectedGameMode === 'relampago') {
                     const operacion = this.currentQuestionData.pregunta;
                     const respuesta = this.currentQuestionData.respuesta;
                     
@@ -2905,26 +3091,36 @@
                         
                         if (this.timeLeft <= 0) {
                             clearInterval(this.timerInterval);
-                            if (this.isMultiplayer) {
-                                if (this.socket) {
-                                    this.socket.send(JSON.stringify({
-                                        type: 'player_answer',
-                                        playerId: this.player.id,
-                                        isCorrect: false,
-                                        timeLeft: 0,
-                                        points: this.player.points,
-                                        streak: this.player.streak
-                                    }));
-                                }
-                            } else {
-                                this.skipQuestion();
-                            }
+                            this.handleTimeExpired();
                         }
                     }, 1000);
                 } catch (error) {
                     console.error("Error en el temporizador:", error);
                     this.showError("Error en el temporizador");
                 }
+            }
+
+            handleTimeExpired() {
+                if (this.isMultiplayer) {
+                    if (this.socket) {
+                        this.socket.send(JSON.stringify({
+                            type: 'player_answer',
+                            playerId: this.player.id,
+                            isCorrect: false,
+                            timeLeft: 0,
+                            points: this.player.points,
+                            streak: this.player.streak
+                        }));
+                    }
+                }
+                
+                // Pasar automáticamente a la siguiente pregunta
+                if (this.isHost || !this.isMultiplayer) {
+                    this.skipQuestion();
+                }
+                
+                // Mostrar feedback al jugador
+                this.showResult("⌛ Tiempo agotado!", false);
             }
 
             updateTimerUI() {

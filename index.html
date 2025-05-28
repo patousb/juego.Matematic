@@ -990,6 +990,51 @@
             box-shadow: 0 3px 10px var(--sombra);
         }
 
+        /* Botón de iniciar juego */
+        .start-game-btn {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+        }
+
+        /* Badge de profesor */
+        .professor-badge {
+            background-color: var(--morado);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        /* Badge de dificultad */
+        .difficulty-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .difficulty-badge.easy {
+            background-color: var(--facil);
+            color: #333;
+        }
+
+        .difficulty-badge.medium {
+            background-color: var(--medio);
+            color: #333;
+        }
+
+        .difficulty-badge.hard {
+            background-color: var(--dificil);
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
@@ -1076,8 +1121,8 @@
             <div class="input-group">
                 <label>Dificultad:</label>
                 <div class="difficulty-selector" id="difficultySelector">
-                    <div class="difficulty-btn easy selected" data-difficulty="easy">Fácil</div>
-                    <div class="difficulty-btn medium" data-difficulty="medium">Medio</div>
+                    <div class="difficulty-btn easy" data-difficulty="easy">Fácil</div>
+                    <div class="difficulty-btn medium selected" data-difficulty="medium">Medio</div>
                     <div class="difficulty-btn hard" data-difficulty="hard">Difícil</div>
                 </div>
             </div>
@@ -1115,6 +1160,7 @@
             
             <div class="player-list" id="multiplayerPlayerList"></div>
             <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
+            <button class="btn start-game-btn" id="startGameBtn">🚀 Iniciar Juego</button>
         </div>
     </div>
 
@@ -1378,6 +1424,7 @@
                 this.connectionStatus = document.getElementById('connectionStatus');
                 this.skipQuestionBtn = document.getElementById('skipQuestion');
                 this.readyBtn = document.getElementById('readyBtn');
+                this.startGameBtn = document.getElementById('startGameBtn');
                 this.gameModeIndicator = document.getElementById('gameModeIndicator');
                 this.achievementPopup = document.getElementById('achievementPopup');
                 this.closeAchievement = document.getElementById('closeAchievement');
@@ -1420,17 +1467,20 @@
                         break;
                     case this.STATES.LOBBY:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
-                        this.readyBtn.style.display = this.isMultiplayer ? 'block' : 'none';
+                        this.readyBtn.style.display = this.isMultiplayer && !this.isProfessor ? 'block' : 'none';
+                        this.startGameBtn.style.display = this.isProfessor ? 'block' : 'none';
                         break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = 'none';
+                        this.startGameBtn.style.display = 'none';
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
                         document.getElementById('liveRanking').style.display = 'block';
                         this.gameModeIndicator.style.display = 'block';
                         this.readyBtn.style.display = 'none';
+                        this.startGameBtn.style.display = 'none';
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
@@ -1460,10 +1510,21 @@
                 // Selección de dificultad
                 document.querySelectorAll('.difficulty-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
+                        if (!this.isProfessor && this.isMultiplayer) return;
+                        
                         document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('selected'));
                         btn.classList.add('selected');
                         this.difficulty = btn.dataset.difficulty;
                         this.playSound('clickSound');
+                        
+                        // Enviar actualización de dificultad al servidor si es profesor
+                        if (this.isProfessor && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                            this.socket.send(JSON.stringify({
+                                type: 'update_difficulty',
+                                pin: this.gamePin,
+                                difficulty: this.difficulty
+                            }));
+                        }
                     });
                 });
                 
@@ -1513,6 +1574,14 @@
 
                 // Botón listo en lobby
                 this.readyBtn.addEventListener('click', () => this.toggleReady());
+
+                // Botón iniciar juego (profesor)
+                if (this.startGameBtn) {
+                    this.startGameBtn.addEventListener('click', () => {
+                        this.startVoteCountdown(30);
+                        this.playSound('clickSound');
+                    });
+                }
 
                 // Cerrar popup de logros
                 this.closeAchievement.addEventListener('click', () => {
@@ -1763,6 +1832,19 @@
                 this.isProfessor = true;
                 this.skipQuestionBtn.style.display = 'block';
                 
+                // Crear botón de iniciar juego si no existe
+                if (!this.startGameBtn) {
+                    this.startGameBtn = document.createElement('button');
+                    this.startGameBtn.className = 'btn start-game-btn';
+                    this.startGameBtn.textContent = '🚀 Iniciar Juego';
+                    this.startGameBtn.id = 'startGameBtn';
+                    document.querySelector('.lobby-container').appendChild(this.startGameBtn);
+                    this.startGameBtn.addEventListener('click', () => {
+                        this.startVoteCountdown(30);
+                        this.playSound('clickSound');
+                    });
+                }
+                
                 this.connectToServer();
                 this.showNotification(`Sala ${this.gamePin} creada. Eres el profesor.`);
                 
@@ -1826,7 +1908,8 @@
                                 points: 0,
                                 isProfessor: this.isProfessor,
                                 isReady: this.player.isReady
-                            }
+                            },
+                            difficulty: this.difficulty
                         }));
                     };
                     
@@ -1972,6 +2055,17 @@
                         this.updatePlayerScore(data.playerId, data.points, data.streak);
                         break;
                         
+                    case 'update_difficulty':
+                        this.difficulty = data.difficulty;
+                        // Actualizar selector de dificultad
+                        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                            btn.classList.remove('selected');
+                            if (btn.dataset.difficulty === data.difficulty) {
+                                btn.classList.add('selected');
+                            }
+                        });
+                        break;
+                        
                     case 'error':
                         this.handleError(data);
                         break;
@@ -1991,8 +2085,30 @@
                     index === self.findIndex(p => p.id === player.id)
                 );
                 
+                // Actualizar dificultad si el profesor la cambió
+                if (data.difficulty) {
+                    this.difficulty = data.difficulty;
+                    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                        if (btn.dataset.difficulty === data.difficulty) {
+                            btn.classList.add('selected');
+                        }
+                    });
+                }
+                
                 this.setState(this.STATES.LOBBY);
                 document.getElementById('lobbyPin').textContent = this.gamePin;
+                
+                // Mostrar/ocultar controles según el rol
+                if (this.isProfessor) {
+                    this.startGameBtn.style.display = 'block';
+                    this.readyBtn.style.display = 'none';
+                    document.querySelector('.difficulty-selector').style.display = 'flex';
+                } else {
+                    this.startGameBtn.style.display = 'none';
+                    this.readyBtn.style.display = 'block';
+                    document.querySelector('.difficulty-selector').style.display = 'none';
+                }
                 
                 this.updatePlayerList();
                 
@@ -2050,12 +2166,6 @@
                         const action = data.isReady ? "está listo" : "ya no está listo";
                         this.showNotification(`${player.name} ${action}`);
                     }
-                }
-                
-                // Si todos están listos y es el host, iniciar votación
-                if (this.isHost && this.players.every(p => p.isReady) && this.players.length >= 2) {
-                    this.startVoteCountdown(30);
-                    this.setState(this.STATES.VOTING);
                 }
             }
 
@@ -2210,44 +2320,34 @@
             }
 
             updatePlayerList() {
-    const playerList = document.getElementById('multiplayerPlayerList');
-    playerList.innerHTML = '';
-    
-    this.players.forEach(player => {
-        const playerElement = document.createElement('div');
-        playerElement.className = 'player-badge';
-        playerElement.innerHTML = `
-            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
-            <span>${player.name}</span>
-        `;
-        
-        if (player.id === this.player.id) {
-            playerElement.style.border = '2px solid var(--amarillo)';
-        }
-        
-        if (player.isProfessor) {
-            playerElement.innerHTML += ' 👨‍🏫';
-        }
-        
-        if (player.isReady) {
-            playerElement.innerHTML += ' ✓';
-        }
-        
-        playerList.appendChild(playerElement);
-    });
-    
-    document.getElementById('playerCount').textContent = this.players.length;
-    
-    // Solo el host puede iniciar votación y solo cuando todos estén listos
-    if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
-        // Iniciar votación solo si todos están listos
-        if (this.players.every(p => p.isReady)) {
-            this.startVoteCountdown(30);
-            this.setState(this.STATES.VOTING);
-        }
-        // Eliminamos el temporizador automático que iniciaba la votación después de 30 segundos
-    }
-}
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                this.players.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
+                        <span>${player.name}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' <span class="professor-badge">Profesor</span>';
+                    }
+                    
+                    if (player.isReady && !player.isProfessor) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+            }
 
             startVoteCountdown(time) {
                 if (this.voteInterval) {
@@ -2279,6 +2379,8 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
+                
+                this.setState(this.STATES.VOTING);
                 
                 if (this.isHost) {
                     this.voteInterval = setInterval(() => {
@@ -2403,7 +2505,8 @@
                     type: 'start_game',
                     pin: this.gamePin,
                     mode: selectedMode,
-                    closestAnswerMode: closestAnswerMode
+                    closestAnswerMode: closestAnswerMode,
+                    difficulty: this.difficulty
                 }));
             }
 
@@ -2411,8 +2514,12 @@
                 this.selectedGameMode = mode;
                 this.closestAnswerMode = closestAnswerMode;
                 
-                // Actualizar indicador de modo de juego
-                this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
+                // Ocultar botón de iniciar juego
+                this.startGameBtn.style.display = 'none';
+                
+                // Actualizar indicador de modo de juego con dificultad
+                const difficultyName = this.getDifficultyName(this.difficulty);
+                this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)} (${difficultyName})`;
                 if (closestAnswerMode) {
                     this.gameModeIndicator.textContent += " 🎯";
                 }
@@ -2767,8 +2874,8 @@
                         questionElement.innerHTML = question.pregunta;
                     }
                     
-                    // Mostrar dificultad
-                    if (question.dificultad) {
+                    // Mostrar dificultad (solo si es profesor o en modo individual)
+                    if (question.dificultad && (this.isProfessor || !this.isMultiplayer)) {
                         const difficultyBadge = document.createElement('span');
                         difficultyBadge.className = `difficulty-badge ${question.dificultad}`;
                         difficultyBadge.textContent = this.getDifficultyName(question.dificultad);

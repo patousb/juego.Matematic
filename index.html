@@ -1981,40 +1981,38 @@
                 }
             }
 
-           handleRoomJoined(data) {
-    this.isMultiplayer = true;
-    this.players = data.players || [];
-    this.isHost = data.isHost;
-
-    // Eliminar duplicados en caso de reconexión
-    this.players = this.players.filter((player, index, self) =>
-        index === self.findIndex(p => p.id === player.id)
-    );
-
-    this.setState(this.STATES.LOBBY);
-    document.getElementById('lobbyPin').textContent = this.gamePin;
-
-    this.updatePlayerList();
-
-    // Solo si NO eres el host, entras en votación si ya está en curso
-    if (!this.isHost && data.voteTime !== undefined) {
-        this.startVoteCountdown(data.voteTime);
-        this.setState(this.STATES.VOTING);
-    }
-
-    if (data.votes) {
-        this.updateVoteResults(data.votes);
-    }
-
-    if (data.gameMode) {
-        this.selectedGameMode = data.gameMode;
-    }
-
-    if (data.isGameRunning) {
-        this.startGame(data.gameMode, data.closestAnswerMode);
-    }
-}
-        
+            handleRoomJoined(data) {
+                this.isMultiplayer = true;
+                this.players = data.players || [];
+                this.isHost = data.isHost;
+                
+                // Eliminar duplicados en caso de reconexión
+                this.players = this.players.filter((player, index, self) => 
+                    index === self.findIndex(p => p.id === player.id)
+                );
+                
+                this.setState(this.STATES.LOBBY);
+                document.getElementById('lobbyPin').textContent = this.gamePin;
+                
+                this.updatePlayerList();
+                
+                // Sincronizar estado de votación si ya está en curso
+                if (data.voteTime !== undefined) {
+                    this.startVoteCountdown(data.voteTime);
+                    this.setState(this.STATES.VOTING);
+                }
+                
+                if (data.votes) {
+                    this.updateVoteResults(data.votes);
+                }
+                
+                if (data.gameMode) {
+                    this.selectedGameMode = data.gameMode;
+                }
+                
+                if (data.isGameRunning) {
+                    this.startGame(data.gameMode, data.closestAnswerMode);
+                }
             }
 
             handlePlayerJoined(data) {
@@ -2212,44 +2210,51 @@
             }
 
             updatePlayerList() {
-    const playerList = document.getElementById('multiplayerPlayerList');
-    playerList.innerHTML = '';
-    
-    this.players.forEach(player => {
-        const playerElement = document.createElement('div');
-        playerElement.className = 'player-badge';
-        playerElement.innerHTML = `
-            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
-            <span>${player.name}</span>
-        `;
-        
-        if (player.id === this.player.id) {
-            playerElement.style.border = '2px solid var(--amarillo)';
-        }
-        
-        if (player.isProfessor) {
-            playerElement.innerHTML += ' 👨‍🏫';
-        }
-        
-        if (player.isReady) {handleRoomJoined(data) {
-            playerElement.innerHTML += ' ✓';
-        }
-        
-        playerList.appendChild(playerElement);
-    });
-    
-    document.getElementById('playerCount').textContent = this.players.length;
-    
-    // Solo el host puede iniciar votación y solo cuando todos estén listos
-    if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
-        // Iniciar votación solo si todos están listos
-        if (this.players.every(p => p.isReady)) {
-            this.startVoteCountdown(30);
-            this.setState(this.STATES.VOTING);
-        }
-        // Eliminamos el temporizador automático que iniciaba la votación después de 30 segundos
-    }
-}
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                this.players.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
+                        <span>${player.name}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
+                    if (player.isReady) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+                
+                // Solo el host puede iniciar votación
+                if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
+                    // Iniciar votación solo si todos están listos o después de 30 segundos
+                    if (this.players.every(p => p.isReady)) {
+                        this.startVoteCountdown(30);
+                        this.setState(this.STATES.VOTING);
+                    } else {
+                        // Temporizador para iniciar votación automáticamente
+                        setTimeout(() => {
+                            if (this.state === this.STATES.LOBBY && !this.voteInterval) {
+                                this.startVoteCountdown(30);
+                                this.setState(this.STATES.VOTING);
+                            }
+                        }, 30000);
+                    }
+                }
+            }
 
             startVoteCountdown(time) {
                 if (this.voteInterval) {

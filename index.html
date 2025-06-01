@@ -1689,7 +1689,7 @@
                     responseTimes: [],
                     history: [],
                     isProfessor: true,
-                    isReady: false,
+                    isReady: true,  // El profesor está listo automáticamente
                     gamesPlayed: this.player.gamesPlayed || 0,
                     favoriteMode: this.player.favoriteMode || null,
                     modeStats: this.player.modeStats || {},
@@ -1702,12 +1702,14 @@
                 
                 // Configurar controles de profesor
                 this.isProfessor = true;
+                this.isHost = true;
                 this.skipQuestionBtn.style.display = 'block';
+                this.startGameBtn.style.display = 'block';
                 
                 this.connectToServer();
-                this.showNotification(`Sala ${this.gamePin} creada. Eres el profesor.`);
+                this.showNotification(`✅ Sala ${this.gamePin} creada. Eres el profesor y host.`);
                 
-                // Restaurar botón
+                // Restaurar botón después de un breve retraso
                 setTimeout(() => {
                     createBtn.disabled = false;
                     createBtn.textContent = 'Crear nueva sala';
@@ -1760,7 +1762,7 @@
                                     name: this.player.displayName,
                                     avatar: this.player.avatar,
                                     isProfessor: true,
-                                    isReady: false
+                                    isReady: true
                                 }
                             } : 
                             {
@@ -1947,6 +1949,18 @@
                 this.isMultiplayer = true;
                 this.players = data.players || [];
                 this.isHost = data.isHost;
+                
+                // Asegurarse de que el profesor esté en la lista de jugadores
+                if (this.isProfessor && !this.players.some(p => p.id === this.player.id)) {
+                    this.players.push({
+                        id: this.player.id,
+                        name: this.player.displayName,
+                        avatar: this.player.avatar,
+                        isProfessor: true,
+                        isReady: true,
+                        points: 0
+                    });
+                }
                 
                 // Eliminar duplicados en caso de reconexión
                 this.players = this.players.filter((player, index, self) => 
@@ -2190,7 +2204,14 @@
                 const playerList = document.getElementById('multiplayerPlayerList');
                 playerList.innerHTML = '';
                 
-                this.players.forEach(player => {
+                // Ordenar jugadores: profesores primero, luego por nombre
+                const sortedPlayers = [...this.players].sort((a, b) => {
+                    if (a.isProfessor && !b.isProfessor) return -1;
+                    if (!a.isProfessor && b.isProfessor) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                
+                sortedPlayers.forEach(player => {
                     const playerElement = document.createElement('div');
                     playerElement.className = 'player-badge';
                     playerElement.innerHTML = `
@@ -2200,6 +2221,7 @@
                     
                     if (player.id === this.player.id) {
                         playerElement.style.border = '2px solid var(--amarillo)';
+                        playerElement.style.fontWeight = 'bold';
                     }
                     
                     if (player.isProfessor) {
@@ -2218,6 +2240,9 @@
                 // Actualizar contador de jugadores listos
                 const readyPlayers = this.players.filter(p => p.isReady).length;
                 document.getElementById('readyCounter').textContent = `Jugadores listos: ${readyPlayers}/${this.players.length}`;
+                
+                // Mostrar botón de iniciar juego solo si es profesor/host
+                this.startGameBtn.style.display = (this.isProfessor && this.isHost) ? 'block' : 'none';
             }
 
             resetVotingSystem() {

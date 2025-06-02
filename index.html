@@ -1648,171 +1648,685 @@
                 this.connectToServer();
             }
 
-           createGame()  {
-                createGame() {
-    const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-    const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
-    
-    if (!playerName || playerName.length < 3) {
-        document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
-        return;
-    }
+            createGame() {
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
+                
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
 
-    if (!grade) {
-        document.getElementById('joinError').textContent = 'Ingresa tu grado';
-        return;
-    }
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
+                    return;
+                }
 
-    // Mostrar loader en el botón
-    const createBtn = document.getElementById('createGame');
-    createBtn.disabled = true;
-    createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
+                // Mostrar loader en el botón
+                const createBtn = document.getElementById('createGame');
+                createBtn.disabled = true;
+                createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
 
-    // Generar ID único o usar uno existente de localStorage
-    let playerId = localStorage.getItem('playerId');
-    if (!playerId) {
-        playerId = this.generateId();
-        localStorage.setItem('playerId', playerId);
-    }
+                // Guardar referencia al botón para poder restaurarlo
+                const originalBtnText = createBtn.textContent;
+                
+                // Generar ID único o usar uno existente de localStorage
+                let playerId = localStorage.getItem('playerId');
+                if (!playerId) {
+                    playerId = this.generateId();
+                    localStorage.setItem('playerId', playerId);
+                }
 
-    this.player = {
-        id: playerId,
-        name: playerName,
-        grade: grade,
-        displayName: `${playerName} (Profesor)`,
-        avatar: this.player.avatar,
-        points: 0,
-        hasAnswered: false,
-        hasVoted: false,
-        streak: 0,
-        maxStreak: 0,
-        avgResponseTime: 0,
-        responseTimes: [],
-        history: [],
-        isProfessor: true,
-        isReady: true,  // El profesor está listo automáticamente
-        gamesPlayed: this.player.gamesPlayed || 0,
-        favoriteMode: this.player.favoriteMode || null,
-        modeStats: this.player.modeStats || {},
-        achievements: this.player.achievements || []
-    };
+                this.player = {
+                    id: playerId,
+                    name: playerName,
+                    grade: grade,
+                    displayName: `${playerName} (Profesor)`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: true,
+                    isReady: true,  // El profesor está listo automáticamente
+                    gamesPlayed: this.player.gamesPlayed || 0,
+                    favoriteMode: this.player.favoriteMode || null,
+                    modeStats: this.player.modeStats || {},
+                    achievements: this.player.achievements || []
+                };
 
-    // Generar PIN aleatorio de 4 dígitos
-    this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
-    document.getElementById('gamePin').value = this.gamePin;
-    
-    // Configurar controles de profesor
-    this.isProfessor = true;
-    this.isHost = true;
-    
-    // Mostrar controles del profesor
-    this.skipQuestionBtn.style.display = 'block';
-    this.startGameBtn.style.display = 'block';
-    
-    // Conectar al servidor
-    this.connectToServer();
-    
-    // Restaurar botón después de un breve retraso
-    setTimeout(() => {
-        createBtn.disabled = false;
-        createBtn.textContent = 'Crear nueva sala';
-    }, 2000);
-}
+                // Generar PIN aleatorio de 4 dígitos
+                this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
+                document.getElementById('gamePin').value = this.gamePin;
+                
+                // Configurar controles de profesor
+                this.isProfessor = true;
+                this.isHost = true;
+                this.skipQuestionBtn.style.display = 'block';
+                this.startGameBtn.style.display = 'block';
+                
+                // Configurar timeout para conexión
+                const connectionTimeout = setTimeout(() => {
+                    if (this.state !== this.STATES.LOBBY) {
+                        createBtn.disabled = false;
+                        createBtn.textContent = originalBtnText;
+                        document.getElementById('joinError').textContent = 'No se pudo conectar al servidor. Intenta nuevamente.';
+                        this.showNotification('Error al crear la sala. Intenta nuevamente.');
+                    }
+                }, 10000); // 10 segundos de timeout
+                
+                // Guardar el manejador original de mensajes
+                const originalOnMessage = this.socket ? this.socket.onmessage : null;
+                
+                // Configurar manejador temporal para esperar confirmación
+                const tempMessageHandler = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'room_created' || data.type === 'room_joined') {
+                            clearTimeout(connectionTimeout);
+                            
+                            // Restaurar el manejador original
+                            if (this.socket) {
+                                this.socket.onmessage = originalOnMessage || this.handleSocketMessage.bind(this);
+                            }
+                            
+                            // Procesar el mensaje normalmente
+                            this.handleSocketMessage(data);
+                            
+                            // Mostrar notificación
+                            this.showNotification(`✅ Sala ${this.gamePin} creada. Eres el profesor y host.`);
+                            
+                            // Restaurar el botón
+                            createBtn.disabled = false;
+                            createBtn.textContent = originalBtnText;
+                        } else if (data.type === 'error' && data.message.includes('sala')) {
+                            clearTimeout(connectionTimeout);
+                            createBtn.disabled = false;
+                            createBtn.textContent = originalBtnText;
+                            document.getElementById('joinError').textContent = data.message;
+                            this.showNotification(data.message);
+                        }
+                    } catch (error) {
+                        console.error("Error al procesar mensaje:", error);
+                    }
+                };
+                
+                // Conectar al servidor con el manejador temporal
+                this.connectToServer(tempMessageHandler);
+            }
 
-handleRoomJoined(data) {
-    this.isMultiplayer = true;
-    this.players = data.players || [];
-    this.isHost = data.isHost;
-    
-    // Asegurarse de que el profesor esté en la lista de jugadores
-    if (this.isProfessor && !this.players.some(p => p.id === this.player.id)) {
-        this.players.push({
-            id: this.player.id,
-            name: this.player.displayName,
-            avatar: this.player.avatar,
-            isProfessor: true,
-            isReady: true,
-            points: 0
-        });
-    }
-    
-    // Eliminar duplicados en caso de reconexión
-    this.players = this.players.filter((player, index, self) => 
-        index === self.findIndex(p => p.id === player.id)
-    );
-    
-    this.setState(this.STATES.LOBBY);
-    document.getElementById('lobbyPin').textContent = this.gamePin;
-    
-    this.updatePlayerList();
-    
-    // Mostrar notificación de éxito
-    this.showNotification(`✅ Sala ${this.gamePin} creada exitosamente`);
-    
-    // Sincronizar estado de votación si ya está en curso
-    if (data.voteTime !== undefined) {
-        this.startVoteCountdown(data.voteTime);
-        this.setState(this.STATES.VOTING);
-    }
-    
-    if (data.votes) {
-        this.updateVoteResults(data.votes);
-    }
-    
-    if (data.gameMode) {
-        this.selectedGameMode = data.gameMode;
-    }
-    
-    if (data.isGameRunning) {
-        this.startGame(data.gameMode, data.closestAnswerMode);
-    }
-}
+            connectToServer(tempMessageHandler = null) {
+                try {
+                    this.updateConnectionStatus('connecting', '🟡 Conectando...');
+                    
+                    // Verificar conexión a internet
+                    if (!navigator.onLine) {
+                        this.handleNetworkError(new Error('Sin conexión a internet'));
+                        return;
+                    }
 
-           updatePlayerList() {
-    const playerList = document.getElementById('multiplayerPlayerList');
-    playerList.innerHTML = '';
-    
-    // Ordenar jugadores: profesores primero, luego por nombre
-    const sortedPlayers = [...this.players].sort((a, b) => {
-        if (a.isProfessor && !b.isProfessor) return -1;
-        if (!a.isProfessor && b.isProfessor) return 1;
-        return a.name.localeCompare(b.name);
-    });
-    
-    sortedPlayers.forEach(player => {
-        const playerElement = document.createElement('div');
-        playerElement.className = 'player-badge';
-        playerElement.innerHTML = `
-            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
-            <span>${player.name}</span>
-        `;
-        
-        if (player.id === this.player.id) {
-            playerElement.style.border = '2px solid var(--amarillo)';
-            playerElement.style.fontWeight = 'bold';
-        }
-        
-        if (player.isProfessor) {
-            playerElement.innerHTML += ' 👨‍🏫';
-        }
-        
-        if (player.isReady) {
-            playerElement.innerHTML += ' ✓';
-        }
-        
-        playerList.appendChild(playerElement);
-    });
-    
-    document.getElementById('playerCount').textContent = this.players.length;
-    
-    // Actualizar contador de jugadores listos
-    const readyPlayers = this.players.filter(p => p.isReady).length;
-    document.getElementById('readyCounter').textContent = `Jugadores listos: ${readyPlayers}/${this.players.length}`;
-    
-    // Mostrar botón de iniciar juego solo si es profesor/host
-    this.startGameBtn.style.display = (this.isProfessor && this.isHost) ? 'block' : 'none';
-    this.readyBtn.style.display = this.isProfessor ? 'none' : 'block';
-}
+                    // Cerrar conexión existente si hay una
+                    if (this.socket && this.socket.readyState !== WebSocket.CLOSED) {
+                        this.socket.close();
+                    }
+
+                    // Crear nueva conexión con ID de jugador
+                    const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
+                    this.socket = new WebSocket(wsUrl);
+                    
+                    // Configurar manejador de errores
+                    this.socket.onerror = (error) => {
+                        console.error("Error de conexión:", error);
+                        this.handleNetworkError(error, "Error de conexión con el servidor");
+                        this.attemptReconnect();
+                    };
+                    
+                    // Configurar manejador de cierre
+                    this.socket.onclose = (event) => {
+                        console.log("Conexión cerrada:", event.code, event.reason);
+                        clearInterval(this.heartbeatInterval);
+                        
+                        if (event.code === 1000) {
+                            this.updateConnectionStatus('disconnected', '🔴 Conexión cerrada');
+                        } else if (this.isMultiplayer) {
+                            this.handleNetworkError("Conexión cerrada", "Se perdió la conexión con el servidor");
+                            this.attemptReconnect();
+                        }
+                    };
+                    
+                    // Configurar manejador de apertura
+                    this.socket.onopen = () => {
+                        console.log("Conexión establecida");
+                        this.reconnectAttempts = 0;
+                        this.lastPongTime = Date.now();
+                        this.updateConnectionStatus('connected', '🟢 Conectado');
+                        this.setupHeartbeat();
+                        
+                        const message = this.isProfessor ? 
+                            {
+                                type: 'create_room',
+                                pin: this.gamePin,
+                                player: {
+                                    id: this.player.id,
+                                    name: this.player.displayName,
+                                    avatar: this.player.avatar,
+                                    isProfessor: true,
+                                    isReady: true
+                                }
+                            } : 
+                            {
+                                type: 'join_room',
+                                pin: this.gamePin,
+                                player: {
+                                    id: this.player.id,
+                                    name: this.player.displayName,
+                                    avatar: this.player.avatar,
+                                    isProfessor: false,
+                                    isReady: false
+                                }
+                            };
+                        
+                        this.socket.send(JSON.stringify(message));
+                    };
+                    
+                    // Configurar manejador de mensajes (temporal o permanente)
+                    this.socket.onmessage = tempMessageHandler || this.handleSocketMessage.bind(this);
+                } catch (error) {
+                    this.handleNetworkError(error, "Error al conectar con el servidor");
+                    this.attemptReconnect();
+                }
+            }
+
+            setupHeartbeat() {
+                clearInterval(this.heartbeatInterval);
+                
+                this.heartbeatInterval = setInterval(() => {
+                    // Verificar si la conexión sigue activa
+                    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        const now = Date.now();
+                        
+                        // Si no hemos recibido pong en los últimos 30 segundos
+                        if (this.lastPongTime && now - this.lastPongTime > 30000) {
+                            console.log("No se recibió pong, cerrando conexión...");
+                            this.socket.close();
+                            return;
+                        }
+                        
+                        // Enviar ping
+                        this.socket.send(JSON.stringify({ type: 'ping' }));
+                    }
+                }, 15000); // Enviar ping cada 15 segundos
+            }
+
+            attemptReconnect() {
+                if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                    console.log("Máximo de intentos de reconexión alcanzado");
+                    this.showReconnectButton();
+                    return;
+                }
+                
+                this.reconnectAttempts++;
+                const delay = Math.min(30000, this.reconnectAttempts * this.reconnectDelay); // Backoff exponencial con máximo de 30s
+                
+                console.log(`Intentando reconectar en ${delay/1000} segundos... (Intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                
+                this.showNotification(`Reconectando... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                this.updateConnectionStatus('connecting', '🟡 Reconectando...');
+                
+                setTimeout(() => {
+                    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+                        this.connectToServer();
+                    }
+                }, delay);
+            }
+
+            showReconnectButton() {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.innerHTML = '🔴 Desconectado <button id="reconnectBtn">Reconectar</button>';
+                document.getElementById('reconnectBtn').addEventListener('click', () => {
+                    this.reconnectAttempts = 0;
+                    this.connectToServer();
+                });
+            }
+
+            updateConnectionStatus(status, message = null) {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.className = `connection-status ${status}`;
+                
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    switch(status) {
+                        case 'connected':
+                            statusElement.textContent = '🟢 Conectado';
+                            break;
+                        case 'disconnected':
+                            statusElement.textContent = '🔴 Desconectado';
+                            break;
+                        case 'connecting':
+                            statusElement.textContent = '🟡 Conectando...';
+                            break;
+                    }
+                }
+            }
+
+            handleSocketMessage(data) {
+                console.log("Mensaje recibido:", data);
+                
+                switch(data.type) {
+                    case 'room_created':
+                        this.isMultiplayer = true;
+                        this.isHost = true;
+                        this.players = [{
+                            id: this.player.id,
+                            name: this.player.displayName,
+                            avatar: this.player.avatar,
+                            isProfessor: true,
+                            isReady: true,
+                            points: 0
+                        }];
+                        this.setState(this.STATES.LOBBY);
+                        document.getElementById('lobbyPin').textContent = this.gamePin;
+                        this.updatePlayerList();
+                        break;
+                        
+                    case 'room_joined':
+                        this.handleRoomJoined(data);
+                        break;
+                        
+                    case 'player_joined':
+                        this.handlePlayerJoined(data);
+                        break;
+                        
+                    case 'player_left':
+                        this.handlePlayerLeft(data);
+                        break;
+                        
+                    case 'player_ready':
+                        this.handlePlayerReady(data);
+                        break;
+                        
+                    case 'start_voting':
+                        this.startVoteCountdown(data.time);
+                        break;
+                        
+                    case 'update_vote_timer':
+                        this.updateVoteTimer(data.time);
+                        break;
+                        
+                    case 'vote_update':
+                        this.updateVoteResults(data.votes);
+                        break;
+                        
+                    case 'start_game':
+                        this.startGame(data.mode, data.closestAnswerMode);
+                        break;
+                        
+                    case 'question_update':
+                        this.handleQuestionUpdate(data);
+                        break;
+                        
+                    case 'game_over':
+                        this.handleGameOver(data);
+                        break;
+                        
+                    case 'player_score':
+                        this.updatePlayerScore(data.playerId, data.points, data.streak);
+                        break;
+                        
+                    case 'error':
+                        this.handleError(data);
+                        break;
+                        
+                    case 'sync_game_state':
+                        this.syncGameState(data);
+                        break;
+                        
+                    default:
+                        console.warn('Tipo de mensaje no reconocido:', data.type);
+                }
+            }
+
+            syncGameState(data) {
+                // Sincronizar el estado completo del juego
+                if (data.state === 'LOBBY') {
+                    this.setState(this.STATES.LOBBY);
+                    this.resetVotingSystem();
+                } else if (data.state === 'VOTING') {
+                    this.setState(this.STATES.VOTING);
+                    this.startVoteCountdown(data.timeLeft);
+                } else if (data.state === 'PLAYING') {
+                    this.startGame(data.mode, data.closestAnswerMode);
+                }
+            }
+
+            handleRoomJoined(data) {
+                this.isMultiplayer = true;
+                this.players = data.players || [];
+                this.isHost = data.isHost;
+                
+                // Asegurarse de que el profesor esté en la lista de jugadores
+                if (this.isProfessor && !this.players.some(p => p.id === this.player.id)) {
+                    this.players.push({
+                        id: this.player.id,
+                        name: this.player.displayName,
+                        avatar: this.player.avatar,
+                        isProfessor: true,
+                        isReady: true,
+                        points: 0
+                    });
+                }
+                
+                // Eliminar duplicados en caso de reconexión
+                this.players = this.players.filter((player, index, self) => 
+                    index === self.findIndex(p => p.id === player.id)
+                );
+                
+                this.setState(this.STATES.LOBBY);
+                document.getElementById('lobbyPin').textContent = this.gamePin;
+                
+                this.updatePlayerList();
+                
+                // Sincronizar estado de votación si ya está en curso
+                if (data.voteTime !== undefined) {
+                    this.startVoteCountdown(data.voteTime);
+                    this.setState(this.STATES.VOTING);
+                }
+                
+                if (data.votes) {
+                    this.updateVoteResults(data.votes);
+                }
+                
+                if (data.gameMode) {
+                    this.selectedGameMode = data.gameMode;
+                }
+                
+                if (data.isGameRunning) {
+                    this.startGame(data.gameMode, data.closestAnswerMode);
+                }
+            }
+
+            handlePlayerJoined(data) {
+                // Verificar que el jugador no esté ya en la lista
+                if (!this.players.some(p => p.id === data.player.id)) {
+                    this.players.push(data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`${data.player.name} se ha unido`);
+                }
+            }
+
+            handlePlayerLeft(data) {
+                this.players = this.players.filter(p => p.id !== data.playerId);
+                this.updatePlayerList();
+                
+                const player = this.players.find(p => p.id === data.playerId);
+                if (player) {
+                    this.showNotification(`${player.name} se ha desconectado`);
+                }
+            }
+
+            handlePlayerReady(data) {
+                const player = this.players.find(p => p.id === data.playerId);
+                if (player) {
+                    player.isReady = data.isReady;
+                    this.updatePlayerList();
+                    
+                    if (data.playerId === this.player.id) {
+                        this.player.isReady = data.isReady;
+                        this.readyBtn.textContent = data.isReady ? "❌ No listo" : "👍 Listo";
+                    }
+                    
+                    // Mostrar notificación solo si no es el jugador actual
+                    if (data.playerId !== this.player.id) {
+                        const action = data.isReady ? "está listo" : "ya no está listo";
+                        this.showNotification(`${player.name} ${action}`);
+                    }
+                }
+            }
+
+            startGameManually() {
+                if (this.isProfessor && this.isHost) {
+                    // Verificar que al menos un jugador esté listo
+                    const readyPlayers = this.players.filter(p => p.isReady).length;
+                    if (readyPlayers > 0) {
+                        this.startVoteCountdown(30);
+                        this.setState(this.STATES.VOTING);
+                        
+                        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                            this.socket.send(JSON.stringify({
+                                type: 'start_voting',
+                                pin: this.gamePin,
+                                time: 30
+                            }));
+                        }
+                    } else {
+                        this.showNotification("Esperando que al menos un jugador esté listo");
+                    }
+                }
+            }
+
+            toggleReady() {
+                this.player.isReady = !this.player.isReady;
+                this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
+                
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'player_ready',
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        isReady: this.player.isReady
+                    }));
+                }
+            }
+
+            handleQuestionUpdate(data) {
+                this.currentQuestionData = data.question;
+                this.lastAnswerTime = Date.now();
+                this.displayQuestion(data.question);
+                
+                // Actualizar progreso si está disponible
+                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
+                    const progreso = (data.questionIndex / data.totalQuestions) * 100;
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                }
+            }
+
+            handleGameOver(data) {
+                const finalRanking = Array.isArray(data.finalRanking) ? 
+                    data.finalRanking.map(p => ({
+                        id: p.id,
+                        name: p.name || p.displayName,
+                        avatar: p.avatar || '1',
+                        points: p.points || 0,
+                        streak: p.streak || 0,
+                        maxStreak: p.maxStreak || 0
+                    })) : [];
+                
+                // Actualizar estadísticas del jugador
+                this.updatePlayerStatistics(finalRanking);
+                
+                this.showMultiplayerResults(finalRanking);
+            }
+
+            updatePlayerStatistics(finalRanking) {
+                // Incrementar contador de partidas jugadas
+                this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
+                
+                // Actualizar estadísticas por modo de juego
+                if (this.selectedGameMode) {
+                    if (!this.player.modeStats) {
+                        this.player.modeStats = {};
+                    }
+                    
+                    if (!this.player.modeStats[this.selectedGameMode]) {
+                        this.player.modeStats[this.selectedGameMode] = {
+                            games: 0,
+                            wins: 0,
+                            points: 0,
+                            maxStreak: 0
+                        };
+                    }
+                    
+                    const modeStats = this.player.modeStats[this.selectedGameMode];
+                    modeStats.games += 1;
+                    modeStats.points += this.player.points;
+                    
+                    if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
+                        modeStats.maxStreak = this.player.maxStreak;
+                    }
+                    
+                    // Verificar si el jugador ganó (está en el top 3)
+                    const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
+                    if (playerPosition >= 0 && playerPosition < 3) {
+                        modeStats.wins += 1;
+                    }
+                    
+                    // Actualizar modo favorito (el que más ha jugado)
+                    let maxGames = 0;
+                    let favoriteMode = null;
+                    
+                    for (const mode in this.player.modeStats) {
+                        if (this.player.modeStats[mode].games > maxGames) {
+                            maxGames = this.player.modeStats[mode].games;
+                            favoriteMode = mode;
+                        }
+                    }
+                    
+                    this.player.favoriteMode = favoriteMode;
+                }
+                
+                // Verificar logros desbloqueados
+                this.checkAchievements();
+                
+                // Guardar estadísticas
+                this.savePlayerStats();
+            }
+
+            checkAchievements() {
+                for (const achievementId in this.achievementsList) {
+                    const achievement = this.achievementsList[achievementId];
+                    
+                    // Verificar si el jugador ya tiene este logro
+                    if (!this.player.achievements.some(a => a.id === achievementId)) {
+                        // Verificar si cumple las condiciones para el logro
+                        if (achievement.condition(this.player)) {
+                            // Desbloquear logro
+                            this.unlockAchievement(achievementId, achievement);
+                        }
+                    }
+                }
+            }
+
+            unlockAchievement(achievementId, achievement) {
+                // Agregar el logro a la lista del jugador
+                this.player.achievements.push({
+                    id: achievementId,
+                    title: achievement.title,
+                    description: achievement.description,
+                    icon: achievement.icon,
+                    date: new Date().toISOString()
+                });
+                
+                // Mostrar popup de logro
+                this.showAchievementPopup(achievement);
+                
+                // Guardar estadísticas
+                this.savePlayerStats();
+            }
+
+            showAchievementPopup(achievement) {
+                document.getElementById('achievementTitle').textContent = achievement.title;
+                document.getElementById('achievementDescription').textContent = achievement.description;
+                document.getElementById('achievementIcon').textContent = achievement.icon;
+                
+                this.achievementPopup.style.display = 'block';
+                this.playSound('achievementSound');
+                
+                // Cerrar automáticamente después de 5 segundos
+                setTimeout(() => {
+                    if (this.achievementPopup.style.display === 'block') {
+                        this.achievementPopup.style.display = 'none';
+                    }
+                }, 5000);
+            }
+
+            handleError(data) {
+                document.getElementById('joinError').textContent = data.message;
+                this.showNotification(data.message);
+            }
+
+            updatePlayerList() {
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                // Ordenar jugadores: profesores primero, luego por nombre
+                const sortedPlayers = [...this.players].sort((a, b) => {
+                    if (a.isProfessor && !b.isProfessor) return -1;
+                    if (!a.isProfessor && b.isProfessor) return 1;
+                    return a.name.localeCompare(b.name);
+                });
+                
+                sortedPlayers.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar">
+                        <span>${player.name}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                        playerElement.style.fontWeight = 'bold';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
+                    if (player.isReady) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+                
+                // Actualizar contador de jugadores listos
+                const readyPlayers = this.players.filter(p => p.isReady).length;
+                document.getElementById('readyCounter').textContent = `Jugadores listos: ${readyPlayers}/${this.players.length}`;
+                
+                // Mostrar botón de iniciar juego solo si es profesor/host
+                this.startGameBtn.style.display = (this.isProfessor && this.isHost) ? 'block' : 'none';
+            }
+
+            resetVotingSystem() {
+                this.voteCounts = {
+                    operaciones: 0,
+                    misterioso: 0,
+                    secuencia: 0,
+                    potenciacion: 0,
+                    combinadas: 0,
+                    relampago: 0,
+                    "verdadero-falso": 0,
+                    "mas-cercano": 0
+                };
+                
+                this.player.hasVoted = false;
+                this.players.forEach(p => p.hasVoted = false);
+                
+                // Resetear UI de votación
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('selected', 'voted');
+                });
+                
+                document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
+                document.getElementById('voteTime').textContent = '30';
+            }
 
             startVoteCountdown(time) {
                 // Primero resetear el sistema de votación

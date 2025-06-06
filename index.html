@@ -1135,7 +1135,6 @@
     <script>
         class GameManager {
             constructor() {
-                // Estados del juego
                 this.STATES = {
                     LOADING: 0,
                     JOIN_SCREEN: 1,
@@ -1170,7 +1169,7 @@
                 
                 this.questions = [];
                 this.currentQuestionIndex = 0;
-                this.gameMode = null; // Renombrado a selectedGameMode para mayor claridad
+                this.gameMode = null; 
                 this.timeLeft = 30;
                 this.timerDuration = 30;
                 this.timerInterval = null;
@@ -1182,9 +1181,8 @@
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
                 
-                // Multijugador
                 this.isMultiplayer = false;
-                this.isHost = false; // Importante: se establece a true solo al crear sala
+                this.isHost = false; 
                 this.gamePin = '';
                 this.players = [];
                 this.playerVotes = {}; 
@@ -1196,7 +1194,6 @@
                 this.heartbeatInterval = null;
                 this.lastPongTime = null;
                 
-                // Votación
                 this.voteTime = 30;
                 this.voteInterval = null;
                 this.voteCounts = { 
@@ -1211,12 +1208,10 @@
                 };
                 this.isVotingActive = false; 
                 
-                // Ranking
                 this.lastRanking = [];
                 this.rankingUpdateInterval = null;
                 this.animationPending = false; 
                 
-                // Logros
                 this.achievementsList = {
                     perfectStreak: {
                         id: "perfectStreak",
@@ -1259,7 +1254,6 @@
                     }
                 };
                 
-                // Elementos UI
                 this.themeToggle = document.getElementById('themeToggle');
                 this.timerCircle = document.querySelector('.timer-circle');
                 this.timerText = document.getElementById('timerText');
@@ -1279,7 +1273,6 @@
                 this.checkDarkModePreference();
                 this.loadPlayerStats();
                 
-                // Simular carga inicial
                 setTimeout(() => {
                     this.setState(this.STATES.JOIN_SCREEN);
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -1622,7 +1615,7 @@
                     achievements: this.player.achievements || []
                 };
                 
-                this.isHost = true; // <--- ¡Importante! Aquí se establece que es el anfitrión.
+                this.isHost = true; 
                 
                 console.log("[Cliente] Intentando conectar al servidor para crear sala...");
                 this.connectToServer(); 
@@ -1681,18 +1674,13 @@
                         
                         let messageType;
 
-                        // <--- INICIO DE LA MEJORA CLAVE AQUÍ ---
                         if (this.isHost) {
-                            // Si el cliente está marcado como anfitrión (solo si hizo clic en 'Crear nueva sala')
                             messageType = 'create_room';
                         } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
-                            // Si ya tenemos un PIN y no estamos en la pantalla inicial de unión (indicando una reconexión)
                             messageType = 'rejoin_room';
                         } else {
-                            // Por defecto, si no es host y no es una reconexión, es un intento de unirse.
                             messageType = 'join_room'; 
                         }
-                        // <--- FIN DE LA MEJORA CLAVE ---
 
                         console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
 
@@ -1816,7 +1804,7 @@
                 console.log("[Cliente] Mensaje recibido y manejando:", data.type);
                 
                 switch(data.type) {
-                    case 'room_created': // Ahora el servidor podría enviar esto
+                    case 'room_created': 
                     case 'room_joined':
                         this.handleRoomJoined(data);
                         break;
@@ -1878,7 +1866,7 @@
                         this.handleError(data);
                         break;
                     
-                    case 'new_host': // Manejar si el servidor asigna un nuevo anfitrión
+                    case 'new_host': 
                         if (data.newHostId === this.player.id) {
                             this.isHost = true;
                             this.player.isProfessor = true;
@@ -1886,16 +1874,11 @@
                         } else {
                             this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
                         }
-                        // Re-actualizar la lista de jugadores para reflejar el nuevo profesor
-                        // (El servidor debería haber enviado un player_joined/update con el rol de profesor actualizado para el nuevo host)
-                        // Para mayor seguridad, podrías pedir una actualización de la sala o actualizar la lista de jugadores localmente.
-                        // Forzar una actualización de la lista de jugadores (si el servidor no la envía automáticamente después de 'new_host')
-                        if (this.state === this.STATES.LOBBY) {
-                            // Si estás en el lobby, haz un pequeño delay para que la lista se pueda actualizar
-                            // (asumiendo que el servidor te envía una lista de jugadores actualizada)
-                            // O podrías pedir al servidor el estado actual de la sala para resincronizar
-                            // ws.send({ type: 'get_room_state', pin: this.gamePin });
-                        }
+                        // Forzar una actualización de la lista de jugadores para reflejar el cambio de host
+                        // Si el servidor envía la lista completa, esto podría no ser necesario,
+                        // pero es más seguro si el servidor no lo hace automáticamente.
+                        // Ideally, the server should send an updated player list or a full room state.
+                        // For now, let's assume the server will update this with player_joined/ready_update.
                         break;
                         
                     default:
@@ -1907,14 +1890,17 @@
                 console.log("[Cliente] handleRoomJoined activado. Data:", data);
                 this.isMultiplayer = true; 
                 this.players = data.players || [];
-                this.isHost = data.isHost; // Recibe del servidor si es host
-                this.gamePin = data.pin; 
+                this.isHost = data.isHost; 
                 
-                // Actualizar el estado isProfessor del jugador local basado en lo que dice el servidor
+                // CORRECCIÓN CLAVE: Usar el PIN del servidor para actualizar la UI y la variable local
+                this.gamePin = data.pin; 
+                document.getElementById('lobbyPin').textContent = this.gamePin; 
+                // FIN CORRECCIÓN CLAVE
+
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
                     this.player.isProfessor = currentPlayerFromServer.isProfessor;
-                    this.player.isReady = currentPlayerFromServer.isReady; // Sincroniza isReady también
+                    this.player.isReady = currentPlayerFromServer.isReady; 
                 }
 
                 this.updatePlayerList();
@@ -1941,17 +1927,24 @@
             }
 
             handlePlayerJoined(data) {
-                if (!this.players.some(p => p.id === data.player.id)) {
+                // Verificar si el jugador ya existe para evitar duplicados en la lista local
+                const existingPlayer = this.players.find(p => p.id === data.player.id);
+                if (!existingPlayer) {
                     this.players.push(data.player);
                     this.updatePlayerList();
                     this.showNotification(`${data.player.name} se ha unido`);
+                } else {
+                    // Si ya existe, simplemente actualizar sus propiedades (útil para reconexiones)
+                    Object.assign(existingPlayer, data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`${data.player.name} se ha reconectado`);
                 }
             }
 
             handlePlayerLeft(data) {
                 const playerIndex = this.players.findIndex(p => p.id === data.playerId);
                 if (playerIndex !== -1) {
-                    const playerName = this.players[playerIndex].name; // Obtener el nombre antes de eliminar
+                    const playerName = this.players[playerIndex].name; 
                     this.players.splice(playerIndex, 1);
                     this.updatePlayerList();
                     this.showNotification(`${this.extractName(playerName)} se ha desconectado`);
@@ -1976,11 +1969,17 @@
                     }
                 }
                 
-                if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { // Solo mostrar en lobby
-                    const minPlayersForVote = 2; 
-                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                    const allReady = nonProfessorPlayers.every(p => p.isReady) && nonProfessorPlayers.length >= (this.isHost ? 1 : minPlayersForVote); // Si es host, solo necesita 1 más
-                    this.startVoteBtn.style.display = allReady ? 'block' : 'none';
+                if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
+                    const minPlayersForVote = 2;
+                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor); // Excluir profesores al contar jugadores listos
+                    // El host puede iniciar con 1 jugador más listo (él + uno)
+                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0); // Contar el host si es profesor
+                    const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
+                    
+                    this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
+                    if (!allNeededPlayersReady) {
+                        this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                    }
                 }
             }
 
@@ -1999,12 +1998,14 @@
             }
 
             initiateVoteAsHost() {
-                if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; // Solo anfitrión y en lobby
+                if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
 
-                // Asegúrate de que haya al menos 2 jugadores (host + 1)
-                const minPlayersForVote = 2;
-                if (this.players.length < minPlayersForVote) {
-                    this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores para iniciar la votación.`);
+                const minPlayersForVote = 2; // Host + 1 jugador
+                const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0); // Contar al host si es profesor
+
+                if (playersInLobby < minPlayersForVote) {
+                    this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
                     return;
                 }
                 
@@ -2186,7 +2187,6 @@
                 
                 document.getElementById('playerCount').textContent = this.players.length;
                 
-                // Actualizar el botón de "Listo" si es el jugador actual
                 if (this.players.some(p => p.id === this.player.id)) { 
                     this.readyBtn.disabled = this.player.isReady;
                     this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
@@ -2218,8 +2218,6 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
-                // El temporizador de votación se gestiona principalmente en el servidor
-                // El host solo lo "simula" para que la UI se actualice
                 if (this.isHost) {
                     this.voteInterval = setInterval(() => {
                         this.voteTime--;
@@ -2230,7 +2228,6 @@
                             this.voteInterval = null;
                             this.isVotingActive = false; 
                             this.enableVotingButtons(false); 
-                            // El servidor enviará game_start o game_starting
                         }
                     }, 1000);
                 }
@@ -2810,7 +2807,7 @@
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
                     if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
-                    return (b.maxStreak || 0) - (a.maxStreak || 0); // Desempate por racha máxima
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
                 
                 rankingList.innerHTML = ''; 
@@ -2945,7 +2942,7 @@
                     this.socket.send(JSON.stringify({
                         type: 'skip_question',
                         pin: this.gamePin,
-                        hostId: this.player.id // Asegurar que el host envía su ID
+                        hostId: this.player.id 
                     }));
                 }
                 this.skipQuestion(); 
@@ -2966,7 +2963,7 @@
                             type: 'game_over',
                             pin: this.gamePin,
                             finalRanking: finalRanking,
-                            hostId: this.player.id // Asegurar que el host envía su ID
+                            hostId: this.player.id 
                         }));
                         this.showMultiplayerResults(finalRanking);
                     } else if (this.isMultiplayer && !this.isHost) {
@@ -2985,7 +2982,7 @@
                 return [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
                     if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
-                    return (b.maxStreak || 0) - (a.maxStreak || 0);
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
             }
 
@@ -3169,9 +3166,8 @@
                             this.startVoteBtn.style.display = 'block';
                         }
                     } else {
-                        // Si no es multijugador, vuelve a la pantalla de unión y resetea isHost
                         this.isHost = false; 
-                        this.player.isProfessor = false; // Asegurarse de que el rol de profesor se reinicie
+                        this.player.isProfessor = false; 
                         this.setState(this.STATES.JOIN_SCREEN);
                     }
                 } catch (error) {
@@ -3204,7 +3200,6 @@
             }
 
             generateId() {
-                // Genera un ID más robusto, incluyendo un timestamp
                 return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
             }
 

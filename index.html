@@ -344,28 +344,6 @@
             border-left: 5px solid var(--morado);
         }
 
-        .math-question {
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .number {
-            font-weight: bold;
-            color: var(--morado);
-        }
-
-        .equals {
-            color: var(--texto);
-        }
-
-        .question-mark {
-            color: var(--amarillo);
-            animation: pulse 1.5s infinite;
-        }
-
         .question-image {
             max-width: 100%;
             max-height: 200px;
@@ -420,26 +398,6 @@
             min-height: 40px;
         }
 
-        .result-content {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .operation {
-            font-size: 1.2rem;
-        }
-
-        .correct-answer {
-            color: var(--verde);
-            font-weight: bold;
-        }
-
-        .points {
-            font-size: 1.1rem;
-            color: var(--amarillo);
-        }
-
         .correct {
             color: var(--verde);
             animation: tada 1s ease;
@@ -462,12 +420,6 @@
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
         }
 
         /* Temporizador */
@@ -779,6 +731,12 @@
             color: var(--amarillo);
         }
 
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
         /* Botón tema nocturno */
         .theme-toggle {
             position: fixed;
@@ -801,16 +759,6 @@
         .skip-btn {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: none;
-        }
-
-        /* Botón iniciar juego (modo profesor) */
-        .start-game-btn {
-            position: fixed;
-            bottom: 80px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
@@ -959,13 +907,6 @@
             color: var(--azul);
         }
 
-        /* Contador de jugadores listos */
-        .ready-counter {
-            margin: 15px 0;
-            font-weight: bold;
-            color: var(--morado);
-        }
-
         /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
@@ -1003,10 +944,6 @@
                 bottom: 70px;
                 right: 10px;
                 max-width: 200px;
-            }
-
-            .start-game-btn {
-                bottom: 120px;
             }
         }
     </style>
@@ -1059,7 +996,6 @@
         <div class="lobby-container">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
-            <div class="ready-counter" id="readyCounter"></div>
             
             <div class="vote-section">
                 <h3>Votar modo de juego:</h3>
@@ -1082,7 +1018,6 @@
             
             <div class="player-list" id="multiplayerPlayerList"></div>
             <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
-            <button class="btn start-game-btn" id="startGameBtn">▶️ Iniciar Juego</button>
         </div>
     </div>
 
@@ -1257,7 +1192,6 @@
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
-                this.animationFrameId = null;
                 
                 // Multijugador
                 this.isMultiplayer = false;
@@ -1336,7 +1270,6 @@
                 this.connectionStatus = document.getElementById('connectionStatus');
                 this.skipQuestionBtn = document.getElementById('skipQuestion');
                 this.readyBtn = document.getElementById('readyBtn');
-                this.startGameBtn = document.getElementById('startGameBtn');
                 this.gameModeIndicator = document.getElementById('gameModeIndicator');
                 this.achievementPopup = document.getElementById('achievementPopup');
                 this.closeAchievement = document.getElementById('closeAchievement');
@@ -1380,19 +1313,16 @@
                     case this.STATES.LOBBY:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = this.isMultiplayer ? 'block' : 'none';
-                        this.startGameBtn.style.display = (this.isProfessor && this.isHost) ? 'block' : 'none';
                         break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = 'none';
-                        this.startGameBtn.style.display = 'none';
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
                         document.getElementById('liveRanking').style.display = 'block';
                         this.gameModeIndicator.style.display = 'block';
                         this.readyBtn.style.display = 'none';
-                        this.startGameBtn.style.display = 'none';
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
@@ -1464,9 +1394,6 @@
 
                 // Botón listo en lobby
                 this.readyBtn.addEventListener('click', () => this.toggleReady());
-
-                // Botón iniciar juego (modo profesor)
-                this.startGameBtn.addEventListener('click', () => this.startGameManually());
 
                 // Cerrar popup de logros
                 this.closeAchievement.addEventListener('click', () => {
@@ -1591,8 +1518,7 @@
             }
 
             sanitizeInput(input) {
-                if (typeof input !== 'string') return '';
-                return input.replace(/[<>'"&\\/]/g, '').substring(0, 20).trim();
+                return input.replace(/[<>]/g, '').substring(0, 20);
             }
 
             joinGame() {
@@ -1728,6 +1654,9 @@
                     const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
                     this.socket = new WebSocket(wsUrl);
                     
+                    // Configurar heartbeat
+                    this.setupHeartbeat();
+                    
                     this.socket.onerror = (error) => {
                         console.error("Error de conexión:", error);
                         this.handleNetworkError(error, "Error de conexión con el servidor");
@@ -1738,7 +1667,11 @@
                         console.log("Conexión cerrada:", event.code, event.reason);
                         clearInterval(this.heartbeatInterval);
                         
-                        if (event.code !== 1000 && this.isMultiplayer) {
+                        let message = "Conexión cerrada";
+                        if (event.code === 1000) {
+                            message = "Conexión finalizada";
+                            this.updateConnectionStatus('disconnected', `🔴 ${message}`);
+                        } else if (this.isMultiplayer) {
                             this.handleNetworkError("Conexión cerrada", "Se perdió la conexión con el servidor");
                             this.attemptReconnect();
                         }
@@ -1749,42 +1682,31 @@
                         this.reconnectAttempts = 0;
                         this.lastPongTime = Date.now();
                         this.updateConnectionStatus('connected', '🟢 Conectado');
-                        this.setupHeartbeat();
                         
-                        const message = this.isProfessor ? 
-                            {
-                                type: 'create_room',
-                                pin: this.gamePin,
-                                player: {
-                                    id: this.player.id,
-                                    name: this.player.displayName,
-                                    avatar: this.player.avatar,
-                                    isProfessor: true,
-                                    isReady: false
-                                }
-                            } : 
-                            {
-                                type: 'join_room',
-                                pin: this.gamePin,
-                                player: {
-                                    id: this.player.id,
-                                    name: this.player.displayName,
-                                    avatar: this.player.avatar,
-                                    isProfessor: false,
-                                    isReady: false
-                                }
-                            };
-                        
-                        this.socket.send(JSON.stringify(message));
+                        this.socket.send(JSON.stringify({
+                            type: 'join_room',
+                            pin: this.gamePin,
+                            player: {
+                                id: this.player.id,
+                                name: this.player.displayName,
+                                avatar: this.player.avatar,
+                                points: 0,
+                                isProfessor: this.isProfessor,
+                                isReady: this.player.isReady
+                            }
+                        }));
                     };
                     
                     this.socket.onmessage = (event) => {
                         try {
                             const data = JSON.parse(event.data);
+                            
+                            // Manejar mensaje pong
                             if (data.type === 'pong') {
                                 this.lastPongTime = Date.now();
                                 return;
                             }
+                            
                             this.handleSocketMessage(data);
                         } catch (error) {
                             console.error("Error al procesar mensaje:", error);
@@ -1921,25 +1843,8 @@
                         this.handleError(data);
                         break;
                         
-                    case 'sync_game_state':
-                        this.syncGameState(data);
-                        break;
-                        
                     default:
                         console.warn('Tipo de mensaje no reconocido:', data.type);
-                }
-            }
-
-            syncGameState(data) {
-                // Sincronizar el estado completo del juego
-                if (data.state === 'LOBBY') {
-                    this.setState(this.STATES.LOBBY);
-                    this.resetVotingSystem();
-                } else if (data.state === 'VOTING') {
-                    this.setState(this.STATES.VOTING);
-                    this.startVoteCountdown(data.timeLeft);
-                } else if (data.state === 'PLAYING') {
-                    this.startGame(data.mode, data.closestAnswerMode);
                 }
             }
 
@@ -2013,26 +1918,11 @@
                         this.showNotification(`${player.name} ${action}`);
                     }
                 }
-            }
-
-            startGameManually() {
-                if (this.isProfessor && this.isHost) {
-                    // Verificar que al menos un jugador esté listo
-                    const readyPlayers = this.players.filter(p => p.isReady).length;
-                    if (readyPlayers > 0) {
-                        this.startVoteCountdown(30);
-                        this.setState(this.STATES.VOTING);
-                        
-                        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                            this.socket.send(JSON.stringify({
-                                type: 'start_voting',
-                                pin: this.gamePin,
-                                time: 30
-                            }));
-                        }
-                    } else {
-                        this.showNotification("Esperando que al menos un jugador esté listo");
-                    }
+                
+                // Si todos están listos y es el host, iniciar votación
+                if (this.isHost && this.players.every(p => p.isReady) && this.players.length >= 2) {
+                    this.startVoteCountdown(30);
+                    this.setState(this.STATES.VOTING);
                 }
             }
 
@@ -2215,12 +2105,31 @@
                 
                 document.getElementById('playerCount').textContent = this.players.length;
                 
-                // Actualizar contador de jugadores listos
-                const readyPlayers = this.players.filter(p => p.isReady).length;
-                document.getElementById('readyCounter').textContent = `Jugadores listos: ${readyPlayers}/${this.players.length}`;
+                // Solo el host puede iniciar votación
+                if (this.isHost && this.players.length >= 2 && !this.voteInterval && !this.selectedGameMode) {
+                    // Iniciar votación solo si todos están listos o después de 30 segundos
+                    if (this.players.every(p => p.isReady)) {
+                        this.startVoteCountdown(30);
+                        this.setState(this.STATES.VOTING);
+                    } else {
+                        // Temporizador para iniciar votación automáticamente
+                        setTimeout(() => {
+                            if (this.state === this.STATES.LOBBY && !this.voteInterval) {
+                                this.startVoteCountdown(30);
+                                this.setState(this.STATES.VOTING);
+                            }
+                        }, 30000);
+                    }
+                }
             }
 
-            resetVotingSystem() {
+            startVoteCountdown(time) {
+                if (this.voteInterval) {
+                    clearInterval(this.voteInterval);
+                    this.voteInterval = null;
+                }
+                
+                // Resetear votos
                 this.voteCounts = {
                     operaciones: 0,
                     misterioso: 0,
@@ -2232,24 +2141,18 @@
                     "mas-cercano": 0
                 };
                 
+                // Resetear estado de votación
                 this.player.hasVoted = false;
                 this.players.forEach(p => p.hasVoted = false);
                 
-                // Resetear UI de votación
+                // Resetear selección de botones
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.classList.remove('selected', 'voted');
                 });
                 
-                document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
-                document.getElementById('voteTime').textContent = '30';
-            }
-
-            startVoteCountdown(time) {
-                // Primero resetear el sistema de votación
-                this.resetVotingSystem();
-                
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
+                document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
                 
                 if (this.isHost) {
                     this.voteInterval = setInterval(() => {
@@ -2379,59 +2282,53 @@
             }
 
             startGame(mode, closestAnswerMode = false) {
-                // Solo iniciar el temporizador si el juego no está en modo lobby
-                if (this.state !== this.STATES.LOBBY) {
-                    this.selectedGameMode = mode;
-                    this.closestAnswerMode = closestAnswerMode;
-                    
-                    // Actualizar indicador de modo de juego
-                    this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
-                    if (closestAnswerMode) {
-                        this.gameModeIndicator.textContent += " 🎯";
-                    }
-                    
-                    // Configurar temporizador según el modo
-                    if (mode === 'relampago') {
-                        this.timerDuration = 5;
-                        document.getElementById('gameContainer').classList.add('lightning-mode');
-                    } else if (mode === 'verdadero-falso') {
-                        this.timerDuration = 15;
-                    } else {
-                        this.timerDuration = 30;
-                        document.getElementById('gameContainer').classList.remove('lightning-mode');
-                    }
-                    
-                    this.setState(this.STATES.PLAYING);
-                    
-                    // Mostrar controles adecuados según el modo
-                    if (mode === 'verdadero-falso') {
-                        document.getElementById('standardInput').style.display = 'none';
-                        document.getElementById('trueFalseButtons').style.display = 'flex';
-                    } else {
-                        document.getElementById('standardInput').style.display = 'block';
-                        document.getElementById('trueFalseButtons').style.display = 'none';
-                    }
-                    
-                    // Solo el host genera preguntas
-                    if (this.isHost) {
-                        this.questions = this.generarPreguntas(mode, 10);
-                        this.currentQuestionIndex = 0;
-                        this.shareQuestionWithPlayers();
-                    }
-                    
-                    this.player.points = 0;
-                    this.player.streak = 0;
-                    this.player.responseTimes = [];
-                    this.updatePlayerScore();
-                    
-                    // Iniciar actualización del ranking en vivo
-                    this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
-                    this.updateLiveRanking();
-                    this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
-                    
-                    // Iniciar temporizador
-                    this.resetTimer();
+                this.selectedGameMode = mode;
+                this.closestAnswerMode = closestAnswerMode;
+                
+                // Actualizar indicador de modo de juego
+                this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
+                if (closestAnswerMode) {
+                    this.gameModeIndicator.textContent += " 🎯";
                 }
+                
+                // Configurar temporizador según el modo
+                if (mode === 'relampago') {
+                    this.timerDuration = 5;
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                } else if (mode === 'verdadero-falso') {
+                    this.timerDuration = 15;
+                } else {
+                    this.timerDuration = 30;
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                }
+                
+                this.setState(this.STATES.PLAYING);
+                
+                // Mostrar controles adecuados según el modo
+                if (mode === 'verdadero-falso') {
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'flex';
+                } else {
+                    document.getElementById('standardInput').style.display = 'block';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                }
+                
+                // Solo el host genera preguntas
+                if (this.isHost) {
+                    this.questions = this.generarPreguntas(mode, 10);
+                    this.currentQuestionIndex = 0;
+                    this.shareQuestionWithPlayers();
+                }
+                
+                this.player.points = 0;
+                this.player.streak = 0;
+                this.player.responseTimes = [];
+                this.updatePlayerScore();
+                
+                // Iniciar actualización del ranking en vivo
+                this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
+                this.updateLiveRanking();
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000);
             }
 
             shareQuestionWithPlayers() {
@@ -2449,51 +2346,42 @@
                 }));
                 
                 this.displayQuestion(question);
+                this.resetTimer();
             }
 
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 
-                const generarOperacionRapida = () => {
-                    const operadores = ['+', '-', '×', '÷'];
+                const generarOperacion = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const operadores = ['+', '-', '*', '/'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
-                    let num1, num2, pregunta, respuesta;
                     
-                    // Asegurar que las divisiones sean exactas y no haya división por cero
-                    if (operador === '÷') {
-                        respuesta = Math.floor(Math.random() * 10) + 1;
-                        num2 = Math.floor(Math.random() * 5) + 1; // Divisor entre 1 y 5
-                        num1 = respuesta * num2;
-                        pregunta = `${num1} ÷ ${num2} = ?`;
-                    } 
-                    // Evitar resultados negativos en restas
-                    else if (operador === '-') {
-                        num1 = Math.floor(Math.random() * 20) + 10; // Minuendo entre 10 y 30
-                        num2 = Math.floor(Math.random() * 10) + 1;  // Sustraendo entre 1 y 10
-                        pregunta = `${num1} - ${num2} = ?`;
-                        respuesta = num1 - num2;
-                    }
-                    // Multiplicaciones controladas
-                    else if (operador === '×') {
-                        num1 = Math.floor(Math.random() * 10) + 1; // Factor 1 entre 1 y 10
-                        num2 = Math.floor(Math.random() * 10) + 1; // Factor 2 entre 1 y 10
-                        pregunta = `${num1} × ${num2} = ?`;
-                        respuesta = num1 * num2;
-                    }
-                    // Sumas estándar
-                    else {
-                        num1 = Math.floor(Math.random() * 50) + 1; // Sumando 1 entre 1 y 50
-                        num2 = Math.floor(Math.random() * 50) + 1; // Sumando 2 entre 1 y 50
-                        pregunta = `${num1} + ${num2} = ?`;
-                        respuesta = num1 + num2;
+                    let pregunta, respuesta;
+                    
+                    switch(operador) {
+                        case '+':
+                            pregunta = `${num1} + ${num2} = ?`;
+                            respuesta = num1 + num2;
+                            break;
+                        case '-':
+                            pregunta = `${num1} - ${num2} = ?`;
+                            respuesta = num1 - num2;
+                            break;
+                        case '*':
+                            pregunta = `${num1} × ${num2} = ?`;
+                            respuesta = num1 * num2;
+                            break;
+                        case '/':
+                            respuesta = Math.floor(Math.random() * 5) + 1;
+                            const num2 = Math.floor(Math.random() * 3) + 1;
+                            const num1 = respuesta * num2;
+                            pregunta = `${num1} ÷ ${num2} = ?`;
+                            break;
                     }
                     
-                    return { 
-                        pregunta, 
-                        respuesta,
-                        tipo: 'operacion-rapida',
-                        operador
-                    };
+                    return { pregunta, respuesta, tipo: 'operacion' };
                 };
                 
                 const generarMisterioso = () => {
@@ -2569,7 +2457,7 @@
                 const generarVerdaderoFalso = () => {
                     const num1 = Math.floor(Math.random() * 10) + 1;
                     const num2 = Math.floor(Math.random() * 10) + 1;
-                    const operadores = ['+', '-', '×', '÷'];
+                    const operadores = ['+', '-', '*', '/'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
                     
                     let operacion, respuesta, esCorrecta;
@@ -2589,14 +2477,14 @@
                                 operacion = `${num1} - ${num2} = ${num1 - num2 + (Math.random() > 0.5 ? 1 : -1)}`;
                             }
                             break;
-                        case '×':
+                        case '*':
                             operacion = `${num1} × ${num2} = ${num1 * num2}`;
                             respuesta = esCorrecta;
                             if (!esCorrecta) {
                                 operacion = `${num1} × ${num2} = ${num1 * num2 + (Math.random() > 0.5 ? 1 : -1)}`;
                             }
                             break;
-                        case '÷':
+                        case '/':
                             const divisor = Math.floor(Math.random() * 3) + 1;
                             const dividendo = divisor * (Math.floor(Math.random() * 5) + 1);
                             operacion = `${dividendo} ÷ ${divisor} = ${dividendo / divisor}`;
@@ -2617,13 +2505,13 @@
                 
                 let generador;
                 switch(mode) {
-                    case 'operaciones': generador = generarOperacionRapida; break;
+                    case 'operaciones': generador = generarOperacion; break;
                     case 'misterioso': generador = generarMisterioso; break;
                     case 'secuencia': generador = generarSecuencia; break;
                     case 'potenciacion': generador = generarPotenciacion; break;
                     case 'combinadas': generador = generarCombinadas; break;
                     case 'verdadero-falso': generador = generarVerdaderoFalso; break;
-                    default: generador = generarOperacionRapida;
+                    default: generador = generarOperacion;
                 }
                 
                 for (let i = 0; i < count; i++) {
@@ -2661,19 +2549,7 @@
                     if (!question) return;
                     
                     const questionElement = document.getElementById("currentQuestion");
-                    
-                    // Formatear mejor las preguntas matemáticas
-                    if (question.tipo === 'operacion-rapida') {
-                        questionElement.innerHTML = `
-                            <div class="math-question">
-                                <span class="number">${question.pregunta.split('=')[0]}</span>
-                                <span class="equals">=</span>
-                                <span class="question-mark">?</span>
-                            </div>
-                        `;
-                    } else {
-                        questionElement.innerHTML = question.pregunta;
-                    }
+                    questionElement.innerHTML = question.pregunta;
                     
                     // Aplicar animación de nueva pregunta
                     questionElement.classList.remove('question-animation');
@@ -2768,13 +2644,7 @@
                             this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
                         } else {
                             // Modo normal - respuesta exacta
-                            // Manejo especial para divisiones con decimales
-                            if (currentQuestion.operador === '÷') {
-                                const precision = 0.01; // Margen para errores de redondeo
-                                isCorrect = Math.abs(userAnswerParsed - currentQuestion.respuesta) < precision;
-                            } else {
-                                isCorrect = userAnswerParsed === currentQuestion.respuesta;
-                            }
+                            isCorrect = userAnswerParsed === currentQuestion.respuesta;
                             
                             if (isCorrect) {
                                 pointsEarned = 1 + timeBonus;
@@ -2837,27 +2707,6 @@
                 }
             }
 
-            showResult(message, isCorrect) {
-                const resultElement = document.getElementById("answerResult");
-                
-                if (this.selectedGameMode === 'operaciones') {
-                    const operacion = this.currentQuestionData.pregunta;
-                    const respuesta = this.currentQuestionData.respuesta;
-                    
-                    resultElement.innerHTML = `
-                        <div class="result-content ${isCorrect ? 'correct' : 'incorrect'}">
-                            <div class="operation">${operacion} ${isCorrect ? '✅' : '❌'}</div>
-                            ${!isCorrect ? `<div class="correct-answer">Respuesta correcta: ${respuesta}</div>` : ''}
-                            <div class="points">${message}</div>
-                        </div>
-                    `;
-                } else {
-                    resultElement.innerHTML = message;
-                }
-                
-                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
-            }
-
             updatePlayerScore(playerId = null, points = null, streak = null) {
                 if (playerId && points !== null) {
                     const player = this.players.find(p => p.id === playerId);
@@ -2873,15 +2722,6 @@
                 }
                 
                 document.getElementById('playerScore').textContent = this.player.points;
-            }
-
-            animateRanking() {
-                if (!this.animationFrameId) {
-                    this.animationFrameId = requestAnimationFrame(() => {
-                        this.updateLiveRanking();
-                        this.animationFrameId = null;
-                    });
-                }
             }
 
             updateLiveRanking() {
@@ -3031,7 +2871,12 @@
 
             endGame() {
                 try {
-                    this.cleanupIntervals();
+                    clearInterval(this.timerInterval);
+                    
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
                     
                     if (this.isMultiplayer && this.isHost) {
                         const finalRanking = this.getFinalRanking();
@@ -3050,18 +2895,6 @@
                 } catch (error) {
                     console.error("Error al finalizar juego:", error);
                     this.showError("Error al finalizar el juego");
-                }
-            }
-
-            cleanupIntervals() {
-                clearInterval(this.timerInterval);
-                clearInterval(this.voteInterval);
-                clearInterval(this.heartbeatInterval);
-                clearInterval(this.rankingUpdateInterval);
-                
-                if (this.animationFrameId) {
-                    cancelAnimationFrame(this.animationFrameId);
-                    this.animationFrameId = null;
                 }
             }
 
@@ -3183,6 +3016,12 @@
                 }
             }
 
+            showResult(message, isCorrect) {
+                const resultElement = document.getElementById("answerResult");
+                resultElement.innerHTML = message;
+                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            }
+
             showError(message) {
                 const errorElement = document.getElementById("answerResult");
                 errorElement.textContent = message;
@@ -3203,10 +3042,11 @@
             reiniciarJuego() {
                 try {
                     this.playSound('clickSound');
-                    this.cleanupIntervals();
-                    
-                    // Resetear completamente el sistema de votación
-                    this.resetVotingSystem();
+                    clearInterval(this.timerInterval);
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
                     
                     this.player.points = 0;
                     this.player.streak = 0;
@@ -3236,15 +3076,6 @@
                         });
                         
                         this.setState(this.STATES.LOBBY);
-                        
-                        // Sincronizar estado con el servidor
-                        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                            this.socket.send(JSON.stringify({
-                                type: 'sync_game_state',
-                                pin: this.gamePin,
-                                state: 'LOBBY'
-                            }));
-                        }
                     } else {
                         this.setState(this.STATES.JOIN_SCREEN);
                     }
@@ -3298,8 +3129,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const game = new GameManager();
-                // Hacer accesible para depuración
-                window.game = game;
             } catch (error) {
                 console.error("Error al iniciar el juego:", error);
                 alert("Ocurrió un error al cargar el juego. Por favor recarga la página.");

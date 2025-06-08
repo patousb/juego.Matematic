@@ -19,12 +19,16 @@
             --sombra: rgba(0, 0, 0, 0.1);
             --tiempo-normal: #a459ff;
             --tiempo-alerta: #ff6b6b;
+            --neon-azul: 0 0 10px rgba(78, 140, 255, 0.8);
+            --neon-morado: 0 0 10px rgba(164, 89, 255, 0.8);
+            --neon-verde: 0 0 10px rgba(107, 255, 107, 0.8);
+            --neon-rojo: 0 0 10px rgba(255, 107, 107, 0.8);
         }
 
         .dark-mode {
             --fondo: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             --texto: #f0f0f0;
-            --panel: #1e293b;
+            --panel: rgba(30, 41, 59, 0.8);
             --borde: #334155;
             --sombra: rgba(0, 0, 0, 0.3);
         }
@@ -43,12 +47,21 @@
             min-height: 100vh;
             transition: all 0.3s ease;
             padding: 20px;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         h1, h2, h3 {
             font-family: 'Fredoka One', cursive;
             color: var(--texto);
             margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* Pantalla de carga */
@@ -64,6 +77,8 @@
             align-items: center;
             background: var(--fondo);
             z-index: 2000;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
         .loader {
@@ -74,6 +89,7 @@
             border-top-color: var(--morado);
             animation: spin 1s ease-in-out infinite;
             margin-bottom: 20px;
+            box-shadow: var(--neon-morado);
         }
 
         .loader-small {
@@ -106,6 +122,8 @@
             background: var(--fondo);
             z-index: 1000;
             padding: 20px;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
         .join-form {
@@ -115,6 +133,9 @@
             box-shadow: 0 10px 20px var(--sombra);
             width: 100%;
             max-width: 500px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 2px solid var(--morado);
         }
 
         .input-group {
@@ -135,6 +156,14 @@
             border-radius: 8px;
             font-size: 1rem;
             font-family: 'Comic Neue', cursive;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--morado);
+            box-shadow: var(--neon-morado);
         }
 
         .avatar-selector {
@@ -152,15 +181,18 @@
             cursor: pointer;
             transition: all 0.3s;
             border: 3px solid transparent;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
         .avatar-option:hover {
             transform: scale(1.1);
+            box-shadow: var(--neon-morado);
         }
 
         .avatar-option.selected {
             border-color: var(--morado);
             transform: scale(1.1);
+            box-shadow: var(--neon-morado);
         }
 
         .btn {
@@ -175,11 +207,34 @@
             margin: 8px;
             background: linear-gradient(45deg, var(--azul), var(--morado));
             color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--sombra);
+            box-shadow: 0 8px 15px var(--sombra);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px var(--sombra);
         }
 
         .btn-secondary {
@@ -188,15 +243,23 @@
             color: var(--texto);
         }
 
+        .btn-secondary:hover {
+            border-color: var(--morado);
+            box-shadow: var(--neon-morado);
+        }
+
         .btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .error-message {
             color: var(--rojo);
             margin-top: 10px;
             font-weight: bold;
+            text-shadow: var(--neon-rojo);
         }
 
         /* Lobby multijugador */
@@ -212,6 +275,8 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
         .lobby-container {
@@ -221,6 +286,9 @@
             box-shadow: 0 10px 20px var(--sombra);
             width: 100%;
             max-width: 800px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 2px solid var(--morado);
         }
 
         .player-list {
@@ -240,6 +308,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .player-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--sombra);
         }
 
         .player-avatar {
@@ -256,6 +331,8 @@
             font-size: 1.5rem;
             margin: 15px 0;
             font-weight: bold;
+            color: var(--morado);
+            text-shadow: var(--neon-morado);
         }
 
         .mode-buttons {
@@ -273,6 +350,19 @@
             transition: all 0.3s;
             font-weight: bold;
             background: var(--panel);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
         }
 
         .mode-btn:hover {
@@ -280,10 +370,15 @@
             box-shadow: 0 5px 15px var(--sombra);
         }
 
+        .mode-btn:hover::before {
+            left: 100%;
+        }
+
         .mode-btn.selected {
             background: var(--morado);
             color: white;
             border-color: var(--morado);
+            box-shadow: var(--neon-morado);
         }
 
         .mode-btn.voted {
@@ -305,6 +400,7 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
+            box-shadow: var(--neon-verde);
         }
 
         .vote-results {
@@ -313,6 +409,7 @@
             background: var(--panel);
             border-radius: 10px;
             border: 2px solid var(--borde);
+            backdrop-filter: blur(5px);
         }
 
         /* Juego principal */
@@ -329,6 +426,9 @@
             box-shadow: 0 10px 20px var(--sombra);
             margin: 20px 0;
             border: 4px solid var(--amarillo);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 2px solid var(--amarillo);
         }
 
         .question {
@@ -342,6 +442,8 @@
             padding: 15px;
             border-radius: 10px;
             border-left: 5px solid var(--morado);
+            background: rgba(255,255,255,0.1);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
         .question-image {
@@ -349,6 +451,8 @@
             max-height: 200px;
             margin: 10px auto;
             border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid var(--morado);
         }
 
         .input-container {
@@ -363,6 +467,14 @@
             margin-bottom: 15px;
             border: 2px solid var(--borde);
             border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+
+        #playerAnswer:focus {
+            outline: none;
+            border-color: var(--morado);
+            box-shadow: var(--neon-morado);
         }
 
         .keyboard {
@@ -381,10 +493,17 @@
             border: 2px solid var(--borde);
             border-radius: 8px;
             transition: all 0.2s;
+            user-select: none;
         }
 
         .key:hover {
             background: var(--borde);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .key:active {
+            transform: translateY(1px);
         }
 
         .key.negative {
@@ -396,16 +515,26 @@
             font-weight: bold;
             margin: 15px 0;
             min-height: 40px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
         }
 
         .correct {
             color: var(--verde);
             animation: tada 1s ease;
+            text-shadow: var(--neon-verde);
         }
 
         .incorrect {
             color: var(--rojo);
             animation: shake 0.5s ease;
+            text-shadow: var(--neon-rojo);
+        }
+
+        .waiting {
+            color: var(--azul);
+            text-shadow: var(--neon-azul);
         }
 
         @keyframes tada {
@@ -443,6 +572,7 @@
             stroke-dasharray: 283;
             stroke-dashoffset: 0;
             transition: stroke-dashoffset 1s linear;
+            filter: drop-shadow(0 0 5px var(--morado));
         }
 
         .timer-text {
@@ -453,11 +583,13 @@
             font-size: 1.8rem;
             font-weight: bold;
             color: var(--tiempo-normal);
+            text-shadow: var(--neon-morado);
         }
 
         .timer-warning {
             stroke: var(--tiempo-alerta);
             color: var(--tiempo-alerta);
+            filter: drop-shadow(0 0 5px var(--rojo));
         }
 
         /* Barra de progreso */
@@ -468,6 +600,7 @@
             border-radius: 5px;
             margin: 20px auto;
             overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
         }
 
         .progress-bar {
@@ -475,6 +608,7 @@
             width: 0%;
             background: linear-gradient(90deg, var(--azul), var(--morado));
             transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--morado);
         }
 
         /* Ranking en vivo */
@@ -490,12 +624,14 @@
             z-index: 50;
             display: none;
             border: 3px solid var(--morado);
+            backdrop-filter: blur(5px);
         }
 
         .live-ranking h3 {
             margin-bottom: 10px;
             color: var(--morado);
             text-align: center;
+            text-shadow: var(--neon-morado);
         }
 
         .ranking-item {
@@ -578,6 +714,8 @@
             align-items: center;
             z-index: 1000;
             padding: 20px;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
 
         .podium {
@@ -601,6 +739,7 @@
             width: 100px;
             border-radius: 8px 8px 0 0;
             animation: bounce 1s ease;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
         }
 
         .podium-2 {
@@ -609,6 +748,7 @@
             width: 100px;
             border-radius: 8px 8px 0 0;
             animation: bounce 1s 0.2s ease;
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.7);
         }
 
         .podium-3 {
@@ -617,6 +757,7 @@
             width: 100px;
             border-radius: 8px 8px 0 0;
             animation: bounce 1s 0.4s ease;
+            box-shadow: 0 0 10px rgba(205, 127, 50, 0.7);
         }
 
         @keyframes bounce {
@@ -654,6 +795,7 @@
             background: var(--panel);
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--sombra);
+            backdrop-filter: blur(5px);
         }
 
         .other-player {
@@ -697,6 +839,8 @@
             animation: fadeInOut 3s ease forwards;
             display: flex;
             align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--morado);
         }
 
         @keyframes fadeInOut {
@@ -716,19 +860,24 @@
             border-radius: 20px;
             font-size: 0.8rem;
             z-index: 100;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--borde);
         }
 
         .connection-status.connected {
             color: var(--verde);
+            text-shadow: var(--neon-verde);
         }
 
         .connection-status.disconnected {
             color: var(--rojo);
             animation: pulse 1.5s infinite;
+            text-shadow: var(--neon-rojo);
         }
 
         .connection-status.connecting {
             color: var(--amarillo);
+            text-shadow: var(--neon-amarillo);
         }
 
         @keyframes pulse {
@@ -753,6 +902,12 @@
             justify-content: center;
             box-shadow: 0 2px 10px var(--sombra);
             z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
         }
 
         /* Botón saltar pregunta (modo profesor) */
@@ -763,6 +918,7 @@
             transform: translateX(-50%);
             z-index: 100;
             display: none;
+            backdrop-filter: blur(5px);
         }
 
         /* Modo relámpago */
@@ -790,16 +946,54 @@
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .true-false-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .true-false-btn:hover::before {
+            left: 100%;
         }
 
         .true-btn {
             background-color: var(--verde);
             color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .true-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .true-btn:active {
+            transform: translateY(1px);
         }
 
         .false-btn {
             background-color: var(--rojo);
             color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .false-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .false-btn:active {
+            transform: translateY(1px);
         }
 
         /* Animación de nueva pregunta */
@@ -826,6 +1020,8 @@
             z-index: 100;
             font-weight: bold;
             display: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--morado);
         }
 
         /* Botón listo en lobby */
@@ -846,6 +1042,7 @@
             background-size: contain;
             margin-left: 5px;
             vertical-align: middle;
+            filter: drop-shadow(0 0 3px rgba(255, 222, 89, 0.7));
         }
 
         .achievement-popup {
@@ -861,6 +1058,8 @@
             text-align: center;
             display: none;
             animation: achievementUnlock 1s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--amarillo);
         }
 
         @keyframes achievementUnlock {
@@ -872,6 +1071,7 @@
         .achievement-icon {
             font-size: 3rem;
             margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
         /* Estadísticas del jugador */
@@ -886,6 +1086,8 @@
             z-index: 100;
             display: none;
             max-width: 250px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--morado);
         }
 
         .player-stats h3 {
@@ -905,6 +1107,108 @@
 
         .stat-value {
             color: var(--azul);
+        }
+
+        /* Fase de Revelación */
+        .reveal-phase {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reveal-content {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 80%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .reveal-correct {
+            color: var(--verde);
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: var(--neon-verde);
+        }
+
+        .reveal-player-result {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 1.5rem;
+        }
+
+        .reveal-correct-answer {
+            color: var(--verde);
+            text-shadow: var(--neon-verde);
+        }
+
+        .reveal-streak-bonus {
+            color: var(--amarillo);
+            margin-top: 10px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
+        }
+
+        /* Efecto de vidrio esmerilado */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Efecto neón para bordes */
+        .neon-border {
+            position: relative;
+        }
+
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--azul), var(--morado));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            animation: neonGlow 2s infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from {
+                opacity: 0.7;
+                box-shadow: 0 0 5px var(--azul), 0 0 10px var(--morado);
+            }
+            to {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--azul), 0 0 20px var(--morado), 0 0 30px var(--morado);
+            }
         }
 
         /* Responsive */
@@ -956,7 +1260,7 @@
 
     <div class="join-screen" id="joinScreen">
         <h1>✨ Math Challenge PRO ✨</h1>
-        <div class="join-form">
+        <div class="join-form glass-panel">
             <h2>¡Únete al juego!</h2>
             <div class="input-group">
                 <label for="playerName">Tu nombre:</label>
@@ -990,7 +1294,7 @@
     </div>
 
     <div class="multiplayer-lobby" id="multiplayerLobby">
-        <div class="lobby-container">
+        <div class="lobby-container glass-panel">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
             
@@ -1007,7 +1311,7 @@
                     <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
                     <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
                 </div>
-                <div class="vote-results">
+                <div class="vote-results glass-panel">
                     <h4>Resultados:</h4>
                     <div id="voteResults"></div>
                 </div>
@@ -1019,14 +1323,14 @@
         </div>
     </div>
 
-    <div class="live-ranking" id="liveRanking">
+    <div class="live-ranking glass-panel" id="liveRanking">
         <h3>🏆 Ranking en Vivo</h3>
         <div id="rankingList"></div>
     </div>
 
     <div id="gameContainer">
         <h1>✨ Math Challenge PRO ✨</h1>
-        <div class="game-mode-indicator" id="gameModeIndicator"></div>
+        <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
 
         <div class="timer-container">
             <svg class="timer-svg" viewBox="0 0 100 100">
@@ -1035,7 +1339,7 @@
             <div class="timer-text" id="timerText">30</div>
         </div>
 
-        <div class="game">
+        <div class="game glass-panel">
             <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
             <p id="currentQuestion" class="question">Haz clic en un juego para comenzar</p>
             <img id="questionImage" class="question-image" style="display: none;">
@@ -1057,7 +1361,7 @@
                     <div class="key negative" data-number="-">-</div>
                 </div>
                 <button class="btn" id="submitAnswer">Responder 🚀</button>
-                <p id="answerResult" class="result">Esperando respuesta... 🤔</p>
+                <p id="answerResult" class="result waiting">Esperando respuesta... 🤔</p>
             </div>
             
             <div class="true-false-buttons" id="trueFalseButtons" style="display: none;">
@@ -1102,7 +1406,7 @@
                 <div class="podium-points">0 pts</div>
             </div>
         </div>
-        <div class="other-players" id="otherPlayers"></div>
+        <div class="other-players glass-panel" id="otherPlayers"></div>
         <button class="btn" id="backToLobby">Volver al Lobby</button>
     </div>
 
@@ -1112,17 +1416,26 @@
 
     <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
 
-    <div class="achievement-popup" id="achievementPopup">
+    <div class="achievement-popup glass-panel" id="achievementPopup">
         <div class="achievement-icon">🏆</div>
         <h3 id="achievementTitle">Logro Desbloqueado</h3>
         <p id="achievementDescription">Descripción del logro</p>
         <button class="btn" id="closeAchievement">¡Genial!</button>
     </div>
 
-    <div class="player-stats" id="playerStats">
+    <div class="player-stats glass-panel" id="playerStats">
         <h3>📊 Mis Estadísticas</h3>
         <div id="statsContent"></div>
         <button class="btn" id="closeStats">Cerrar</button>
+    </div>
+
+    <div id="revealPhase" class="reveal-phase" style="display: none;">
+        <div class="reveal-content glass-panel">
+            <h2>¡Respuesta Correcta!</h2>
+            <div id="revealCorrectAnswer" class="reveal-correct"></div>
+            <div id="revealPlayerResult" class="reveal-player-result"></div>
+            <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
+        </div>
     </div>
 
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
@@ -1131,6 +1444,7 @@
     <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
     <audio id="achievementSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
+    <audio id="revealSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
 
     <script>
         class GameManager {
@@ -1141,7 +1455,8 @@
                     LOBBY: 2,
                     VOTING: 3,
                     PLAYING: 4,
-                    RESULTS: 5
+                    RESULTS: 5,
+                    REVEAL: 6
                 };
                 this.state = this.STATES.LOADING;
 
@@ -1164,7 +1479,8 @@
                     gamesPlayed: 0,
                     favoriteMode: null,
                     modeStats: {},
-                    achievements: []
+                    achievements: [],
+                    lastAnswerCorrect: false
                 };
                 
                 this.questions = [];
@@ -1180,6 +1496,8 @@
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
+                this.revealPhaseActive = false;
+                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
                 
                 this.isMultiplayer = false;
                 this.isHost = false; 
@@ -1268,6 +1586,10 @@
                 this.closeStats = document.getElementById('closeStats');
                 this.statsContent = document.getElementById('statsContent');
                 this.modeButtons = document.getElementById('modeButtons'); 
+                this.revealPhase = document.getElementById('revealPhase');
+                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
+                this.revealPlayerResult = document.getElementById('revealPlayerResult');
+                this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
@@ -1294,6 +1616,7 @@
                 this.gameModeIndicator.style.display = 'none';
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
+                this.revealPhase.style.display = 'none';
 
                 switch(this.state) {
                     case this.STATES.LOADING:
@@ -1325,6 +1648,9 @@
                         if (this.isProfessor) { 
                             this.skipQuestionBtn.style.display = 'block';
                         }
+                        break;
+                    case this.STATES.REVEAL:
+                        this.revealPhase.style.display = 'flex';
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
@@ -1556,7 +1882,8 @@
                     gamesPlayed: this.player.gamesPlayed || 0,
                     favoriteMode: this.player.favoriteMode || null,
                     modeStats: this.player.modeStats || {},
-                    achievements: this.player.achievements || []
+                    achievements: this.player.achievements || [],
+                    lastAnswerCorrect: false
                 };
 
                 this.gamePin = gamePin;
@@ -1612,7 +1939,8 @@
                     gamesPlayed: this.player.gamesPlayed || 0,
                     favoriteMode: this.player.favoriteMode || null,
                     modeStats: this.player.modeStats || {},
-                    achievements: this.player.achievements || []
+                    achievements: this.player.achievements || [],
+                    lastAnswerCorrect: false
                 };
                 
                 this.isHost = true; 
@@ -1874,11 +2202,10 @@
                         } else {
                             this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
                         }
-                        // Forzar una actualización de la lista de jugadores para reflejar el cambio de host
-                        // Si el servidor envía la lista completa, esto podría no ser necesario,
-                        // pero es más seguro si el servidor no lo hace automáticamente.
-                        // Ideally, the server should send an updated player list or a full room state.
-                        // For now, let's assume the server will update this with player_joined/ready_update.
+                        break;
+                        
+                    case 'reveal_phase':
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
                         break;
                         
                     default:
@@ -1892,10 +2219,8 @@
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
                 
-                // CORRECCIÓN CLAVE: Usar el PIN del servidor para actualizar la UI y la variable local
                 this.gamePin = data.pin; 
                 document.getElementById('lobbyPin').textContent = this.gamePin; 
-                // FIN CORRECCIÓN CLAVE
 
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
@@ -1927,14 +2252,12 @@
             }
 
             handlePlayerJoined(data) {
-                // Verificar si el jugador ya existe para evitar duplicados en la lista local
                 const existingPlayer = this.players.find(p => p.id === data.player.id);
                 if (!existingPlayer) {
                     this.players.push(data.player);
                     this.updatePlayerList();
                     this.showNotification(`${data.player.name} se ha unido`);
                 } else {
-                    // Si ya existe, simplemente actualizar sus propiedades (útil para reconexiones)
                     Object.assign(existingPlayer, data.player);
                     this.updatePlayerList();
                     this.showNotification(`${data.player.name} se ha reconectado`);
@@ -1971,9 +2294,8 @@
                 
                 if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
                     const minPlayersForVote = 2;
-                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor); // Excluir profesores al contar jugadores listos
-                    // El host puede iniciar con 1 jugador más listo (él + uno)
-                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0); // Contar el host si es profesor
+                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0);
                     const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
                     
                     this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
@@ -2000,9 +2322,9 @@
             initiateVoteAsHost() {
                 if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
 
-                const minPlayersForVote = 2; // Host + 1 jugador
+                const minPlayersForVote = 2;
                 const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0); // Contar al host si es profesor
+                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0);
 
                 if (playersInLobby < minPlayersForVote) {
                     this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
@@ -2136,7 +2458,7 @@
             showAchievementPopup(achievement) {
                 document.getElementById('achievementTitle').textContent = achievement.title;
                 document.getElementById('achievementDescription').textContent = achievement.description;
-                document.getElementById('achievementIcon').textContent = achievement.icon;
+                document.getElementById('achievementPopup').querySelector('.achievement-icon').textContent = achievement.icon;
                 
                 this.achievementPopup.style.display = 'block';
                 this.playSound('achievementSound');
@@ -2353,7 +2675,7 @@
                 
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
-                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 2000); 
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
             shareQuestionWithPlayers() {
@@ -2616,7 +2938,7 @@
                     
                     document.getElementById("playerAnswer").value = "";
                     document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("answerResult").className = "result";
+                    document.getElementById("answerResult").className = "result waiting";
                     this.player.hasAnswered = false; 
                     document.getElementById('submitAnswer').disabled = false; 
                     this.lastAnswerTime = Date.now();
@@ -2662,6 +2984,8 @@
                     }
 
                     this.player.hasAnswered = true; 
+                    document.getElementById("answerResult").textContent = "Respuesta registrada. ¡Esperando a los demás!";
+                    document.getElementById("answerResult").className = "result waiting";
 
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     this.player.responseTimes.push(responseTime);
@@ -2670,6 +2994,7 @@
                     const currentQuestion = this.currentQuestionData;
                     let isCorrect = false;
                     let pointsEarned = 0;
+                    let streakBonus = 0;
                     
                     const basePoints = 5; 
                     const timeBonus = Math.floor(this.timeLeft / 3); 
@@ -2684,13 +3009,23 @@
                             if (this.player.streak > this.player.maxStreak) {
                                 this.player.maxStreak = this.player.streak;
                             }
+                            
+                            // Bonificación por racha
+                            if (this.player.streak >= 3 && this.player.streak < 5) {
+                                streakBonus = 2;
+                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                streakBonus = 5;
+                            } else if (this.player.streak >= 7) {
+                                streakBonus = 8;
+                            }
+                            
+                            pointsEarned += streakBonus;
                             this.player.points += pointsEarned;
-                            this.showResult(`✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}`, true);
                         } else {
                             this.player.streak = 0;
-                            this.showResult(`❌ Incorrecto! ${currentQuestion.explicacion}`, false);
                             pointsEarned = 0; 
                         }
+                        this.player.lastAnswerCorrect = isCorrect;
                     } else { 
                         const userAnswerParsed = parseFloat(userAnswer.toString().trim());
                         if (isNaN(userAnswerParsed)) {
@@ -2704,15 +3039,29 @@
                             const diferencia = Math.abs(userAnswerParsed - currentQuestion.respuesta);
                             pointsEarned = Math.max(1, 10 - diferencia * 2); 
                             
-                            isCorrect = true; 
+                            // Bonificación por estar muy cerca pero no exacto (modo "casi casi")
+                            if (diferencia > 0 && diferencia <= 2) {
+                                pointsEarned += 1; // Punto extra de consolación
+                            }
                             
-                            this.player.points += pointsEarned;
+                            isCorrect = true; 
                             this.player.streak++; 
                             if (this.player.streak > this.player.maxStreak) {
                                 this.player.maxStreak = this.player.streak;
                             }
                             
-                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
+                            // Bonificación por racha
+                            if (this.player.streak >= 3 && this.player.streak < 5) {
+                                streakBonus = 2;
+                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                streakBonus = 5;
+                            } else if (this.player.streak >= 7) {
+                                streakBonus = 8;
+                            }
+                            
+                            pointsEarned += streakBonus;
+                            this.player.points += pointsEarned;
+                            this.player.lastAnswerCorrect = true;
                         } else {
                             isCorrect = userAnswerParsed === currentQuestion.respuesta;
                             
@@ -2723,12 +3072,22 @@
                                     this.player.maxStreak = this.player.streak;
                                 }
                                 
+                                // Bonificación por racha
+                                if (this.player.streak >= 3 && this.player.streak < 5) {
+                                    streakBonus = 2;
+                                } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                    streakBonus = 5;
+                                } else if (this.player.streak >= 7) {
+                                    streakBonus = 8;
+                                }
+                                
+                                pointsEarned += streakBonus;
                                 this.player.points += pointsEarned;
-                                this.showResult(`✅ Correcto! +${pointsEarned} puntos`, true);
+                                this.player.lastAnswerCorrect = true;
                             } else {
                                 this.player.streak = 0;
-                                this.showResult(`❌ Incorrecto! Era ${currentQuestion.respuesta}`, false);
                                 pointsEarned = 0; 
+                                this.player.lastAnswerCorrect = false;
                             }
                         }
                     }
@@ -2739,14 +3098,9 @@
                         correct: isCorrect,
                         points: pointsEarned,
                         timestamp: new Date().toISOString(),
-                        responseTime: responseTime
+                        responseTime: responseTime,
+                        streakBonus: streakBonus
                     });
-                    
-                    if (isCorrect) {
-                        this.playSound('correctSound');
-                    } else {
-                        this.playSound('wrongSound');
-                    }
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({
@@ -2758,22 +3112,37 @@
                             totalPoints: this.player.points, 
                             streak: this.player.streak,
                             maxStreak: this.player.maxStreak,
-                            avgResponseTime: this.player.avgResponseTime
+                            avgResponseTime: this.player.avgResponseTime,
+                            streakBonus: streakBonus
                         }));
-                    }
-                    
-                    if (this.isHost) {
+                    } else if (!this.isMultiplayer) {
+                        // En modo individual, mostrar la respuesta inmediatamente
+                        if (this.selectedGameMode === 'verdadero-falso') {
+                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}` : 
+                                `❌ Incorrecto! ${currentQuestion.explicacion}`, isCorrect);
+                        } else if (this.closestAnswerMode) {
+                            const diferencia = Math.abs(parseFloat(userAnswer) - currentQuestion.respuesta);
+                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
+                        } else {
+                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos` : 
+                                `❌ Incorrecto! Era ${currentQuestion.respuesta}`, isCorrect);
+                        }
+                        
+                        if (isCorrect) {
+                            this.playSound('correctSound');
+                        } else {
+                            this.playSound('wrongSound');
+                        }
+                        
                         clearInterval(this.timerInterval); 
                         setTimeout(() => {
                             this.currentQuestionIndex++;
                             if (this.currentQuestionIndex < this.questions.length) {
-                                this.shareQuestionWithPlayers();
+                                this.displayQuestion();
                             } else {
                                 this.endGame();
                             }
-                        }, 2000); 
-                    } else {
-                        clearInterval(this.timerInterval); 
+                        }, 2000);
                     }
                 } catch (error) {
                     console.error("Error al verificar respuesta:", error);
@@ -2782,6 +3151,50 @@
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;
                 }
+            }
+
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus) {
+                this.setState(this.STATES.REVEAL);
+                this.playSound('revealSound');
+                
+                // Mostrar la respuesta correcta
+                if (this.selectedGameMode === 'verdadero-falso') {
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span>`;
+                } else {
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
+                }
+                
+                // Mostrar el resultado del jugador
+                if (playerCorrect) {
+                    this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--verde)';
+                    this.playSound('correctSound');
+                } else {
+                    this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--rojo)';
+                    this.playSound('wrongSound');
+                }
+                
+                // Mostrar bonificación por racha si aplica
+                if (streakBonus > 0) {
+                    this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
+                } else {
+                    this.revealStreakBonus.innerHTML = '';
+                }
+                
+                // Configurar el temporizador para ocultar la fase de revelación
+                setTimeout(() => {
+                    this.setState(this.STATES.PLAYING);
+                    
+                    if (this.isHost) {
+                        this.currentQuestionIndex++;
+                        if (this.currentQuestionIndex < this.questions.length) {
+                            this.shareQuestionWithPlayers();
+                        } else {
+                            this.endGame();
+                        }
+                    }
+                }, this.revealPhaseDuration);
             }
 
             updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
@@ -2863,7 +3276,8 @@
                                 if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
                                     this.player.hasAnswered = true; 
                                     this.player.streak = 0; 
-                                    this.showResult("¡Tiempo agotado! ⏳", false);
+                                    document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                                    document.getElementById("answerResult").className = "result incorrect";
                                     
                                     this.socket.send(JSON.stringify({
                                         type: 'player_answer',
@@ -2874,18 +3288,18 @@
                                         totalPoints: this.player.points, 
                                         streak: this.player.streak,
                                         maxStreak: this.player.maxStreak,
-                                        avgResponseTime: this.player.avgResponseTime
+                                        avgResponseTime: this.player.avgResponseTime,
+                                        streakBonus: 0
                                     }));
                                 }
                                 if (this.isHost) {
-                                     setTimeout(() => {
-                                        this.currentQuestionIndex++;
-                                        if (this.currentQuestionIndex < this.questions.length) {
-                                            this.shareQuestionWithPlayers();
-                                        } else {
-                                            this.endGame();
-                                        }
-                                    }, 1000); 
+                                    // Enviar fase de revelación para todos
+                                    const correctAnswer = this.currentQuestionData.respuesta;
+                                    this.socket.send(JSON.stringify({
+                                        type: 'reveal_phase',
+                                        pin: this.gamePin,
+                                        correctAnswer: correctAnswer
+                                    }));
                                 }
                             } else {
                                 this.showResult("¡Tiempo agotado! ⏳", false);
@@ -3137,6 +3551,7 @@
                     this.player.hasAnswered = false;
                     this.player.hasVoted = false;
                     this.player.isReady = false; 
+                    this.player.lastAnswerCorrect = false;
 
                     this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
 
@@ -3149,7 +3564,7 @@
                     document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
                     document.getElementById("playerAnswer").value = "";
                     document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("answerResult").className = "result";
+                    document.getElementById("answerResult").className = "result waiting";
                     document.getElementById("mensajeVictoria").innerHTML = "";
                     document.getElementById("progressBar").style.width = "0%";
                     document.getElementById('submitAnswer').disabled = false;

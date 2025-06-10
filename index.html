@@ -2279,20 +2279,20 @@
                         this.updateVoteTimer(data.time);
                         break;
                         
-                    case 'vote_update':
-                        this.updateVoteResults(data.votes);
-                        break;
-                        
                     case 'game_starting': 
-                        this.showNotification(`¡El juego comenzará! Tema: ${this.getModeName(data.mode)}`);
-                        // El cliente host genera y envía las preguntas.
-                        this.startGame(data.mode); // Prepara la UI para el modo de juego
-                        if (this.isHost) {
-                            this.questions = this.generarPreguntas(data.mode, 10); 
-                            this.currentQuestionIndex = 0;
-                            this.shareQuestionWithPlayers(); 
-                        }
-                        break;
+                this.showNotification(`¡El juego comenzará! Tema: ${this.getModeName(data.mode)}`);
+                // Asegurarse de que el juego inicie en el modo correcto
+                this.startGame(data.mode); // Esto prepara la UI y otras variables del juego
+                
+                // *** ESTE BLOQUE ES CRÍTICO ***
+                // SOLO EL HOST GENERA Y ENVÍA LA PRIMERA PREGUNTA AL SERVIDOR
+                if (this.isHost) {
+                    console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor..."); // Agrega este log
+                    this.questions = this.generarPreguntas(data.mode, 10); // Genera las preguntas localmente
+                    this.currentQuestionIndex = 0;
+                    this.shareQuestionWithPlayers(); // Envía la primera pregunta al servidor
+                }
+                break;
                         
                     case 'game_start': 
                         // Este mensaje ya no es estrictamente necesario si 'game_starting' lo maneja.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desafío de Saberes General</title>
+    <title>Desafío Universitario</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -447,51 +447,70 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
+        .question-image {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px auto;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid var(--morado);
+        }
+
         .input-container {
             margin: 20px 0;
         }
 
-        /* NEW: Multiple Choice Buttons */
-        .multiple-choice-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px auto;
-            max-width: 90%;
-        }
-
-        .choice-btn {
-            padding: 15px;
-            font-size: 1.1rem;
+        #playerAnswer {
+            padding: 12px;
+            font-size: 1.3rem;
+            width: 200px;
+            text-align: center;
+            margin-bottom: 15px;
             border: 2px solid var(--borde);
-            border-radius: 10px;
-            cursor: pointer;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
             transition: all 0.3s;
-            background: var(--panel);
-            color: var(--texto);
-            font-weight: bold;
-            text-align: left;
-            display: flex;
-            align-items: center;
         }
 
-        .choice-btn:hover {
-            transform: translateY(-5px);
+        #playerAnswer:focus {
+            outline: none;
             border-color: var(--morado);
             box-shadow: var(--neon-morado);
         }
 
-        .choice-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 300px;
+            margin: 0 auto;
         }
 
-        .choice-prefix {
-            font-weight: 900;
-            margin-right: 10px;
-            color: var(--morado);
+        .key {
+            padding: 15px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            background: var(--panel);
+            border: 2px solid var(--borde);
+            border-radius: 8px;
+            transition: all 0.2s;
+            user-select: none;
         }
-        
+
+        .key:hover {
+            background: var(--borde);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .key:active {
+            transform: translateY(1px);
+        }
+
+        .key.negative {
+            grid-column: span 3;
+        }
+
         .result {
             font-size: 1.4rem;
             font-weight: bold;
@@ -636,7 +655,27 @@
             background: rgba(255, 222, 89, 0.2);
             border-left: 4px solid var(--amarillo);
         }
-        
+
+        .ranking-item.move-up {
+            animation: moveUp 0.5s ease;
+        }
+
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
+        }
+
+        @keyframes moveUp {
+            0% { transform: translateY(0); background: var(--verde); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes moveDown {
+            0% { transform: translateY(0); background: var(--rojo); }
+            50% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }
+
         .ranking-position {
             font-weight: bold;
             color: var(--morado);
@@ -839,6 +878,7 @@
 
         .connection-status.connecting {
             color: var(--amarillo);
+            text-shadow: var(--neon-amarillo);
         }
 
         @keyframes pulse {
@@ -880,6 +920,16 @@
             z-index: 100;
             display: none;
             backdrop-filter: blur(5px);
+        }
+
+        /* Modo relámpago */
+        .lightning-mode .timer-container {
+            width: 70px;
+            height: 70px;
+        }
+
+        .lightning-mode .timer-text {
+            font-size: 1.5rem;
         }
 
         /* Modo verdadero/falso */
@@ -928,6 +978,10 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.2);
         }
 
+        .true-btn:active {
+            transform: translateY(1px);
+        }
+
         .false-btn {
             background-color: var(--rojo);
             color: white;
@@ -937,6 +991,10 @@
         .false-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .false-btn:active {
+            transform: translateY(1px);
         }
 
         /* Animación de nueva pregunta */
@@ -975,7 +1033,83 @@
             transform: translateX(-50%);
             z-index: 100;
         }
-        
+
+        /* Logros y medallas */
+        .achievement-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffde59"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>');
+            background-size: contain;
+            margin-left: 5px;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 3px rgba(255, 222, 89, 0.7));
+        }
+
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            z-index: 1000;
+            text-align: center;
+            display: none;
+            animation: achievementUnlock 1s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--amarillo);
+        }
+
+        @keyframes achievementUnlock {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+
+        /* Estadísticas del jugador */
+        .player-stats {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            z-index: 100;
+            display: none;
+            max-width: 250px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--morado);
+        }
+
+        .player-stats h3 {
+            margin-bottom: 10px;
+            color: var(--morado);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: var(--azul);
+        }
+
         /* Fase de Revelación */
         .reveal-phase {
             position: fixed;
@@ -1014,7 +1148,6 @@
             font-weight: bold;
             margin: 20px 0;
             text-shadow: var(--neon-verde);
-            font-size: 1.5rem;
         }
 
         .reveal-player-result {
@@ -1045,11 +1178,132 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
+
+        /* Efecto neón para bordes */
+        .neon-border {
+            position: relative;
+        }
+
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--azul), var(--morado));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            animation: neonGlow 2s infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from {
+                opacity: 0.7;
+                box-shadow: 0 0 5px var(--azul), 0 0 10px var(--morado);
+            }
+            to {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--azul), 0 0 20px var(--morado), 0 0 30px var(--morado);
+            }
+        }
+
+        /* Estilos para las opciones de selección múltiple */
+        .multiple-choice-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background-color: var(--panel);
+            color: var(--texto);
+            border: 2px solid var(--borde);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px var(--sombra);
+            border-color: var(--azul);
+        }
+
+        .option-btn:hover::before {
+            left: 100%;
+        }
+
+        .option-btn.selected {
+            background-color: var(--azul);
+            color: white;
+            border-color: var(--azul);
+            box-shadow: var(--neon-azul);
+        }
+
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .option-btn.correct-answer {
+            background-color: var(--verde);
+            border-color: var(--verde);
+            color: white;
+            box-shadow: var(--neon-verde);
+            animation: pulseGreen 0.7s infinite alternate;
+        }
         
+        .option-btn.incorrect-answer {
+            background-color: var(--rojo);
+            border-color: var(--rojo);
+            color: white;
+            box-shadow: var(--neon-rojo);
+            animation: pulseRed 0.7s infinite alternate;
+        }
+
+        @keyframes pulseGreen {
+            from { box-shadow: 0 0 5px var(--verde); }
+            to { box-shadow: 0 0 15px var(--verde); }
+        }
+
+        @keyframes pulseRed {
+            from { box-shadow: 0 0 5px var(--rojo); }
+            to { box-shadow: 0 0 15px var(--rojo); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
-            .mode-buttons, .multiple-choice-container {
+            .mode-buttons {
                 grid-template-columns: 1fr;
+            }
+            
+            .keyboard {
+                grid-template-columns: repeat(3, 70px);
             }
 
             .live-ranking {
@@ -1074,17 +1328,27 @@
             .true-false-btn {
                 width: 100%;
             }
+
+            .player-stats {
+                bottom: 70px;
+                right: 10px;
+                max-width: 200px;
+            }
+
+            .multiple-choice-options {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <h2>Cargando Desafío de Saberes...</h2>
+        <h2>Cargando Desafío Universitario...</h2>
     </div>
 
     <div class="join-screen" id="joinScreen">
-        <h1>Desafío de Saberes General</h1>
+        <h1>Desafío Universitario</h1>
         <div class="join-form glass-panel">
             <h2>¡Únete al Desafío!</h2>
             <div class="input-group">
@@ -1092,8 +1356,8 @@
                 <input type="text" id="playerName" placeholder="Ej: Alex" maxlength="20">
             </div>
             <div class="input-group">
-                <label for="major">Tu grupo o curso:</label>
-                <input type="text" id="major" placeholder="Ej: Grupo 5B" maxlength="20">
+                <label for="major">Tu carrera o facultad:</label>
+                <input type="text" id="major" placeholder="Ej: Ing. de Sistemas" maxlength="20">
             </div>
             <div class="input-group">
                 <label for="gamePin">Código PIN:</label>
@@ -1127,10 +1391,19 @@
                 <h3>Votar por tema:</h3>
                 <div class="vote-timer">Tiempo: <span id="voteTime">30</span>s</div>
                 <div class="mode-buttons" id="modeButtons">
-                    <button class="mode-btn" data-mode="sociales">🏛️ Sociales</button>
-                    <button class="mode-btn" data-mode="lenguaje">📚 Lenguaje</button>
-                    <button class="mode-btn" data-mode="musica">🎵 Música</button>
-                    <button class="mode-btn" data-mode="cultura_general">🌍 Cultura General</button>
+                    <button class="mode-btn" data-mode="calculo_diferencial">🧠 Cálculo Diferencial</button>
+                    <button class="mode-btn" data-mode="calculo_integral">📈 Cálculo Integral</button>
+                    <button class="mode-btn" data-mode="algebra_lineal">🧮 Álgebra Lineal</button>
+                    <button class="mode-btn" data-mode="ecuaciones_diferenciales">📉 Ecuaciones Diferenciales</button>
+                    <button class="mode-btn" data-mode="estadistica">📊 Estadística y Probabilidad</button>
+                    <button class="mode-btn" data-mode="logica">🤖 Lógica Matemática</button>
+                    <button class="mode-btn" data-mode="sociales_historia">📜 Historia de Colombia</button>
+                    <button class="mode-btn" data-mode="sociales_geografia">🗺️ Geografía de Colombia</button>
+                    <button class="mode-btn" data-mode="lenguaje_gramatica">📝 Gramática y Ortografía</button>
+                    <button class="mode-btn" data-mode="lenguaje_literatura">📚 Literatura</button>
+                    <button class="mode-btn" data-mode="musica_teoria">🎵 Teoría Musical Básica</button>
+                    <button class="mode-btn" data-mode="musica_instrumentos">🎸 Instrumentos Musicales</button>
+                    <button class="mode-btn" data-mode="relampago">⚡ Modo Relámpago (Mixto)</button>
                     <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
                 </div>
                 <div class="vote-results glass-panel">
@@ -1151,7 +1424,7 @@
     </div>
 
     <div id="gameContainer">
-        <h1>Desafío de Saberes</h1>
+        <h1>Desafío Universitario</h1>
         <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
 
         <div class="timer-container">
@@ -1164,22 +1437,36 @@
         <div class="game glass-panel">
             <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
             <p id="currentQuestion" class="question">Esperando para comenzar...</p>
+            <img id="questionImage" class="question-image" style="display: none;">
             
-            <div class="input-container" id="multipleChoiceButtons" style="display: none;">
-                 <div class="multiple-choice-container">
-                    <button class="choice-btn" data-option="A"><span class="choice-prefix">A</span> <span class="choice-text"></span></button>
-                    <button class="choice-btn" data-option="B"><span class="choice-prefix">B</span> <span class="choice-text"></span></button>
-                    <button class="choice-btn" data-option="C"><span class="choice-prefix">C</span> <span class="choice-text"></span></button>
-                    <button class="choice-btn" data-option="D"><span class="choice-prefix">D</span> <span class="choice-text"></span></button>
+            <div class="input-container" id="standardInput">
+                <input type="text" id="playerAnswer" readonly>
+                <div class="keyboard">
+                    <div class="key" data-number="1">1</div>
+                    <div class="key" data-number="2">2</div>
+                    <div class="key" data-number="3">3</div>
+                    <div class="key" data-number="4">4</div>
+                    <div class="key" data-number="5">5</div>
+                    <div class="key" data-number="6">6</div>
+                    <div class="key" data-number="7">7</div>
+                    <div class="key" data-number="8">8</div>
+                    <div class="key" data-number="9">9</div>
+                    <div class="key" data-action="clear">⌫</div>
+                    <div class="key" data-number="0">0</div>
+                    <div class="key negative" data-number="-">-</div>
                 </div>
+                <button class="btn" id="submitAnswer">Responder 🚀</button>
             </div>
             
+            <div class="multiple-choice-options" id="multipleChoiceOptions" style="display: none;">
+                </div>
+
             <div class="true-false-buttons" id="trueFalseButtons" style="display: none;">
                 <button class="true-false-btn true-btn" id="trueBtn">✅ Verdadero</button>
                 <button class="true-false-btn false-btn" id="falseBtn">❌ Falso</button>
             </div>
-
-            <p id="answerResult" class="result waiting">Elige una opción... 🤔</p>
+            
+            <p id="answerResult" class="result waiting">Esperando respuesta... 🤔</p>
         </div>
 
         <div class="progress-container">
@@ -1187,6 +1474,7 @@
         </div>
 
         <button class="btn" id="reiniciarBtn">🔄 Reiniciar Juego</button>
+        <p id="mensajeVictoria" class="result"></p>
     </div>
 
     <div class="final-results" id="finalResults">
@@ -1227,20 +1515,34 @@
 
     <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
 
+    <div class="achievement-popup glass-panel" id="achievementPopup">
+        <div class="achievement-icon">🏆</div>
+        <h3 id="achievementTitle">Logro Desbloqueado</h3>
+        <p id="achievementDescription">Descripción del logro</p>
+        <button class="btn" id="closeAchievement">¡Genial!</button>
+    </div>
+
+    <div class="player-stats glass-panel" id="playerStats">
+        <h3>📊 Mis Estadísticas</h3>
+        <div id="statsContent"></div>
+        <button class="btn" id="closeStats">Cerrar</button>
+    </div>
+
     <div id="revealPhase" class="reveal-phase" style="display: none;">
         <div class="reveal-content glass-panel">
-            <h2 id="revealTitle">¡Respuesta!</h2>
+            <h2>¡Respuesta Correcta!</h2>
             <div id="revealCorrectAnswer" class="reveal-correct"></div>
             <div id="revealPlayerResult" class="reveal-player-result"></div>
             <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
         </div>
     </div>
-    
+
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
     <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
     <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
+    <audio id="achievementSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
     <audio id="revealSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
 
     <script>
@@ -1258,25 +1560,43 @@
                 this.state = this.STATES.LOADING;
 
                 this.player = {
-                    id: null, name: "", major: "", displayName: "", avatar: "1", points: 0,
-                    hasAnswered: false, hasVoted: false, streak: 0, maxStreak: 0,
-                    avgResponseTime: 0, responseTimes: [], history: [], isProfessor: false,
-                    isReady: false, lastAnswerCorrect: false
+                    id: null,
+                    name: "",
+                    major: "",
+                    displayName: "",
+                    avatar: "1",
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    gamesPlayed: 0,
+                    favoriteMode: null,
+                    modeStats: {},
+                    achievements: [],
+                    lastAnswerCorrect: false
                 };
                 
                 this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
-                this.timeLeft = 20;
-                this.timerDuration = 20;
+                this.timeLeft = 30;
+                this.timerDuration = 30;
                 this.timerInterval = null;
                 this.soundEnabled = true;
                 this.currentQuestionData = null;
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
+                this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
-                this.revealPhaseDuration = 4000;
+                this.revealPhaseActive = false;
+                this.revealPhaseDuration = 3000;
                 
                 this.isMultiplayer = false;
                 this.isHost = false; 
@@ -1285,22 +1605,84 @@
                 this.playerVotes = {}; 
                 this.selectedGameMode = null; 
                 this.playerRanking = [];
+                this.maxPlayers = 15;
                 this.socket = null;
                 this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
                 this.heartbeatInterval = null;
+                this.lastPongTime = null;
                 
                 this.voteTime = 30;
                 this.voteInterval = null;
                 this.voteCounts = { 
-                    sociales: 0, lenguaje: 0, musica: 0, 
-                    cultura_general: 0, "verdadero-falso": 0
+                    calculo_diferencial: 0,
+                    calculo_integral: 0,
+                    algebra_lineal: 0,
+                    ecuaciones_diferenciales: 0,
+                    estadistica: 0,
+                    logica: 0,
+                    sociales_historia: 0, // Nuevo
+                    sociales_geografia: 0, // Nuevo
+                    lenguaje_gramatica: 0, // Nuevo
+                    lenguaje_literatura: 0, // Nuevo
+                    musica_teoria: 0, // Nuevo
+                    musica_instrumentos: 0, // Nuevo
+                    relampago: 0,
+                    "verdadero-falso": 0
                 };
                 this.isVotingActive = false; 
                 
                 this.lastRanking = [];
+                this.rankingUpdateInterval = null;
+                this.animationPending = false; 
                 
-                this.setupQuestionBank();
-
+                this.achievementsList = {
+                    perfectStreak: {
+                        id: "perfectStreak",
+                        title: "Racha Impecable",
+                        description: "Responde correctamente todas las preguntas en una partida",
+                        icon: "🏅",
+                        condition: (player) => player.streak >= 10
+                    },
+                    lightningFast: {
+                        id: "lightningFast",
+                        title: "Velocidad de la Luz",
+                        description: "Responde correctamente en menos de 3 segundos",
+                        icon: "⚡",
+                        condition: (player) => player.responseTimes.some(t => t > 0 && t < 3)
+                    },
+                    strategist: {
+                        id: "strategist",
+                        title: "Genio del Tiempo",
+                        description: "Gana más de 10 puntos por tiempo en una respuesta",
+                        icon: "🧠",
+                        condition: (player) => player.history.some(h => h.points > 10) 
+                    },
+                    veteran: {
+                        id: "veteran",
+                        title: "Estudiante Dedicado",
+                        description: "Juega 5 partidas completas",
+                        icon: "🎖️",
+                        condition: (player) => player.gamesPlayed >= 5
+                    },
+                    master: {
+                        id: "master",
+                        title: "Erudito Temático", // Nombre cambiado para ser más general
+                        description: "Gana una partida en 3 temas diferentes (no relámpago/V/F)", // Descripción ajustada
+                        icon: "👑",
+                        condition: (player) => {
+                            const modes = Object.keys(player.modeStats || {});
+                            let winsInMainModes = 0;
+                            const excludedModes = ["relampago", "verdadero-falso"];
+                            modes.forEach(mode => {
+                                if (!excludedModes.includes(mode) && player.modeStats[mode] && player.modeStats[mode].wins > 0) {
+                                    winsInMainModes++;
+                                }
+                            });
+                            return winsInMainModes >= 3; // Ahora requiere 3 temas diferentes
+                        }
+                    }
+                };
+                
                 this.themeToggle = document.getElementById('themeToggle');
                 this.timerCircle = document.querySelector('.timer-circle');
                 this.timerText = document.getElementById('timerText');
@@ -1309,18 +1691,24 @@
                 this.readyBtn = document.getElementById('readyBtn');
                 this.startVoteBtn = document.getElementById('startVoteBtn'); 
                 this.gameModeIndicator = document.getElementById('gameModeIndicator');
-                
-                this.multipleChoiceButtons = document.getElementById('multipleChoiceButtons');
-                this.trueFalseButtons = document.getElementById('trueFalseButtons');
-
+                this.achievementPopup = document.getElementById('achievementPopup');
+                this.closeAchievement = document.getElementById('closeAchievement');
+                this.playerStats = document.getElementById('playerStats');
+                this.closeStats = document.getElementById('closeStats');
+                this.statsContent = document.getElementById('statsContent');
+                this.modeButtons = document.getElementById('modeButtons'); 
                 this.revealPhase = document.getElementById('revealPhase');
-                this.revealTitle = document.getElementById('revealTitle');
                 this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
+                // Nuevos elementos para selección múltiple
+                this.standardInputContainer = document.getElementById('standardInput');
+                this.multipleChoiceOptionsContainer = document.getElementById('multipleChoiceOptions');
+
                 this.setupEventListeners();
                 this.checkDarkModePreference();
+                this.loadPlayerStats();
                 
                 setTimeout(() => {
                     this.setState(this.STATES.JOIN_SCREEN);
@@ -1353,16 +1741,28 @@
                         document.getElementById('joinScreen').style.display = 'flex';
                         break;
                     case this.STATES.LOBBY:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        this.readyBtn.style.display = 'block'; 
+                        if (this.isHost) {
+                            this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
+                        }
+                        this.enableVotingButtons(true); 
+                        break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
-                        this.readyBtn.style.display = 'block';
-                        if (this.isHost) this.startVoteBtn.style.display = !this.isVotingActive ? 'block' : 'none';
+                        this.readyBtn.style.display = 'none'; 
+                        this.startVoteBtn.style.display = 'none'; 
+                        this.enableVotingButtons(true); 
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
                         document.getElementById('liveRanking').style.display = 'block';
                         this.gameModeIndicator.style.display = 'block';
-                        if (this.player.isProfessor) this.skipQuestionBtn.style.display = 'block';
+                        this.readyBtn.style.display = 'none';
+                        this.startVoteBtn.style.display = 'none';
+                        if (this.player.isProfessor) { 
+                            this.skipQuestionBtn.style.display = 'block';
+                        }
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
@@ -1378,6 +1778,7 @@
                     document.body.classList.toggle('dark-mode');
                     this.themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
                     this.playSound('clickSound');
+                    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
                 });
                 
                 document.querySelectorAll('.avatar-option').forEach(avatar => {
@@ -1393,18 +1794,36 @@
                 
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
                 document.getElementById('createGame').addEventListener('click', () => this.createGame());
-
-                // New listener for multiple choice buttons
-                this.multipleChoiceButtons.addEventListener('click', (e) => {
-                    const button = e.target.closest('.choice-btn');
-                    if (button) {
-                        this.checkAnswer(button.dataset.option);
-                    }
+                
+                document.querySelectorAll('.key[data-number]').forEach(key => {
+                    key.addEventListener('click', () => {
+                        this.addNumber(key.dataset.number);
+                    });
+                });
+                
+                document.querySelector('.key[data-action="clear"]').addEventListener('click', () => {
+                    this.clearNumber();
+                });
+                
+                document.getElementById('submitAnswer').addEventListener('click', () => this.submitAnswer());
+                
+                document.getElementById('playerAnswer').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.submitAnswer();
                 });
                 
                 document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
                 document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
                 
+                // Event listener para las nuevas opciones de selección múltiple
+                this.multipleChoiceOptionsContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('option-btn')) {
+                        // Desactivar todos los botones para evitar múltiples clics
+                        this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                        this.checkAnswer(e.target.dataset.value);
+                    }
+                });
+
+
                 document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
                 document.getElementById('backToLobby').addEventListener('click', () => this.reiniciarJuego());
                 
@@ -1413,15 +1832,128 @@
                 });
                 
                 this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
+
                 this.readyBtn.addEventListener('click', () => this.toggleReady());
+
                 this.startVoteBtn.addEventListener('click', () => this.initiateVoteAsHost());
+
+                this.closeAchievement.addEventListener('click', () => {
+                    this.achievementPopup.style.display = 'none';
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 's' && e.ctrlKey) {
+                        e.preventDefault(); 
+                        this.toggleStats();
+                    }
+                });
+
+                this.closeStats.addEventListener('click', () => {
+                    this.playerStats.style.display = 'none';
+                });
+
+                window.addEventListener('online', () => {
+                    if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
+                        this.attemptReconnect();
+                    }
+                });
             }
 
             checkDarkModePreference() {
-                if (localStorage.getItem('darkMode') === 'true') {
+                const darkMode = localStorage.getItem('darkMode') === 'true';
+                if (darkMode) {
                     document.body.classList.add('dark-mode');
                     this.themeToggle.textContent = '☀️';
                 }
+            }
+
+            loadPlayerStats() {
+                const savedStats = localStorage.getItem('playerStats');
+                if (savedStats) {
+                    try {
+                        const stats = JSON.parse(savedStats);
+                        if (!this.player.id || stats.id === this.player.id) {
+                            this.player.gamesPlayed = stats.gamesPlayed || 0;
+                            this.player.modeStats = stats.modeStats || {};
+                            this.player.achievements = stats.achievements || [];
+                            this.player.favoriteMode = stats.favoriteMode || null;
+                        }
+                    } catch (e) {
+                        console.error("Error al cargar estadísticas:", e);
+                    }
+                }
+            }
+
+            savePlayerStats() {
+                try {
+                    const statsToSave = {
+                        id: this.player.id, 
+                        gamesPlayed: this.player.gamesPlayed,
+                        modeStats: this.player.modeStats,
+                        achievements: this.player.achievements,
+                        favoriteMode: this.player.favoriteMode
+                    };
+                    localStorage.setItem('playerStats', JSON.stringify(statsToSave));
+                } catch (e) {
+                    console.error("Error al guardar estadísticas:", e);
+                }
+            }
+
+            toggleStats() {
+                if (this.playerStats.style.display === 'block') {
+                    this.playerStats.style.display = 'none';
+                    return;
+                }
+
+                let statsHTML = `
+                    <div class="stat-item">
+                        <span class="stat-label">Partidas jugadas:</span>
+                        <span class="stat-value">${this.player.gamesPlayed}</span>
+                    </div>
+                `;
+
+                if (this.player.favoriteMode) {
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Tema favorito:</span>
+                            <span class="stat-value">${this.getModeName(this.player.favoriteMode)}</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.responseTimes.length > 0) { 
+                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Tiempo promedio:</span>
+                            <span class="stat-value">${this.player.avgResponseTime.toFixed(2)}s</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.maxStreak > 0) {
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Racha máxima:</span>
+                            <span class="stat-value">${this.player.maxStreak}</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.achievements.length > 0) {
+                    statsHTML += `<h4>Logros:</h4>`;
+                    this.player.achievements.forEach(achievement => {
+                        statsHTML += `
+                            <div class="stat-item">
+                                <span class="stat-label">${achievement.title}</span>
+                                <span class="achievement-icon">${achievement.icon}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                this.statsContent.innerHTML = statsHTML;
+                this.playerStats.style.display = 'block';
             }
 
             sanitizeInput(input) {
@@ -1433,17 +1965,47 @@
                 const major = this.sanitizeInput(document.getElementById('major').value.trim());
                 const gamePin = document.getElementById('gamePin').value.trim();
 
-                if (!playerName || !major || !/^\d{4}$/.test(gamePin)) {
-                    document.getElementById('joinError').textContent = 'Por favor, llena todos los campos correctamente.';
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
+
+                if (!major) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu carrera o facultad';
+                    return;
+                }
+
+                if (!/^\d{4}$/.test(gamePin)) {
+                    document.getElementById('joinError').textContent = 'El PIN debe ser de 4 dígitos';
                     return;
                 }
                 
                 document.getElementById('joinError').textContent = ''; 
-                this.player.id = localStorage.getItem('playerId') || this.generateId();
-                localStorage.setItem('playerId', this.player.id);
-                this.player.name = playerName;
-                this.player.major = major;
-                this.player.displayName = `${playerName} (${major})`;
+
+                let playerId = localStorage.getItem('playerId');
+                if (!playerId) {
+                    playerId = this.generateId();
+                    localStorage.setItem('playerId', playerId);
+                }
+
+                this.player = {
+                    ...this.player,
+                    id: playerId,
+                    name: playerName,
+                    major: major,
+                    displayName: `${playerName} (${major})`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    lastAnswerCorrect: false
+                };
+
                 this.gamePin = gamePin;
                 this.isHost = false; 
                 this.connectToServer();
@@ -1453,118 +2015,375 @@
                 const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
                 const major = this.sanitizeInput(document.getElementById('major').value.trim());
                 
-                if (!playerName || !major) {
-                    document.getElementById('joinError').textContent = 'Tu nombre y grupo son necesarios para crear una sesión.';
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
+
+                if (!major) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu carrera o facultad';
                     return;
                 }
                 
                 document.getElementById('joinError').textContent = ''; 
+
                 const createBtn = document.getElementById('createGame');
                 createBtn.disabled = true;
-                createBtn.innerHTML = '<span class="loader-small"></span> Creando...';
+                createBtn.innerHTML = '<span class="loader-small"></span> Creando sesión...';
 
-                this.player.id = localStorage.getItem('playerId') || this.generateId();
-                localStorage.setItem('playerId', this.player.id);
+                let playerId = localStorage.getItem('playerId');
+                if (!playerId) {
+                    playerId = this.generateId();
+                    localStorage.setItem('playerId', playerId);
+                }
+
                 this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
                 document.getElementById('gamePin').value = this.gamePin; 
                 
-                this.player.name = playerName;
-                this.player.major = major;
-                this.player.displayName = `${playerName} (Anfitrión)`;
-                this.player.isProfessor = true;
+                 this.player = {
+                    ...this.player,
+                    id: playerId,
+                    name: playerName,
+                    major: major,
+                    displayName: `${playerName} (Anfitrión)`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: true, 
+                    isReady: false,
+                    lastAnswerCorrect: false
+                };
+                
                 this.isHost = true; 
                 
+                console.log("[Cliente] Intentando conectar al servidor para crear sala...");
                 this.connectToServer(); 
-                setTimeout(() => { createBtn.disabled = false; createBtn.textContent = 'Crear Sesión'; }, 2000);
+
+                setTimeout(() => {
+                    createBtn.disabled = false;
+                    createBtn.textContent = 'Crear Sesión';
+                }, 2000);
             }
 
 
             connectToServer() {
-                this.updateConnectionStatus('connecting', '🟡 Conectando...');
-                if (!navigator.onLine) return;
+                try {
+                    this.updateConnectionStatus('connecting', '🟡 Conectando...');
+                    console.log(`[Cliente] Intentando conectar a: ${this.socketUrl}?playerId=${this.player.id}`);
+                    
+                    if (!navigator.onLine) {
+                        this.handleNetworkError(new Error('Sin conexión a internet'));
+                        return;
+                    }
 
-                this.socket = new WebSocket(`${this.socketUrl}?playerId=${this.player.id}`);
-                this.setupHeartbeat();
-                
-                this.socket.onopen = () => {
-                    this.updateConnectionStatus('connected', '🟢 Conectado');
-                    const messageType = this.isHost ? 'create_room' : 'join_room';
-                    this.socket.send(JSON.stringify({
-                        type: messageType,
-                        pin: this.gamePin,
-                        player: {
-                            id: this.player.id, name: this.player.displayName, avatar: this.player.avatar,
-                            points: 0, isProfessor: this.player.isProfessor, isReady: false
+                    const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
+                    this.socket = new WebSocket(wsUrl);
+                    
+                    this.setupHeartbeat();
+                    
+                    this.socket.onerror = (error) => {
+                        console.error("[Cliente] Error de conexión WS:", error);
+                        this.handleNetworkError(error, "Error de conexión con el servidor");
+                        this.attemptReconnect();
+                    };
+                    
+                    this.socket.onclose = (event) => {
+                        console.log("[Cliente] Conexión WS cerrada:", event.code, event.reason);
+                        clearInterval(this.heartbeatInterval);
+                        this.heartbeatInterval = null;
+
+                        let message = "Conexión cerrada";
+                        if (event.code === 1000) {
+                            message = "Conexión finalizada (normal)";
+                            this.updateConnectionStatus('disconnected', `🔴 ${message}`);
+                        } else {
+                            if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
+                                this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
+                                this.attemptReconnect();
+                            } else {
+                                 this.updateConnectionStatus('disconnected', `🔴 Desconectado`);
+                            }
                         }
-                    }));
-                };
-                
-                this.socket.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'pong') { this.lastPongTime = Date.now(); return; }
-                    this.handleSocketMessage(data);
-                };
+                    };
+                    
+                    this.socket.onopen = () => {
+                        console.log("[Cliente] Conexión WS establecida.");
+                        this.reconnectAttempts = 0;
+                        this.lastPongTime = Date.now();
+                        this.updateConnectionStatus('connected', '🟢 Conectado');
+                        
+                        let messageType;
 
-                this.socket.onclose = () => {
-                    clearInterval(this.heartbeatInterval);
-                    this.updateConnectionStatus('disconnected', `🔴 Desconectado`);
-                };
+                        if (this.isHost) {
+                            messageType = 'create_room';
+                        } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
+                            messageType = 'rejoin_room';
+                        } else {
+                            messageType = 'join_room'; 
+                        }
+
+                        console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
+
+                        this.socket.send(JSON.stringify({
+                            type: messageType,
+                            pin: this.gamePin,
+                            player: {
+                                id: this.player.id,
+                                name: this.player.displayName,
+                                avatar: this.player.avatar,
+                                points: this.player.points, 
+                                isProfessor: this.player.isProfessor, 
+                                isReady: this.player.isReady
+                            }
+                        }));
+                    };
+                    
+                    this.socket.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            console.log("[Cliente] Mensaje WS recibido:", data); 
+                            
+                            if (data.type === 'pong') {
+                                this.lastPongTime = Date.now();
+                                return;
+                            }
+                            
+                            this.handleSocketMessage(data);
+                        } catch (error) {
+                            console.error("[Cliente] Error al procesar mensaje WS:", error);
+                        }
+                    };
+                } catch (error) {
+                    this.handleNetworkError(error, "Error al conectar con el servidor (catch general)");
+                    this.attemptReconnect();
+                }
             }
 
             setupHeartbeat() {
                 clearInterval(this.heartbeatInterval);
+                
                 this.heartbeatInterval = setInterval(() => {
                     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        const now = Date.now();
+                        
+                        if (this.lastPongTime && now - this.lastPongTime > 30000) {
+                            console.warn("[Cliente] No se recibió pong en 30s. Cerrando conexión para intentar reconectar...");
+                            this.socket.close(); 
+                            return;
+                        }
+                        
                         this.socket.send(JSON.stringify({ type: 'ping' }));
+                    } else if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
+                        clearInterval(this.heartbeatInterval);
+                        this.heartbeatInterval = null;
                     }
-                }, 15000);
+                }, 15000); 
             }
 
-            updateConnectionStatus(status, message) {
-                this.connectionStatus.className = `connection-status ${status}`;
-                this.connectionStatus.textContent = message;
+            attemptReconnect() {
+                if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                    console.log("[Cliente] Máximo de intentos de reconexión alcanzado");
+                    this.showNotification("No se pudo reconectar. Intenta manualmente.");
+                    this.showReconnectButton(); 
+                    return;
+                }
+                
+                this.reconnectAttempts++;
+                const delay = Math.min(30000, this.reconnectAttempts * this.reconnectDelay); 
+                
+                console.log(`[Cliente] Intentando reconectar en ${delay/1000} segundos... (Intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                
+                this.showNotification(`Reconectando... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                this.updateConnectionStatus('connecting', '🟡 Reconectando...');
+                
+                clearInterval(this.heartbeatInterval);
+                this.heartbeatInterval = null;
+
+                setTimeout(() => {
+                    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+                        this.connectToServer();
+                    }
+                }, delay);
+            }
+
+            showReconnectButton() {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.innerHTML = '🔴 Desconectado <button class="btn btn-secondary" id="reconnectBtn">Reconectar</button>';
+                const existingBtn = document.getElementById('reconnectBtn');
+                if (existingBtn) {
+                     existingBtn.onclick = () => {
+                        this.reconnectAttempts = 0; 
+                        this.connectToServer();
+                        statusElement.textContent = '🟡 Conectando...'; 
+                    };
+                }
+            }
+
+            updateConnectionStatus(status, message = null) {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.className = `connection-status ${status}`;
+                
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    switch(status) {
+                        case 'connected':
+                            statusElement.textContent = '🟢 Conectado';
+                            break;
+                        case 'disconnected':
+                            statusElement.textContent = '🔴 Desconectado';
+                            break;
+                        case 'connecting':
+                            statusElement.textContent = '🟡 Conectando...';
+                            break;
+                    }
+                }
             }
 
             handleSocketMessage(data) {
+                console.log("[Cliente] Mensaje recibido y manejando:", data.type);
+                
                 switch(data.type) {
                     case 'room_created': 
-                    case 'room_joined': this.handleRoomJoined(data); break;
-                    case 'player_joined': this.handlePlayerJoined(data); break;
-                    case 'player_left': this.handlePlayerLeft(data); break;
-                    case 'player_ready_update': this.handlePlayerReadyUpdate(data); break;
-                    case 'start_voting': this.startVoteCountdown(data.time); break;
-                    case 'vote_update': this.updateVoteResults(data.votes); break;
-                    case 'game_start': this.startGame(data.mode); break;
-                    case 'question_update': this.handleQuestionUpdate(data); break;
-                    case 'reveal_phase': this.startRevealPhase(data); break;
-                    case 'game_over': this.handleGameOver(data); break;
-                    case 'player_score_update': this.updatePlayerScore(data.playerId, data.points, data.streak); break;
-                    case 'error': this.showNotification(`Error: ${data.message}`); break;
+                    case 'room_joined':
+                        this.handleRoomJoined(data);
+                        break;
+                        
+                    case 'player_joined':
+                        this.handlePlayerJoined(data);
+                        break;
+                        
+                    case 'player_left':
+                        this.handlePlayerLeft(data);
+                        break;
+                        
+                    case 'player_ready_update':
+                        this.handlePlayerReadyUpdate(data);
+                        break;
+                        
+                    case 'start_voting':
+                        this.isVotingActive = true;
+                        this.startVoteCountdown(data.time);
+                        break;
+                        
+                    case 'update_vote_timer':
+                        this.updateVoteTimer(data.time);
+                        break;
+                        
+                    case 'vote_update':
+                        this.updateVoteResults(data.votes);
+                        break;
+                        
+                    case 'game_starting': 
+                        this.showNotification(`¡El juego comenzará! Tema: ${this.getModeName(data.mode)}`);
+                        break;
+                        
+                    case 'game_start': 
+                        this.startGame(data.mode, data.closestAnswerMode);
+                        break;
+                        
+                    case 'question_update':
+                        this.handleQuestionUpdate(data);
+                        break;
+                        
+                    case 'game_over':
+                        this.handleGameOver(data);
+                        break;
+                        
+                    case 'player_score_update': 
+                        this.updatePlayerScore(data.playerId, data.points, data.streak, data.maxStreak, data.avgResponseTime);
+                        break;
+                    
+                    case 'host_skipped_question': 
+                        if (!this.isHost) { 
+                            this.currentQuestionIndex++; 
+                            this.displayQuestion(); 
+                            this.showNotification("El anfitrión ha saltado la pregunta.");
+                        }
+                        break;
+
+                    case 'error':
+                        this.handleError(data);
+                        break;
+                    
+                    case 'new_host': 
+                        if (data.newHostId === this.player.id) {
+                            this.isHost = true;
+                            this.player.isProfessor = true;
+                            this.showNotification("¡Ahora eres el nuevo anfitrión!");
+                        } else {
+                            this.showNotification(`${data.newHostName} es ahora el nuevo anfitrión.`);
+                        }
+                        break;
+                        
+                    case 'reveal_phase':
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.explanation);
+                        break;
+                        
+                    default:
+                        console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
             }
 
             handleRoomJoined(data) {
+                console.log("[Cliente] handleRoomJoined activado. Data:", data);
                 this.isMultiplayer = true; 
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
+                
                 this.gamePin = data.pin; 
                 document.getElementById('lobbyPin').textContent = this.gamePin; 
+
+                const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
+                if (currentPlayerFromServer) {
+                    this.player.isProfessor = currentPlayerFromServer.isProfessor;
+                    this.player.isReady = currentPlayerFromServer.isReady; 
+                }
+
                 this.updatePlayerList();
-                this.setState(this.STATES.LOBBY);
+                
+                this.isVotingActive = data.isVotingActive || false; 
+                if (this.isVotingActive) {
+                    this.setState(this.STATES.VOTING);
+                    this.startVoteCountdown(data.voteTimeRemaining); 
+                    this.updateVoteResults(data.currentVotes); 
+                    this.selectedGameMode = data.selectedGameMode; 
+                } else if (data.selectedGameMode) {
+                    this.selectedGameMode = data.selectedGameMode;
+                    this.showNotification(`Tema pre-seleccionado: ${this.getModeName(this.selectedGameMode)}`);
+                    this.setState(this.STATES.LOBBY); 
+                } else {
+                    this.setState(this.STATES.LOBBY);
+                }
+                
+                if (data.isGameRunning) {
+                    this.startGame(data.gameMode, data.closestAnswerMode);
+                    this.currentQuestionIndex = data.questionIndex;
+                    this.handleQuestionUpdate(data); 
+                }
             }
 
             handlePlayerJoined(data) {
-                if (!this.players.find(p => p.id === data.player.id)) {
+                const existingPlayer = this.players.find(p => p.id === data.player.id);
+                if (!existingPlayer) {
                     this.players.push(data.player);
                     this.updatePlayerList();
                     this.showNotification(`${this.extractName(data.player.name)} se ha unido`);
+                } else {
+                    Object.assign(existingPlayer, data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
                 }
             }
 
             handlePlayerLeft(data) {
                 const playerIndex = this.players.findIndex(p => p.id === data.playerId);
                 if (playerIndex !== -1) {
-                    const playerName = this.players[playerIndex].name;
+                    const playerName = this.players[playerIndex].name; 
                     this.players.splice(playerIndex, 1);
                     this.updatePlayerList();
                     this.showNotification(`${this.extractName(playerName)} se ha desconectado`);
@@ -1576,300 +2395,843 @@
                 if (player) {
                     player.isReady = data.isReady;
                     this.updatePlayerList();
+                    
+                    if (data.playerId === this.player.id) {
+                        this.player.isReady = data.isReady; 
+                        this.readyBtn.textContent = data.isReady ? "❌ No listo" : "👍 Listo";
+                        this.readyBtn.disabled = data.isReady; 
+                    }
+                    
+                    if (data.playerId !== this.player.id) {
+                        const action = data.isReady ? "está listo" : "ya no está listo";
+                        this.showNotification(`${this.extractName(player.name)} ${action}`);
+                    }
                 }
-                if (data.playerId === this.player.id) {
-                    this.player.isReady = data.isReady;
-                    this.readyBtn.textContent = data.isReady ? "❌ No listo" : "👍 Listo";
-                    this.readyBtn.disabled = data.isReady; 
+                
+                if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
+                    const minPlayersForVote = 2;
+                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0);
+                    const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
+                    
+                    this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
+                    if (!allNeededPlayersReady) {
+                        this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                    }
                 }
             }
 
             toggleReady() {
-                this.readyBtn.disabled = true;
+                this.readyBtn.disabled = true; 
+                this.player.isReady = !this.player.isReady;
+                
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                    this.socket.send(JSON.stringify({ type: 'player_ready', pin: this.gamePin, playerId: this.player.id, isReady: !this.player.isReady }));
+                    this.socket.send(JSON.stringify({
+                        type: 'player_ready', 
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        isReady: this.player.isReady
+                    }));
                 }
             }
 
             initiateVoteAsHost() {
-                if (this.isHost && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                    this.playSound('clickSound');
-                    this.socket.send(JSON.stringify({ type: 'initiate_vote', pin: this.gamePin }));
+                if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
+
+                const minPlayersForVote = 2;
+                const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0);
+
+                if (playersInLobby < minPlayersForVote) {
+                    this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
+                    return;
+                }
+                
+                this.playSound('clickSound');
+                this.showNotification("El anfitrión ha iniciado la votación!");
+                
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'initiate_vote', 
+                        pin: this.gamePin,
+                        hostId: this.player.id
+                    }));
+                }
+            }
+
+            handleQuestionUpdate(data) {
+                this.currentQuestionData = data.question;
+                this.lastAnswerTime = Date.now();
+                this.currentQuestionIndex = data.questionIndex; 
+                
+                this.displayQuestion(data.question);
+                
+                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
+                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                }
+            }
+
+            handleGameOver(data) {
+                clearInterval(this.timerInterval);
+                clearInterval(this.rankingUpdateInterval);
+                this.rankingUpdateInterval = null; 
+                
+                const finalRanking = Array.isArray(data.finalRanking) ? 
+                    data.finalRanking.map(p => ({
+                        id: p.id,
+                        name: p.name || p.displayName,
+                        avatar: p.avatar || '1',
+                        points: p.points || 0,
+                        streak: p.streak || 0,
+                        maxStreak: p.maxStreak || 0,
+                        achievements: p.achievements || [] 
+                    })) : [];
+                
+                this.updatePlayerStatistics(finalRanking);
+                
+                this.showMultiplayerResults(finalRanking);
+            }
+
+            updatePlayerStatistics(finalRanking) {
+                this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
+                
+                if (this.selectedGameMode) {
+                    if (!this.player.modeStats) {
+                        this.player.modeStats = {};
+                    }
+                    
+                    if (!this.player.modeStats[this.selectedGameMode]) {
+                        this.player.modeStats[this.selectedGameMode] = {
+                            games: 0,
+                            wins: 0,
+                            points: 0,
+                            maxStreak: 0
+                        };
+                    }
+                    
+                    const modeStats = this.player.modeStats[this.selectedGameMode];
+                    modeStats.games += 1;
+                    modeStats.points += this.player.points; 
+                    
+                    if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
+                        modeStats.maxStreak = this.player.maxStreak;
+                    }
+                    
+                    const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
+                    if (playerPosition >= 0 && playerPosition < 3) {
+                        modeStats.wins += 1;
+                    }
+                    
+                    let maxGames = 0;
+                    let favoriteMode = null;
+                    
+                    for (const mode in this.player.modeStats) {
+                        if (this.player.modeStats[mode].games > maxGames) {
+                            maxGames = this.player.modeStats[mode].games;
+                            favoriteMode = mode;
+                        }
+                    }
+                    
+                    this.player.favoriteMode = favoriteMode;
+                }
+                
+                if (this.player.streak > this.player.maxStreak) {
+                    this.player.maxStreak = this.player.streak;
+                }
+
+                this.checkAchievements();
+                
+                this.savePlayerStats();
+            }
+
+            checkAchievements() {
+                for (const achievementId in this.achievementsList) {
+                    const achievement = this.achievementsList[achievementId];
+                    
+                    if (!this.player.achievements.some(a => a.id === achievementId)) {
+                        if (achievement.condition(this.player)) {
+                            this.unlockAchievement(achievementId, achievement);
+                        }
+                    }
+                }
+            }
+
+            unlockAchievement(achievementId, achievement) {
+                this.player.achievements.push({
+                    id: achievementId,
+                    title: achievement.title,
+                    description: achievement.description,
+                    icon: achievement.icon,
+                    date: new Date().toISOString()
+                });
+                
+                this.showAchievementPopup(achievement);
+                
+                this.savePlayerStats();
+            }
+
+            showAchievementPopup(achievement) {
+                document.getElementById('achievementTitle').textContent = achievement.title;
+                document.getElementById('achievementDescription').textContent = achievement.description;
+                document.getElementById('achievementPopup').querySelector('.achievement-icon').textContent = achievement.icon;
+                
+                this.achievementPopup.style.display = 'block';
+                this.playSound('achievementSound');
+                
+                setTimeout(() => {
+                    if (this.achievementPopup.style.display === 'block') {
+                        this.achievementPopup.style.display = 'none';
+                    }
+                }, 5000);
+            }
+
+            handleError(data) {
+                document.getElementById('joinError').textContent = data.message;
+                this.showNotification(`Error: ${data.message}`); 
+                if (this.state === this.STATES.LOADING || this.state === this.STATES.JOIN_SCREEN) {
+                    this.setState(this.STATES.JOIN_SCREEN);
                 }
             }
 
             updatePlayerList() {
                 const playerList = document.getElementById('multiplayerPlayerList');
                 playerList.innerHTML = '';
-                this.players.forEach(player => {
-                    const el = document.createElement('div');
-                    el.className = 'player-badge';
-                    el.innerHTML = `<img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar"> <span>${this.extractName(player.name)}</span> ${player.isReady ? '✓' : ''}`;
-                    if (player.id === this.player.id) el.style.border = '2px solid var(--amarillo)';
-                    playerList.appendChild(el);
+                
+                const sortedPlayers = [...this.players].sort((a, b) => a.name.localeCompare(b.name));
+
+                sortedPlayers.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span>${this.extractName(player.name)}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
+                    if (player.isReady) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
                 });
+                
                 document.getElementById('playerCount').textContent = this.players.length;
+                
+                if (this.players.some(p => p.id === this.player.id)) { 
+                    this.readyBtn.disabled = this.player.isReady;
+                    this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
+                }
             }
 
             startVoteCountdown(time) {
-                this.isVotingActive = true;
-                this.setState(this.STATES.VOTING);
+                if (this.voteInterval) {
+                    clearInterval(this.voteInterval);
+                    this.voteInterval = null;
+                }
+                
+                this.isVotingActive = true; 
+                this.setState(this.STATES.VOTING); 
+
+                // Resetear voteCounts con los nuevos modos
+                this.voteCounts = { 
+                    calculo_diferencial: 0, calculo_integral: 0, algebra_lineal: 0,
+                    ecuaciones_diferenciales: 0, estadistica: 0, logica: 0,
+                    sociales_historia: 0, sociales_geografia: 0,
+                    lenguaje_gramatica: 0, lenguaje_literatura: 0,
+                    musica_teoria: 0, musica_instrumentos: 0,
+                    relampago: 0, "verdadero-falso": 0
+                };
+                document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
+                this.player.hasVoted = false; 
+
+                this.players.forEach(p => p.hasVoted = false); 
+                this.enableVotingButtons(true); 
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('selected', 'voted'); 
+                });
+                
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
-                if (this.voteInterval) clearInterval(this.voteInterval);
-                this.voteInterval = setInterval(() => {
-                    this.voteTime--;
-                    document.getElementById('voteTime').textContent = this.voteTime;
-                    if (this.voteTime <= 0) {
-                        clearInterval(this.voteInterval);
-                        this.isVotingActive = false;
-                    }
-                }, 1000);
+                if (this.isHost) {
+                    this.voteInterval = setInterval(() => {
+                        this.voteTime--;
+                        document.getElementById('voteTime').textContent = this.voteTime;
+                        
+                        if (this.voteTime <= 0) {
+                            clearInterval(this.voteInterval);
+                            this.voteInterval = null;
+                            this.isVotingActive = false; 
+                            this.enableVotingButtons(false); 
+                        }
+                    }, 1000);
+                }
+            }
+
+            updateVoteTimer(time) {
+                document.getElementById('voteTime').textContent = time;
+                this.voteTime = time;
+                if (time <= 0) {
+                    this.isVotingActive = false; 
+                    this.enableVotingButtons(false); 
+                }
             }
 
             castVote(mode) {
                 if (!this.isVotingActive || this.player.hasVoted) return; 
+                
                 this.player.hasVoted = true;
                 this.showNotification(`Has votado por: ${this.getModeName(mode)}`);
-                document.querySelectorAll('.mode-btn').forEach(btn => btn.disabled = true);
+                
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('selected'); 
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('selected', 'voted'); 
+                    } else {
+                        btn.classList.remove('voted'); 
+                    }
+                });
+                this.enableVotingButtons(false); 
+                
                 this.playSound('clickSound');
-                this.socket.send(JSON.stringify({ type: 'cast_vote', pin: this.gamePin, playerId: this.player.id, mode: mode }));
+                
+                this.socket.send(JSON.stringify({
+                    type: 'cast_vote',
+                    pin: this.gamePin,
+                    playerId: this.player.id,
+                    mode: mode
+                }));
+            }
+
+            enableVotingButtons(enable) {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.disabled = !enable;
+                });
             }
 
             updateVoteResults(votes) {
                 this.voteCounts = votes;
-                let resultsHTML = Object.entries(this.voteCounts)
-                    .filter(([, count]) => count > 0)
-                    .map(([mode, count]) => `<p>${this.getModeName(mode)}: <strong>${count}</strong></p>`).join('');
-                document.getElementById('voteResults').innerHTML = resultsHTML || '<p>Esperando votos...</p>';
+                let resultsHTML = '';
+                
+                const sortedModes = Object.entries(this.voteCounts)
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .filter(([, count]) => count > 0); 
+
+                if (sortedModes.length > 0) {
+                    sortedModes.forEach(([mode, count]) => {
+                        resultsHTML += `<p>${this.getModeName(mode)}: <strong>${count}</strong> ${count === 1 ? 'voto' : 'votos'}</p>`;
+                    });
+                } else {
+                    resultsHTML = '<p>Esperando votos...</p>';
+                }
+                
+                document.getElementById('voteResults').innerHTML = resultsHTML;
             }
 
             getModeName(mode) {
                 const names = {
-                    sociales: '🏛️ Sociales',
-                    lenguaje: '📚 Lenguaje',
-                    musica: '🎵 Música',
-                    cultura_general: '🌍 Cultura General',
+                    calculo_diferencial: '🧠 Cálculo Diferencial',
+                    calculo_integral: '📈 Cálculo Integral',
+                    algebra_lineal: '🧮 Álgebra Lineal',
+                    ecuaciones_diferenciales: '📉 Ecuaciones Diferenciales',
+                    estadistica: '📊 Estadística y Probabilidad',
+                    logica: '🤖 Lógica Matemática',
+                    sociales_historia: '📜 Historia de Colombia',
+                    sociales_geografia: '🗺️ Geografía de Colombia',
+                    lenguaje_gramatica: '📝 Gramática y Ortografía',
+                    lenguaje_literatura: '📚 Literatura',
+                    musica_teoria: '🎵 Teoría Musical Básica',
+                    musica_instrumentos: '🎸 Instrumentos Musicales',
+                    relampago: '⚡ Modo Relámpago (Mixto)',
                     "verdadero-falso": '✅❌ Verdadero/Falso'
                 };
                 return names[mode] || mode;
             }
 
-            startGame(mode) {
+            startGame(mode, closestAnswerMode = false) {
                 this.selectedGameMode = mode;
+                this.closestAnswerMode = closestAnswerMode;
                 this.isVotingActive = false; 
                 clearInterval(this.voteInterval); 
+                this.voteInterval = null;
 
                 this.gameModeIndicator.textContent = `Tema: ${this.getModeName(mode)}`;
+                
+                // Ajustar duración del temporizador según el modo
+                if (mode === 'relampago') {
+                    this.timerDuration = 10; 
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                } else if (mode === 'verdadero-falso') {
+                    this.timerDuration = 15;
+                } else {
+                    this.timerDuration = 30;
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                }
+                
                 this.setState(this.STATES.PLAYING);
                 
-                if (mode === 'verdadero-falso') {
-                    this.multipleChoiceButtons.style.display = 'none';
+                // Mostrar/ocultar inputs según el tipo de pregunta del modo
+                if (['verdadero-falso', 'sociales_historia', 'sociales_geografia', 'lenguaje_gramatica', 'lenguaje_literatura', 'musica_teoria', 'musica_instrumentos'].includes(mode)) {
+                    this.standardInputContainer.style.display = 'none';
+                    this.trueFalseButtons.style.display = 'none'; // Asegurarse de que V/F esté oculto si es selección múltiple general
+                    this.multipleChoiceOptionsContainer.style.display = 'grid';
+                } else if (mode === 'ecuaciones_diferenciales') { // Mantener V/F para E.D.
+                    this.standardInputContainer.style.display = 'none';
+                    this.multipleChoiceOptionsContainer.style.display = 'none';
                     this.trueFalseButtons.style.display = 'flex';
-                } else {
-                    this.multipleChoiceButtons.style.display = 'block';
+                } else { // Modos matemáticos con input numérico
+                    this.standardInputContainer.style.display = 'block';
+                    this.multipleChoiceOptionsContainer.style.display = 'none';
                     this.trueFalseButtons.style.display = 'none';
                 }
                 
                 if (this.isHost) {
                     this.questions = this.generarPreguntas(mode, 10); 
+                    this.currentQuestionIndex = 0;
                     this.shareQuestionWithPlayers();
                 }
                 
-                this.player.points = this.player.streak = 0;
+                this.player.points = 0;
+                this.player.streak = 0;
+                this.player.responseTimes = [];
+                this.player.history = []; 
                 this.updatePlayerScore(this.player.id, 0, 0); 
+                
+                this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
             shareQuestionWithPlayers() {
                 if (!this.isHost || !this.questions.length) return;
                 
                 const question = this.questions[this.currentQuestionIndex];
+                this.currentQuestionData = question;
+                
                 const questionToSend = { ...question };
-                // Don't send the answer to the players
-                delete questionToSend.respuesta; 
-                delete questionToSend.explicacion;
+                // Enviar la pregunta sin la respuesta o explicación para no revelarlas antes de tiempo
+                if (questionToSend.tipo === 'verdadero-falso' || questionToSend.opciones) {
+                    delete questionToSend.respuesta; 
+                    delete questionToSend.explicacion;
+                }
 
                 this.socket.send(JSON.stringify({
-                    type: 'question_update', pin: this.gamePin, question: questionToSend,
-                    questionIndex: this.currentQuestionIndex, totalQuestions: this.questions.length
+                    type: 'question_update',
+                    pin: this.gamePin,
+                    question: questionToSend,
+                    questionIndex: this.currentQuestionIndex,
+                    totalQuestions: this.questions.length
                 }));
-                this.handleQuestionUpdate({ question: question, questionIndex: this.currentQuestionIndex, totalQuestions: this.questions.length });
-            }
-
-            // ==========================================================
-            // ============ NEW QUESTION GENERATION LOGIC ===============
-            // ==========================================================
-            setupQuestionBank() {
-                this.questionBank = {
-                    sociales: [
-                        { q: "¿Cuál es el presidente actual de Colombia?", o: { A: "Iván Duque", B: "Juan Manuel Santos", C: "Gustavo Petro", D: "Álvaro Uribe" }, a: "C", e: "Gustavo Petro asumió la presidencia en 2022." },
-                        { q: "¿Cuál es el presidente actual de EE.UU.?", o: { A: "Donald Trump", B: "Joe Biden", C: "Barack Obama", D: "George Bush" }, a: "B", e: "Joe Biden es el 46º presidente de los Estados Unidos." },
-                        { q: "¿En qué teatro principal se presenta artísticamente el colegio Centro de Educación Individualizada (CEI)?", o: { A: "Teatro Calima", B: "Teatro Municipal", C: "Teatro Jorge Isaacs", D: "Teatro Colón" }, a: "C", e: "El Teatro Jorge Isaacs es un lugar emblemático para eventos culturales en Cali." },
-                        { q: "¿Cuál es el río más largo del mundo?", o: { A: "Nilo", B: "Amazonas", C: "Yangtsé", D: "Misisipi" }, a: "A", e: "El río Nilo, con aproximadamente 6,650 km, es considerado el más largo." },
-                        { q: "¿En qué continente se encuentra Egipto?", o: { A: "Asia", B: "Europa", C: "América", D: "África" }, a: "D", e: "Egipto es un país transcontinental, pero su mayor parte está en África." },
-                    ],
-                    lenguaje: [
-                        { q: "¿Cuál es el antónimo de 'efímero'?", o: { A: "Pasajero", B: "Breve", C: "Corto", D: "Eterno" }, a: "D", e: "Efímero significa de corta duración, lo contrario a eterno." },
-                        { q: "En la frase 'El perro corre rápido', ¿qué tipo de palabra es 'rápido'?", o: { A: "Sustantivo", B: "Adjetivo", C: "Verbo", D: "Adverbio" }, a: "D", e: "Rápido modifica al verbo 'corre', por lo tanto, es un adverbio de modo." },
-                        { q: "¿Quién escribió 'Cien años de soledad'?", o: { A: "Julio Cortázar", B: "Gabriel García Márquez", C: "Mario Vargas Llosa", D: "Jorge Luis Borges" }, a: "B", e: "Es la obra cumbre del nobel colombiano Gabriel García Márquez." },
-                        { q: "Una palabra esdrújula es aquella que lleva el acento en la...", o: { A: "Última sílaba", B: "Penúltima sílaba", C: "Antepenúltima sílaba", D: "Primera sílaba" }, a: "C", e: "Como en las palabras 'esdrújula', 'pájaro' o 'brújula'." },
-                    ],
-                    musica: [
-                        { q: "¿Cuántas cuerdas tiene una guitarra acústica estándar?", o: { A: "4", B: "5", C: "6", D: "7" }, a: "C", e: "La afinación estándar es Mi, La, Re, Sol, Si, Mi." },
-                        { q: "¿Cómo empieza la escala musical diatónica mayor de Do?", o: { A: "Do, Re, Mi...", B: "La, Si, Do...", C: "Sol, La, Si...", D: "Re, Mi, Fa..." }, a: "A", e: "La secuencia completa es Do, Re, Mi, Fa, Sol, La, Si." },
-                        { q: "¿Qué instrumento es conocido como el 'rey de los instrumentos'?", o: { A: "El violín", B: "La flauta", C: "El piano", D: "El órgano" }, a: "D", e: "El órgano de tubos, por su tamaño, complejidad y rango sonoro." },
-                        { q: "¿Quién compuso la famosa 'Para Elisa'?", o: { A: "Mozart", B: "Bach", C: "Beethoven", D: "Chopin" }, a: "C", e: "Es una de las piezas para piano más conocidas de Ludwig van Beethoven." },
-                    ],
-                    verdadero_falso: [
-                        { q: "La capital de Australia es Sídney.", r: false, e: "Falso. La capital de Australia es Canberra." },
-                        { q: "El agua hierve a 100°C al nivel del mar.", r: true, e: "Verdadero. Esta es la temperatura de ebullición estándar." },
-                        { q: "William Shakespeare es el autor de 'Don Quijote de la Mancha'.", r: false, e: "Falso. El autor es Miguel de Cervantes." },
-                        { q: "El Sol es una estrella.", r: true, e: "Verdadero. Es el centro de nuestro sistema solar." }
-                    ]
-                };
-            }
-
-            generarPreguntas(mode, count) {
-                let sourceArray;
-                if (mode === 'cultura_general') {
-                    // Mezcla todas las preguntas excepto las de V/F
-                    sourceArray = [...this.questionBank.sociales, ...this.questionBank.lenguaje, ...this.questionBank.musica];
-                } else {
-                    sourceArray = this.questionBank[mode];
-                }
-
-                // Barajar y tomar 'count' preguntas
-                const shuffled = [...sourceArray].sort(() => 0.5 - Math.random());
-                return shuffled.slice(0, count).map(q => {
-                    // Adaptar la estructura para el juego
-                    return {
-                        pregunta: q.q,
-                        opciones: q.o, // Para V/F, 'o' no existirá, lo cual está bien
-                        respuesta: q.a || q.r, // 'a' para opción, 'r' para booleano
-                        explicacion: q.e,
-                        tipo: mode
-                    };
-                });
-            }
-
-            handleQuestionUpdate(data) {
-                this.currentQuestionData = data.question;
-                this.currentQuestionIndex = data.questionIndex;
-                this.displayQuestion(data.question);
                 
-                const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
-                document.getElementById("progressBar").style.width = `${progreso}%`;
-            }
-
-            displayQuestion(questionData) {
-                if (!questionData) return;
-                
-                const questionElement = document.getElementById("currentQuestion");
-                questionElement.innerHTML = questionData.pregunta;
-                questionElement.classList.add('question-animation');
-                setTimeout(() => questionElement.classList.remove('question-animation'), 500);
-
-                // Reset state
-                this.player.hasAnswered = false; 
-                document.getElementById("answerResult").textContent = "Elige una opción... 🤔";
-                document.getElementById("answerResult").className = "result waiting";
-                this.lastAnswerTime = Date.now();
-
-                // Populate buttons based on question type
-                if (this.selectedGameMode !== 'verdadero-falso') {
-                    this.multipleChoiceButtons.querySelectorAll('.choice-btn').forEach(btn => {
-                        const option = btn.dataset.option;
-                        const choiceTextEl = btn.querySelector('.choice-text');
-                        if (questionData.opciones && questionData.opciones[option]) {
-                            choiceTextEl.textContent = questionData.opciones[option];
-                            btn.disabled = false;
-                            btn.style.display = 'flex';
-                        } else {
-                            btn.style.display = 'none'; // Hide if no option data
-                        }
-                    });
-                } else {
-                     document.getElementById('trueBtn').disabled = false;
-                     document.getElementById('falseBtn').disabled = false;
-                }
-
+                this.displayQuestion(question);
                 this.resetTimer();
             }
 
-            checkAnswer(userAnswer) {
-                if (this.player.hasAnswered) return;
-                this.player.hasAnswered = true; 
-
-                // Disable all inputs
-                this.multipleChoiceButtons.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
-                document.getElementById('trueBtn').disabled = true;
-                document.getElementById('falseBtn').disabled = true;
-
-                document.getElementById("answerResult").textContent = "Respuesta registrada. ¡Esperando a los demás!";
-                document.getElementById("answerResult").className = "result waiting";
-
-                const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
-                this.player.responseTimes.push(responseTime);
+            generarPreguntas(mode, count) {
+                let generador;
                 
-                const currentQuestion = this.currentQuestionData;
-                let isCorrect = false;
-                if (currentQuestion.tipo === 'verdadero-falso') {
-                    isCorrect = (userAnswer === 'true') === currentQuestion.respuesta;
-                } else {
-                    isCorrect = userAnswer === currentQuestion.respuesta;
-                }
-
-                let pointsEarned = 0;
-                let streakBonus = 0;
-                if (isCorrect) {
-                    pointsEarned = 10 + Math.floor(this.timeLeft / 2); // More points for speed
-                    this.player.streak++;
-                    if (this.player.streak >= 3) {
-                        streakBonus = this.player.streak * 2;
-                        pointsEarned += streakBonus;
+                // Si el modo es relámpago, elegir un generador al azar para cada pregunta
+                if (mode === 'relampago') {
+                    const generadores = [
+                        this.generarCalculoDiferencial, this.generarCalculoIntegral, 
+                        this.generarAlgebraLineal, this.generarEstadistica, this.generarLogica,
+                        () => this.generarSociales('historia'), // Usar la función general con submodo
+                        () => this.generarSociales('geografia'),
+                        () => this.generarLenguaje('gramatica'),
+                        () => this.generarLenguaje('literatura'),
+                        () => this.generarMusica('teoria'),
+                        () => this.generarMusica('instrumentos')
+                    ];
+                    const preguntas = [];
+                    for(let i=0; i<count; i++) {
+                        const randomGenerator = generadores[Math.floor(Math.random() * generadores.length)];
+                        preguntas.push(randomGenerator());
                     }
-                    this.player.points += pointsEarned;
-                } else {
-                    this.player.streak = 0;
+                    return preguntas;
                 }
-                this.player.lastAnswerCorrect = isCorrect;
 
-                if (this.isMultiplayer && this.socket) {
-                    this.socket.send(JSON.stringify({
-                        type: 'player_answer', pin: this.gamePin, playerId: this.player.id,
-                        isCorrect: isCorrect, pointsEarned: pointsEarned, totalPoints: this.player.points,
-                        streak: this.player.streak, streakBonus: streakBonus
-                    }));
+                // Asignar generador según el modo
+                switch(mode) {
+                    case 'calculo_diferencial': generador = this.generarCalculoDiferencial; break;
+                    case 'calculo_integral': generador = this.generarCalculoIntegral; break;
+                    case 'algebra_lineal': generador = this.generarAlgebraLineal; break;
+                    case 'ecuaciones_diferenciales': generador = () => this.generarVerdaderoFalso('ecuaciones_diferenciales'); break;
+                    case 'estadistica': generador = this.generarEstadistica; break;
+                    case 'logica': generador = this.generarLogica; break;
+                    case 'sociales_historia': generador = () => this.generarSociales('historia'); break;
+                    case 'sociales_geografia': generador = () => this.generarSociales('geografia'); break;
+                    case 'lenguaje_gramatica': generador = () => this.generarLenguaje('gramatica'); break;
+                    case 'lenguaje_literatura': generador = () => this.generarLenguaje('literatura'); break;
+                    case 'musica_teoria': generador = () => this.generarMusica('teoria'); break;
+                    case 'musica_instrumentos': generador = () => this.generarMusica('instrumentos'); break;
+                    case 'verdadero-falso': generador = () => this.generarVerdaderoFalso(); break;
+                    default: generador = this.generarCalculoDiferencial;
+                }
+                
+                const preguntas = [];
+                for (let i = 0; i < count; i++) {
+                    preguntas.push(generador());
+                }
+                return preguntas;
+            }
+            
+            // --- GENERADORES DE PREGUNTAS UNIVERSITARIAS ---
+
+            generarCalculoDiferencial() {
+                const a = Math.floor(Math.random() * 5) + 1;
+                const n = Math.floor(Math.random() * 3) + 2; // exponente 2, 3, 4
+                const x0 = Math.floor(Math.random() * 3) + 1; // punto a evaluar 1, 2, 3
+                const pregunta = `Si f(x) = ${a}x^${n}, calcula f'(${x0}) = ?`;
+                const respuesta = a * n * Math.pow(x0, n - 1);
+                return { pregunta, respuesta, tipo: 'numerica' };
+            }
+
+            generarCalculoIntegral() {
+                const a = Math.floor(Math.random() * 6) + 2; // Coeficiente par
+                const n = Math.floor(Math.random() * 2) + 1; // exponente 1, 2
+                const b = Math.floor(Math.random() * 2) + 1; // Límite superior 1, 2
+                const pregunta = `Calcula la integral definida: ∫ (de 0 a ${b}) ${a}x^${n} dx = ?`;
+                // ∫ ax^n dx = (a/(n+1))x^(n+1)
+                const respuesta = (a / (n + 1)) * Math.pow(b, n + 1);
+                return { pregunta, respuesta, tipo: 'numerica' };
+            }
+
+            generarAlgebraLineal() {
+                const [a, b, c, d] = [0,0,0,0].map(() => Math.floor(Math.random() * 10) - 4);
+                const pregunta = `Calcula el determinante de la matriz [[${a}, ${b}], [${c}, ${d}]] = ?`;
+                const respuesta = a * d - b * c;
+                return { pregunta, respuesta, tipo: 'numerica' };
+            }
+            
+            generarEstadistica() {
+                const data = Array.from({length: 4}, () => Math.floor(Math.random() * 10));
+                const sum = data.reduce((acc, val) => acc + val, 0);
+                const pregunta = `Calcula la media del conjunto de datos {${data.join(', ')}} = ?`;
+                const respuesta = sum / data.length;
+                // Nos aseguramos que la respuesta sea un entero para simplificar
+                if (respuesta % 1 !== 0) {
+                    return this.generarEstadistica(); // Volver a generar si no es entero
+                }
+                return { pregunta, respuesta, tipo: 'numerica' };
+            }
+
+            generarLogica() {
+                const num = Math.floor(Math.random() * 10) + 5; // 5 a 14
+                const binario = num.toString(2);
+                const pregunta = `Convierte el número binario ${binario} a decimal.`;
+                const respuesta = num;
+                return { pregunta, respuesta, tipo: 'numerica' };
+            }
+
+            generarVerdaderoFalso(submode = null) {
+                const preguntas = [];
+                // Preguntas de Cálculo
+                preguntas.push({ p: "La derivada de una constante es 1.", r: false, e: "La derivada de una constante es siempre 0." });
+                preguntas.push({ p: "Si una función es continua, entonces es derivable.", r: false, e: "La continuidad no implica derivabilidad (ej: f(x)=|x| en x=0)." });
+                preguntas.push({ p: "El Teorema del Valor Medio se aplica a todas las funciones.", r: false, e: "Requiere que la función sea continua y derivable en el intervalo." });
+
+                // Preguntas de Álgebra Lineal
+                preguntas.push({ p: "Una matriz de 3x2 se puede multiplicar por una matriz de 3x2.", r: false, e: "Las dimensiones internas deben coincidir (n x m) * (m x p)." });
+                preguntas.push({ p: "El determinante de una matriz identidad es siempre 1.", r: true, e: "Correcto, det(I) = 1." });
+                preguntas.push({ p: "Si det(A)=0, la matriz A tiene inversa.", r: false, e: "Si det(A)=0, la matriz es singular y no tiene inversa." });
+
+                // Preguntas de Ecuaciones Diferenciales
+                preguntas.push({ p: "y = e^(3x) es una solución para y' - 3y = 0.", r: true, e: "y'=3e^(3x), entonces 3e^(3x) - 3(e^(3x)) = 0." });
+                preguntas.push({ p: "y'' + 4y = 0 es una ecuación diferencial lineal de primer orden.", r: false, e: "Es lineal, pero de segundo orden (por y'')." });
+                
+                // Preguntas de Estadística
+                preguntas.push({ p: "La media es más sensible a valores atípicos que la mediana.", r: true, e: "Correcto, un valor extremo afecta mucho a la media." });
+
+                // Si se especifica un submodo (como 'ecuaciones_diferenciales'), filtrar por ese tipo
+                let seleccionadas = preguntas;
+                if (submode === 'ecuaciones_diferenciales') {
+                    seleccionadas = preguntas.filter(q => q.p.includes("y'"));
+                }
+                
+                const q = seleccionadas[Math.floor(Math.random() * seleccionadas.length)];
+
+                const pregunta = `¿Verdadero o Falso?<br>${q.p}`;
+                const respuesta = q.r;
+                const explicacion = q.e;
+                
+                return { pregunta, respuesta, explicacion, tipo: 'verdadero-falso' };
+            }
+
+            generarSociales(submode) {
+                let questionData;
+                if (submode === 'historia') {
+                    const questions = [
+                        { pregunta: "¿Quién fue el primer presidente de la Gran Colombia?", opciones: ["Simón Bolívar", "Francisco de Paula Santander", "Antonio Nariño", "José María Córdova"], respuesta: "Simón Bolívar" },
+                        { pregunta: "¿En qué año se firmó la Independencia de Colombia?", opciones: ["1810", "1819", "1821", "1830"], respuesta: "1810" },
+                        { pregunta: "¿Cuál es el nombre del proceso que llevó a la separación de Panamá de Colombia?", opciones: ["La Guerra de los Mil Días", "La Regeneración", "La Separación de Panamá", "El Bogotazo"], respuesta: "La Separación de Panamá" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                } else if (submode === 'geografia') {
+                    const questions = [
+                        { pregunta: "¿Cuál es la capital de Colombia?", opciones: ["Medellín", "Cali", "Bogotá", "Barranquilla"], respuesta: "Bogotá" },
+                        { pregunta: "¿Cuál es el río más importante de Colombia?", opciones: ["Río Cauca", "Río Magdalena", "Río Amazonas", "Río Atrato"], respuesta: "Río Magdalena" },
+                        { pregunta: "¿Qué océano baña las costas occidentales de Colombia?", opciones: ["Océano Atlántico", "Océano Pacífico", "Mar Caribe", "Océano Índico"], respuesta: "Océano Pacífico" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                }
+                return { ...questionData, tipo: 'seleccion_multiple' };
+            }
+
+            generarLenguaje(submode) {
+                let questionData;
+                if (submode === 'gramatica') {
+                    const questions = [
+                        { pregunta: "¿Cuál de las siguientes palabras es un sustantivo común?", opciones: ["Perro", "Bogotá", "Juan", "Amazonas"], respuesta: "Perro" },
+                        { pregunta: "¿Cuál es el plural de 'lápiz'?", opciones: ["Lápizes", "Lápices", "Lápizs", "Lápiceses"], respuesta: "Lápices" },
+                        { pregunta: "¿En la oración 'Ella canta muy bien', 'canta' es un...?", opciones: ["Sustantivo", "Adjetivo", "Verbo", "Adverbio"], respuesta: "Verbo" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                } else if (submode === 'literatura') {
+                    const questions = [
+                        { pregunta: "¿Quién escribió 'Cien años de soledad'?", opciones: ["Mario Vargas Llosa", "Gabriel García Márquez", "Julio Cortázar", "Jorge Luis Borges"], respuesta: "Gabriel García Márquez" },
+                        { pregunta: "¿De qué nacionalidad era el escritor Gabriel García Márquez?", opciones: ["Peruana", "Mexicana", "Colombiana", "Argentina"], respuesta: "Colombiana" },
+                        { pregunta: "¿Cuál es el personaje principal de 'Don Quijote de la Mancha'?", opciones: ["Sancho Panza", "Dulcinea", "Don Quijote", "Rocinante"], respuesta: "Don Quijote" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                }
+                return { ...questionData, tipo: 'seleccion_multiple' };
+            }
+
+            generarMusica(submode) {
+                let questionData;
+                if (submode === 'teoria') {
+                    const questions = [
+                        { pregunta: "¿Cuántas notas tiene una escala diatónica mayor?", opciones: ["5", "6", "7", "8"], respuesta: "7" },
+                        { pregunta: "¿Cómo se llama el signo que eleva la altura de una nota un semitono?", opciones: ["Bemol", "Sostenido", "Becuadro", "Calderón"], respuesta: "Sostenido" },
+                        { pregunta: "¿Cuál es la primera nota de la escala musical tradicional?", opciones: ["Re", "Mi", "Do", "Sol"], respuesta: "Do" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                } else if (submode === 'instrumentos') {
+                    const questions = [
+                        { pregunta: "¿Cuántas cuerdas tiene una guitarra acústica estándar?", opciones: ["4", "5", "6", "7"], respuesta: "6" },
+                        { pregunta: "¿Qué instrumento musical tiene teclas blancas y negras y se toca con un teclado?", opciones: ["Violín", "Flauta", "Trompeta", "Piano"], respuesta: "Piano" },
+                        { pregunta: "¿De qué familia de instrumentos es la flauta traversa?", opciones: ["Cuerda", "Viento-metal", "Percusión", "Viento-madera"], respuesta: "Viento-madera" }
+                    ];
+                    questionData = questions[Math.floor(Math.random() * questions.length)];
+                }
+                return { ...questionData, tipo: 'seleccion_multiple' };
+            }
+
+
+            displayQuestion(questionData = null) {
+                try {
+                    const question = questionData || this.currentQuestionData;
+                    if (!question) return;
+                    
+                    const questionElement = document.getElementById("currentQuestion");
+                    questionElement.innerHTML = question.pregunta;
+                    
+                    questionElement.classList.remove('question-animation');
+                    void questionElement.offsetWidth; 
+                    questionElement.classList.add('question-animation');
+                    
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    this.player.hasAnswered = false; 
+                    document.getElementById('submitAnswer').disabled = false; 
+                    this.lastAnswerTime = Date.now();
+                    
+                    const questionImage = document.getElementById('questionImage');
+                    questionImage.style.display = 'none'; 
+                    
+                    // Mostrar/ocultar inputs según el tipo de pregunta del modo
+                    if (question.tipo === 'seleccion_multiple') {
+                        this.standardInputContainer.style.display = 'none';
+                        this.trueFalseButtons.style.display = 'none';
+                        this.multipleChoiceOptionsContainer.style.display = 'grid';
+                        this.renderMultipleChoiceOptions(question.opciones);
+                    } else if (question.tipo === 'verdadero-falso') {
+                        this.standardInputContainer.style.display = 'none';
+                        this.multipleChoiceOptionsContainer.style.display = 'none';
+                        this.trueFalseButtons.style.display = 'flex';
+                    } else { // numérico
+                        this.standardInputContainer.style.display = 'block';
+                        this.multipleChoiceOptionsContainer.style.display = 'none';
+                        this.trueFalseButtons.style.display = 'none';
+                    }
+
+                    this.resetTimer();
+                } catch (error) {
+                    console.error("Error al mostrar pregunta:", error);
+                    this.showError("Error al cargar la pregunta.");
                 }
             }
 
-            startRevealPhase(data) {
+            renderMultipleChoiceOptions(options) {
+                this.multipleChoiceOptionsContainer.innerHTML = '';
+                options.forEach((option, index) => {
+                    const optionBtn = document.createElement('button');
+                    optionBtn.className = 'option-btn';
+                    optionBtn.dataset.value = option; // Guardar el valor de la opción
+                    optionBtn.textContent = `${String.fromCharCode(65 + index)}. ${option}`; // A, B, C, D...
+                    this.multipleChoiceOptionsContainer.appendChild(optionBtn);
+                });
+                this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = false);
+            }
+
+
+            checkAnswer(userAnswer) {
+                try {
+                    if (this.player.hasAnswered) {
+                        console.log("Ya respondiste esta pregunta");
+                        return;
+                    }
+
+                    // Deshabilitar todos los botones de respuesta
+                    document.getElementById('submitAnswer').disabled = true;
+                    document.getElementById('trueBtn').disabled = true;
+                    document.getElementById('falseBtn').disabled = true;
+                    this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+
+                    const currentQuestion = this.currentQuestionData;
+                    let isCorrect = false;
+                    let pointsEarned = 0;
+                    let streakBonus = 0;
+                    
+                    const basePoints = 5; 
+                    const timeBonus = Math.floor(this.timeLeft / 3); 
+                    
+                    if (currentQuestion.tipo === 'verdadero-falso') {
+                        const userResponse = userAnswer === 'true'; 
+                        isCorrect = userResponse === currentQuestion.respuesta;
+                    } else if (currentQuestion.tipo === 'seleccion_multiple') {
+                        isCorrect = userAnswer === currentQuestion.respuesta;
+                    } else { // numérico
+                        const userAnswerParsed = parseFloat(userAnswer.toString().trim());
+                        if (isNaN(userAnswerParsed)) {
+                            this.showResult("¡Solo números!", false);
+                            document.getElementById('submitAnswer').disabled = false;
+                            this.player.hasAnswered = false; 
+                            return;
+                        }
+                        // Tolerancia para respuestas con decimales
+                        isCorrect = Math.abs(userAnswerParsed - currentQuestion.respuesta) < 0.01;
+                    }
+
+                    this.player.hasAnswered = true; 
+                    
+                    const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
+                    this.player.responseTimes.push(responseTime);
+                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+
+                    if (isCorrect) {
+                        pointsEarned = basePoints + timeBonus;
+                        this.player.streak++;
+                        if (this.player.streak > this.player.maxStreak) {
+                            this.player.maxStreak = this.player.streak;
+                        }
+                        
+                        // Bonificación por racha
+                        if (this.player.streak >= 3 && this.player.streak < 5) streakBonus = 2;
+                        else if (this.player.streak >= 5 && this.player.streak < 7) streakBonus = 5;
+                        else if (this.player.streak >= 7) streakBonus = 8;
+                        
+                        pointsEarned += streakBonus;
+                        this.player.points += pointsEarned;
+                    } else {
+                        this.player.streak = 0;
+                        pointsEarned = 0; 
+                    }
+                    this.player.lastAnswerCorrect = isCorrect;
+                    
+                    this.player.history.push({
+                        question: currentQuestion.pregunta,
+                        answer: userAnswer,
+                        correct: isCorrect,
+                        points: pointsEarned,
+                        timestamp: new Date().toISOString(),
+                        responseTime: responseTime,
+                        streakBonus: streakBonus
+                    });
+                    
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        this.socket.send(JSON.stringify({
+                            type: 'player_answer', 
+                            pin: this.gamePin,
+                            playerId: this.player.id,
+                            isCorrect: isCorrect, 
+                            pointsEarned: pointsEarned, 
+                            totalPoints: this.player.points, 
+                            streak: this.player.streak,
+                            maxStreak: this.player.maxStreak,
+                            avgResponseTime: this.player.avgResponseTime,
+                            streakBonus: streakBonus
+                        }));
+                    } else {
+                        // Modo individual (no implementado en esta versión multijugador)
+                    }
+
+                    // Mostrar "Esperando respuesta..." mientras el servidor procesa o el anfitrión revela
+                    document.getElementById("answerResult").textContent = "Respuesta registrada. ¡Esperando a los demás!";
+                    document.getElementById("answerResult").className = "result waiting";
+
+                } catch (error) {
+                    console.error("Error al verificar respuesta:", error);
+                    this.showError("Error al verificar respuesta.");
+                } finally {
+                    // Re-habilitar botones solo cuando se pase a la siguiente pregunta o fase de revelación
+                    // Esto lo manejará el servidor, o el método displayQuestion/startRevealPhase
+                }
+            }
+
+
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus, explanation = null) {
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                const { correctAnswer, playerCorrect, streakBonus } = data;
-                const currentQuestion = this.questions[this.currentQuestionIndex];
+                const currentQuestion = this.currentQuestionData;
 
-                let correctAnswerText = '';
                 if (currentQuestion.tipo === 'verdadero-falso') {
-                     correctAnswerText = `${correctAnswer ? 'Verdadero' : 'Falso'}. <br><small>${currentQuestion.explicacion}</small>`;
-                } else {
-                     correctAnswerText = `Opción ${correctAnswer}: ${currentQuestion.opciones[correctAnswer]}. <br><small>${currentQuestion.explicacion}</small>`;
+                     this.revealCorrectAnswer.innerHTML = `Respuesta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span><br><small>${explanation || currentQuestion.explicacion}</small>`;
+                } else if (currentQuestion.tipo === 'seleccion_multiple') {
+                    // Resaltar la opción correcta
+                    this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                        btn.disabled = true; // Asegurar que sigan deshabilitados
+                        if (btn.dataset.value === correctAnswer) {
+                            btn.classList.add('correct-answer');
+                        } else {
+                            btn.classList.add('incorrect-answer'); // Marcar incorrectas también para visualización
+                        }
+                    });
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
-
-                this.revealTitle.textContent = playerCorrect ? '¡Correcto!' : '¡Incorrecto!';
-                this.revealCorrectAnswer.innerHTML = `La respuesta era: <strong class="reveal-correct-answer">${correctAnswerText}</strong>`;
-                this.revealPlayerResult.innerHTML = playerCorrect ? `✅ Ganaste ${data.pointsEarned - streakBonus} puntos` : `❌`;
-                this.revealPlayerResult.style.color = playerCorrect ? 'var(--verde)' : 'var(--rojo)';
-                this.revealStreakBonus.innerHTML = streakBonus > 0 ? `🔥 Racha +${streakBonus} puntos!` : '';
-
-                if (playerCorrect) this.playSound('correctSound');
-                else this.playSound('wrongSound');
-
+                else {
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
+                }
+                
+                if (playerCorrect) {
+                    this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--verde)';
+                    this.playSound('correctSound');
+                } else {
+                    this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--rojo)';
+                    this.playSound('wrongSound');
+                }
+                
+                if (streakBonus > 0) {
+                    this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
+                } else {
+                    this.revealStreakBonus.innerHTML = '';
+                }
+                
                 setTimeout(() => {
                     this.setState(this.STATES.PLAYING);
+                    
                     if (this.isHost) {
                         this.currentQuestionIndex++;
                         if (this.currentQuestionIndex < this.questions.length) {
@@ -1878,166 +3240,460 @@
                             this.endGame();
                         }
                     }
-                }, this.revealPhaseDuration);
+                }, this.revealPhaseDuration + 1500); // Dar más tiempo para leer la explicación
             }
 
-            handleGameOver(data) {
-                clearInterval(this.timerInterval);
-                this.showMultiplayerResults(data.finalRanking);
-            }
-
-            updatePlayerScore(playerId, points, streak) {
+            updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
                 const player = this.players.find(p => p.id === playerId);
                 if (player) {
                     player.points = points;
                     player.streak = streak;
+                    player.maxStreak = maxStreak;
+                    player.avgResponseTime = avgResponseTime;
                 }
+                
                 if (playerId === this.player.id) {
                     this.player.points = points;
                     this.player.streak = streak;
+                    this.player.maxStreak = maxStreak;
+                    this.player.avgResponseTime = avgResponseTime;
                     document.getElementById('playerScore').textContent = this.player.points;
                 }
-                this.updateLiveRanking();
             }
 
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
-                this.players.sort((a, b) => (b.points || 0) - (a.points || 0));
-                rankingList.innerHTML = ''; 
-                this.players.forEach((player, index) => {
-                    const el = document.createElement('div');
-                    el.className = 'ranking-item';
-                    if (player.id === this.player.id) el.classList.add('current-player');
-                    const streakBadge = player.streak > 2 ? ` 🔥${player.streak}` : '';
-                    el.innerHTML = `
-                        <span class="ranking-position">${index + 1}°</span>
-                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
-                        <span class="ranking-name">${this.extractName(player.name)}</span>
-                        <span class="ranking-points">${player.points || 0}${streakBadge}</span>`;
-                    rankingList.appendChild(el);
+                const currentRanking = [...this.players].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
+                
+                rankingList.innerHTML = ''; 
+                
+                currentRanking.forEach((player, index) => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'ranking-item';
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.classList.add('current-player');
+                    }
+                    
+                    const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
+                    
+                    playerElement.innerHTML = `
+                        <span class="ranking-position">${index + 1}°</span>
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span class="ranking-name">${this.extractName(player.name)}</span>
+                        <span class="ranking-points">${player.points || 0}${streakBadge}</span>
+                    `;
+                    
+                    rankingList.appendChild(playerElement);
+                });
+                
+                this.lastRanking = currentRanking; 
             }
 
             extractName(fullName) {
-                return fullName.match(/^(.*?)\s*(\(.*\))?$/)?.[1]?.trim() || fullName.trim();
-            }
-
-            resetTimer() {
-                clearInterval(this.timerInterval);
-                this.timeLeft = this.timerDuration;
-                this.updateTimerUI();
-                this.startTimer();
+                const match = fullName.match(/^(.*?)\s*(\(.*\))?$/);
+                if (match && match[1]) {
+                    return match[1].trim();
+                }
+                return fullName.trim();
             }
 
             startTimer() {
-                this.timerInterval = setInterval(() => {
-                    this.timeLeft--;
+                try {
+                    this.timeLeft = this.timerDuration;
                     this.updateTimerUI();
-                    if (this.timeLeft <= 5 && this.timeLeft > 0) this.playSound('countdownSound');
-                    if (this.timeLeft <= 0) {
-                        clearInterval(this.timerInterval);
-                        if (!this.player.hasAnswered) {
-                            this.checkAnswer(null); // Timeout is an incorrect answer
+                    
+                    clearInterval(this.timerInterval); 
+                    this.timerInterval = setInterval(() => {
+                        this.timeLeft--;
+                        this.updateTimerUI();
+                        
+                        if (this.timeLeft <= 5 && this.timeLeft > 0 && this.soundEnabled) {
+                            this.playSound('countdownSound');
                         }
-                    }
-                }, 1000);
+                        
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timerInterval);
+                            if (this.isMultiplayer) {
+                                if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
+                                    this.player.hasAnswered = true; 
+                                    this.player.streak = 0; 
+                                    document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                                    document.getElementById("answerResult").className = "result incorrect";
+                                    
+                                    this.socket.send(JSON.stringify({
+                                        type: 'player_answer',
+                                        pin: this.gamePin,
+                                        playerId: this.player.id,
+                                        isCorrect: false,
+                                        pointsEarned: 0,
+                                        totalPoints: this.player.points, 
+                                        streak: this.player.streak,
+                                        maxStreak: this.player.maxStreak,
+                                        avgResponseTime: this.player.avgResponseTime,
+                                        streakBonus: 0
+                                    }));
+                                }
+                                if (this.isHost) {
+                                    const correctAnswer = this.currentQuestionData.respuesta;
+                                    const explanation = this.currentQuestionData.explicacion || '';
+                                    this.socket.send(JSON.stringify({
+                                        type: 'reveal_phase',
+                                        pin: this.gamePin,
+                                        correctAnswer: correctAnswer,
+                                        explanation: explanation
+                                    }));
+                                }
+                            } else {
+                                this.showResult("¡Tiempo agotado! ⏳", false);
+                                this.skipQuestion(); 
+                            }
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error("Error en el temporizador:", error);
+                    this.showError("Error en el temporizador.");
+                }
             }
 
             updateTimerUI() {
                 this.timerText.textContent = this.timeLeft;
-                const offset = 283 - (this.timeLeft / this.timerDuration) * 283;
+                
+                const circumference = 283;
+                const offset = circumference - (this.timeLeft / this.timerDuration) * circumference;
                 this.timerCircle.style.strokeDashoffset = offset;
-                const warning = this.timeLeft <= 5;
-                this.timerCircle.classList.toggle('timer-warning', warning);
-                this.timerText.classList.toggle('timer-warning', warning);
-            }
-
-            skipQuestionAsProfessor() {
-                if (this.isHost && this.socket) {
-                    this.socket.send(JSON.stringify({ type: 'skip_question', pin: this.gamePin }));
+                
+                if (this.timeLeft <= 5) {
+                    this.timerCircle.classList.add('timer-warning');
+                    this.timerText.classList.add('timer-warning');
+                } else {
+                    this.timerCircle.classList.remove('timer-warning');
+                    this.timerText.classList.remove('timer-warning');
                 }
             }
 
+            resetTimer() {
+                clearInterval(this.timerInterval);
+                this.startTimer();
+            }
+
+            skipQuestion() {
+                 if (!this.isHost) return; 
+                
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.shareQuestionWithPlayers();
+                } else {
+                    this.endGame();
+                }
+            }
+
+            skipQuestionAsProfessor() {
+                if (!this.player.isProfessor || !this.isHost) {
+                    this.showNotification("Solo el anfitrión puede saltar preguntas.");
+                    return;
+                }
+                
+                this.playSound('clickSound');
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'skip_question',
+                        pin: this.gamePin,
+                        hostId: this.player.id 
+                    }));
+                }
+                this.skipQuestion(); 
+            }
+
             endGame() {
-                if (this.isMultiplayer && this.isHost) {
-                    const finalRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
-                    this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin, finalRanking: finalRanking }));
+                try {
+                    clearInterval(this.timerInterval);
+                    
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
+                    
+                    if (this.isMultiplayer && this.isHost) {
+                        const finalRanking = this.getFinalRanking();
+                        this.socket.send(JSON.stringify({
+                            type: 'game_over',
+                            pin: this.gamePin,
+                            finalRanking: finalRanking,
+                            hostId: this.player.id 
+                        }));
+                        this.showMultiplayerResults(finalRanking);
+                    } else if (this.isMultiplayer && !this.isHost) {
+                        this.showNotification("Juego terminado. Esperando resultados...");
+                    } else {
+                        this.showWinner(); 
+                        this.setState(this.STATES.RESULTS); 
+                    }
+                } catch (error) {
+                    console.error("Error al finalizar juego:", error);
+                    this.showError("Error al finalizar el juego.");
+                }
+            }
+
+            getFinalRanking() {
+                return [...this.players].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
+                });
+            }
+
+            showWinner() {
+                try {
+                    let mensaje = "";
+                    
+                    if (this.isMultiplayer) {
+                        const ranking = this.getFinalRanking();
+                        const playerPosition = ranking.findIndex(p => p.id === this.player.id) + 1;
+                        mensaje = `¡Terminaste en posición ${playerPosition} con ${this.player.points} puntos!`;
+                        
+                        if (playerPosition === 1) {
+                            mensaje = `¡Ganaste! 🏆 (${this.player.points} puntos)`;
+                            this.playSound('winSound');
+                        }
+                    } else {
+                        mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
+                        if (this.player.points > 0) {
+                            this.playSound('winSound');
+                        }
+                    }
+                    
+                    document.getElementById("mensajeVictoria").innerHTML = mensaje;
+                } catch (error) {
+                    console.error("Error al mostrar ganador:", error);
+                    this.showError("Error al determinar el ganador.");
                 }
             }
 
             showMultiplayerResults(finalRanking) {
-                this.setState(this.STATES.RESULTS);
-                this.playSound('winSound'); 
+                try {
+                    console.log("Mostrando resultados finales:", finalRanking);
+                    
+                    this.setState(this.STATES.RESULTS);
+                    this.playSound('winSound'); 
 
-                const podiumIds = ['first', 'second', 'third'];
-                podiumIds.forEach(p => document.getElementById(`${p}Place`).style.display = 'none');
+                    const firstPlace = document.getElementById('firstPlace');
+                    const secondPlace = document.getElementById('secondPlace');
+                    const thirdPlace = document.getElementById('thirdPlace');
+                    const otherPlayers = document.getElementById('otherPlayers');
+                    
+                    otherPlayers.innerHTML = '';
+                    
+                    // Reset podium
+                    firstPlace.style.display = 'none';
+                    secondPlace.style.display = 'none';
+                    thirdPlace.style.display = 'none';
 
-                finalRanking.slice(0, 3).forEach((player, i) => {
-                    const place = podiumIds[i];
-                    document.getElementById(`${place}Place`).style.display = 'flex';
-                    document.getElementById(`${place}Name`).textContent = this.extractName(player.name);
-                    document.getElementById(`${place}Avatar`).src = `https://i.pravatar.cc/150?img=${player.avatar || '1'}`;
-                    document.getElementById(`${place}Place`).querySelector('.podium-points').textContent = `${player.points || 0} pts`;
-                });
 
-                const otherPlayers = document.getElementById('otherPlayers');
-                otherPlayers.innerHTML = finalRanking.slice(3).map((player, i) => `
-                    <div class="other-player ${player.id === this.player.id ? 'current-player' : ''}">
-                        <div class="player-info">
-                            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar">
-                            <span>${i + 4}. ${this.extractName(player.name)}</span>
-                        </div>
-                        <span>${player.points || 0} pts</span>
-                    </div>`).join('');
-            }
-            
-            showNotification(message) {
-                const el = document.createElement('div');
-                el.className = 'notification';
-                el.textContent = message;
-                document.body.appendChild(el);
-                setTimeout(() => el.remove(), 3000);
-            }
+                    if (finalRanking.length > 0) {
+                        const first = finalRanking[0];
+                        document.getElementById('firstName').textContent = this.extractName(first.name);
+                        document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
+                        firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
+                        firstPlace.style.display = 'flex';
+                        
+                        if (finalRanking.length > 1) {
+                            const second = finalRanking[1];
+                            document.getElementById('secondName').textContent = this.extractName(second.name);
+                            document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
+                            secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
+                            secondPlace.style.display = 'flex';
+                        }
+                        
+                        if (finalRanking.length > 2) {
+                            const third = finalRanking[2];
+                            document.getElementById('thirdName').textContent = this.extractName(third.name);
+                            document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
+                            thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
+                            thirdPlace.style.display = 'flex';
+                        }
+                    }
+                    
+                    for (let i = 3; i < finalRanking.length; i++) {
+                        const player = finalRanking[i];
+                        const playerPoints = player.points || 0;
+                        
+                        const playerElement = document.createElement('div');
+                        playerElement.className = 'other-player';
+                        
+                        let playerInfoHtml = `
+                            <div class="player-info">
+                                <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                                <span>${i + 1}. ${this.extractName(player.name)}</span>
+                            </div>
+                            <span>${playerPoints} pts</span>
+                        `;
+                        
+                        if (player.maxStreak >= 5) {
+                            playerInfoHtml += `<span style="margin-left: 8px;">🔥${player.maxStreak}</span>`;
+                        }
+                        
+                        if (player.achievements && player.achievements.length > 0) {
+                            playerInfoHtml += `<span class="achievement-badge" title="${player.achievements.length} logros" style="margin-left: 8px;"></span>`;
+                        }
 
-            reiniciarJuego() {
-                this.playSound('clickSound');
-                clearInterval(this.timerInterval);
-                this.player.points = this.player.streak = 0;
-                this.player.hasAnswered = this.player.hasVoted = this.player.isReady = false;
-                this.updatePlayerScore(this.player.id, 0, 0); 
-                this.currentQuestionIndex = 0;
-                this.selectedGameMode = null; 
-                this.isVotingActive = false; 
-                
-                document.querySelectorAll('.mode-btn').forEach(btn => btn.disabled = false);
-                
-                if (this.isMultiplayer) {
-                    this.setState(this.STATES.LOBBY);
-                } else {
-                    this.setState(this.STATES.JOIN_SCREEN);
+                        playerElement.innerHTML = playerInfoHtml;
+                        
+                        if (player.id === this.player.id) {
+                            playerElement.style.fontWeight = 'bold';
+                            playerElement.style.color = 'var(--amarillo)';
+                            playerElement.style.background = 'rgba(255, 222, 89, 0.2)';
+                        }
+                        
+                        otherPlayers.appendChild(playerElement);
+                    }
+                } catch (error) {
+                    console.error("Error al mostrar resultados:", error);
+                    alert("Ocurrió un error al mostrar los resultados finales");
                 }
             }
 
+            showResult(message, isCorrect) {
+                const resultElement = document.getElementById("answerResult");
+                resultElement.innerHTML = message;
+                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            }
+
+            showError(message) {
+                const errorElement = document.getElementById("answerResult");
+                errorElement.textContent = message;
+                errorElement.className = "result incorrect";
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            reiniciarJuego() {
+                try {
+                    this.playSound('clickSound');
+                    clearInterval(this.timerInterval);
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
+                    
+                    this.player.points = 0;
+                    this.player.streak = 0;
+                    this.player.responseTimes = [];
+                    this.player.history = [];
+                    this.player.hasAnswered = false;
+                    this.player.hasVoted = false;
+                    this.player.isReady = false; 
+                    this.player.lastAnswerCorrect = false;
+
+                    this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
+
+                    this.currentQuestionIndex = 0;
+                    this.currentQuestionData = null; 
+                    this.selectedGameMode = null; 
+                    this.closestAnswerMode = false;
+                    this.isVotingActive = false; 
+
+                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    document.getElementById("mensajeVictoria").innerHTML = "";
+                    document.getElementById("progressBar").style.width = "0%";
+                    document.getElementById('submitAnswer').disabled = false;
+                    
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.remove('selected', 'voted');
+                        btn.disabled = false; 
+                    });
+
+                    // Limpiar y resetear el estado de los botones de selección múltiple
+                    this.multipleChoiceOptionsContainer.innerHTML = '';
+                    this.multipleChoiceOptionsContainer.style.display = 'none';
+                    this.standardInputContainer.style.display = 'block'; // Mostrar el teclado por defecto
+
+                    
+                    if (this.isMultiplayer) {
+                        this.setState(this.STATES.LOBBY);
+                        if (this.isHost) {
+                            this.startVoteBtn.style.display = 'block';
+                        }
+                    } else {
+                        this.isHost = false; 
+                        this.player.isProfessor = false; 
+                        this.setState(this.STATES.JOIN_SCREEN);
+                    }
+                } catch (error) {
+                    console.error("Error al reiniciar juego:", error);
+                    this.showError("Error al reiniciar el juego.");
+                }
+            }
+
+            addNumber(num) {
+                if (this.currentQuestionData && !this.player.hasAnswered && this.currentQuestionData.tipo === 'numerica') {
+                    this.playSound('clickSound');
+                    const playerAnswerInput = document.getElementById('playerAnswer');
+                    playerAnswerInput.value += num;
+                }
+            }
+
+            clearNumber() {
+                if (this.currentQuestionData && this.currentQuestionData.tipo === 'numerica') {
+                    this.playSound('clickSound');
+                    document.getElementById('playerAnswer').value = "";
+                }
+            }
+
+            submitAnswer() {
+                if (this.currentQuestionData && this.currentQuestionData.tipo === 'numerica') {
+                    const respuesta = document.getElementById('playerAnswer').value;
+                    this.checkAnswer(respuesta);
+                } else {
+                    this.showNotification("Este modo de juego no usa teclado numérico.");
+                }
+            }
+
+            handleNetworkError(error, message = "Error de red") {
+                console.error(message, error);
+                this.showNotification(`${message}. Intentando reconectar...`);
+            }
+
             generateId() {
-                return Math.random().toString(36).substring(2, 9);
+                return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
             }
 
             playSound(soundId) {
                 if (!this.soundEnabled) return;
-                const sound = document.getElementById(soundId);
-                if (sound) {
-                    sound.currentTime = 0;
-                    sound.play().catch(() => {});
+                try {
+                    const sound = document.getElementById(soundId);
+                    if (sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(e => console.log("Error al reproducir sonido:", e));
+                    }
+                } catch (error) {
+                    console.error("Error con el sonido:", error);
                 }
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                new GameManager();
+                const game = new GameManager();
             } catch (error) {
                 console.error("Error al iniciar el juego:", error);
-                alert("Ocurrió un error crítico al cargar el juego. Por favor, recarga la página.");
+                alert("Ocurrió un error al cargar el juego. Por favor recarga la página.");
             }
         });
     </script>

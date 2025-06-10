@@ -270,8 +270,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--fondo);
-            z-index: 1000;
             display: none;
             justify-content: center;
             align-items: center;
@@ -1688,6 +1686,101 @@
                     }
                 };
                 
+                // --- PREGUNTAS PREDEFINIDAS PARA CADA MODO ---
+                this.allQuestions = {
+                    calculo_diferencial: [
+                        { pregunta: "Si f(x) = 3x^2, calcula f'(2) = ?", respuesta: 12, tipo: 'numerica' },
+                        { pregunta: "Si f(x) = 5x^3, calcula f'(1) = ?", respuesta: 15, tipo: 'numerica' },
+                        { pregunta: "Calcula la derivada de f(x) = 4x^4 en x=0.", respuesta: 0, tipo: 'numerica' },
+                        { pregunta: "Si g(x) = 2x^2 + 7x, calcula g'(1).", respuesta: 11, tipo: 'numerica' },
+                        { pregunta: "La derivada de f(x) = 10 es:", respuesta: 0, tipo: 'numerica' }
+                    ],
+                    calculo_integral: [
+                        { pregunta: "Calcula la integral definida: ∫ (de 0 a 1) 2x dx = ?", respuesta: 1, tipo: 'numerica' },
+                        { pregunta: "Calcula la integral definida: ∫ (de 0 a 2) 3x^2 dx = ?", respuesta: 8, tipo: 'numerica' },
+                        { pregunta: "Calcula la integral definida: ∫ (de 1 a 2) x dx = ?", respuesta: 1.5, tipo: 'numerica' },
+                        { pregunta: "Calcula la integral indefinida de 4x^3. Si C=0, la respuesta es:", respuesta: 1, tipo: 'numerica' },
+                        { pregunta: "Evalúa ∫ (de 0 a 1) (x + 1) dx.", respuesta: 1.5, tipo: 'numerica' }
+                    ],
+                    algebra_lineal: [
+                        { pregunta: "Calcula el determinante de la matriz [[2, 1], [3, 4]] = ?", respuesta: 5, tipo: 'numerica' },
+                        { pregunta: "Calcula el determinante de la matriz [[1, 0], [0, 1]] = ?", respuesta: 1, tipo: 'numerica' },
+                        { pregunta: "Calcula el determinante de la matriz [[-1, 2], [3, -4]] = ?", respuesta: -2, tipo: 'numerica' },
+                        { pregunta: "Si la matriz es [[5, -2], [1, 3]], ¿cuál es su determinante?", respuesta: 17, tipo: 'numerica' },
+                        { pregunta: "Dada la matriz A = [[2, -3], [-1, 2]], su determinante es:", respuesta: 1, tipo: 'numerica' }
+                    ],
+                    estadistica: [
+                        { pregunta: "Calcula la media del conjunto de datos {1, 2, 3, 4} = ?", respuesta: 2.5, tipo: 'numerica' },
+                        { pregunta: "Calcula la media del conjunto de datos {5, 5, 5, 5} = ?", respuesta: 5, tipo: 'numerica' },
+                        { pregunta: "Calcula la media de {10, 20, 30}.", respuesta: 20, tipo: 'numerica' },
+                        { pregunta: "Si un conjunto de datos es {7, 8, 9}, ¿cuál es su media?", respuesta: 8, tipo: 'numerica' },
+                        { pregunta: "La media de {1, 1, 1, 1, 1, 5} es:", respuesta: 1.6666666666666667, tipo: 'numerica' }
+                    ],
+                    logica: [
+                        { pregunta: "Convierte el número binario 101 a decimal.", respuesta: 5, tipo: 'numerica' },
+                        { pregunta: "Convierte el número binario 1000 a decimal.", respuesta: 8, tipo: 'numerica' },
+                        { pregunta: "Convierte el número binario 111 a decimal.", respuesta: 7, tipo: 'numerica' },
+                        { pregunta: "El número decimal 6 en binario es:", respuesta: 110, tipo: 'numerica' },
+                        { pregunta: "Si el binario es 1101, ¿cuál es el decimal?", respuesta: 13, tipo: 'numerica' }
+                    ],
+                    ecuaciones_diferenciales: [ // Usaremos Verdadero/Falso aquí
+                        { pregunta: "y = e^(2x) es una solución para y' - 2y = 0.", respuesta: true, explicacion: "Si y=e^(2x), entonces y'=2e^(2x). Sustituyendo: 2e^(2x) - 2(e^(2x)) = 0.", tipo: 'verdadero-falso' },
+                        { pregunta: "y' + y = 0 tiene como solución general y = Ce^(-x).", respuesta: true, explicacion: "Es una ED lineal de primer orden, y su solución es de esa forma.", tipo: 'verdadero-falso' },
+                        { pregunta: "La ecuación y'' + y = 0 tiene soluciones de la forma seno y coseno.", respuesta: true, explicacion: "Correcto, las raíces de la ecuación característica son imaginarias.", tipo: 'verdadero-falso' },
+                        { pregunta: "Una ecuación diferencial ordinaria de segundo orden siempre tiene dos constantes de integración.", respuesta: true, explicacion: "El número de constantes de integración en la solución general es igual al orden de la EDO.", tipo: 'verdadero-falso' },
+                        { pregunta: "La derivada de una función es siempre una ecuación diferencial.", respuesta: false, explicacion: "Una ecuación diferencial involucra una función y sus derivadas. Una derivada es un cálculo, no una ecuación.", tipo: 'verdadero-falso' }
+                    ],
+                    "verdadero-falso": [ // Nota la clave en comillas por el guion
+                        { pregunta: "El agua hierve a 100°C a nivel del mar.", respuesta: true, explicacion: "Es el punto de ebullición estándar del agua.", tipo: 'verdadero-falso' },
+                        { pregunta: "El Sol es un planeta.", respuesta: false, explicacion: "El Sol es una estrella.", tipo: 'verdadero-falso' },
+                        { pregunta: "La Tierra es plana.", respuesta: false, explicacion: "La Tierra tiene forma de geoide (esferoide oblato).", tipo: 'verdadero-falso' },
+                        { pregunta: "Todos los mamíferos ponen huevos.", respuesta: false, explicacion: "La mayoría de los mamíferos dan a luz crías vivas, excepto los monotremas como el ornitorrinco.", tipo: 'verdadero-falso' },
+                        { pregunta: "El lenguaje de programación JavaScript solo se usa en navegadores web.", respuesta: false, explicacion: "JavaScript se usa en navegadores, servidores (Node.js), aplicaciones de escritorio, móviles, etc.", tipo: 'verdadero-falso' }
+                    ],
+                    sociales_historia: [
+                        { pregunta: "¿Quién fue el líder principal de la campaña libertadora que culminó en la Batalla de Boyacá?", opciones: ["Antonio Nariño", "Francisco de Paula Santander", "Simón Bolívar", "José María Córdova"], respuesta: "Simón Bolívar", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿En qué fecha se conmemora la Independencia de Colombia?", opciones: ["7 de Agosto", "20 de Julio", "11 de Noviembre", "12 de Octubre"], respuesta: "20 de Julio", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál fue el principal evento que marcó el inicio de La Violencia en Colombia en el siglo XX?", opciones: ["La Revolución de los Comuneros", "El Bogotazo", "La Guerra de los Mil Días", "La Masacre de las Bananeras"], respuesta: "El Bogotazo", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué tratado estableció las fronteras definitivas entre Colombia y Venezuela?", opciones: ["Tratado de Tordesillas", "Tratado Salomón-Lozano", "Tratado López de Mesa-Gil Borges", "Tratado de Boyacá"], respuesta: "Tratado López de Mesa-Gil Borges", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Quién fue la primera mujer en ocupar la presidencia de Colombia (aunque fuera interina)?", opciones: ["María Cano", "Débora Arango", "María Eugenia Rojas", "Marta Lucía Ramírez"], respuesta: "Marta Lucía Ramírez", tipo: 'seleccion_multiple' }
+                    ],
+                    sociales_geografia: [
+                        { pregunta: "¿Qué departamento de Colombia es conocido como la 'Puerta de Oro'?", opciones: ["Atlántico", "Bolívar", "Valle del Cauca", "Antioquia"], respuesta: "Atlántico", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál es el volcán más alto de Colombia?", opciones: ["Nevado del Huila", "Nevado del Ruiz", "Galeras", "Puracé"], respuesta: "Nevado del Huila", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué cordillera atraviesa el Valle del Cauca?", opciones: ["Cordillera Oriental", "Cordillera Occidental", "Cordillera Central", "Sierra Nevada"], respuesta: "Cordillera Occidental", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál de estos parques naturales se encuentra en la región de la Amazonía colombiana?", opciones: ["Tayrona", "Los Nevados", "Amacayacu", "La Macarena"], respuesta: "Amacayacu", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué ciudad colombiana es conocida como la 'Ciudad de la Eterna Primavera'?", opciones: ["Bogotá", "Cali", "Barranquilla", "Medellín"], respuesta: "Medellín", tipo: 'seleccion_multiple' }
+                    ],
+                    lenguaje_gramatica: [
+                        { pregunta: "¿Cuál de las siguientes palabras es un adverbio de lugar?", opciones: ["Rápidamente", "Mañana", "Aquí", "Siempre"], respuesta: "Aquí", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿En la oración 'Los niños juegan en el parque', 'juegan' es un verbo en tiempo...?", opciones: ["Pasado", "Futuro", "Presente", "Condicional"], respuesta: "Presente", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué tipo de palabra es 'y' en la frase 'Pan y agua'?", opciones: ["Sustantivo", "Adjetivo", "Preposición", "Conjunción"], respuesta: "Conjunción", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál es la forma correcta del pretérito perfecto simple de 'ir' para 'nosotros'?", opciones: ["Fuimos", "Íbamos", "Vamos", "Seremos"], respuesta: "Fuimos", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué signo de puntuación se usa para indicar una pausa breve en una enumeración?", opciones: ["Punto", "Punto y coma", "Coma", "Dos puntos"], respuesta: "Coma", tipo: 'seleccion_multiple' }
+                    ],
+                    lenguaje_literatura: [
+                        { pregunta: "¿Qué obra literaria es una epopeya griega atribuida a Homero?", opciones: ["La Eneida", "La Odisea", "La Divina Comedia", "El Quijote"], respuesta: "La Odisea", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué género literario predomina en la obra de Julio Cortázar?", opciones: ["Novela histórica", "Poesía lírica", "Cuento fantástico", "Teatro épico"], respuesta: "Cuento fantástico", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál de estos autores es un referente del Realismo Mágico latinoamericano?", opciones: ["Jorge Luis Borges", "Pablo Neruda", "Gabriel García Márquez", "Octavio Paz"], respuesta: "Gabriel García Márquez", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Quién escribió la tragedia 'Romeo y Julieta'?", opciones: ["Miguel de Cervantes", "William Shakespeare", "Federico García Lorca", "Lope de Vega"], respuesta: "William Shakespeare", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué corriente literaria se caracteriza por la descripción detallada de la realidad y la crítica social?", opciones: ["Romanticismo", "Modernismo", "Realismo", "Surrealismo"], respuesta: "Realismo", tipo: 'seleccion_multiple' }
+                    ],
+                    musica_teoria: [
+                        { pregunta: "¿Qué nota se encuentra entre Mi y Sol en la escala diatónica de Do Mayor?", opciones: ["Fa", "Re", "Si", "La"], respuesta: "Fa", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuántos tiempos dura una redonda en un compás de 4/4?", opciones: ["1", "2", "3", "4"], respuesta: "4", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cómo se llama el conjunto de cinco líneas paralelas y cuatro espacios donde se escribe la música?", opciones: ["Clave", "Pentagrama", "Compás", "Escala"], respuesta: "Pentagrama", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué figura musical representa un silencio de un tiempo en 4/4?", opciones: ["Blanca", "Corchea", "Negra", "Silencio de negra"], respuesta: "Silencio de negra", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál es el orden de las notas musicales ascendentes?", opciones: ["Do, Re, Mi, Fa, Sol, La, Si", "Si, La, Sol, Fa, Mi, Re, Do", "Do, Mi, Sol, Si, Re, Fa, La", "Re, Fa, La, Do, Mi, Sol, Si"], respuesta: "Do, Re, Mi, Fa, Sol, La, Si", tipo: 'seleccion_multiple' }
+                    ],
+                    musica_instrumentos: [
+                        { pregunta: "¿Qué instrumento musical es de viento-madera y se toca con una caña doble?", opciones: ["Flauta", "Clarinete", "Oboe", "Trompeta"], respuesta: "Oboe", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿De qué familia de instrumentos es el violín?", opciones: ["Viento-metal", "Percusión", "Cuerda frotada", "Cuerda pulsada"], respuesta: "Cuerda frotada", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Qué instrumento de percusión consiste en un conjunto de láminas de metal ordenadas cromáticamente?", opciones: ["Tambor", "Xilófono", "Maracas", "Campanillas"], respuesta: "Xilófono", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuál de estos instrumentos es de viento-metal?", opciones: ["Saxofón", "Flauta dulce", "Trombón", "Clarinete"], respuesta: "Trombón", tipo: 'seleccion_multiple' },
+                        { pregunta: "¿Cuántas válvulas suele tener una trompeta moderna?", opciones: ["2", "3", "4", "5"], respuesta: "3", tipo: 'seleccion_multiple' }
+                    ]
+                };
+
                 this.themeToggle = document.getElementById('themeToggle');
                 this.timerCircle = document.querySelector('.timer-circle');
                 this.timerText = document.getElementById('timerText');
@@ -1710,6 +1803,7 @@
                 // Nuevos elementos para selección múltiple
                 this.standardInputContainer = document.getElementById('standardInput');
                 this.multipleChoiceOptionsContainer = document.getElementById('multipleChoiceOptions');
+                this.trueFalseButtons = document.getElementById('trueFalseButtons'); // Asegúrate de referenciarlo
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
@@ -1816,8 +1910,8 @@
                     if (e.key === 'Enter') this.submitAnswer();
                 });
                 
-                document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
-                document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
+                this.trueFalseButtons.querySelector('#trueBtn').addEventListener('click', () => this.checkAnswer('true'));
+                this.trueFalseButtons.querySelector('#falseBtn').addEventListener('click', () => this.checkAnswer('false'));
                 
                 // Event listener para las nuevas opciones de selección múltiple
                 this.multipleChoiceOptionsContainer.addEventListener('click', (e) => {
@@ -2279,25 +2373,24 @@
                         this.updateVoteTimer(data.time);
                         break;
                         
+                    case 'vote_update':
+                        this.updateVoteResults(data.votes);
+                        break;
+                        
                     case 'game_starting': 
-                this.showNotification(`¡El juego comenzará! Tema: ${this.getModeName(data.mode)}`);
-                // Asegurarse de que el juego inicie en el modo correcto
-                this.startGame(data.mode); // Esto prepara la UI y otras variables del juego
-                
-                // *** ESTE BLOQUE ES CRÍTICO ***
-                // SOLO EL HOST GENERA Y ENVÍA LA PRIMERA PREGUNTA AL SERVIDOR
-                if (this.isHost) {
-                    console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor..."); // Agrega este log
-                    this.questions = this.generarPreguntas(data.mode, 10); // Genera las preguntas localmente
-                    this.currentQuestionIndex = 0;
-                    this.shareQuestionWithPlayers(); // Envía la primera pregunta al servidor
-                }
-                break;
+                        this.showNotification(`¡El juego comenzará! Tema: ${this.getModeName(data.mode)}`);
+                        // El cliente host genera y envía las preguntas.
+                        this.startGame(data.mode); // Prepara la UI para el modo de juego
+                        if (this.isHost) {
+                            console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor...");
+                            this.questions = this.generarPreguntas(data.mode, 10); // Genera las preguntas localmente
+                            this.currentQuestionIndex = 0;
+                            this.shareQuestionWithPlayers(); // Envía la primera pregunta al servidor
+                        }
+                        break;
                         
                     case 'game_start': 
                         // Este mensaje ya no es estrictamente necesario si 'game_starting' lo maneja.
-                        // Lo dejamos por si hay alguna lógica específica aquí.
-                        // Podrías consolidar la lógica de 'game_starting' y 'game_start' si solo el host dispara 'question_update'.
                         this.startGame(data.mode, data.closestAnswerMode);
                         break;
                         
@@ -2315,8 +2408,6 @@
                     
                     case 'host_skipped_question': 
                         if (!this.isHost) { 
-                            // Si no eres el host, simplemente avanza a la siguiente pregunta.
-                            // El host ya envió la señal de `reveal_phase` o la siguiente `question_update`.
                             this.showNotification("El anfitrión ha saltado la pregunta.");
                         }
                         break;
@@ -2336,10 +2427,14 @@
                         break;
                         
                     case 'reveal_phase':
-                        // data.correctAnswer, data.explanation, data.playerCorrect, data.streakBonus
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.explanation);
                         break;
-                        
+                    
+                    case 'game_state_reset': // Nuevo mensaje para que los clientes sepan que el host reinició
+                        this.reiniciarJuego(); // Llamar a reiniciar juego para resetear la UI y el estado
+                        // No es necesario llamar a setState de nuevo aquí ya que reiniciarJuego lo hace
+                        break;
+
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
@@ -2356,7 +2451,6 @@
 
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
-                    // Actualizar el estado del jugador con la información del servidor (isProfessor, isReady, etc.)
                     Object.assign(this.player, currentPlayerFromServer);
                 }
 
@@ -2376,37 +2470,27 @@
                     this.setState(this.STATES.LOBBY);
                 }
                 
-                // Si el juego ya está en curso y el jugador se une/reconecta
                 if (data.isGameRunning && data.question) {
-                    this.startGame(data.gameMode, data.closestAnswerMode); // Configura la UI del juego
+                    this.startGame(data.gameMode, data.closestAnswerMode); 
                     this.currentQuestionIndex = data.questionIndex;
-                    this.currentQuestionData = data.question; // Establece la pregunta para mostrarla
-                    this.displayQuestion(data.question); // Muestra la pregunta actual
-                    // El temporizador se reinicia con displayQuestion
+                    this.currentQuestionData = data.question; 
+                    this.displayQuestion(data.question); 
                 } else if (data.isGameRunning && !data.question) {
-                    // Si el juego está corriendo pero no hay pregunta (ej. justo en la transición)
-                    // Mostrar un estado de espera o retransmitir la última pregunta
                     this.startGame(data.gameMode, data.closestAnswerMode);
                     this.showNotification("Juego en curso. Esperando próxima pregunta...");
-                    // No hay mucho que hacer más que esperar el siguiente 'question_update'
                 }
             }
 
             handlePlayerJoined(data) {
-                // Si el mensaje indica una reconexión, refrescar toda la lista de jugadores
-                // para asegurar que todos los clientes tienen el estado más reciente (listo, profesor, etc.)
                 if (data.isReconnection) {
-                    // La lista de jugadores debería venir actualizada en 'room_joined' o un 'player_list_update'
-                    // por ahora, este método asume que 'player_joined' solo añade un nuevo jugador
-                    // Si el servidor envía la lista completa, se manejaría de otra forma
                     console.log(`[Cliente] Player Joined (isReconnection): ${data.player.name}`);
                     const updatedPlayer = this.players.find(p => p.id === data.player.id);
                     if (updatedPlayer) {
-                        Object.assign(updatedPlayer, data.player); // Actualizar datos del jugador
+                        Object.assign(updatedPlayer, data.player); 
                         this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
-                    } else {
+                    } else { // Si el jugador no estaba en la lista (raro para reconexión, pero por si acaso)
                         this.players.push(data.player);
-                        this.showNotification(`${this.extractName(data.player.name)} se ha unido`);
+                        this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
                     }
                     this.updatePlayerList();
                 } else {
@@ -2415,12 +2499,6 @@
                         this.players.push(data.player);
                         this.updatePlayerList();
                         this.showNotification(`${this.extractName(data.player.name)} se ha unido`);
-                    } else {
-                        // Si el jugador ya estaba en la lista, puede ser una actualización de estado o reconexión
-                        // pero la notificación es más simple si solo se muestra para nuevas uniones.
-                        Object.assign(existingPlayer, data.player);
-                        this.updatePlayerList();
-                        this.showNotification(`${this.extractName(data.player.name)} se ha reconectado (actualizando)`);
                     }
                 }
             }
@@ -2505,12 +2583,11 @@
             }
 
             handleQuestionUpdate(data) {
-                // Al recibir una nueva pregunta del servidor, actualizamos la pregunta actual del cliente
                 this.currentQuestionData = data.question; 
                 this.lastAnswerTime = Date.now();
                 this.currentQuestionIndex = data.questionIndex; 
                 
-                this.displayQuestion(data.question); // Muestra la pregunta en la UI
+                this.displayQuestion(data.question); 
                 
                 if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
                     const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
@@ -2531,7 +2608,7 @@
                         points: p.points || 0,
                         streak: p.streak || 0,
                         maxStreak: p.maxStreak || 0,
-                        avgResponseTime: p.avgResponseTime || 0, // Asegurar que avgResponseTime esté presente
+                        avgResponseTime: p.avgResponseTime || 0, 
                         achievements: p.achievements || [] 
                     })) : [];
                 
@@ -2707,13 +2784,8 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
-                // Solo el host tiene el setInterval para el temporizador de votación
-                // Los clientes simplemente actualizan su UI con los mensajes del servidor
                 if (this.isHost) {
                     this.voteInterval = setInterval(() => {
-                        // El servidor ya envía el tiempo restante, este loop local ya no es necesario
-                        // Podrías quitarlo si confías plenamente en la sincronización del servidor.
-                        // O déjalo para un fallback visual rápido.
                         this.voteTime--;
                         document.getElementById('voteTime').textContent = this.voteTime;
                         
@@ -2728,7 +2800,6 @@
             }
 
             updateVoteTimer(time) {
-                // Actualizar el temporizador de votación con el valor del servidor
                 document.getElementById('voteTime').textContent = time;
                 this.voteTime = time;
                 if (time <= 0) {
@@ -2821,11 +2892,12 @@
                 if (mode === 'relampago') {
                     this.timerDuration = 10; 
                     document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso') {
-                    this.timerDuration = 15;
                 } else {
-                    this.timerDuration = 30;
+                    this.timerDuration = 30; // Default para otros modos
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
+                    if (mode === 'verdadero-falso' || mode === 'ecuaciones_diferenciales') {
+                        this.timerDuration = 15; // Más corto para V/F
+                    }
                 }
                 
                 this.setState(this.STATES.PLAYING);
@@ -2845,9 +2917,6 @@
                     this.trueFalseButtons.style.display = 'none';
                 }
                 
-                // La generación de preguntas y el envío de la primera pregunta
-                // ahora se manejan en `handleSocketMessage` dentro del `case 'game_starting'`.
-                
                 this.player.points = 0;
                 this.player.streak = 0;
                 this.player.responseTimes = [];
@@ -2860,15 +2929,20 @@
             }
 
             shareQuestionWithPlayers() {
-                if (!this.isHost || !this.questions.length) return;
+                if (!this.isHost || !this.questions.length) {
+                    console.warn("[Cliente Host] No se puede compartir la pregunta: No es host o no hay preguntas.");
+                    return;
+                }
                 
                 const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question; // Asegurarse de que el host tenga la pregunta completa
+                this.currentQuestionData = question; 
                 
                 const questionToSend = { ...question };
-                // No enviar la respuesta o explicación a los clientes antes de la revelación
                 delete questionToSend.respuesta; 
-                delete questionToSend.explicacion;
+                delete questionToSend.explicacion; // Borrar explicaciones también para no revelarlas antes
+                if (questionToSend.opciones) { // Si tiene opciones, no enviar la respuesta en el objeto opciones
+                    questionToSend.opciones = question.opciones; 
+                }
 
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
@@ -2876,201 +2950,36 @@
                     question: questionToSend,
                     questionIndex: this.currentQuestionIndex,
                     totalQuestions: this.questions.length,
-                    gameMode: this.selectedGameMode // Incluir el gameMode para que el servidor lo almacene
+                    gameMode: this.selectedGameMode 
                 }));
                 
                 this.displayQuestion(question);
                 this.resetTimer();
             }
 
+            // Función para obtener preguntas del pool predefinido
             generarPreguntas(mode, count) {
-                let generador;
-                
+                let preguntasFuente;
                 if (mode === 'relampago') {
-                    const generadores = [
-                        this.generarCalculoDiferencial, this.generarCalculoIntegral, 
-                        this.generarAlgebraLineal, this.generarEstadistica, this.generarLogica,
-                        () => this.generarSociales('historia'), 
-                        () => this.generarSociales('geografia'),
-                        () => this.generarLenguaje('gramatica'),
-                        () => this.generarLenguaje('literatura'),
-                        () => this.generarMusica('teoria'),
-                        () => this.generarMusica('instrumentos'),
-                        () => this.generarVerdaderoFalso() // Incluir V/F en modo relámpago
-                    ];
-                    const preguntas = [];
-                    for(let i=0; i<count; i++) {
-                        const randomGenerator = generadores[Math.floor(Math.random() * generadores.length)];
-                        preguntas.push(randomGenerator());
+                    const allAvailableQuestions = [];
+                    for (const key in this.allQuestions) {
+                        if (key !== 'relampago') { // Evitar recursión si 'relampago' se definiera a sí mismo
+                             allAvailableQuestions.push(...this.allQuestions[key]);
+                        }
                     }
-                    return preguntas;
+                    const shuffled = allAvailableQuestions.sort(() => 0.5 - Math.random());
+                    return shuffled.slice(0, count);
+
+                } else {
+                    preguntasFuente = this.allQuestions[mode];
+                    if (!preguntasFuente) {
+                        console.warn(`Modo de preguntas no encontrado: ${mode}. Usando Cálculo Diferencial por defecto.`);
+                        preguntasFuente = this.allQuestions.calculo_diferencial;
+                    }
+                    const shuffled = preguntasFuente.sort(() => 0.5 - Math.random());
+                    return shuffled.slice(0, count);
                 }
-
-                switch(mode) {
-                    case 'calculo_diferencial': generador = this.generarCalculoDiferencial; break;
-                    case 'calculo_integral': generador = this.generarCalculoIntegral; break;
-                    case 'algebra_lineal': generador = this.generarAlgebraLineal; break;
-                    case 'ecuaciones_diferenciales': generador = () => this.generarVerdaderoFalso('ecuaciones_diferenciales'); break;
-                    case 'estadistica': generador = this.generarEstadistica; break;
-                    case 'logica': generador = this.generarLogica; break;
-                    case 'sociales_historia': generador = () => this.generarSociales('historia'); break;
-                    case 'sociales_geografia': generador = () => this.generarSociales('geografia'); break;
-                    case 'lenguaje_gramatica': generador = () => this.generarLenguaje('gramatica'); break;
-                    case 'lenguaje_literatura': generador = () => this.generarLenguaje('literatura'); break;
-                    case 'musica_teoria': generador = () => this.generarMusica('teoria'); break;
-                    case 'musica_instrumentos': generador = () => this.generarMusica('instrumentos'); break;
-                    case 'verdadero-falso': generador = () => this.generarVerdaderoFalso(); break;
-                    default: generador = this.generarCalculoDiferencial;
-                }
-                
-                const preguntas = [];
-                for (let i = 0; i < count; i++) {
-                    preguntas.push(generador());
-                }
-                return preguntas;
             }
-            
-            // --- GENERADORES DE PREGUNTAS UNIVERSITARIAS (Matemáticas) ---
-
-            generarCalculoDiferencial() {
-                const a = Math.floor(Math.random() * 5) + 1;
-                const n = Math.floor(Math.random() * 3) + 2; // exponente 2, 3, 4
-                const x0 = Math.floor(Math.random() * 3) + 1; // punto a evaluar 1, 2, 3
-                const pregunta = `Si f(x) = ${a}x^${n}, calcula f'(${x0}) = ?`;
-                const respuesta = a * n * Math.pow(x0, n - 1);
-                return { pregunta, respuesta, tipo: 'numerica' };
-            }
-
-            generarCalculoIntegral() {
-                const a = Math.floor(Math.random() * 6) + 2; // Coeficiente par
-                const n = Math.floor(Math.random() * 2) + 1; // exponente 1, 2
-                const b = Math.floor(Math.random() * 2) + 1; // Límite superior 1, 2
-                const pregunta = `Calcula la integral definida: ∫ (de 0 a ${b}) ${a}x^${n} dx = ?`;
-                // ∫ ax^n dx = (a/(n+1))x^(n+1)
-                const respuesta = (a / (n + 1)) * Math.pow(b, n + 1);
-                return { pregunta, respuesta, tipo: 'numerica' };
-            }
-
-            generarAlgebraLineal() {
-                const [a, b, c, d] = [0,0,0,0].map(() => Math.floor(Math.random() * 10) - 4);
-                const pregunta = `Calcula el determinante de la matriz [[${a}, ${b}], [${c}, ${d}]] = ?`;
-                const respuesta = a * d - b * c;
-                return { pregunta, respuesta, tipo: 'numerica' };
-            }
-            
-            generarEstadistica() {
-                const data = Array.from({length: 4}, () => Math.floor(Math.random() * 10));
-                const sum = data.reduce((acc, val) => acc + val, 0);
-                const pregunta = `Calcula la media del conjunto de datos {${data.join(', ')}} = ?`;
-                const respuesta = sum / data.length;
-                if (respuesta % 1 !== 0) { // Asegurarnos que la respuesta sea un entero para simplificar
-                    return this.generarEstadistica(); 
-                }
-                return { pregunta, respuesta, tipo: 'numerica' };
-            }
-
-            generarLogica() {
-                const num = Math.floor(Math.random() * 10) + 5; // 5 a 14
-                const binario = num.toString(2);
-                const pregunta = `Convierte el número binario ${binario} a decimal.`;
-                const respuesta = num;
-                return { pregunta, respuesta, tipo: 'numerica' };
-            }
-
-            generarVerdaderoFalso(submode = null) {
-                const preguntas = [];
-                // Preguntas de Cálculo
-                preguntas.push({ p: "La derivada de una constante es 1.", r: false, e: "La derivada de una constante es siempre 0." });
-                preguntas.push({ p: "Si una función es continua, entonces es derivable.", r: false, e: "La continuidad no implica derivabilidad (ej: f(x)=|x| en x=0)." });
-                preguntas.push({ p: "El Teorema del Valor Medio se aplica a todas las funciones.", r: false, e: "Requiere que la función sea continua y derivable en el intervalo." });
-
-                // Preguntas de Álgebra Lineal
-                preguntas.push({ p: "Una matriz de 3x2 se puede multiplicar por una matriz de 3x2.", r: false, e: "Las dimensiones internas deben coincidir (n x m) * (m x p)." });
-                preguntas.push({ p: "El determinante de una matriz identidad es siempre 1.", r: true, e: "Correcto, det(I) = 1." });
-                preguntas.push({ p: "Si det(A)=0, la matriz A tiene inversa.", r: false, e: "Si det(A)=0, la matriz es singular y no tiene inversa." });
-
-                // Preguntas de Ecuaciones Diferenciales
-                preguntas.push({ p: "y = e^(3x) es una solución para y' - 3y = 0.", r: true, e: "y'=3e^(3x), entonces 3e^(3x) - 3(e^(3x)) = 0." });
-                preguntas.push({ p: "y'' + 4y = 0 es una ecuación diferencial lineal de primer orden.", r: false, e: "Es lineal, pero de segundo orden (por y'')." });
-                
-                // Preguntas de Estadística
-                preguntas.push({ p: "La media es más sensible a valores atípicos que la mediana.", r: true, e: "Correcto, un valor extremo afecta mucho a la media." });
-
-                let seleccionadas = preguntas;
-                if (submode === 'ecuaciones_diferenciales') {
-                    seleccionadas = preguntas.filter(q => q.p.includes("y'"));
-                }
-                
-                const q = seleccionadas[Math.floor(Math.random() * seleccionadas.length)];
-
-                const pregunta = `¿Verdadero o Falso?<br>${q.p}`;
-                const respuesta = q.r;
-                const explicacion = q.e;
-                
-                return { pregunta, respuesta, explicacion, tipo: 'verdadero-falso' };
-            }
-
-            // --- NUEVOS GENERADORES DE PREGUNTAS (Sociales, Lenguaje, Música) ---
-            generarSociales(submode) {
-                let questionData;
-                if (submode === 'historia') {
-                    const questions = [
-                        { pregunta: "¿Quién fue el primer presidente de la Gran Colombia?", opciones: ["Simón Bolívar", "Francisco de Paula Santander", "Antonio Nariño", "José María Córdova"], respuesta: "Simón Bolívar" },
-                        { pregunta: "¿En qué año se firmó la Independencia de Colombia?", opciones: ["1810", "1819", "1821", "1830"], respuesta: "1810" },
-                        { pregunta: "¿Cuál es el nombre del proceso que llevó a la separación de Panamá de Colombia?", opciones: ["La Guerra de los Mil Días", "La Regeneración", "La Separación de Panamá", "El Bogotazo"], respuesta: "La Separación de Panamá" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                } else if (submode === 'geografia') {
-                    const questions = [
-                        { pregunta: "¿Cuál es la capital de Colombia?", opciones: ["Medellín", "Cali", "Bogotá", "Barranquilla"], respuesta: "Bogotá" },
-                        { pregunta: "¿Cuál es el río más importante de Colombia?", opciones: ["Río Cauca", "Río Magdalena", "Río Amazonas", "Río Atrato"], respuesta: "Río Magdalena" },
-                        { pregunta: "¿Qué océano baña las costas occidentales de Colombia?", opciones: ["Océano Atlántico", "Océano Pacífico", "Mar Caribe", "Océano Índico"], respuesta: "Océano Pacífico" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                }
-                return { ...questionData, tipo: 'seleccion_multiple' };
-            }
-
-            generarLenguaje(submode) {
-                let questionData;
-                if (submode === 'gramatica') {
-                    const questions = [
-                        { pregunta: "¿Cuál de las siguientes palabras es un sustantivo común?", opciones: ["Perro", "Bogotá", "Juan", "Amazonas"], respuesta: "Perro" },
-                        { pregunta: "¿Cuál es el plural de 'lápiz'?", opciones: ["Lápizes", "Lápices", "Lápizs", "Lápiceses"], respuesta: "Lápices" },
-                        { pregunta: "¿En la oración 'Ella canta muy bien', 'canta' es un...?", opciones: ["Sustantivo", "Adjetivo", "Verbo", "Adverbio"], respuesta: "Verbo" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                } else if (submode === 'literatura') {
-                    const questions = [
-                        { pregunta: "¿Quién escribió 'Cien años de soledad'?", opciones: ["Mario Vargas Llosa", "Gabriel García Márquez", "Julio Cortázar", "Jorge Luis Borges"], respuesta: "Gabriel García Márquez" },
-                        { pregunta: "¿De qué nacionalidad era el escritor Gabriel García Márquez?", opciones: ["Peruana", "Mexicana", "Colombiana", "Argentina"], respuesta: "Colombiana" },
-                        { pregunta: "¿Cuál es el personaje principal de 'Don Quijote de la Mancha'?", opciones: ["Sancho Panza", "Dulcinea", "Don Quijote", "Rocinante"], respuesta: "Don Quijote" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                }
-                return { ...questionData, tipo: 'seleccion_multiple' };
-            }
-
-            generarMusica(submode) {
-                let questionData;
-                if (submode === 'teoria') {
-                    const questions = [
-                        { pregunta: "¿Cuántas notas tiene una escala diatónica mayor?", opciones: ["5", "6", "7", "8"], respuesta: "7" },
-                        { pregunta: "¿Cómo se llama el signo que eleva la altura de una nota un semitono?", opciones: ["Bemol", "Sostenido", "Becuadro", "Calderón"], respuesta: "Sostenido" },
-                        { pregunta: "¿Cuál es la primera nota de la escala musical tradicional?", opciones: ["Re", "Mi", "Do", "Sol"], respuesta: "Do" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                } else if (submode === 'instrumentos') {
-                    const questions = [
-                        { pregunta: "¿Cuántas cuerdas tiene una guitarra acústica estándar?", opciones: ["4", "5", "6", "7"], respuesta: "6" },
-                        { pregunta: "¿Qué instrumento musical tiene teclas blancas y negras y se toca con un teclado?", opciones: ["Violín", "Flauta", "Trompeta", "Piano"], respuesta: "Piano" },
-                        { pregunta: "¿De qué familia de instrumentos es la flauta traversa?", opciones: ["Cuerda", "Viento-metal", "Percusión", "Viento-madera"], respuesta: "Viento-madera" }
-                    ];
-                    questionData = questions[Math.floor(Math.random() * questions.length)];
-                }
-                return { ...questionData, tipo: 'seleccion_multiple' };
-            }
-
 
             displayQuestion(questionData = null) {
                 try {
@@ -3094,12 +3003,14 @@
                     const questionImage = document.getElementById('questionImage');
                     questionImage.style.display = 'none'; 
                     
-                    // Asegúrate de resetear el estado de los botones de opciones múltiples
+                    // Resetear el estado de los botones de opciones múltiples y V/F
                     this.multipleChoiceOptionsContainer.innerHTML = '';
                     this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => {
                         btn.classList.remove('correct-answer', 'incorrect-answer', 'selected');
                         btn.disabled = false; // Re-habilitar para la nueva pregunta
                     });
+                    document.getElementById('trueBtn').classList.remove('correct-answer', 'incorrect-answer', 'selected');
+                    document.getElementById('falseBtn').classList.remove('correct-answer', 'incorrect-answer', 'selected');
 
 
                     // Mostrar/ocultar inputs según el tipo de pregunta del modo
@@ -3150,8 +3061,8 @@
 
                     // Deshabilitar todos los botones de respuesta
                     document.getElementById('submitAnswer').disabled = true;
-                    document.getElementById('trueBtn').disabled = true;
-                    document.getElementById('falseBtn').disabled = true;
+                    this.trueFalseButtons.querySelector('#trueBtn').disabled = true;
+                    this.trueFalseButtons.querySelector('#falseBtn').disabled = true;
                     this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
 
                     const currentQuestion = this.currentQuestionData;
@@ -3173,13 +3084,8 @@
                             this.showResult("¡Solo números!", false);
                             document.getElementById('submitAnswer').disabled = false;
                             this.player.hasAnswered = false; 
-                            // Re-habilitar botones si no fue una respuesta válida
-                            if (currentQuestion.tipo === 'numerica') {
-                                document.getElementById('submitAnswer').disabled = false;
-                            }
                             return;
                         }
-                        // Tolerancia para respuestas con decimales
                         isCorrect = Math.abs(userAnswerParsed - currentQuestion.respuesta) < 0.01;
                     }
 
@@ -3187,7 +3093,6 @@
                     
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     this.player.responseTimes.push(responseTime);
-                    // Asegurarse de no dividir por cero si no hay tiempos registrados
                     this.player.avgResponseTime = this.player.responseTimes.length > 0 ? 
                         this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length : 0;
 
@@ -3198,7 +3103,6 @@
                             this.player.maxStreak = this.player.streak;
                         }
                         
-                        // Bonificación por racha
                         if (this.player.streak >= 3 && this.player.streak < 5) streakBonus = 2;
                         else if (this.player.streak >= 5 && this.player.streak < 7) streakBonus = 5;
                         else if (this.player.streak >= 7) streakBonus = 8;
@@ -3243,7 +3147,6 @@
                     console.error("Error al verificar respuesta:", error);
                     this.showError("Error al verificar respuesta.");
                 } 
-                // Los botones de respuesta se re-habilitan en displayQuestion o resetGame
             }
 
 
@@ -3259,22 +3162,24 @@
                     // Resaltar la opción correcta en la UI del juego principal si está visible
                     const optionBtns = this.multipleChoiceOptionsContainer.querySelectorAll('.option-btn');
                     optionBtns.forEach(btn => {
-                        btn.disabled = true; // Asegurar que sigan deshabilitados
+                        btn.disabled = true; 
                         if (btn.dataset.value === correctAnswer) {
                             btn.classList.add('correct-answer');
                         } else {
-                            // Opcional: si el jugador respondió incorrectamente, marcar su respuesta
+                            // Marcar la respuesta del jugador si fue incorrecta y es una de las opciones
                             if (this.player.lastAnswerCorrect === false && btn.dataset.value === this.player.history[this.player.history.length-1].answer) {
                                 btn.classList.add('incorrect-answer');
                             } else {
-                                btn.classList.add('incorrect-answer'); // Marcar incorrectas también para visualización
+                                // Marcar otras opciones incorrectas para visibilidad
+                                // Si el jugador no respondió esa opción
+                                btn.classList.add('incorrect-answer'); 
                             }
                         }
                     });
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 else { // numérico
-                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${currentQuestion.respuesta}</span>`; // Usar currentQuestion.respuesta para numéricas
                 }
                 
                 if (playerCorrect) {
@@ -3328,10 +3233,9 @@
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
                 const currentRanking = [...this.players].sort((a, b) => {
-                    // Criterio de orden: 1. Puntos, 2. Tiempo promedio de respuesta (menor es mejor), 3. Racha máxima
                     if (b.points !== a.points) return b.points - a.points;
                     if (a.avgResponseTime !== undefined && b.avgResponseTime !== undefined) {
-                        if (a.avgResponseTime === 0 && b.avgResponseTime !== 0) return 1; // Mover 0s al final si hay otros tiempos
+                        if (a.avgResponseTime === 0 && b.avgResponseTime !== 0) return 1; 
                         if (b.avgResponseTime === 0 && a.avgResponseTime !== 0) return -1;
                         if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
                     }
@@ -3373,16 +3277,14 @@
 
             startTimer() {
                 try {
-                    // Determinar la duración del temporizador basada en el modo de juego actual
-                    // (Esta lógica se repite aquí y en startGame para flexibilidad, puedes consolidarla si lo prefieres)
                     let currentTimerDuration = 30; 
                     if (this.selectedGameMode === 'relampago') {
                         currentTimerDuration = 10; 
                     } else if (this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'ecuaciones_diferenciales') {
                         currentTimerDuration = 15;
                     }
-                    this.timerDuration = currentTimerDuration; // Asegurarse de que timerDuration esté actualizado
-                    this.timeLeft = this.timerDuration; // Reiniciar timeLeft con la duración correcta
+                    this.timerDuration = currentTimerDuration; 
+                    this.timeLeft = this.timerDuration; 
                     this.updateTimerUI();
                     
                     clearInterval(this.timerInterval); 
@@ -3396,19 +3298,17 @@
                         
                         if (this.timeLeft <= 0) {
                             clearInterval(this.timerInterval);
-                            // Si el jugador no ha respondido cuando el tiempo se agota
                             if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
                                 this.player.hasAnswered = true; 
                                 this.player.streak = 0; 
                                 document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
                                 document.getElementById("answerResult").className = "result incorrect";
                                 
-                                // Enviar una respuesta "incorrecta" al servidor
                                 this.socket.send(JSON.stringify({
                                     type: 'player_answer',
                                     pin: this.gamePin,
                                     playerId: this.player.id,
-                                    isCorrect: false, // Es incorrecta por tiempo
+                                    isCorrect: false, 
                                     pointsEarned: 0,
                                     totalPoints: this.player.points, 
                                     streak: this.player.streak,
@@ -3417,7 +3317,6 @@
                                     streakBonus: 0
                                 }));
                             }
-                            // Solo el host envía la señal de revelación si el tiempo se agota
                             if (this.isHost) {
                                 const correctAnswer = this.currentQuestionData.respuesta;
                                 const explanation = this.currentQuestionData.explicacion || '';
@@ -3482,11 +3381,10 @@
                         hostId: this.player.id 
                     }));
                 }
-                // Disparar la fase de revelación localmente también para el host
-                // para que el host vea la respuesta correcta antes de la siguiente pregunta.
                 const correctAnswer = this.currentQuestionData.respuesta;
                 const explanation = this.currentQuestionData.explicacion || '';
-                this.startRevealPhase(correctAnswer, this.player.lastAnswerCorrect, this.player.streak > 0 ? (this.player.streak >= 7 ? 8 : (this.player.streak >= 5 ? 5 : (this.player.streak >= 3 ? 2 : 0))) : 0, explanation);
+                const currentStreakBonus = this.player.streak > 0 ? (this.player.streak >= 7 ? 8 : (this.player.streak >= 5 ? 5 : (this.player.streak >= 3 ? 2 : 0))) : 0;
+                this.startRevealPhase(correctAnswer, this.player.lastAnswerCorrect, currentStreakBonus, explanation);
             }
 
             endGame() {
@@ -3510,7 +3408,6 @@
                     } else if (this.isMultiplayer && !this.isHost) {
                         this.showNotification("Juego terminado. Esperando resultados...");
                     } else {
-                        // Modo individual (no multijugador)
                         this.showWinner(); 
                         this.setState(this.STATES.RESULTS); 
                     }
@@ -3713,7 +3610,6 @@
                     
                     if (this.isMultiplayer) {
                         this.setState(this.STATES.LOBBY);
-                        // Asegurarse de que el servidor sepa que el juego se reinició si el host lo hace
                         if (this.isHost && this.socket && this.socket.readyState === WebSocket.OPEN) {
                              this.socket.send(JSON.stringify({
                                 type: 'reset_game_state',
@@ -3721,12 +3617,10 @@
                                 hostId: this.player.id
                             }));
                         }
-                        // El host debe volver a mostrar el botón de iniciar votación
                         if (this.isHost) {
                             this.startVoteBtn.style.display = 'block';
                         }
                     } else {
-                        // En modo individual, simplemente volvemos a la pantalla de unirse.
                         this.isHost = false; 
                         this.player.isProfessor = false; 
                         this.setState(this.STATES.JOIN_SCREEN);

@@ -269,12 +269,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
             background: var(--fondo);
             z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -468,7 +467,6 @@
             margin-bottom: 15px;
             border: 2px solid var(--borde);
             border-radius: 8px;
-            font-family: 'Comic Neue', cursive;
             background: rgba(255,255,255,0.1);
             transition: all 0.3s;
         }
@@ -661,9 +659,19 @@
             animation: moveUp 0.5s ease;
         }
 
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
+        }
+
         @keyframes moveUp {
             0% { transform: translateY(0); background: var(--verde); }
             50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes moveDown {
+            0% { transform: translateY(0); background: var(--rojo); }
+            50% { transform: translateY(10px); }
             100% { transform: translateY(0); }
         }
 
@@ -1132,9 +1140,6 @@
             border-radius: 15px;
             max-width: 80%;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .reveal-correct {
@@ -1162,101 +1167,6 @@
             font-size: 1.2rem;
             text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
         }
-        
-        .ai-explanation-button {
-            background: var(--morado);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .ai-explanation-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0,0,0,0.2);
-        }
-
-        .ai-explanation-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* Modal para la explicación de IA */
-        .ai-explanation-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            backdrop-filter: blur(10px);
-            display: none; /* Oculto por defecto */
-        }
-
-        .ai-explanation-modal-content {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 700px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            color: var(--texto);
-            position: relative;
-            border: 2px solid var(--azul);
-        }
-
-        .ai-explanation-modal-content h3 {
-            color: var(--azul);
-            margin-bottom: 15px;
-        }
-
-        .ai-explanation-modal-content p {
-            font-size: 1rem;
-            line-height: 1.6;
-            text-align: left;
-            white-space: pre-wrap; /* Mantiene saltos de línea y espacios del texto de la IA */
-        }
-
-        .ai-explanation-close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--texto);
-            transition: color 0.3s;
-        }
-
-        .ai-explanation-close-btn:hover {
-            color: var(--rojo);
-        }
-        .ai-explanation-loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-top: 4px solid var(--morado);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
 
         /* Efecto de vidrio esmerilado */
         .glass-panel {
@@ -1339,11 +1249,6 @@
                 right: 10px;
                 max-width: 200px;
             }
-
-            .ai-explanation-modal-content {
-                width: 95%;
-                padding: 20px;
-            }
         }
     </style>
 </head>
@@ -1356,18 +1261,14 @@
     <div class="join-screen" id="joinScreen">
         <h1>✨ Math Challenge PRO ✨</h1>
         <div class="join-form glass-panel">
-            <h2>¡Únete al desafío!</h2>
+            <h2>¡Únete al juego!</h2>
             <div class="input-group">
                 <label for="playerName">Tu nombre:</label>
                 <input type="text" id="playerName" placeholder="Ej: Juan" maxlength="20">
             </div>
             <div class="input-group">
-                <label for="gradeLevelSelect">Nivel de Grado:</label>
-                <select id="gradeLevelSelect">
-                    <option value="4-5">4° - 5° Primaria</option>
-                    <option value="6-7">6° - 7° Secundaria</option>
-                    <option value="8-9">8° - 9° Secundaria</option>
-                </select>
+                <label for="grade">Tu grado:</label>
+                <input type="text" id="grade" placeholder="Ej: 5° Primaria" maxlength="20">
             </div>
             <div class="input-group">
                 <label for="gamePin">Código PIN:</label>
@@ -1396,13 +1297,20 @@
         <div class="lobby-container glass-panel">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
-            <div class="lobby-grade-level">Nivel de la Sala: <span id="lobbyGradeLevel"></span></div>
             
             <div class="vote-section">
                 <h3>Votar modo de juego:</h3>
                 <div class="vote-timer">Tiempo: <span id="voteTime">30</span>s</div>
                 <div class="mode-buttons" id="modeButtons">
-                    </div>
+                    <button class="mode-btn" data-mode="operaciones">🔢 Operación Rápida</button>
+                    <button class="mode-btn" data-mode="misterioso">❓ Número Misterioso</button>
+                    <button class="mode-btn" data-mode="secuencia">📈 Secuencia Numérica</button>
+                    <button class="mode-btn" data-mode="potenciacion">💪 Potenciación</button>
+                    <button class="mode-btn" data-mode="combinadas">🧩 Operaciones Combinadas</button>
+                    <button class="mode-btn" data-mode="relampago">⚡ Modo Relámpago</button>
+                    <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
+                    <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
+                </div>
                 <div class="vote-results glass-panel">
                     <h4>Resultados:</h4>
                     <div id="voteResults"></div>
@@ -1433,7 +1341,7 @@
 
         <div class="game glass-panel">
             <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
-            <p id="currentQuestion" class="question">Esperando para comenzar...</p>
+            <p id="currentQuestion" class="question">Haz clic en un juego para comenzar</p>
             <img id="questionImage" class="question-image" style="display: none;">
             
             <div class="input-container" id="standardInput">
@@ -1527,19 +1435,6 @@
             <div id="revealCorrectAnswer" class="reveal-correct"></div>
             <div id="revealPlayerResult" class="reveal-player-result"></div>
             <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
-            <button class="btn ai-explanation-button" id="getAIExplanation">Obtener Explicación de IA 🧠</button>
-        </div>
-    </div>
-
-    <!-- Modal para la explicación de IA -->
-    <div class="ai-explanation-modal" id="aiExplanationModal">
-        <div class="ai-explanation-modal-content">
-            <button class="ai-explanation-close-btn" id="closeAIExplanationModal">&times;</button>
-            <h3>Explicación de la Pregunta</h3>
-            <p id="aiExplanationContent">
-                <span class="ai-explanation-loading-spinner" style="display: none;"></span>
-                Cargando explicación...
-            </p>
         </div>
     </div>
 
@@ -1568,58 +1463,58 @@
                 this.player = {
                     id: null,
                     name: "",
-                    gradeLevel: "", // Almacena el nivel de grado (ej. "4-5")
+                    grade: "",
                     displayName: "",
                     avatar: "1",
                     points: 0,
-                    hasAnswered: false, // Indica si el jugador local ya respondió la pregunta actual
-                    hasVoted: false, // Indica si el jugador local ya votó en la votación actual
-                    streak: 0, // Racha actual de respuestas correctas
-                    maxStreak: 0, // Racha máxima alcanzada en la partida
-                    avgResponseTime: 0, // Tiempo promedio de respuesta
-                    responseTimes: [], // Historial de tiempos de respuesta
-                    history: [], // Historial de respuestas del jugador
-                    isProfessor: false, // True si el jugador es el anfitrión/profesor
-                    isReady: false, // True si el jugador está listo en el lobby
-                    gamesPlayed: 0, // Número de partidas jugadas
-                    favoriteMode: null, // Modo de juego favorito (basado en estadísticas)
-                    modeStats: {}, // Estadísticas por modo de juego
-                    achievements: [], // Logros desbloqueados
-                    lastAnswerCorrect: false // Si la última respuesta fue correcta
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    gamesPlayed: 0,
+                    favoriteMode: null,
+                    modeStats: {},
+                    achievements: [],
+                    lastAnswerCorrect: false
                 };
                 
-                this.questions = []; // Preguntas generadas para la partida actual (solo en el host)
-                this.currentQuestionIndex = 0; // Índice de la pregunta actual
-                this.gameMode = null; // Modo de juego actual (ej. "operaciones", "misterioso")
-                this.timeLeft = 30; // Tiempo restante en el temporizador
-                this.timerDuration = 30; // Duración total del temporizador para la pregunta actual
-                this.timerInterval = null; // ID del intervalo del temporizador de preguntas
-                this.soundEnabled = true; // Si los sonidos están habilitados
-                this.currentQuestionData = null; // Datos de la pregunta actual (recibida del servidor)
-                this.reconnectAttempts = 0; // Intentos de reconexión
-                this.maxReconnectAttempts = 5; // Máximo de intentos de reconexión
-                this.reconnectDelay = 3000; // Retraso entre intentos de reconexión
-                this.closestAnswerMode = false; // Flag para el modo "El más cercano gana"
-                this.lastAnswerTime = null; // Timestamp de cuando se mostró la pregunta
-                this.revealPhaseActive = false; // Si la fase de revelación está activa
-                this.revealPhaseDuration = 3000; // Duración de la fase de revelación (3 segundos)
+                this.questions = [];
+                this.currentQuestionIndex = 0;
+                this.gameMode = null; 
+                this.timeLeft = 30;
+                this.timerDuration = 30;
+                this.timerInterval = null;
+                this.soundEnabled = true;
+                this.currentQuestionData = null;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                this.reconnectDelay = 3000;
+                this.closestAnswerMode = false;
+                this.lastAnswerTime = null;
+                this.revealPhaseActive = false;
+                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
                 
-                this.isMultiplayer = false; // Si el juego está en modo multijugador
-                this.isHost = false; // Si el jugador local es el anfitrión
-                this.gamePin = ''; // PIN de la sala
-                this.players = []; // Lista de todos los jugadores en la sala (incluyendo el local)
-                this.playerVotes = {}; // Votos de los jugadores (local)
-                this.selectedGameMode = null; // Modo de juego votado y seleccionado
-                this.playerRanking = []; // Ranking de jugadores (se actualiza en vivo)
-                this.maxPlayers = 15; // Máximo de jugadores por sala
-                this.socket = null; // Objeto WebSocket
-                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; // URL de tu servidor Glitch (¡IMPORTANTE: CAMBIA ESTA URL!)
-                this.heartbeatInterval = null; // Intervalo para el ping/pong
-                this.lastPongTime = null; // Último tiempo en que se recibió un pong
+                this.isMultiplayer = false;
+                this.isHost = false; 
+                this.gamePin = '';
+                this.players = [];
+                this.playerVotes = {}; 
+                this.selectedGameMode = null; 
+                this.playerRanking = [];
+                this.maxPlayers = 15;
+                this.socket = null;
+                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
+                this.heartbeatInterval = null;
+                this.lastPongTime = null;
                 
-                this.voteTime = 30; // Tiempo restante para la votación
-                this.voteInterval = null; // ID del intervalo de votación
-                this.voteCounts = { // Conteo de votos por modo (recibido del servidor)
+                this.voteTime = 30;
+                this.voteInterval = null;
+                this.voteCounts = { 
                     operaciones: 0,
                     misterioso: 0,
                     secuencia: 0,
@@ -1629,13 +1524,13 @@
                     "verdadero-falso": 0,
                     "mas-cercano": 0
                 };
-                this.isVotingActive = false; // Si la votación está activa
+                this.isVotingActive = false; 
                 
-                this.lastRanking = []; // Ranking de la ronda anterior (para animaciones)
-                this.rankingUpdateInterval = null; // Intervalo para actualizar el ranking en vivo
-                this.animationPending = false; // Si hay una animación de ranking pendiente
+                this.lastRanking = [];
+                this.rankingUpdateInterval = null;
+                this.animationPending = false; 
                 
-                this.achievementsList = { // Definición de logros y sus condiciones
+                this.achievementsList = {
                     perfectStreak: {
                         id: "perfectStreak",
                         title: "Racha Perfecta",
@@ -1677,218 +1572,6 @@
                     }
                 };
                 
-                // --- PREGUNTAS PREDEFINIDAS POR NIVEL Y MODO ---
-                this.questionsByLevelAndMode = {
-                    "4-5": { // Primaria Superior (Grados 4 y 5)
-                        operaciones: [
-                            { pregunta: "5 + 7 = ?", respuesta: 12, tipo: 'numerica' },
-                            { pregunta: "15 - 8 = ?", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "6 × 4 = ?", respuesta: 24, tipo: 'numerica' },
-                            { pregunta: "30 ÷ 5 = ?", respuesta: 6, tipo: 'numerica' },
-                            { pregunta: "12 + 18 = ?", respuesta: 30, tipo: 'numerica' },
-                            { pregunta: "9 × 7 = ?", respuesta: 63, tipo: 'numerica' },
-                            { pregunta: "50 - 25 = ?", respuesta: 25, tipo: 'numerica' },
-                            { pregunta: "72 ÷ 8 = ?", respuesta: 9, tipo: 'numerica' },
-                            { pregunta: "100 - 45 = ?", respuesta: 55, tipo: 'numerica' },
-                            { pregunta: "11 × 5 = ?", respuesta: 55, tipo: 'numerica' },
-                        ],
-                        misterioso: [
-                            { pregunta: "? + 5 = 12", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "? - 8 = 10", respuesta: 18, tipo: 'numerica' },
-                            { pregunta: "? × 3 = 18", respuesta: 6, tipo: 'numerica' },
-                            { pregunta: "? ÷ 4 = 5", respuesta: 20, tipo: 'numerica' },
-                            { pregunta: "En 7 + ? = 15, ¿cuál es el número misterioso?", respuesta: 8, tipo: 'numerica' },
-                            { pregunta: "Si ? - 9 = 2, ¿qué número falta?", respuesta: 11, tipo: 'numerica' },
-                            { pregunta: "El número que falta en 6 × ? = 42 es:", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "Si 50 ÷ ? = 10, ¿qué número es el misterioso?", respuesta: 5, tipo: 'numerica' },
-                        ],
-                        secuencia: [
-                            { pregunta: "2, 4, 6, ?, 10", respuesta: 8, tipo: 'numerica' },
-                            { pregunta: "5, 10, ?, 20, 25", respuesta: 15, tipo: 'numerica' },
-                            { pregunta: "10, 9, 8, ?, 6", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "3, 6, ?, 12, 15", respuesta: 9, tipo: 'numerica' },
-                            { pregunta: "1, 3, 5, ?, 9", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "20, 18, 16, ?, 12", respuesta: 14, tipo: 'numerica' },
-                            { pregunta: "7, ?, 21, 28, 35", respuesta: 14, tipo: 'numerica' },
-                            { pregunta: "1, 2, 4, ?, 16", respuesta: 8, tipo: 'numerica' }, // duplicando
-                        ],
-                        potenciacion: [
-                            { pregunta: "2³ = ?", respuesta: 8, tipo: 'numerica' },
-                            { pregunta: "3² = ?", respuesta: 9, tipo: 'numerica' },
-                            { pregunta: "4² = ?", respuesta: 16, tipo: 'numerica' },
-                            { pregunta: "2⁴ = ?", respuesta: 16, tipo: 'numerica' },
-                            { pregunta: "10¹ = ?", respuesta: 10, tipo: 'numerica' },
-                            { pregunta: "5² = ?", respuesta: 25, tipo: 'numerica' },
-                            { pregunta: "1³ = ?", respuesta: 1, tipo: 'numerica' },
-                        ],
-                        combinadas: [
-                            { pregunta: "5 + 3 - 2 = ?", respuesta: 6, tipo: 'numerica' },
-                            { pregunta: "10 - 4 + 7 = ?", respuesta: 13, tipo: 'numerica' },
-                            { pregunta: "2 × 3 + 4 = ?", respuesta: 10, tipo: 'numerica' },
-                            { pregunta: "12 ÷ 2 - 1 = ?", respuesta: 5, tipo: 'numerica' },
-                            { pregunta: "7 + 2 × 5 = ?", respuesta: 17, tipo: 'numerica' },
-                            { pregunta: "(8 - 3) × 2 = ?", respuesta: 10, tipo: 'numerica' },
-                            { pregunta: "15 + 6 ÷ 3 = ?", respuesta: 17, tipo: 'numerica' },
-                        ],
-                        "verdadero-falso": [
-                            { pregunta: "¿Es 5 + 3 = 8? Verdadero o Falso.", respuesta: true, explicacion: "5 + 3 es igual a 8.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 10 - 4 = 5? Verdadero o Falso.", respuesta: false, explicacion: "10 - 4 es igual a 6, no 5.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 7 × 2 = 14? Verdadero o Falso.", respuesta: true, explicacion: "7 por 2 es 14.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 20 ÷ 4 = 6? Verdadero o Falso.", respuesta: false, explicacion: "20 dividido por 4 es 5, no 6.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿La suma de dos números pares es siempre par? Verdadero o Falso.", respuesta: true, explicacion: "Por ejemplo, 2+4=6, 8+10=18. Siempre es par.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 15 un número impar? Verdadero o Falso.", respuesta: true, explicacion: "Los números impares no son divisibles por 2.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Tiene un círculo 4 lados? Verdadero o Falso.", respuesta: false, explicacion: "Un círculo no tiene lados.", tipo: 'verdadero-falso' },
-                        ],
-                        "mas-cercano": [
-                            { pregunta: "El número más cercano a 25 es:", objetivo: 25, tipo: 'numerica' },
-                            { pregunta: "El número más cercano al resultado de (8 × 3) es:", objetivo: 24, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a 100 dividido por 4 es:", objetivo: 25, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a la mitad de 50 es:", objetivo: 25, tipo: 'numerica' },
-                            { pregunta: "Adivina el número más cercano a 37:", objetivo: 37, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a 5 × 9 es:", objetivo: 45, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a la suma de 15 y 18 es:", objetivo: 33, tipo: 'numerica' },
-                        ]
-                    },
-                    "6-7": { // Secundaria Inicial (Grados 6 y 7)
-                        operaciones: [
-                            { pregunta: "125 + 78 = ?", respuesta: 203, tipo: 'numerica' },
-                            { pregunta: "250 - 135 = ?", respuesta: 115, tipo: 'numerica' },
-                            { pregunta: "15 × 12 = ?", respuesta: 180, tipo: 'numerica' },
-                            { pregunta: "360 ÷ 8 = ?", respuesta: 45, tipo: 'numerica' },
-                            { pregunta: "-5 + 12 = ?", respuesta: 7, tipo: 'numerica' },
-                            { pregunta: "(-10) × 3 = ?", respuesta: -30, tipo: 'numerica' },
-                            { pregunta: "400 - (-50) = ?", respuesta: 450, tipo: 'numerica' },
-                            { pregunta: "84 ÷ 7 = ?", respuesta: 12, tipo: 'numerica' },
-                            { pregunta: "(-15) + (-20) = ?", respuesta: -35, tipo: 'numerica' },
-                            { pregunta: "0.25 × 20 = ?", respuesta: 5, tipo: 'numerica' },
-                        ],
-                        misterioso: [
-                            { pregunta: "? + (-10) = 5", respuesta: 15, tipo: 'numerica' },
-                            { pregunta: "? - 25 = 75", respuesta: 100, tipo: 'numerica' },
-                            { pregunta: "? × 7 = 91", respuesta: 13, tipo: 'numerica' },
-                            { pregunta: "? ÷ 6 = 15", respuesta: 90, tipo: 'numerica' },
-                            { pregunta: "Si 8 + ? = -2, ¿cuál es el número misterioso?", respuesta: -10, tipo: 'numerica' },
-                            { pregunta: "En ? × (-4) = -20, ¿qué número falta?", respuesta: 5, tipo: 'numerica' },
-                            { pregunta: "Si 1/2 + ? = 1, ¿qué fracción falta (en decimal)?", respuesta: 0.5, tipo: 'numerica' },
-                            { pregunta: "El número que multiplicado por -3 da 27 es:", respuesta: -9, tipo: 'numerica' },
-                        ],
-                        secuencia: [
-                            { pregunta: "4, 8, 16, ?, 64", respuesta: 32, tipo: 'numerica' },
-                            { pregunta: "-3, 0, 3, ?, 9", respuesta: 6, tipo: 'numerica' },
-                            { pregunta: "100, 90, ?, 70, 60", respuesta: 80, tipo: 'numerica' },
-                            { pregunta: "1, 4, ?, 16, 25", respuesta: 9, tipo: 'numerica' }, // 1², 2², 3², 4², 5²
-                            { pregunta: "5, 15, ?, 45, 55", respuesta: 25, tipo: 'numerica' }, // +10, +10, +10
-                            { pregunta: "1/4, 1/2, ?, 1, 5/4", respuesta: 0.75, tipo: 'numerica' }, // +1/4
-                            { pregunta: "2, 6, 18, ?, 162", respuesta: 54, tipo: 'numerica' }, // x3
-                        ],
-                        potenciacion: [
-                            { pregunta: "5³ = ?", respuesta: 125, tipo: 'numerica' },
-                            { pregunta: "10⁴ = ?", respuesta: 10000, tipo: 'numerica' },
-                            { pregunta: "(-2)³ = ?", respuesta: -8, tipo: 'numerica' },
-                            { pregunta: "7² = ?", respuesta: 49, tipo: 'numerica' },
-                            { pregunta: "2⁵ = ?", respuesta: 32, tipo: 'numerica' },
-                            { pregunta: "(-3)² = ?", respuesta: 9, tipo: 'numerica' },
-                            { pregunta: "10⁰ = ?", respuesta: 1, tipo: 'numerica' },
-                        ],
-                        combinadas: [
-                            { pregunta: "(10 + 5) × 2 = ?", respuesta: 30, tipo: 'numerica' },
-                            { pregunta: "20 - (5 × 3) = ?", respuesta: 5, tipo: 'numerica' },
-                            { pregunta: "3 × (8 - 4) + 2 = ?", respuesta: 14, tipo: 'numerica' },
-                            { pregunta: "100 ÷ (20 - 10) = ?", respuesta: 10, tipo: 'numerica' },
-                            { pregunta: "(-3) × 4 + 15 = ?", respuesta: 3, tipo: 'numerica' },
-                            { pregunta: "1/2 + 0.5 × 4 = ? (en decimal)", respuesta: 2.5, tipo: 'numerica' },
-                            { pregunta: "√16 + (2 × 5) = ?", respuesta: 14, tipo: 'numerica' },
-                        ],
-                        "verdadero-falso": [
-                            { pregunta: "¿Es -5 mayor que -2? Verdadero o Falso.", respuesta: false, explicacion: "-5 es menor que -2.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Un triángulo con lados 3, 4, 5 es un triángulo rectángulo? Verdadero o Falso.", respuesta: true, explicacion: "Cumple el Teorema de Pitágoras (3²+4²=5²).", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 1/2 equivalente a 0.5? Verdadero o Falso.", respuesta: true, explicacion: "Un medio es igual a 0.5.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Todos los números primos son impares? Verdadero o Falso.", respuesta: false, explicacion: "El número 2 es un número primo y es par.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿La media de {1, 2, 3, 4} es 2.5? Verdadero o Falso.", respuesta: true, explicacion: "La suma es 10, dividido por 4 es 2.5.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Cualquier número dividido por sí mismo (excepto cero) es 1? Verdadero o Falso.", respuesta: true, explicacion: "5/5=1, -10/-10=1, etc.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Un cuadrado tiene 4 lados de la misma longitud? Verdadero o Falso.", respuesta: true, explicacion: "Un cuadrado es un polígono regular con 4 lados iguales y 4 ángulos rectos.", tipo: 'verdadero-falso' },
-                        ],
-                        "mas-cercano": [
-                            { pregunta: "El número más cercano a 123.5 es:", objetivo: 123.5, tipo: 'numerica' },
-                            { pregunta: "El más cercano al resultado de (15 × 8) es:", objetivo: 120, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a la suma de 75 y 48 es:", objetivo: 123, tipo: 'numerica' },
-                            { pregunta: "El más cercano a la mitad de 250 es:", objetivo: 125, tipo: 'numerica' },
-                            { pregunta: "Adivina el número más cercano a 88.8:", objetivo: 88.8, tipo: 'numerica' },
-                            { pregunta: "El más cercano a la resta de 100 y 37 es:", objetivo: 63, tipo: 'numerica' },
-                            { pregunta: "El más cercano a 0.75 + 1/4 es:", objetivo: 1, tipo: 'numerica' },
-                        ]
-                    },
-                    "8-9": { // Secundaria Media (Grados 8 y 9)
-                        operaciones: [
-                            { pregunta: "1500 + 750 = ?", respuesta: 2250, tipo: 'numerica' },
-                            { pregunta: "3000 - 1250 = ?", respuesta: 1750, tipo: 'numerica' },
-                            { pregunta: "25 × 35 = ?", respuesta: 875, tipo: 'numerica' },
-                            { pregunta: "1500 ÷ 25 = ?", respuesta: 60, tipo: 'numerica' },
-                            { pregunta: "-15 + (-20) = ?", respuesta: -35, tipo: 'numerica' },
-                            { pregunta: "(-8) × (-7) = ?", respuesta: 56, tipo: 'numerica' },
-                            { pregunta: "0.5 + 1.25 = ?", respuesta: 1.75, tipo: 'numerica' },
-                            { pregunta: "3/4 + 1/2 (en decimal) = ?", respuesta: 1.25, tipo: 'numerica' },
-                            { pregunta: "(-100) ÷ 4 + 50 = ?", respuesta: 25, tipo: 'numerica' },
-                            { pregunta: "1.5 × 2.5 = ?", respuesta: 3.75, tipo: 'numerica' },
-                        ],
-                        misterioso: [
-                            { pregunta: "? + (-25) = -10", respuesta: 15, tipo: 'numerica' },
-                            { pregunta: "? - 0.75 = 2.25", respuesta: 3, tipo: 'numerica' },
-                            { pregunta: "? × 12 = 180", respuesta: 15, tipo: 'numerica' },
-                            { pregunta: "? ÷ (-5) = 10", respuesta: -50, tipo: 'numerica' },
-                            { pregunta: "Si 1/3 + ? = 1, ¿cuál es la fracción que falta (en decimal redondeado a 2 decimales)?", respuesta: 0.67, tipo: 'numerica' },
-                            { pregunta: "En ? × 0.2 = 4, ¿qué número falta?", respuesta: 20, tipo: 'numerica' },
-                            { pregunta: "El valor de 'x' en 2x + 5 = 15 es:", respuesta: 5, tipo: 'numerica' },
-                            { pregunta: "Si y/4 - 2 = 3, el valor de 'y' es:", respuesta: 20, tipo: 'numerica' },
-                        ],
-                        secuencia: [
-                            { pregunta: "0.5, 1, 2, ?, 8", respuesta: 4, tipo: 'numerica' }, // x2
-                            { pregunta: "1, 1, 2, 3, 5, ?, 13", respuesta: 8, tipo: 'numerica' }, // Fibonacci
-                            { pregunta: "1/2, 1, 3/2, ?, 5/2", respuesta: 2, tipo: 'numerica' }, // +0.5
-                            { pregunta: "1000, 100, 10, ?, 0.1", respuesta: 1, tipo: 'numerica' }, // ÷10
-                            { pregunta: "-10, -5, 0, ?, 10", respuesta: 5, tipo: 'numerica' }, // +5
-                            { pregunta: "1, 4, 9, 16, ?, 36", respuesta: 25, tipo: 'numerica' }, // Cuadrados perfectos
-                            { pregunta: "3/4, 1.5, ?, 3, 3.75", respuesta: 2.25, tipo: 'numerica' }, // +0.75
-                        ],
-                        potenciacion: [
-                            { pregunta: "(-3)³ = ?", respuesta: -27, tipo: 'numerica' },
-                            { pregunta: "2⁻² (en decimal) = ?", respuesta: 0.25, tipo: 'numerica' },
-                            { pregunta: "(1/2)² (en decimal) = ?", respuesta: 0.25, tipo: 'numerica' },
-                            { pregunta: "10⁻³ (en decimal) = ?", respuesta: 0.001, tipo: 'numerica' },
-                            { pregunta: "(-5)² = ?", respuesta: 25, tipo: 'numerica' },
-                            { pregunta: "4⁻¹ (en decimal) = ?", respuesta: 0.25, tipo: 'numerica' },
-                            { pregunta: "(0.1)² = ?", respuesta: 0.01, tipo: 'numerica' },
-                        ],
-                        combinadas: [
-                            { pregunta: "(20 + 10) × (5 - 2) = ?", respuesta: 90, tipo: 'numerica' },
-                            { pregunta: "1/4 + (0.5 × 8) = ? (en decimal)", respuesta: 4.25, tipo: 'numerica' },
-                            { pregunta: "(-15) ÷ 3 + 10 - 2 = ?", respuesta: 3, tipo: 'numerica' },
-                            { pregunta: "√25 + (3 × 4) = ?", respuesta: 17, tipo: 'numerica' }, 
-                            { pregunta: "(-2)³ + (5 × 2) = ?", respuesta: 2, tipo: 'numerica' },
-                            { pregunta: "(3/2 + 0.5) × 4 = ?", respuesta: 8, tipo: 'numerica' },
-                            { pregunta: "10² - (50 ÷ 2) = ?", respuesta: 75, tipo: 'numerica' },
-                        ],
-                        "verdadero-falso": [
-                            { pregunta: "¿La raíz cuadrada de 9 es ±3? Verdadero o Falso.", respuesta: true, explicacion: "Tanto 3² como (-3)² dan 9.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es 0.75 igual a 3/4? Verdadero o Falso.", respuesta: true, explicacion: "0.75 es tres cuartos.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Todo número entero es un número natural? Verdadero o Falso.", respuesta: false, explicacion: "Los números enteros incluyen los negativos y el cero, que no son naturales.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Es la fórmula del área de un círculo πr²? Verdadero o Falso.", respuesta: true, explicacion: "La fórmula para el área de un círculo es A = πr².", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Una función lineal es una línea recta? Verdadero o Falso.", respuesta: true, explicacion: "La representación gráfica de una función lineal es siempre una línea recta.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Si 'x' es un número real, entonces x² siempre es positivo? Verdadero o Falso.", respuesta: false, explicacion: "Si x=0, x²=0, que no es positivo.", tipo: 'verdadero-falso' },
-                            { pregunta: "¿Un número racional puede escribirse como una fracción? Verdadero o Falso.", respuesta: true, explicacion: "Un número racional es cualquier número que se puede expresar como una fracción a/b, donde 'a' y 'b' son enteros y 'b' es diferente de cero.", tipo: 'verdadero-falso' },
-                        ],
-                        "mas-cercano": [
-                            { pregunta: "El número más cercano a 1500 ÷ 30 es:", objetivo: 50, tipo: 'numerica' },
-                            { pregunta: "El más cercano al resultado de (12.5 × 4) es:", objetivo: 50, tipo: 'numerica' },
-                            { pregunta: "El número más cercano a la raíz cuadrada de 144 es:", objetivo: 12, tipo: 'numerica' },
-                            { pregunta: "El más cercano al resultado de 3/2 + 0.5 es:", objetivo: 2, tipo: 'numerica' },
-                            { pregunta: "Adivina el número más cercano al PI (3.14159...):", objetivo: Math.PI, tipo: 'numerica' },
-                            { pregunta: "El más cercano al valor de 'e' (2.71828...) es:", objetivo: Math.E, tipo: 'numerica' },
-                            { pregunta: "El más cercano a (5.5 - 2.1) × 3 es:", objetivo: 10.2, tipo: 'numerica' },
-                        ]
-                    }
-                };
-
                 this.themeToggle = document.getElementById('themeToggle');
                 this.timerCircle = document.querySelector('.timer-circle');
                 this.timerText = document.getElementById('timerText');
@@ -1907,15 +1590,6 @@
                 this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
-                this.getAIExplanationBtn = document.getElementById('getAIExplanation'); // Nuevo botón de IA
-                this.aiExplanationModal = document.getElementById('aiExplanationModal'); // Nuevo modal de IA
-                this.aiExplanationContent = document.getElementById('aiExplanationContent'); // Contenido del modal
-                this.closeAIExplanationModalBtn = document.getElementById('closeAIExplanationModal'); // Botón de cerrar modal
-                this.aiExplanationLoadingSpinner = this.aiExplanationModal.querySelector('.ai-explanation-loading-spinner');
-
-                // Elementos de input
-                this.standardInputContainer = document.getElementById('standardInput');
-                this.trueFalseButtons = document.getElementById('trueFalseButtons'); 
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
@@ -1943,7 +1617,6 @@
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
                 this.revealPhase.style.display = 'none';
-                this.aiExplanationModal.style.display = 'none'; // Asegúrate de que el modal de IA esté oculto
 
                 switch(this.state) {
                     case this.STATES.LOADING:
@@ -1958,17 +1631,13 @@
                         if (this.isHost) {
                             this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
                         }
-                        this.updateModeButtonsVisibility(); // Actualizar botones al entrar al lobby
                         this.enableVotingButtons(true); 
-                        document.getElementById('lobbyGradeLevel').textContent = this.player.gradeLevel; // Muestra el nivel de la sala
                         break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = 'none'; 
                         this.startVoteBtn.style.display = 'none'; 
-                        this.updateModeButtonsVisibility(); // Actualizar botones durante votación
                         this.enableVotingButtons(true); 
-                        document.getElementById('lobbyGradeLevel').textContent = this.player.gradeLevel;
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
@@ -1976,14 +1645,12 @@
                         this.gameModeIndicator.style.display = 'block';
                         this.readyBtn.style.display = 'none';
                         this.startVoteBtn.style.display = 'none';
-                        if (this.player.isProfessor) { 
+                        if (this.isProfessor) { 
                             this.skipQuestionBtn.style.display = 'block';
                         }
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
-                        this.getAIExplanationBtn.style.display = 'block'; // Mostrar el botón de IA
-                        this.getAIExplanationBtn.disabled = false; // Habilitar el botón de IA
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
@@ -2035,11 +1702,8 @@
                 document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
                 document.getElementById('backToLobby').addEventListener('click', () => this.reiniciarJuego());
                 
-                // Event listener para los botones de modo de votación (ahora se filtran por JS)
-                this.modeButtons.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('mode-btn')) {
-                        this.castVote(e.target.dataset.mode);
-                    }
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
                 });
                 
                 this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
@@ -2068,56 +1732,7 @@
                         this.attemptReconnect();
                     }
                 });
-
-                // Event Listeners para la explicación de IA
-                this.getAIExplanationBtn.addEventListener('click', () => this.requestAIExplanation());
-                this.closeAIExplanationModalBtn.addEventListener('click', () => this.aiExplanationModal.style.display = 'none');
             }
-
-            // --- NUEVA FUNCIÓN: ACTUALIZAR VISIBILIDAD DE BOTONES DE MODO ---
-            updateModeButtonsVisibility() {
-                const availableModes = {
-                    "4-5": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
-                    "6-7": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
-                    "8-9": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"]
-                };
-                
-                // Obtener el nivel de grado del jugador local, que ya está sincronizado con la sala
-                const currentLevelModes = availableModes[this.player.gradeLevel] || [];
-                
-                this.modeButtons.innerHTML = ''; // Limpiar botones existentes
-
-                const modeNames = { // Nombres amigables para los modos
-                    operaciones: '🔢 Operación Rápida',
-                    misterioso: '❓ Número Misterioso',
-                    secuencia: '📈 Secuencia Numérica',
-                    potenciacion: '💪 Potenciación',
-                    combinadas: '🧩 Operaciones Combinadas',
-                    relampago: '⚡ Modo Relámpago',
-                    "verdadero-falso": '✅❌ Verdadero/Falso',
-                    "mas-cercano": '🎯 El más cercano gana'
-                };
-
-                currentLevelModes.forEach(mode => {
-                    const btn = document.createElement('button');
-                    btn.className = 'mode-btn';
-                    btn.dataset.mode = mode;
-                    btn.textContent = modeNames[mode] || mode;
-                    this.modeButtons.appendChild(btn);
-                });
-
-                // Si hay una votación activa y el jugador ya votó, marcar su voto
-                if (this.isVotingActive && this.player.hasVoted && this.selectedGameMode) {
-                    const votedBtn = this.modeButtons.querySelector(`[data-mode="${this.selectedGameMode}"]`);
-                    if (votedBtn) {
-                        votedBtn.classList.add('selected', 'voted');
-                        this.enableVotingButtons(false); // Deshabilitar si ya votó
-                    }
-                } else {
-                    this.enableVotingButtons(true); // Habilitar si no ha votado
-                }
-            }
-
 
             checkDarkModePreference() {
                 const darkMode = localStorage.getItem('darkMode') === 'true';
@@ -2143,43 +1758,6 @@
                     }
                 }
             }
-
-            // INICIO DE LA CORRECCIÓN - MÉTODO AÑADIDO Y MEJORADO
-            updatePlayerList() {
-                const playerListElement = document.getElementById('multiplayerPlayerList');
-                playerListElement.innerHTML = '';
-                const playerCountElement = document.getElementById('playerCount');
-
-                this.players.forEach(player => {
-                    const playerBadge = document.createElement('div');
-                    playerBadge.className = 'player-badge';
-                    if (player.isReady) {
-                        playerBadge.classList.add('ready');
-                    }
-                    if (player.isProfessor) {
-                        playerBadge.classList.add('professor');
-                    }
-                    playerBadge.innerHTML = `
-                        <img src="https://i.pravatar.cc/150?img=${player.avatar}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
-                        <span>${this.extractName(player.name)}</span>
-                        ${player.isProfessor ? ' <small>(Profesor)</small>' : ''}
-                        ${player.isReady ? ' <small>(Listo)</small>' : ''}
-                    `;
-                    playerListElement.appendChild(playerBadge);
-                });
-
-                // Asegúrate de que este contador se actualice correctamente aquí y no se duplique
-                playerCountElement.textContent = `${this.players.length}/${this.maxPlayers}`;
-
-                // Actualizar el estado del botón "Listo" del jugador local si se reconecta
-                const localPlayer = this.players.find(p => p.id === this.player.id);
-                if (localPlayer) {
-                    this.player.isReady = localPlayer.isReady;
-                    this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
-                    this.readyBtn.disabled = localPlayer.isReady; // Deshabilitar si ya está listo
-                }
-            }
-            // FIN DE LA CORRECCIÓN - MÉTODO AÑADIDO Y MEJORADO
 
             savePlayerStats() {
                 try {
@@ -2259,7 +1837,7 @@
 
             joinGame() {
                 const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const gradeLevel = document.getElementById('gradeLevelSelect').value; 
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
                 const gamePin = document.getElementById('gamePin').value.trim();
 
                 if (!playerName || playerName.length < 3) {
@@ -2267,13 +1845,13 @@
                     return;
                 }
 
-                if (!gradeLevel) { 
-                    document.getElementById('joinError').textContent = 'Por favor, selecciona tu nivel de grado.';
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
                     return;
                 }
 
                 if (!/^\d{4}$/.test(gamePin)) {
-                    document.getElementById('joinError').textContent = 'El PIN debe ser de 4 dígitos.';
+                    document.getElementById('joinError').textContent = 'PIN debe ser 4 dígitos';
                     return;
                 }
                 
@@ -2286,20 +1864,25 @@
                 }
 
                 this.player = {
-                    ...this.player,
                     id: playerId,
                     name: playerName,
-                    gradeLevel: gradeLevel, 
-                    displayName: `${playerName} (${gradeLevel})`,
+                    grade: grade,
+                    displayName: `${playerName} (${grade})`,
                     avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
                     streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
                     responseTimes: [],
                     history: [],
                     isProfessor: false,
                     isReady: false,
+                    gamesPlayed: this.player.gamesPlayed || 0,
+                    favoriteMode: this.player.favoriteMode || null,
+                    modeStats: this.player.modeStats || {},
+                    achievements: this.player.achievements || [],
                     lastAnswerCorrect: false
                 };
 
@@ -2310,15 +1893,15 @@
 
             createGame() {
                 const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const gradeLevel = document.getElementById('gradeLevelSelect').value; 
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
                 
                 if (!playerName || playerName.length < 3) {
                     document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
                     return;
                 }
 
-                if (!gradeLevel) { 
-                    document.getElementById('joinError').textContent = 'Por favor, selecciona tu nivel de grado.';
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
                     return;
                 }
                 
@@ -2335,23 +1918,28 @@
                 }
 
                 this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
-                document.getElementById('gamePin').value = this.gamePin; // Mostrar el PIN generado
+                document.getElementById('gamePin').value = this.gamePin; 
                 
-                 this.player = {
-                    ...this.player,
+                this.player = {
                     id: playerId,
                     name: playerName,
-                    gradeLevel: gradeLevel, // Asignar el nivel de grado
+                    grade: grade,
                     displayName: `${playerName} (Profesor)`,
                     avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
                     streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
                     responseTimes: [],
                     history: [],
                     isProfessor: true, 
                     isReady: false,
+                    gamesPlayed: this.player.gamesPlayed || 0,
+                    favoriteMode: this.player.favoriteMode || null,
+                    modeStats: this.player.modeStats || {},
+                    achievements: this.player.achievements || [],
                     lastAnswerCorrect: false
                 };
                 
@@ -2433,8 +2021,7 @@
                                 avatar: this.player.avatar,
                                 points: this.player.points, 
                                 isProfessor: this.player.isProfessor, 
-                                isReady: this.player.isReady,
-                                gradeLevel: this.player.gradeLevel // ¡Enviar el nivel de grado!
+                                isReady: this.player.isReady
                             }
                         }));
                     };
@@ -2542,7 +2129,7 @@
             }
 
             handleSocketMessage(data) {
-                console.log("[Cliente] Mensaje WS recibido:", data); 
+                console.log("[Cliente] Mensaje recibido y manejando:", data.type);
                 
                 switch(data.type) {
                     case 'room_created': 
@@ -2577,21 +2164,14 @@
                         
                     case 'game_starting': 
                         this.showNotification(`¡El juego comenzará! Modo: ${this.getModeName(data.mode)}`);
+                        break;
+                        
+                    case 'game_start': 
                         this.startGame(data.mode, data.closestAnswerMode);
-                        // El host es el único que genera y comparte preguntas
-                        if (this.isHost) {
-                            console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor...");
-                            // Asegúrate de que el servidor almacena la pregunta completa
-                            this.questions = this.generarPreguntas(data.mode, 10, this.player.gradeLevel); 
-                            this.currentQuestionIndex = 0;
-                            this.shareQuestionWithPlayers(); 
-                        }
                         break;
                         
                     case 'question_update':
-                        // CORRECCIÓN: El cliente recibe la pregunta SANITIZADA del servidor
-                        this.currentQuestionData = data.question; // Almacenar la pregunta que el cliente puede mostrar
-                        this.handleQuestionUpdate(data); // Asegúrate de que handleQuestionUpdate solo use los datos necesarios
+                        this.handleQuestionUpdate(data);
                         break;
                         
                     case 'game_over':
@@ -2604,6 +2184,8 @@
                     
                     case 'host_skipped_question': 
                         if (!this.isHost) { 
+                            this.currentQuestionIndex++; 
+                            this.displayQuestion(); 
                             this.showNotification("El profesor ha saltado la pregunta.");
                         }
                         break;
@@ -2623,28 +2205,12 @@
                         break;
                         
                     case 'reveal_phase':
-                        // CORRECCIÓN: Pasar la explicación de la IA recibida desde el servidor
-                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.explanation);
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
                         break;
-                    
-                    case 'game_state_reset': 
-                        this.reiniciarJuego(); 
-                        break;
-                    
-                    case 'ai_explanation_response': // Nuevo tipo de mensaje para la explicación de IA
-                        this.showAIExplanation(data.explanation);
-                        break;
-
+                        
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
-            }
-            
-            // Nuevo método para manejar la actualización de la pregunta por el cliente
-            handleQuestionUpdate(data) {
-                // `data.question` ya viene sanitizada del servidor
-                this.displayQuestion(data.question);
-                // Otros datos como index y totalQuestions pueden usarse para la barra de progreso, etc.
             }
 
             handleRoomJoined(data) {
@@ -2652,20 +2218,17 @@
                 this.isMultiplayer = true; 
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
-                this.player.gradeLevel = data.gradeLevel; // ¡Obtener el nivel de la sala!
-                this.gamePin = data.pin; // <--- CORRECCIÓN: Actualiza el gamePin localmente
                 
-                // Actualizar el player local con los datos del servidor (si se reconecta)
+                this.gamePin = data.pin; 
+                document.getElementById('lobbyPin').textContent = this.gamePin; 
+
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
-                    Object.assign(this.player, currentPlayerFromServer);
+                    this.player.isProfessor = currentPlayerFromServer.isProfessor;
+                    this.player.isReady = currentPlayerFromServer.isReady; 
                 }
 
-                // CORRECCIÓN: Actualiza el PIN de la sala y el conteo de jugadores
-                document.getElementById('lobbyPin').textContent = this.gamePin;
-                document.getElementById('playerCount').textContent = `${this.players.length}/${this.maxPlayers}`;
-
-                this.updatePlayerList(); // Llama a esta función aquí
+                this.updatePlayerList();
                 
                 this.isVotingActive = data.isVotingActive || false; 
                 if (this.isVotingActive) {
@@ -2681,30 +2244,24 @@
                     this.setState(this.STATES.LOBBY);
                 }
                 
-                if (data.isGameRunning && data.question) {
-                    this.startGame(data.gameMode, data.closestAnswerMode); 
-                    this.currentQuestionIndex = data.questionIndex;
-                    this.currentQuestionData = data.question; // El cliente también necesita la pregunta para pedir explicación
-                    this.displayQuestion(data.question); 
-                } else if (data.isGameRunning && !data.question) {
+                if (data.isGameRunning) {
                     this.startGame(data.gameMode, data.closestAnswerMode);
-                    this.showNotification("Juego en curso. Esperando próxima pregunta...");
+                    this.currentQuestionIndex = data.questionIndex;
+                    this.handleQuestionUpdate(data); 
                 }
             }
 
             handlePlayerJoined(data) {
-                // Esta función se llama cuando un nuevo jugador se une o uno existente se reconecta.
-                // Es importante mantener la lista `this.players` sincronizada con el servidor.
                 const existingPlayer = this.players.find(p => p.id === data.player.id);
                 if (!existingPlayer) {
                     this.players.push(data.player);
+                    this.updatePlayerList();
                     this.showNotification(`${data.player.name} se ha unido`);
                 } else {
-                    // Si el jugador ya existe (reconexión o actualización de estado), actualiza sus datos
-                    Object.assign(existingPlayer, data.player); 
-                    this.showNotification(`${data.player.name} se ha reconectado`); // O simplemente "se ha actualizado"
+                    Object.assign(existingPlayer, data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`${data.player.name} se ha reconectado`);
                 }
-                this.updatePlayerList(); // Actualiza la UI de la lista de jugadores
             }
 
             handlePlayerLeft(data) {
@@ -2743,7 +2300,7 @@
                     
                     this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
                     if (!allNeededPlayersReady) {
-                        this.showNotification(`Profesor: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                        this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
                     }
                 }
             }
@@ -2775,7 +2332,7 @@
                 }
                 
                 this.playSound('clickSound');
-                this.showNotification("El profesor ha iniciado la votación!");
+                this.showNotification("El anfitrión ha iniciado la votación!");
                 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
@@ -2783,6 +2340,178 @@
                         pin: this.gamePin,
                         hostId: this.player.id
                     }));
+                }
+            }
+
+            handleQuestionUpdate(data) {
+                this.currentQuestionData = data.question;
+                this.lastAnswerTime = Date.now();
+                this.currentQuestionIndex = data.questionIndex; 
+                
+                this.displayQuestion(data.question);
+                
+                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
+                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                }
+            }
+
+            handleGameOver(data) {
+                clearInterval(this.timerInterval);
+                clearInterval(this.rankingUpdateInterval);
+                this.rankingUpdateInterval = null; 
+                
+                const finalRanking = Array.isArray(data.finalRanking) ? 
+                    data.finalRanking.map(p => ({
+                        id: p.id,
+                        name: p.name || p.displayName,
+                        avatar: p.avatar || '1',
+                        points: p.points || 0,
+                        streak: p.streak || 0,
+                        maxStreak: p.maxStreak || 0,
+                        achievements: p.achievements || [] 
+                    })) : [];
+                
+                this.updatePlayerStatistics(finalRanking);
+                
+                this.showMultiplayerResults(finalRanking);
+            }
+
+            updatePlayerStatistics(finalRanking) {
+                this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
+                
+                if (this.selectedGameMode) {
+                    if (!this.player.modeStats) {
+                        this.player.modeStats = {};
+                    }
+                    
+                    if (!this.player.modeStats[this.selectedGameMode]) {
+                        this.player.modeStats[this.selectedGameMode] = {
+                            games: 0,
+                            wins: 0,
+                            points: 0,
+                            maxStreak: 0
+                        };
+                    }
+                    
+                    const modeStats = this.player.modeStats[this.selectedGameMode];
+                    modeStats.games += 1;
+                    modeStats.points += this.player.points; 
+                    
+                    if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
+                        modeStats.maxStreak = this.player.maxStreak;
+                    }
+                    
+                    const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
+                    if (playerPosition >= 0 && playerPosition < 3) {
+                        modeStats.wins += 1;
+                    }
+                    
+                    let maxGames = 0;
+                    let favoriteMode = null;
+                    
+                    for (const mode in this.player.modeStats) {
+                        if (this.player.modeStats[mode].games > maxGames) {
+                            maxGames = this.player.modeStats[mode].games;
+                            favoriteMode = mode;
+                        }
+                    }
+                    
+                    this.player.favoriteMode = favoriteMode;
+                }
+                
+                if (this.player.streak > this.player.maxStreak) {
+                    this.player.maxStreak = this.player.streak;
+                }
+
+                this.checkAchievements();
+                
+                this.savePlayerStats();
+            }
+
+            checkAchievements() {
+                for (const achievementId in this.achievementsList) {
+                    const achievement = this.achievementsList[achievementId];
+                    
+                    if (!this.player.achievements.some(a => a.id === achievementId)) {
+                        if (achievement.condition(this.player)) {
+                            this.unlockAchievement(achievementId, achievement);
+                        }
+                    }
+                }
+            }
+
+            unlockAchievement(achievementId, achievement) {
+                this.player.achievements.push({
+                    id: achievementId,
+                    title: achievement.title,
+                    description: achievement.description,
+                    icon: achievement.icon,
+                    date: new Date().toISOString()
+                });
+                
+                this.showAchievementPopup(achievement);
+                
+                this.savePlayerStats();
+            }
+
+            showAchievementPopup(achievement) {
+                document.getElementById('achievementTitle').textContent = achievement.title;
+                document.getElementById('achievementDescription').textContent = achievement.description;
+                document.getElementById('achievementPopup').querySelector('.achievement-icon').textContent = achievement.icon;
+                
+                this.achievementPopup.style.display = 'block';
+                this.playSound('achievementSound');
+                
+                setTimeout(() => {
+                    if (this.achievementPopup.style.display === 'block') {
+                        this.achievementPopup.style.display = 'none';
+                    }
+                }, 5000);
+            }
+
+            handleError(data) {
+                document.getElementById('joinError').textContent = data.message;
+                this.showNotification(`Error: ${data.message}`); 
+                if (this.state === this.STATES.LOADING || this.state === this.STATES.JOIN_SCREEN) {
+                    this.setState(this.STATES.JOIN_SCREEN);
+                }
+            }
+
+            updatePlayerList() {
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                const sortedPlayers = [...this.players].sort((a, b) => a.name.localeCompare(b.name));
+
+                sortedPlayers.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span>${this.extractName(player.name)}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
+                    if (player.isReady) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+                
+                if (this.players.some(p => p.id === this.player.id)) { 
+                    this.readyBtn.disabled = this.player.isReady;
+                    this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
                 }
             }
 
@@ -2795,8 +2524,7 @@
                 this.isVotingActive = true; 
                 this.setState(this.STATES.VOTING); 
 
-                // Resetear voteCounts con todos los modos posibles, se filtrarán al mostrar
-                this.voteCounts = { 
+                this.voteCounts = {
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
                     combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0
                 };
@@ -2804,10 +2532,10 @@
                 this.player.hasVoted = false; 
 
                 this.players.forEach(p => p.hasVoted = false); 
+                this.enableVotingButtons(true); 
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.classList.remove('selected', 'voted'); 
                 });
-                this.enableVotingButtons(true); // Se habilita el botón después de limpiar las clases
                 
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
@@ -2842,7 +2570,6 @@
                 this.player.hasVoted = true;
                 this.showNotification(`Has votado por: ${this.getModeName(mode)}`);
                 
-                // Marcar el botón votado como seleccionado
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.classList.remove('selected'); 
                     if (btn.dataset.mode === mode) {
@@ -2864,9 +2591,7 @@
             }
 
             enableVotingButtons(enable) {
-                // Solo habilitar/deshabilitar los botones visibles para el nivel actual
-                const modes = this.modeButtons.querySelectorAll('.mode-btn');
-                modes.forEach(btn => {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.disabled = !enable;
                 });
             }
@@ -2875,17 +2600,9 @@
                 this.voteCounts = votes;
                 let resultsHTML = '';
                 
-                // Filtrar solo los modos relevantes para el nivel actual antes de mostrar resultados
-                const allAvailableModes = {
-                    "4-5": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
-                    "6-7": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
-                    "8-9": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"]
-                };
-                const currentLevelModes = allAvailableModes[this.player.gradeLevel] || [];
-
                 const sortedModes = Object.entries(this.voteCounts)
-                    .filter(([mode]) => currentLevelModes.includes(mode)) // Solo mostrar modos del nivel actual
-                    .sort(([, countA], [, countB]) => countB - countA); 
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .filter(([, count]) => count > 0); 
 
                 if (sortedModes.length > 0) {
                     sortedModes.forEach(([mode, count]) => {
@@ -2912,26 +2629,23 @@
                 return names[mode] || mode;
             }
 
-            startGame(mode, closestAnswerModeParam = false) { 
+            startGame(mode, closestAnswerMode = false) {
                 this.selectedGameMode = mode;
-                this.closestAnswerMode = (mode === "mas-cercano"); // Establecer la bandera para el modo "El más cercano gana"
-                
+                this.closestAnswerMode = closestAnswerMode;
                 this.isVotingActive = false; 
                 clearInterval(this.voteInterval); 
                 this.voteInterval = null;
 
                 this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
-                if (this.closestAnswerMode) { 
-                    this.gameModeIndicator.textContent += " �";
+                if (closestAnswerMode) {
+                    this.gameModeIndicator.textContent += " 🎯";
                 }
                 
-                // Ajustar duración del temporizador según el modo
                 if (mode === 'relampago') {
-                    this.timerDuration = 10; 
+                    this.timerDuration = 5;
                     document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso' || mode === 'mas-cercano') { 
-                    this.timerDuration = 15; // CORRECCIÓN: Ajustar el tiempo para V/F y más cercano
-                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                } else if (mode === 'verdadero-falso') {
+                    this.timerDuration = 15;
                 } else {
                     this.timerDuration = 30;
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
@@ -2939,18 +2653,16 @@
                 
                 this.setState(this.STATES.PLAYING);
                 
-                // Mostrar/ocultar inputs según el tipo de pregunta del modo
                 if (mode === 'verdadero-falso') {
-                    this.standardInputContainer.style.display = 'none';
-                    this.trueFalseButtons.style.display = 'flex';
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'flex';
                 } else {
-                    this.standardInputContainer.style.display = 'block';
-                    this.trueFalseButtons.style.display = 'none';
+                    document.getElementById('standardInput').style.display = 'block';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
                 }
                 
-                // Solo el host genera y comparte las preguntas
                 if (this.isHost) {
-                    this.questions = this.generarPreguntas(mode, 10, this.player.gradeLevel); // Pasa el nivel de grado
+                    this.questions = this.generarPreguntas(mode, 10); 
                     this.currentQuestionIndex = 0;
                     this.shareQuestionWithPlayers();
                 }
@@ -2967,65 +2679,254 @@
             }
 
             shareQuestionWithPlayers() {
-                if (!this.isHost || !this.questions.length) {
-                    console.warn("[Cliente Host] No se puede compartir la pregunta: No es host o no hay preguntas.");
-                    return;
-                }
+                if (!this.isHost || !this.questions.length) return;
                 
                 const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question; // Guardar la pregunta completa en el cliente host
+                this.currentQuestionData = question;
                 
-                // Para enviar al servidor, el host debe enviar la pregunta completa (incluyendo respuesta para su lógica)
+                const questionToSend = { ...question };
+                if (questionToSend.tipo === 'verdadero-falso') {
+                    delete questionToSend.respuesta; 
+                    delete questionToSend.explicacion;
+                }
+
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
                     pin: this.gamePin,
-                    question: question, // Envía la pregunta completa para que el servidor pueda validar y explicar
+                    question: questionToSend,
                     questionIndex: this.currentQuestionIndex,
-                    totalQuestions: this.questions.length,
-                    gameMode: this.selectedGameMode,
-                    gradeLevel: this.player.gradeLevel 
+                    totalQuestions: this.questions.length
                 }));
                 
-                // Mostrar la pregunta en la interfaz del cliente (puede ser una versión sanitizada si el servidor no lo hace)
-                // O usa la pregunta completa si ya es segura para mostrar
-                this.displayQuestion(question); // Ya que el servidor no sanea la pregunta para el cliente
+                this.displayQuestion(question);
                 this.resetTimer();
             }
 
-            generarPreguntas(mode, count, gradeLevel) {
-                let preguntasFuente;
-                // Asegúrate de que el gradeLevel exista y el modo exista dentro de ese gradeLevel
-                if (this.questionsByLevelAndMode[gradeLevel] && this.questionsByLevelAndMode[gradeLevel][mode]) {
-                    preguntasFuente = this.questionsByLevelAndMode[gradeLevel][mode];
-                } else {
-                    console.warn(`No hay preguntas definidas para el nivel ${gradeLevel} y modo ${mode}. Usando "operaciones" de 4-5 por defecto.`);
-                    // Fallback si el nivel o modo no están definidos
-                    preguntasFuente = this.questionsByLevelAndMode["4-5"]["operaciones"];
-                }
-
-                // Si es modo relámpago, selecciona de todos los modos disponibles para ese gradeLevel
-                if (mode === 'relampago') {
-                    const allAvailableModesForLevel = this.questionsByLevelAndMode[gradeLevel] || {};
-                    const allAvailableQuestionsForLevel = [];
-                    for (const subMode in allAvailableModesForLevel) {
-                        if (subMode !== 'relampago') { // Evitar incluir el modo relámpago en sí mismo
-                            allAvailableQuestionsForLevel.push(...allAvailableModesForLevel[subMode]);
+            generarPreguntas(mode, count) {
+                const preguntas = [];
+                
+                const generarOperacion = () => {
+                    const num1 = Math.floor(Math.random() * 15) + 1; 
+                    const num2 = Math.floor(Math.random() * 15) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    let operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let pregunta, respuesta;
+                    
+                    if (operador === '/') {
+                        let divisor = Math.floor(Math.random() * 8) + 2; 
+                        let cociente = Math.floor(Math.random() * 10) + 1; 
+                        let dividendo = divisor * cociente;
+                        pregunta = `${dividendo} ÷ ${divisor} = ?`;
+                        respuesta = cociente;
+                    } else {
+                         switch(operador) {
+                            case '+':
+                                pregunta = `${num1} + ${num2} = ?`;
+                                respuesta = num1 + num2;
+                                break;
+                            case '-':
+                                if (num1 < num2) { [num1, num2] = [num2, num1]; } 
+                                pregunta = `${num1} - ${num2} = ?`;
+                                respuesta = num1 - num2;
+                                break;
+                            case '*':
+                                pregunta = `${num1} × ${num2} = ?`;
+                                respuesta = num1 * num2;
+                                break;
                         }
                     }
-                    const shuffled = allAvailableQuestionsForLevel.sort(() => 0.5 - Math.random()); 
-                    // Asegúrate de que no se pidan más preguntas de las disponibles
-                    return shuffled.slice(0, Math.min(count, shuffled.length));
+                    
+                    return { pregunta, respuesta, tipo: 'operacion' };
+                };
+                
+                const generarMisterioso = () => {
+                    const num1 = Math.floor(Math.random() * 20) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const tipoOp = Math.random();
+                    
+                    let pregunta, respuesta;
+                    
+                    if (tipoOp < 0.33) { 
+                        respuesta = num1;
+                        pregunta = `? + ${num2} = ${num1 + num2}`;
+                    } else if (tipoOp < 0.66) { 
+                        respuesta = num1 + num2; 
+                        pregunta = `? - ${num2} = ${num1}`;
+                    } else { 
+                        respuesta = num1;
+                        pregunta = `? × ${num2} = ${num1 * num2}`;
+                    }
+                    
+                    return { pregunta, respuesta, tipo: 'misterioso' };
+                };
+                
+                const generarSecuencia = () => {
+                    const patrones = [
+                        { inicio: 2, paso: 2, longitud: 5 }, 
+                        { inicio: 1, paso: 3, longitud: 5 }, 
+                        { inicio: 10, paso: -2, longitud: 5 }, 
+                        { inicio: 5, paso: 5, longitud: 5 }, 
+                        { inicio: 3, paso: 4, longitud: 5 }  
+                    ];
+                    
+                    const patron = patrones[Math.floor(Math.random() * patrones.length)];
+                    const posicionFalta = Math.floor(Math.random() * (patron.longitud - 1)) + 1; 
+                    let secuencia = [];
+                    let respuesta = 0;
+                    
+                    for (let j = 0; j < patron.longitud; j++) {
+                        if (j === posicionFalta) {
+                            secuencia.push("?");
+                            respuesta = patron.inicio + j * patron.paso;
+                        } else {
+                            secuencia.push(patron.inicio + j * patron.paso);
+                        }
+                    }
+                    
+                    const pregunta = `Completa la secuencia: ${secuencia.join(", ")}`;
+                    
+                    return { pregunta, respuesta, tipo: 'secuencia' };
+                };
+                
+                const generarPotenciacion = () => {
+                    const base = Math.floor(Math.random() * 4) + 2; 
+                    const exponente = Math.floor(Math.random() * 3) + 2; 
+                    const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
+                    const pregunta = `${base}${superScripts[exponente]} = ?`;
+                    const respuesta = Math.pow(base, exponente);
+                    
+                    return { pregunta, respuesta, tipo: 'potenciacion' };
+                };
+                
+                const generarCombinadas = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const num3 = Math.floor(Math.random() * 5) + 1;
+                    
+                    let pregunta = '';
+                    let respuesta = 0;
+                    const opcion = Math.floor(Math.random() * 3);
+
+                    switch(opcion) {
+                        case 0: 
+                            pregunta = `(${num1} + ${num2}) × ${num3} = ?`;
+                            respuesta = (num1 + num2) * num3;
+                            break;
+                        case 1: 
+                            pregunta = `${num1} + ${num2} × ${num3} = ?`;
+                            respuesta = num1 + (num2 * num3);
+                            break;
+                        case 2: 
+                            if (num1 < num2) { [num1, num2] = [num2, num1]; }
+                            pregunta = `(${num1} - ${num2}) + ${num3} = ?`;
+                            respuesta = (num1 - num2) + num3;
+                            break;
+                    }
+                    return { pregunta, respuesta, tipo: 'combinadas' };
+                };
+                
+                const generarVerdaderoFalso = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let operacionTexto;
+                    let resultadoReal;
+                    
+                    switch(operador) {
+                        case '+':
+                            resultadoReal = num1 + num2;
+                            operacionTexto = `${num1} + ${num2}`;
+                            break;
+                        case '-':
+                            resultadoReal = num1 - num2;
+                            operacionTexto = `${num1} - ${num2}`;
+                            break;
+                        case '*':
+                            resultadoReal = num1 * num2;
+                            operacionTexto = `${num1} × ${num2}`;
+                            break;
+                        case '/':
+                            let divisor = Math.floor(Math.random() * 5) + 2; 
+                            let cociente = Math.floor(Math.random() * 10) + 1;
+                            let dividendo = divisor * cociente;
+                            resultadoReal = cociente;
+                            operacionTexto = `${dividendo} ÷ ${divisor}`;
+                            break;
+                    }
+
+                    const esCorrecta = Math.random() < 0.7;
+                    let resultadoFalso = resultadoReal;
+                    if (!esCorrecta) {
+                        resultadoFalso += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1); 
+                        if (resultadoFalso === resultadoReal) resultadoFalso += (Math.random() > 0.5 ? 1 : -1); 
+                    }
+                    
+                    const pregunta = `¿Es correcta esta operación?<br>${operacionTexto} = ${esCorrecta ? resultadoReal : resultadoFalso}`;
+                    const respuesta = esCorrecta; 
+                    const explicacion = esCorrecta ? "La operación es correcta." : `La operación es incorrecta. La respuesta correcta era ${resultadoReal}.`;
+                    
+                    return { 
+                        pregunta: pregunta, 
+                        respuesta: respuesta,
+                        tipo: 'verdadero-falso',
+                        explicacion: explicacion
+                    };
+                };
+                
+                let generador;
+                switch(mode) {
+                    case 'operaciones': generador = generarOperacion; break;
+                    case 'misterioso': generador = generarMisterioso; break;
+                    case 'secuencia': generador = generarSecuencia; break;
+                    case 'potenciacion': generador = generarPotenciacion; break;
+                    case 'combinadas': generador = generarCombinadas; break;
+                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
+                    case 'mas-cercano': generador = generarOperacion; break; 
+                    default: generador = generarOperacion;
                 }
                 
-                // Para otros modos, toma directamente del array predefinido y baraja
-                const shuffled = [...preguntasFuente].sort(() => 0.5 - Math.random()); 
-                // Asegúrate de que no se pidan más preguntas de las disponibles
-                return shuffled.slice(0, Math.min(count, shuffled.length));
+                for (let i = 0; i < count; i++) {
+                    preguntas.push(generador());
+                }
+                
+                const numImages = Math.floor(Math.random() * 3) + 1; 
+                const preguntasConImagen = [
+                    {
+                        pregunta: "¿Cuántos cuadrados hay en esta figura?",
+                        imagen: "https://i.ibb.co/C0W2k6M/cuadrados.png", 
+                        respuesta: 5,
+                        tipo: "imagen"
+                    },
+                    {
+                        pregunta: "¿Cuántas frutas ves en la imagen?",
+                        imagen: "https://i.ibb.co/hK5X765/frutas.png", 
+                        respuesta: 8,
+                        tipo: "imagen"
+                    },
+                    {
+                        pregunta: "¿Cuál es el patrón que sigue la siguiente figura?",
+                        imagen: "https://i.ibb.co/c82h7g4/patron.png", 
+                        respuesta: 4, 
+                        tipo: "imagen"
+                    }
+                ];
+
+                for (let i = 0; i < numImages && preguntasConImagen.length > 0; i++) {
+                    const randomIndexImage = Math.floor(Math.random() * preguntasConImagen.length);
+                    const imageQuestion = preguntasConImagen.splice(randomIndexImage, 1)[0]; 
+                    const indexToReplace = Math.floor(Math.random() * preguntas.length);
+                    preguntas[indexToReplace] = imageQuestion;
+                }
+                
+                return preguntas;
             }
-            
+
             displayQuestion(questionData = null) {
                 try {
-                    const question = questionData || this.currentQuestionData; 
+                    const question = questionData || this.currentQuestionData;
                     if (!question) return;
                     
                     const questionElement = document.getElementById("currentQuestion");
@@ -3043,7 +2944,7 @@
                     this.lastAnswerTime = Date.now();
                     
                     const questionImage = document.getElementById('questionImage');
-                    if (question.imagen) { 
+                    if (question.imagen) {
                         questionImage.src = question.imagen;
                         questionImage.style.display = 'block';
                     } else {
@@ -3051,16 +2952,12 @@
                     }
                     
                     if (this.selectedGameMode === 'verdadero-falso') {
-                        this.standardInputContainer.style.display = 'none';
-                        this.trueFalseButtons.style.display = 'flex';
+                        document.getElementById('standardInput').style.display = 'none';
+                        document.getElementById('trueFalseButtons').style.display = 'flex';
                     } else {
-                        this.standardInputContainer.style.display = 'block';
-                        this.trueFalseButtons.style.display = 'none';
+                        document.getElementById('standardInput').style.display = 'block';
+                        document.getElementById('trueFalseButtons').style.display = 'none';
                     }
-                    
-                    // Limpiar y re-habilitar botones (V/F y teclado si es necesario)
-                    document.getElementById('trueBtn').disabled = false;
-                    document.getElementById('falseBtn').disabled = false;
 
                     this.resetTimer();
                 } catch (error) {
@@ -3068,7 +2965,7 @@
                     this.showError("Error al cargar la pregunta.");
                 }
             }
-            
+
             checkAnswer(userAnswer) {
                 try {
                     if (this.player.hasAnswered) {
@@ -3076,65 +2973,200 @@
                         return;
                     }
 
-                    // Deshabilitar botones para evitar doble respuesta o respuestas no válidas
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
 
-                    // Validar si la respuesta está vacía (solo para inputs de texto)
-                    if (this.selectedGameMode !== 'verdadero-falso' && (userAnswer === null || userAnswer.toString().trim() === "")) {
+                    if ((!userAnswer || userAnswer.toString().trim() === "") && this.selectedGameMode !== 'verdadero-falso') {
                         this.showResult("¡Escribe una respuesta!", false);
                         document.getElementById('submitAnswer').disabled = false; 
-                        this.player.hasAnswered = false; 
                         return;
                     }
 
                     this.player.hasAnswered = true; 
-                    document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
+                    document.getElementById("answerResult").textContent = "Respuesta registrada. ¡Esperando a los demás!";
                     document.getElementById("answerResult").className = "result waiting";
 
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
+                    this.player.responseTimes.push(responseTime);
+                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+
+                    const currentQuestion = this.currentQuestionData;
+                    let isCorrect = false;
+                    let pointsEarned = 0;
+                    let streakBonus = 0;
+                    
+                    const basePoints = 5; 
+                    const timeBonus = Math.floor(this.timeLeft / 3); 
+                    
+                    if (this.selectedGameMode === 'verdadero-falso') {
+                        const userResponse = userAnswer === 'true'; 
+                        isCorrect = userResponse === currentQuestion.respuesta;
+                        
+                        if (isCorrect) {
+                            pointsEarned = basePoints + timeBonus;
+                            this.player.streak++;
+                            if (this.player.streak > this.player.maxStreak) {
+                                this.player.maxStreak = this.player.streak;
+                            }
+                            
+                            // Bonificación por racha
+                            if (this.player.streak >= 3 && this.player.streak < 5) {
+                                streakBonus = 2;
+                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                streakBonus = 5;
+                            } else if (this.player.streak >= 7) {
+                                streakBonus = 8;
+                            }
+                            
+                            pointsEarned += streakBonus;
+                            this.player.points += pointsEarned;
+                        } else {
+                            this.player.streak = 0;
+                            pointsEarned = 0; 
+                        }
+                        this.player.lastAnswerCorrect = isCorrect;
+                    } else { 
+                        const userAnswerParsed = parseFloat(userAnswer.toString().trim());
+                        if (isNaN(userAnswerParsed)) {
+                            this.showResult("¡Solo números!", false);
+                            document.getElementById('submitAnswer').disabled = false;
+                            this.player.hasAnswered = false; 
+                            return;
+                        }
+                        
+                        if (this.closestAnswerMode) {
+                            const diferencia = Math.abs(userAnswerParsed - currentQuestion.respuesta);
+                            pointsEarned = Math.max(1, 10 - diferencia * 2); 
+                            
+                            // Bonificación por estar muy cerca pero no exacto (modo "casi casi")
+                            if (diferencia > 0 && diferencia <= 2) {
+                                pointsEarned += 1; // Punto extra de consolación
+                            }
+                            
+                            isCorrect = true; 
+                            this.player.streak++; 
+                            if (this.player.streak > this.player.maxStreak) {
+                                this.player.maxStreak = this.player.streak;
+                            }
+                            
+                            // Bonificación por racha
+                            if (this.player.streak >= 3 && this.player.streak < 5) {
+                                streakBonus = 2;
+                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                streakBonus = 5;
+                            } else if (this.player.streak >= 7) {
+                                streakBonus = 8;
+                            }
+                            
+                            pointsEarned += streakBonus;
+                            this.player.points += pointsEarned;
+                            this.player.lastAnswerCorrect = true;
+                        } else {
+                            isCorrect = userAnswerParsed === currentQuestion.respuesta;
+                            
+                            if (isCorrect) {
+                                pointsEarned = basePoints + timeBonus;
+                                this.player.streak++;
+                                if (this.player.streak > this.player.maxStreak) {
+                                    this.player.maxStreak = this.player.streak;
+                                }
+                                
+                                // Bonificación por racha
+                                if (this.player.streak >= 3 && this.player.streak < 5) {
+                                    streakBonus = 2;
+                                } else if (this.player.streak >= 5 && this.player.streak < 7) {
+                                    streakBonus = 5;
+                                } else if (this.player.streak >= 7) {
+                                    streakBonus = 8;
+                                }
+                                
+                                pointsEarned += streakBonus;
+                                this.player.points += pointsEarned;
+                                this.player.lastAnswerCorrect = true;
+                            } else {
+                                this.player.streak = 0;
+                                pointsEarned = 0; 
+                                this.player.lastAnswerCorrect = false;
+                            }
+                        }
+                    }
+                    
+                    this.player.history.push({
+                        question: currentQuestion.pregunta,
+                        answer: userAnswer,
+                        correct: isCorrect,
+                        points: pointsEarned,
+                        timestamp: new Date().toISOString(),
+                        responseTime: responseTime,
+                        streakBonus: streakBonus
+                    });
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({
-                            type: 'submit_answer', // Nuevo tipo de mensaje para enviar respuestas al servidor
+                            type: 'player_answer', 
                             pin: this.gamePin,
                             playerId: this.player.id,
-                            answer: userAnswer.toString(), // Convertir a string para enviar al servidor
-                            responseTime: responseTime
+                            isCorrect: isCorrect, 
+                            pointsEarned: pointsEarned, 
+                            totalPoints: this.player.points, 
+                            streak: this.player.streak,
+                            maxStreak: this.player.maxStreak,
+                            avgResponseTime: this.player.avgResponseTime,
+                            streakBonus: streakBonus
                         }));
-                    } else {
-                        console.warn("Lógica de respuesta para un solo jugador no implementada con la nueva lógica del servidor.");
+                    } else if (!this.isMultiplayer) {
+                        // En modo individual, mostrar la respuesta inmediatamente
+                        if (this.selectedGameMode === 'verdadero-falso') {
+                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}` : 
+                                `❌ Incorrecto! ${currentQuestion.explicacion}`, isCorrect);
+                        } else if (this.closestAnswerMode) {
+                            const diferencia = Math.abs(parseFloat(userAnswer) - currentQuestion.respuesta);
+                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
+                        } else {
+                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos` : 
+                                `❌ Incorrecto! Era ${currentQuestion.respuesta}`, isCorrect);
+                        }
+                        
+                        if (isCorrect) {
+                            this.playSound('correctSound');
+                        } else {
+                            this.playSound('wrongSound');
+                        }
+                        
+                        clearInterval(this.timerInterval); 
+                        setTimeout(() => {
+                            this.currentQuestionIndex++;
+                            if (this.currentQuestionIndex < this.questions.length) {
+                                this.displayQuestion();
+                            } else {
+                                this.endGame();
+                            }
+                        }, 2000);
                     }
-
                 } catch (error) {
-                    console.error("Error al enviar respuesta:", error);
-                    this.showError("Error al enviar la respuesta.");
-                    document.getElementById('submitAnswer').disabled = false; 
-                    this.player.hasAnswered = false;
+                    console.error("Error al verificar respuesta:", error);
+                    this.showError("Error al verificar respuesta.");
+                } finally {
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
                 }
             }
 
-
-            startRevealPhase(correctAnswer, isCorrectForPlayer, streakBonusForPlayer, explanation = null) { 
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus) {
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                const currentQuestion = this.currentQuestionData;
-
                 // Mostrar la respuesta correcta
-                if (currentQuestion.tipo === 'verdadero-falso') {
-                     this.revealCorrectAnswer.innerHTML = `Respuesta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span><br><small>${explanation || 'No hay explicación disponible.'}</small>`;
-                } else if (this.closestAnswerMode) { 
-                    this.revealCorrectAnswer.innerHTML = `El objetivo era: <span class="reveal-correct-answer">${correctAnswer}</span>`;
-                }
-                else { 
+                if (this.selectedGameMode === 'verdadero-falso') {
+                    this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span>`;
+                } else {
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 
-                // Mostrar el resultado del jugador actual (basado en lo que el servidor envió)
-                if (isCorrectForPlayer) {
-                    this.revealPlayerResult.innerHTML = `✅ <strong>¡Correcto!</strong>`;
+                // Mostrar el resultado del jugador
+                if (playerCorrect) {
+                    this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
                     this.revealPlayerResult.style.color = 'var(--verde)';
                     this.playSound('correctSound');
                 } else {
@@ -3144,62 +3176,26 @@
                 }
                 
                 // Mostrar bonificación por racha si aplica
-                if (streakBonusForPlayer > 0) {
-                    this.revealStreakBonus.innerHTML = `🔥 ¡Racha +${streakBonusForPlayer} puntos!`;
+                if (streakBonus > 0) {
+                    this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
                 } else {
                     this.revealStreakBonus.innerHTML = '';
                 }
                 
+                // Configurar el temporizador para ocultar la fase de revelación
                 setTimeout(() => {
                     this.setState(this.STATES.PLAYING);
                     
                     if (this.isHost) {
                         this.currentQuestionIndex++;
-                        // El host decide si hay más preguntas o si termina el juego
                         if (this.currentQuestionIndex < this.questions.length) {
-                            this.shareQuestionWithPlayers(); // El host comparte la siguiente pregunta
+                            this.shareQuestionWithPlayers();
                         } else {
-                            this.endGame(); // El host termina el juego
+                            this.endGame();
                         }
                     }
-                    // Los clientes esperan la próxima 'question_update' o 'game_over' del host/servidor.
                 }, this.revealPhaseDuration);
             }
-            
-            // Nuevo método para solicitar explicación de IA
-            requestAIExplanation() {
-                if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-                    this.showNotification("No hay conexión con el servidor para obtener la explicación.");
-                    return;
-                }
-                if (!this.currentQuestionData) {
-                    this.showNotification("No hay pregunta actual para explicar.");
-                    return;
-                }
-
-                this.playSound('clickSound');
-                this.getAIExplanationBtn.disabled = true; // Deshabilitar el botón mientras carga
-                this.aiExplanationModal.style.display = 'flex'; // Mostrar el modal
-                this.aiExplanationContent.innerHTML = `<span class="ai-explanation-loading-spinner"></span>Cargando explicación...`; // Mostrar spinner
-
-                // Enviar la pregunta completa al servidor para que la IA la procese
-                this.socket.send(JSON.stringify({
-                    type: 'get_ai_explanation',
-                    pin: this.gamePin,
-                    question: this.currentQuestionData, // Envía la pregunta completa (incluye pregunta.pregunta, respuesta, tipo, etc.)
-                    gameMode: this.selectedGameMode,
-                    gradeLevel: this.player.gradeLevel
-                }));
-            }
-
-            // Nuevo método para mostrar la explicación de IA recibida del servidor
-            showAIExplanation(explanation) {
-                this.aiExplanationLoadingSpinner.style.display = 'none'; // Ocultar spinner
-                this.aiExplanationContent.textContent = explanation; // Mostrar la explicación
-                this.getAIExplanationBtn.disabled = false; // Re-habilitar el botón
-                this.aiExplanationModal.style.display = 'flex'; // Asegurarse de que el modal esté visible
-            }
-
 
             updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
                 const player = this.players.find(p => p.id === playerId);
@@ -3210,7 +3206,6 @@
                     player.avgResponseTime = avgResponseTime;
                 }
                 
-                // Actualizar la puntuación y racha del jugador local si es su ID
                 if (playerId === this.player.id) {
                     this.player.points = points;
                     this.player.streak = streak;
@@ -3222,16 +3217,9 @@
 
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
-                // Clonar la lista de jugadores y ordenarla para el ranking
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    // Para el modo "más cercano", un tiempo promedio de respuesta más bajo es mejor
-                    if (a.avgResponseTime !== undefined && b.avgResponseTime !== undefined) {
-                        // Tratar avgResponseTime de 0 como si fuera infinito o un valor muy alto para ranking de tiempo
-                        const avgA = a.avgResponseTime === 0 ? Infinity : a.avgResponseTime;
-                        const avgB = b.avgResponseTime === 0 ? Infinity : b.avgResponseTime;
-                        if (avgA !== avgB) return avgA - avgB;
-                    }
+                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
                 
@@ -3287,34 +3275,35 @@
                             if (this.isMultiplayer) {
                                 if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
                                     this.player.hasAnswered = true; 
-                                    // Al agotarse el tiempo, se envía una respuesta nula para que el servidor la procese como incorrecta/no respondida
+                                    this.player.streak = 0; 
+                                    document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                                    document.getElementById("answerResult").className = "result incorrect";
+                                    
                                     this.socket.send(JSON.stringify({
-                                        type: 'submit_answer', 
+                                        type: 'player_answer',
                                         pin: this.gamePin,
                                         playerId: this.player.id,
-                                        answer: null, // Respuesta nula para indicar tiempo agotado
-                                        responseTime: this.timerDuration // Tiempo máximo
+                                        isCorrect: false,
+                                        pointsEarned: 0,
+                                        totalPoints: this.player.points, 
+                                        streak: this.player.streak,
+                                        maxStreak: this.player.maxStreak,
+                                        avgResponseTime: this.player.avgResponseTime,
+                                        streakBonus: 0
                                     }));
                                 }
                                 if (this.isHost) {
-                                    // El host envía la señal al servidor para que inicie la fase de revelación
+                                    // Enviar fase de revelación para todos
+                                    const correctAnswer = this.currentQuestionData.respuesta;
                                     this.socket.send(JSON.stringify({
-                                        type: 'reveal_phase_trigger', 
+                                        type: 'reveal_phase',
                                         pin: this.gamePin,
-                                        hostId: this.player.id
+                                        correctAnswer: correctAnswer
                                     }));
                                 }
                             } else {
-                                // Lógica para un solo jugador (si no es multijugador)
                                 this.showResult("¡Tiempo agotado! ⏳", false);
-                                setTimeout(() => {
-                                    this.currentQuestionIndex++;
-                                    if (this.currentQuestionIndex < this.questions.length) {
-                                        this.displayQuestion(this.questions[this.currentQuestionIndex]);
-                                    } else {
-                                        this.endGame();
-                                    }
-                                }, this.revealPhaseDuration);
+                                this.skipQuestion(); 
                             }
                         }
                     }, 1000);
@@ -3348,23 +3337,28 @@
             skipQuestion() {
                  if (!this.isHost) return; 
                 
-                // Si el host salta, le dice al servidor que active la revelación y avance
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.shareQuestionWithPlayers();
+                } else {
+                    this.endGame();
+                }
+            }
+
+            skipQuestionAsProfessor() {
+                if (!this.isProfessor || !this.isHost) {
+                    this.showNotification("Solo el profesor puede saltar preguntas.");
+                    return;
+                }
+                
+                this.playSound('clickSound');
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
-                        type: 'skip_question', 
+                        type: 'skip_question',
                         pin: this.gamePin,
                         hostId: this.player.id 
                     }));
                 }
-                // La lógica de avance se manejará a través de la fase de revelación coordinada por el servidor
-            }
-
-            skipQuestionAsProfessor() {
-                if (!this.player.isProfessor || !this.isHost) {
-                    this.showNotification("Solo el profesor puede saltar preguntas.");
-                    return;
-                }
-                this.playSound('clickSound');
                 this.skipQuestion(); 
             }
 
@@ -3389,7 +3383,6 @@
                     } else if (this.isMultiplayer && !this.isHost) {
                         this.showNotification("Juego terminado. Esperando resultados...");
                     } else {
-                        // Modo individual (si no es multijugador)
                         this.showWinner(); 
                         this.setState(this.STATES.RESULTS); 
                     }
@@ -3402,12 +3395,7 @@
             getFinalRanking() {
                 return [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    // Para el modo "más cercano", un tiempo promedio de respuesta más bajo es mejor
-                    if (a.avgResponseTime !== undefined && b.avgResponseTime !== undefined) {
-                        const avgA = a.avgResponseTime === 0 ? Infinity : a.avgResponseTime; // Tratar 0s como peor tiempo
-                        const avgB = b.avgResponseTime === 0 ? Infinity : b.avgResponseTime;
-                        if (avgA !== avgB) return avgA - avgB;
-                    }
+                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
             }
@@ -3453,7 +3441,6 @@
                     
                     otherPlayers.innerHTML = '';
                     
-                    // Resetear los elementos del podio a su estado inicial para evitar datos de partidas anteriores
                     document.getElementById('firstName').textContent = '-';
                     document.getElementById('firstAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     firstPlace.querySelector('.podium-points').textContent = '0 pts';
@@ -3464,25 +3451,18 @@
                     document.getElementById('thirdAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     thirdPlace.querySelector('.podium-points').textContent = '0 pts';
 
-                    // Mostrar u ocultar los puestos del podio según cuántos jugadores haya
-                    firstPlace.style.display = 'none';
-                    secondPlace.style.display = 'none';
-                    thirdPlace.style.display = 'none';
-
 
                     if (finalRanking.length > 0) {
                         const first = finalRanking[0];
                         document.getElementById('firstName').textContent = this.extractName(first.name);
                         document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
                         firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
-                        firstPlace.style.display = 'flex';
                         
                         if (finalRanking.length > 1) {
                             const second = finalRanking[1];
                             document.getElementById('secondName').textContent = this.extractName(second.name);
                             document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
                             secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
-                            secondPlace.style.display = 'flex';
                         }
                         
                         if (finalRanking.length > 2) {
@@ -3490,7 +3470,6 @@
                             document.getElementById('thirdName').textContent = this.extractName(third.name);
                             document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
                             thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
-                            thirdPlace.style.display = 'flex';
                         }
                     }
                     
@@ -3582,18 +3561,15 @@
                     this.closestAnswerMode = false;
                     this.isVotingActive = false; 
 
-                    document.getElementById("currentQuestion").textContent = "Esperando para comenzar...";
+                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
                     document.getElementById("playerAnswer").value = "";
                     document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
                     document.getElementById("answerResult").className = "result waiting";
                     document.getElementById("mensajeVictoria").innerHTML = "";
                     document.getElementById("progressBar").style.width = "0%";
                     document.getElementById('submitAnswer').disabled = false;
-                    document.getElementById('questionImage').style.display = 'none'; // Ocultar imagen de pregunta
-                    document.getElementById('trueBtn').disabled = false; // Re-habilitar
-                    document.getElementById('falseBtn').disabled = false; // Re-habilitar
+                    document.getElementById('questionImage').style.display = 'none';
                     
-                    // Limpiar clases de botones de modo para una nueva votación
                     document.querySelectorAll('.mode-btn').forEach(btn => {
                         btn.classList.remove('selected', 'voted');
                         btn.disabled = false; 
@@ -3601,19 +3577,10 @@
                     
                     if (this.isMultiplayer) {
                         this.setState(this.STATES.LOBBY);
-                        // Si el host es el que reinicia, debe enviar un mensaje al servidor para limpiar la sala
-                        if (this.isHost && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                             this.socket.send(JSON.stringify({
-                                type: 'reset_game_state',
-                                pin: this.gamePin,
-                                hostId: this.player.id
-                            }));
-                        } else {
-                            // Si no es el host, la UI simplemente vuelve al lobby
-                            // y espera a que el servidor envíe un 'game_state_reset' si el host lo hizo.
+                        if (this.isHost) {
+                            this.startVoteBtn.style.display = 'block';
                         }
                     } else {
-                        // Modo individual, vuelve a la pantalla de unirse
                         this.isHost = false; 
                         this.player.isProfessor = false; 
                         this.setState(this.STATES.JOIN_SCREEN);
@@ -3625,8 +3592,7 @@
             }
 
             addNumber(num) {
-                // Solo permite añadir números si el input numérico está visible y el jugador no ha respondido
-                if (this.standardInputContainer.style.display !== 'none' && !this.player.hasAnswered) {
+                if (this.currentQuestionData && !this.player.hasAnswered) {
                     this.playSound('clickSound');
                     const playerAnswerInput = document.getElementById('playerAnswer');
                     playerAnswerInput.value += num;
@@ -3634,21 +3600,13 @@
             }
 
             clearNumber() {
-                // Solo permite borrar si el input numérico está visible
-                if (this.standardInputContainer.style.display !== 'none') {
-                    this.playSound('clickSound');
-                    document.getElementById('playerAnswer').value = "";
-                }
+                this.playSound('clickSound');
+                document.getElementById('playerAnswer').value = "";
             }
 
             submitAnswer() {
-                // Solo permite enviar si el input numérico está visible
-                if (this.standardInputContainer.style.display !== 'none') {
-                    const respuesta = document.getElementById('playerAnswer').value;
-                    this.checkAnswer(respuesta);
-                } else {
-                    this.showNotification("Este modo de juego no usa teclado numérico.");
-                }
+                const respuesta = document.getElementById('playerAnswer').value;
+                this.checkAnswer(respuesta);
             }
 
             handleNetworkError(error, message = "Error de red") {

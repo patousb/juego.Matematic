@@ -1255,11 +1255,11 @@
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <h2>Cargando Math Challenge PRO...</h2>
+        <h2>Cargando El Juego De Matematicas:3...</h2>
     </div>
 
     <div class="join-screen" id="joinScreen">
-        <h1>✨ Math Challenge PRO ✨</h1>
+        <h1>✨ Juego De Matematicas Pro Mancos ✨</h1>
         <div class="join-form glass-panel">
             <h2>¡Únete al juego!</h2>
             <div class="input-group">
@@ -1329,7 +1329,7 @@
     </div>
 
     <div id="gameContainer">
-        <h1>✨ Math Challenge PRO ✨</h1>
+        <h1>✨ Juego Matematico Pro ✨</h1>
         <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
 
         <div class="timer-container">
@@ -2207,7 +2207,20 @@
                     case 'reveal_phase':
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
                         break;
+                    
+                    // --- NUEVO CASE AÑADIDO ---
+                    case 'ranking_update':
+                        // El servidor nos envía la lista actualizada de todos los jugadores
+                        this.players = data.players;
+                        this.updateLiveRanking(); // Actualizamos el ranking en la pantalla
                         
+                        // Actualizamos el puntaje del jugador actual en su propia UI
+                        const myData = this.players.find(p => p.id === this.player.id);
+                        if (myData) {
+                            this.updatePlayerScore(myData.id, myData.points, myData.streak, myData.maxStreak, myData.avgResponseTime);
+                        }
+                        break;
+
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
@@ -2965,7 +2978,8 @@
                     this.showError("Error al cargar la pregunta.");
                 }
             }
-
+            
+            // --- FUNCIÓN REEMPLAZADA ---
             checkAnswer(userAnswer) {
                 try {
                     if (this.player.hasAnswered) {
@@ -2973,180 +2987,37 @@
                         return;
                     }
 
+                    // Deshabilitar botones para evitar doble respuesta
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
 
-                    if ((!userAnswer || userAnswer.toString().trim() === "") && this.selectedGameMode !== 'verdadero-falso') {
-                        this.showResult("¡Escribe una respuesta!", false);
-                        document.getElementById('submitAnswer').disabled = false; 
-                        return;
-                    }
-
-                    this.player.hasAnswered = true; 
-                    document.getElementById("answerResult").textContent = "Respuesta registrada. ¡Esperando a los demás!";
+                    this.player.hasAnswered = true;
+                    document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
                     document.getElementById("answerResult").className = "result waiting";
 
+                    // MODIFICADO: Ya no calculamos puntos aquí. Solo enviamos la respuesta.
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
-                    this.player.responseTimes.push(responseTime);
-                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
-
-                    const currentQuestion = this.currentQuestionData;
-                    let isCorrect = false;
-                    let pointsEarned = 0;
-                    let streakBonus = 0;
-                    
-                    const basePoints = 5; 
-                    const timeBonus = Math.floor(this.timeLeft / 3); 
-                    
-                    if (this.selectedGameMode === 'verdadero-falso') {
-                        const userResponse = userAnswer === 'true'; 
-                        isCorrect = userResponse === currentQuestion.respuesta;
-                        
-                        if (isCorrect) {
-                            pointsEarned = basePoints + timeBonus;
-                            this.player.streak++;
-                            if (this.player.streak > this.player.maxStreak) {
-                                this.player.maxStreak = this.player.streak;
-                            }
-                            
-                            // Bonificación por racha
-                            if (this.player.streak >= 3 && this.player.streak < 5) {
-                                streakBonus = 2;
-                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
-                                streakBonus = 5;
-                            } else if (this.player.streak >= 7) {
-                                streakBonus = 8;
-                            }
-                            
-                            pointsEarned += streakBonus;
-                            this.player.points += pointsEarned;
-                        } else {
-                            this.player.streak = 0;
-                            pointsEarned = 0; 
-                        }
-                        this.player.lastAnswerCorrect = isCorrect;
-                    } else { 
-                        const userAnswerParsed = parseFloat(userAnswer.toString().trim());
-                        if (isNaN(userAnswerParsed)) {
-                            this.showResult("¡Solo números!", false);
-                            document.getElementById('submitAnswer').disabled = false;
-                            this.player.hasAnswered = false; 
-                            return;
-                        }
-                        
-                        if (this.closestAnswerMode) {
-                            const diferencia = Math.abs(userAnswerParsed - currentQuestion.respuesta);
-                            pointsEarned = Math.max(1, 10 - diferencia * 2); 
-                            
-                            // Bonificación por estar muy cerca pero no exacto (modo "casi casi")
-                            if (diferencia > 0 && diferencia <= 2) {
-                                pointsEarned += 1; // Punto extra de consolación
-                            }
-                            
-                            isCorrect = true; 
-                            this.player.streak++; 
-                            if (this.player.streak > this.player.maxStreak) {
-                                this.player.maxStreak = this.player.streak;
-                            }
-                            
-                            // Bonificación por racha
-                            if (this.player.streak >= 3 && this.player.streak < 5) {
-                                streakBonus = 2;
-                            } else if (this.player.streak >= 5 && this.player.streak < 7) {
-                                streakBonus = 5;
-                            } else if (this.player.streak >= 7) {
-                                streakBonus = 8;
-                            }
-                            
-                            pointsEarned += streakBonus;
-                            this.player.points += pointsEarned;
-                            this.player.lastAnswerCorrect = true;
-                        } else {
-                            isCorrect = userAnswerParsed === currentQuestion.respuesta;
-                            
-                            if (isCorrect) {
-                                pointsEarned = basePoints + timeBonus;
-                                this.player.streak++;
-                                if (this.player.streak > this.player.maxStreak) {
-                                    this.player.maxStreak = this.player.streak;
-                                }
-                                
-                                // Bonificación por racha
-                                if (this.player.streak >= 3 && this.player.streak < 5) {
-                                    streakBonus = 2;
-                                } else if (this.player.streak >= 5 && this.player.streak < 7) {
-                                    streakBonus = 5;
-                                } else if (this.player.streak >= 7) {
-                                    streakBonus = 8;
-                                }
-                                
-                                pointsEarned += streakBonus;
-                                this.player.points += pointsEarned;
-                                this.player.lastAnswerCorrect = true;
-                            } else {
-                                this.player.streak = 0;
-                                pointsEarned = 0; 
-                                this.player.lastAnswerCorrect = false;
-                            }
-                        }
-                    }
-                    
-                    this.player.history.push({
-                        question: currentQuestion.pregunta,
-                        answer: userAnswer,
-                        correct: isCorrect,
-                        points: pointsEarned,
-                        timestamp: new Date().toISOString(),
-                        responseTime: responseTime,
-                        streakBonus: streakBonus
-                    });
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({
-                            type: 'player_answer', 
+                            type: 'submit_answer', // NUEVO tipo de mensaje
                             pin: this.gamePin,
                             playerId: this.player.id,
-                            isCorrect: isCorrect, 
-                            pointsEarned: pointsEarned, 
-                            totalPoints: this.player.points, 
-                            streak: this.player.streak,
-                            maxStreak: this.player.maxStreak,
-                            avgResponseTime: this.player.avgResponseTime,
-                            streakBonus: streakBonus
+                            answer: userAnswer, // Enviamos la respuesta en crudo
+                            responseTime: responseTime
                         }));
-                    } else if (!this.isMultiplayer) {
-                        // En modo individual, mostrar la respuesta inmediatamente
-                        if (this.selectedGameMode === 'verdadero-falso') {
-                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos<br>${currentQuestion.explicacion}` : 
-                                `❌ Incorrecto! ${currentQuestion.explicacion}`, isCorrect);
-                        } else if (this.closestAnswerMode) {
-                            const diferencia = Math.abs(parseFloat(userAnswer) - currentQuestion.respuesta);
-                            this.showResult(`🎯 Diferencia: ${diferencia} (+${pointsEarned} puntos)`, true);
-                        } else {
-                            this.showResult(isCorrect ? `✅ Correcto! +${pointsEarned} puntos` : 
-                                `❌ Incorrecto! Era ${currentQuestion.respuesta}`, isCorrect);
-                        }
-                        
-                        if (isCorrect) {
-                            this.playSound('correctSound');
-                        } else {
-                            this.playSound('wrongSound');
-                        }
-                        
-                        clearInterval(this.timerInterval); 
-                        setTimeout(() => {
-                            this.currentQuestionIndex++;
-                            if (this.currentQuestionIndex < this.questions.length) {
-                                this.displayQuestion();
-                            } else {
-                                this.endGame();
-                            }
-                        }, 2000);
+                    } else {
+                        // La lógica para un solo jugador puede permanecer aquí si la usas,
+                        // pero el foco principal es el multijugador.
+                        console.log("Modo de un solo jugador no implementado con la nueva lógica del servidor.");
                     }
+
                 } catch (error) {
-                    console.error("Error al verificar respuesta:", error);
-                    this.showError("Error al verificar respuesta.");
+                    console.error("Error al enviar respuesta:", error);
+                    this.showError("Error al enviar la respuesta.");
+                    document.getElementById('submitAnswer').disabled = false;
+                    this.player.hasAnswered = false;
                 } finally {
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;

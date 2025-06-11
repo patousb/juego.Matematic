@@ -2016,7 +2016,7 @@
                 }
             }
 
-            // INICIO DE LA CORRECCIÓN - MÉTODO AÑADIDO
+            // INICIO DE LA CORRECCIÓN - MÉTODO AÑADIDO Y MEJORADO
             updatePlayerList() {
                 const playerListElement = document.getElementById('multiplayerPlayerList');
                 playerListElement.innerHTML = '';
@@ -2040,6 +2040,7 @@
                     playerListElement.appendChild(playerBadge);
                 });
 
+                // Asegúrate de que este contador se actualice correctamente aquí y no se duplique
                 playerCountElement.textContent = `${this.players.length}/${this.maxPlayers}`;
 
                 // Actualizar el estado del botón "Listo" del jugador local si se reconecta
@@ -2047,10 +2048,10 @@
                 if (localPlayer) {
                     this.player.isReady = localPlayer.isReady;
                     this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
-                    this.readyBtn.disabled = this.player.isReady; // Deshabilitar si ya está listo
+                    this.readyBtn.disabled = localPlayer.isReady; // Deshabilitar si ya está listo
                 }
             }
-            // FIN DE LA CORRECCIÓN - MÉTODO AÑADIDO
+            // FIN DE LA CORRECCIÓN - MÉTODO AÑADIDO Y MEJORADO
 
             savePlayerStats() {
                 try {
@@ -2449,8 +2450,10 @@
                     case 'game_starting': 
                         this.showNotification(`¡El juego comenzará! Modo: ${this.getModeName(data.mode)}`);
                         this.startGame(data.mode, data.closestAnswerMode);
+                        // El host es el único que genera y comparte preguntas
                         if (this.isHost) {
                             console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor...");
+                            // Asegúrate de que el servidor almacena la pregunta completa
                             this.questions = this.generarPreguntas(data.mode, 10, this.player.gradeLevel); 
                             this.currentQuestionIndex = 0;
                             this.shareQuestionWithPlayers(); 
@@ -2491,7 +2494,7 @@
                         
                     case 'reveal_phase':
                         // Aquí el servidor nos dirá si NUESTRA respuesta fue correcta y nuestro bonus
-                        this.startRevealPhase(data.correctAnswer, data.isCorrect, data.streakBonus, data.explanation);
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.explanation);
                         break;
                     
                     case 'game_state_reset': 
@@ -2509,12 +2512,17 @@
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
                 this.player.gradeLevel = data.gradeLevel; // ¡Obtener el nivel de la sala!
+                this.gamePin = data.pin; // <--- CORRECCIÓN: Actualiza el gamePin localmente
                 
                 // Actualizar el player local con los datos del servidor (si se reconecta)
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
                     Object.assign(this.player, currentPlayerFromServer);
                 }
+
+                // CORRECCIÓN: Actualiza el PIN de la sala y el conteo de jugadores
+                document.getElementById('lobbyPin').textContent = this.gamePin;
+                document.getElementById('playerCount').textContent = `${this.players.length}/${this.maxPlayers}`;
 
                 this.updatePlayerList(); // Llama a esta función aquí
                 
@@ -2826,23 +2834,26 @@
                 const question = this.questions[this.currentQuestionIndex];
                 this.currentQuestionData = question;
                 
-                const questionToSend = { ...question };
-                // Eliminar la respuesta, explicación y objetivo para no revelarlas antes de tiempo
-                delete questionToSend.respuesta; 
-                delete questionToSend.explicacion; 
-                delete questionToSend.objetivo; // Eliminar el objetivo si es un modo "más cercano"
+                // Para enviar al servidor, el host debe enviar la pregunta completa (incluyendo respuesta para su lógica)
+                // y los clientes reciben una versión "sanitizada" sin la respuesta inmediata
+                const questionToSendToClients = { ...question };
+                delete questionToSendToClients.respuesta; 
+                delete questionToSendToClients.explicacion; 
+                delete questionToSendToClients.objetivo; 
 
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
                     pin: this.gamePin,
-                    question: questionToSend,
+                    // CORRECCIÓN: El host envía la pregunta COMPLETA al servidor
+                    question: question, // Envía la pregunta completa para que el servidor pueda validar la respuesta
                     questionIndex: this.currentQuestionIndex,
                     totalQuestions: this.questions.length,
                     gameMode: this.selectedGameMode,
                     gradeLevel: this.player.gradeLevel 
                 }));
                 
-                this.displayQuestion(question);
+                // Mostrar la pregunta sanitizada en la interfaz del cliente
+                this.displayQuestion(questionToSendToClients);
                 this.resetTimer();
             }
 
@@ -2866,18 +2877,20 @@
                             allAvailableQuestionsForLevel.push(...allAvailableModesForLevel[subMode]);
                         }
                     }
-                    const shuffled = allAvailableQuestionsForLevel.sort(() => 0.5 - Math.random());
-                    return shuffled.slice(0, count);
+                    const shuffled = allAvailableQuestionsForLevel.sort(() => 0.5 - Math.random()); 
+                    // Asegúrate de que no se pidan más preguntas de las disponibles
+                    return shuffled.slice(0, Math.min(count, shuffled.length));
                 }
                 
                 // Para otros modos, toma directamente del array predefinido y baraja
                 const shuffled = [...preguntasFuente].sort(() => 0.5 - Math.random()); 
-                return shuffled.slice(0, count);
+                // Asegúrate de que no se pidan más preguntas de las disponibles
+                return shuffled.slice(0, Math.min(count, shuffled.length));
             }
             
             displayQuestion(questionData = null) {
                 try {
-                    const question = questionData || this.currentQuestionData;
+                    const question = questionData || this.currentQuestionData; // Usa questionData que ahora viene sanitizada
                     if (!question) return;
                     
                     const questionElement = document.getElementById("currentQuestion");
@@ -2972,6 +2985,7 @@
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
+                // Usamos this.currentQuestionData porque contiene la respuesta original completa del host
                 const currentQuestion = this.currentQuestionData;
 
                 // Mostrar la respuesta correcta
@@ -3007,12 +3021,14 @@
                     
                     if (this.isHost) {
                         this.currentQuestionIndex++;
+                        // El host decide si hay más preguntas o si termina el juego
                         if (this.currentQuestionIndex < this.questions.length) {
-                            this.shareQuestionWithPlayers();
+                            this.shareQuestionWithPlayers(); // El host comparte la siguiente pregunta
                         } else {
-                            this.endGame();
+                            this.endGame(); // El host termina el juego
                         }
                     }
+                    // Los clientes esperan la próxima 'question_update' o 'game_over' del host/servidor.
                 }, this.revealPhaseDuration);
             }
 

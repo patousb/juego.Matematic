@@ -1132,6 +1132,9 @@
             border-radius: 15px;
             max-width: 80%;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .reveal-correct {
@@ -1159,6 +1162,101 @@
             font-size: 1.2rem;
             text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
         }
+        
+        .ai-explanation-button {
+            background: var(--morado);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .ai-explanation-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+        }
+
+        .ai-explanation-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Modal para la explicación de IA */
+        .ai-explanation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            display: none; /* Oculto por defecto */
+        }
+
+        .ai-explanation-modal-content {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: var(--texto);
+            position: relative;
+            border: 2px solid var(--azul);
+        }
+
+        .ai-explanation-modal-content h3 {
+            color: var(--azul);
+            margin-bottom: 15px;
+        }
+
+        .ai-explanation-modal-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: left;
+            white-space: pre-wrap; /* Mantiene saltos de línea y espacios del texto de la IA */
+        }
+
+        .ai-explanation-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--texto);
+            transition: color 0.3s;
+        }
+
+        .ai-explanation-close-btn:hover {
+            color: var(--rojo);
+        }
+        .ai-explanation-loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--morado);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
 
         /* Efecto de vidrio esmerilado */
         .glass-panel {
@@ -1240,6 +1338,11 @@
                 bottom: 70px;
                 right: 10px;
                 max-width: 200px;
+            }
+
+            .ai-explanation-modal-content {
+                width: 95%;
+                padding: 20px;
             }
         }
     </style>
@@ -1424,6 +1527,19 @@
             <div id="revealCorrectAnswer" class="reveal-correct"></div>
             <div id="revealPlayerResult" class="reveal-player-result"></div>
             <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
+            <button class="btn ai-explanation-button" id="getAIExplanation">Obtener Explicación de IA 🧠</button>
+        </div>
+    </div>
+
+    <!-- Modal para la explicación de IA -->
+    <div class="ai-explanation-modal" id="aiExplanationModal">
+        <div class="ai-explanation-modal-content">
+            <button class="ai-explanation-close-btn" id="closeAIExplanationModal">&times;</button>
+            <h3>Explicación de la Pregunta</h3>
+            <p id="aiExplanationContent">
+                <span class="ai-explanation-loading-spinner" style="display: none;"></span>
+                Cargando explicación...
+            </p>
         </div>
     </div>
 
@@ -1791,6 +1907,11 @@
                 this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
+                this.getAIExplanationBtn = document.getElementById('getAIExplanation'); // Nuevo botón de IA
+                this.aiExplanationModal = document.getElementById('aiExplanationModal'); // Nuevo modal de IA
+                this.aiExplanationContent = document.getElementById('aiExplanationContent'); // Contenido del modal
+                this.closeAIExplanationModalBtn = document.getElementById('closeAIExplanationModal'); // Botón de cerrar modal
+                this.aiExplanationLoadingSpinner = this.aiExplanationModal.querySelector('.ai-explanation-loading-spinner');
 
                 // Elementos de input
                 this.standardInputContainer = document.getElementById('standardInput');
@@ -1822,6 +1943,7 @@
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
                 this.revealPhase.style.display = 'none';
+                this.aiExplanationModal.style.display = 'none'; // Asegúrate de que el modal de IA esté oculto
 
                 switch(this.state) {
                     case this.STATES.LOADING:
@@ -1860,6 +1982,8 @@
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
+                        this.getAIExplanationBtn.style.display = 'block'; // Mostrar el botón de IA
+                        this.getAIExplanationBtn.disabled = false; // Habilitar el botón de IA
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
@@ -1944,6 +2068,10 @@
                         this.attemptReconnect();
                     }
                 });
+
+                // Event Listeners para la explicación de IA
+                this.getAIExplanationBtn.addEventListener('click', () => this.requestAIExplanation());
+                this.closeAIExplanationModalBtn.addEventListener('click', () => this.aiExplanationModal.style.display = 'none');
             }
 
             // --- NUEVA FUNCIÓN: ACTUALIZAR VISIBILIDAD DE BOTONES DE MODO ---
@@ -2461,7 +2589,9 @@
                         break;
                         
                     case 'question_update':
-                        this.handleQuestionUpdate(data);
+                        // CORRECCIÓN: El cliente recibe la pregunta SANITIZADA del servidor
+                        this.currentQuestionData = data.question; // Almacenar la pregunta que el cliente puede mostrar
+                        this.handleQuestionUpdate(data); // Asegúrate de que handleQuestionUpdate solo use los datos necesarios
                         break;
                         
                     case 'game_over':
@@ -2493,17 +2623,28 @@
                         break;
                         
                     case 'reveal_phase':
-                        // Aquí el servidor nos dirá si NUESTRA respuesta fue correcta y nuestro bonus
+                        // CORRECCIÓN: Pasar la explicación de la IA recibida desde el servidor
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.explanation);
                         break;
                     
                     case 'game_state_reset': 
                         this.reiniciarJuego(); 
                         break;
+                    
+                    case 'ai_explanation_response': // Nuevo tipo de mensaje para la explicación de IA
+                        this.showAIExplanation(data.explanation);
+                        break;
 
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
+            }
+            
+            // Nuevo método para manejar la actualización de la pregunta por el cliente
+            handleQuestionUpdate(data) {
+                // `data.question` ya viene sanitizada del servidor
+                this.displayQuestion(data.question);
+                // Otros datos como index y totalQuestions pueden usarse para la barra de progreso, etc.
             }
 
             handleRoomJoined(data) {
@@ -2543,7 +2684,7 @@
                 if (data.isGameRunning && data.question) {
                     this.startGame(data.gameMode, data.closestAnswerMode); 
                     this.currentQuestionIndex = data.questionIndex;
-                    this.currentQuestionData = data.question; 
+                    this.currentQuestionData = data.question; // El cliente también necesita la pregunta para pedir explicación
                     this.displayQuestion(data.question); 
                 } else if (data.isGameRunning && !data.question) {
                     this.startGame(data.gameMode, data.closestAnswerMode);
@@ -2663,10 +2804,10 @@
                 this.player.hasVoted = false; 
 
                 this.players.forEach(p => p.hasVoted = false); 
-                this.enableVotingButtons(true); 
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.classList.remove('selected', 'voted'); 
                 });
+                this.enableVotingButtons(true); // Se habilita el botón después de limpiar las clases
                 
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
@@ -2781,7 +2922,7 @@
 
                 this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
                 if (this.closestAnswerMode) { 
-                    this.gameModeIndicator.textContent += " 🎯";
+                    this.gameModeIndicator.textContent += " �";
                 }
                 
                 // Ajustar duración del temporizador según el modo
@@ -2789,7 +2930,7 @@
                     this.timerDuration = 10; 
                     document.getElementById('gameContainer').classList.add('lightning-mode');
                 } else if (mode === 'verdadero-falso' || mode === 'mas-cercano') { 
-                    this.timerDuration = 15;
+                    this.timerDuration = 15; // CORRECCIÓN: Ajustar el tiempo para V/F y más cercano
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
                 } else {
                     this.timerDuration = 30;
@@ -2832,28 +2973,22 @@
                 }
                 
                 const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question;
+                this.currentQuestionData = question; // Guardar la pregunta completa en el cliente host
                 
                 // Para enviar al servidor, el host debe enviar la pregunta completa (incluyendo respuesta para su lógica)
-                // y los clientes reciben una versión "sanitizada" sin la respuesta inmediata
-                const questionToSendToClients = { ...question };
-                delete questionToSendToClients.respuesta; 
-                delete questionToSendToClients.explicacion; 
-                delete questionToSendToClients.objetivo; 
-
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
                     pin: this.gamePin,
-                    // CORRECCIÓN: El host envía la pregunta COMPLETA al servidor
-                    question: question, // Envía la pregunta completa para que el servidor pueda validar la respuesta
+                    question: question, // Envía la pregunta completa para que el servidor pueda validar y explicar
                     questionIndex: this.currentQuestionIndex,
                     totalQuestions: this.questions.length,
                     gameMode: this.selectedGameMode,
                     gradeLevel: this.player.gradeLevel 
                 }));
                 
-                // Mostrar la pregunta sanitizada en la interfaz del cliente
-                this.displayQuestion(questionToSendToClients);
+                // Mostrar la pregunta en la interfaz del cliente (puede ser una versión sanitizada si el servidor no lo hace)
+                // O usa la pregunta completa si ya es segura para mostrar
+                this.displayQuestion(question); // Ya que el servidor no sanea la pregunta para el cliente
                 this.resetTimer();
             }
 
@@ -2890,7 +3025,7 @@
             
             displayQuestion(questionData = null) {
                 try {
-                    const question = questionData || this.currentQuestionData; // Usa questionData que ahora viene sanitizada
+                    const question = questionData || this.currentQuestionData; 
                     if (!question) return;
                     
                     const questionElement = document.getElementById("currentQuestion");
@@ -2985,7 +3120,6 @@
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // Usamos this.currentQuestionData porque contiene la respuesta original completa del host
                 const currentQuestion = this.currentQuestionData;
 
                 // Mostrar la respuesta correcta
@@ -3031,6 +3165,41 @@
                     // Los clientes esperan la próxima 'question_update' o 'game_over' del host/servidor.
                 }, this.revealPhaseDuration);
             }
+            
+            // Nuevo método para solicitar explicación de IA
+            requestAIExplanation() {
+                if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+                    this.showNotification("No hay conexión con el servidor para obtener la explicación.");
+                    return;
+                }
+                if (!this.currentQuestionData) {
+                    this.showNotification("No hay pregunta actual para explicar.");
+                    return;
+                }
+
+                this.playSound('clickSound');
+                this.getAIExplanationBtn.disabled = true; // Deshabilitar el botón mientras carga
+                this.aiExplanationModal.style.display = 'flex'; // Mostrar el modal
+                this.aiExplanationContent.innerHTML = `<span class="ai-explanation-loading-spinner"></span>Cargando explicación...`; // Mostrar spinner
+
+                // Enviar la pregunta completa al servidor para que la IA la procese
+                this.socket.send(JSON.stringify({
+                    type: 'get_ai_explanation',
+                    pin: this.gamePin,
+                    question: this.currentQuestionData, // Envía la pregunta completa (incluye pregunta.pregunta, respuesta, tipo, etc.)
+                    gameMode: this.selectedGameMode,
+                    gradeLevel: this.player.gradeLevel
+                }));
+            }
+
+            // Nuevo método para mostrar la explicación de IA recibida del servidor
+            showAIExplanation(explanation) {
+                this.aiExplanationLoadingSpinner.style.display = 'none'; // Ocultar spinner
+                this.aiExplanationContent.textContent = explanation; // Mostrar la explicación
+                this.getAIExplanationBtn.disabled = false; // Re-habilitar el botón
+                this.aiExplanationModal.style.display = 'flex'; // Asegurarse de que el modal esté visible
+            }
+
 
             updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
                 const player = this.players.find(p => p.id === playerId);

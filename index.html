@@ -2016,6 +2016,42 @@
                 }
             }
 
+            // INICIO DE LA CORRECCIÓN - MÉTODO AÑADIDO
+            updatePlayerList() {
+                const playerListElement = document.getElementById('multiplayerPlayerList');
+                playerListElement.innerHTML = '';
+                const playerCountElement = document.getElementById('playerCount');
+
+                this.players.forEach(player => {
+                    const playerBadge = document.createElement('div');
+                    playerBadge.className = 'player-badge';
+                    if (player.isReady) {
+                        playerBadge.classList.add('ready');
+                    }
+                    if (player.isProfessor) {
+                        playerBadge.classList.add('professor');
+                    }
+                    playerBadge.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span>${this.extractName(player.name)}</span>
+                        ${player.isProfessor ? ' <small>(Profesor)</small>' : ''}
+                        ${player.isReady ? ' <small>(Listo)</small>' : ''}
+                    `;
+                    playerListElement.appendChild(playerBadge);
+                });
+
+                playerCountElement.textContent = `${this.players.length}/${this.maxPlayers}`;
+
+                // Actualizar el estado del botón "Listo" del jugador local si se reconecta
+                const localPlayer = this.players.find(p => p.id === this.player.id);
+                if (localPlayer) {
+                    this.player.isReady = localPlayer.isReady;
+                    this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
+                    this.readyBtn.disabled = this.player.isReady; // Deshabilitar si ya está listo
+                }
+            }
+            // FIN DE LA CORRECCIÓN - MÉTODO AÑADIDO
+
             savePlayerStats() {
                 try {
                     const statsToSave = {

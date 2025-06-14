@@ -23,6 +23,7 @@
             --neon-morado: 0 0 10px rgba(164, 89, 255, 0.8);
             --neon-verde: 0 0 10px rgba(107, 255, 107, 0.8);
             --neon-rojo: 0 0 10px rgba(255, 107, 107, 0.8);
+            --neon-amarillo: 0 0 10px rgba(255, 222, 89, 0.8); /* Nuevo */
         }
 
         .dark-mode {
@@ -45,10 +46,11 @@
             background: var(--fondo);
             color: var(--texto);
             min-height: 100vh;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease-in-out; /* Transición más suave para el fondo */
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            overflow-x: hidden; /* Evitar scroll horizontal */
         }
 
         @keyframes gradientBG {
@@ -124,6 +126,20 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out; /* Transición de pantalla */
+        }
+        /* Animaciones de pantalla */
+        .screen-enter {
+            transform: translateX(100%);
+        }
+        .screen-enter-active {
+            transform: translateX(0);
+        }
+        .screen-exit {
+            transform: translateX(0);
+        }
+        .screen-exit-active {
+            transform: translateX(-100%);
         }
 
         .join-form {
@@ -194,6 +210,30 @@
             transform: scale(1.1);
             box-shadow: var(--neon-morado);
         }
+        
+        .color-selector { /* Nuevo: Selector de color */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .color-option.selected {
+            border-color: var(--texto); /* Borde blanco o negro para contraste */
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
 
         .btn {
             padding: 12px 25px;
@@ -202,7 +242,7 @@
             border-radius: 50px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Mejorado */
             font-family: 'Comic Neue', cursive;
             margin: 8px;
             background: linear-gradient(45deg, var(--azul), var(--morado));
@@ -224,8 +264,8 @@
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px var(--sombra);
+            transform: translateY(-5px) scale(1.02); /* Más interactivo */
+            box-shadow: 0 10px 20px var(--sombra); /* Sombra más pronunciada */
         }
 
         .btn:hover::before {
@@ -233,7 +273,7 @@
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(1px) scale(0.98); /* Feedback al click */
             box-shadow: 0 2px 5px var(--sombra);
         }
 
@@ -272,11 +312,13 @@
             background: var(--fondo);
             z-index: 1000;
             display: none;
+            flex-direction: column; /* Cambiado a column */
             justify-content: center;
             align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out; /* Transición de pantalla */
         }
 
         .lobby-container {
@@ -297,6 +339,9 @@
             gap: 10px;
             justify-content: center;
             margin: 20px 0;
+            max-height: 200px; /* Limitar altura */
+            overflow-y: auto; /* Scroll si hay muchos jugadores */
+            padding: 5px;
         }
 
         .player-badge {
@@ -310,6 +355,11 @@
             gap: 8px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             transition: all 0.3s;
+            position: relative; /* Para emotes */
+        }
+        
+        .player-badge[data-player-color] { /* Color personalizado del jugador */
+            background: linear-gradient(45deg, var(--player-color-dark), var(--player-color-light));
         }
 
         .player-badge:hover {
@@ -411,12 +461,56 @@
             border: 2px solid var(--borde);
             backdrop-filter: blur(5px);
         }
+        
+        .emote-selector { /* Nuevo: Selector de emotes */
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-        /* Juego principal */
+        .emote-btn {
+            background: var(--panel);
+            border: 1px solid var(--borde);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .emote-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--morado);
+        }
+        
+        .emote-display { /* Animación de emote */
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: emotePop 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes emotePop {
+            0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(1); }
+        }
+
+        /* Game Container (Animación de pantalla) */
         #gameContainer {
             display: none;
             max-width: 800px;
             margin: 0 auto;
+            transition: transform 0.5s ease-in-out;
         }
 
         .game {
@@ -492,7 +586,7 @@
             background: var(--panel);
             border: 2px solid var(--borde);
             border-radius: 8px;
-            transition: all 0.2s;
+            transition: all 0.2s ease, transform 0.1s ease; /* Feedback de pulsación */
             user-select: none;
         }
 
@@ -503,7 +597,7 @@
         }
 
         .key:active {
-            transform: translateY(1px);
+            transform: scale(0.95); /* Más feedback */
         }
 
         .key.negative {
@@ -643,6 +737,12 @@
             background: rgba(78, 140, 255, 0.1);
             transition: all 0.5s ease;
             animation: slideIn 0.5s ease;
+            align-items: center;
+        }
+        
+        .ranking-item[data-player-color] { /* Color personalizado del jugador */
+            background: rgba(var(--player-color-rgb), 0.1);
+            border-left: 4px solid var(--player-color);
         }
 
         @keyframes slideIn {
@@ -654,26 +754,16 @@
             background: rgba(255, 222, 89, 0.2);
             border-left: 4px solid var(--amarillo);
         }
-
-        .ranking-item.move-up {
-            animation: moveUp 0.5s ease;
+        
+        /* Animación de cambio de posición */
+        .ranking-item.moved {
+            animation: rankMove 0.5s ease-in-out;
+        }
+        @keyframes rankMove {
+            0% { transform: translateY(var(--move-y, 0)); background-color: rgba(255, 255, 0, 0.3); }
+            100% { transform: translateY(0); background-color: rgba(78, 140, 255, 0.1); }
         }
 
-        .ranking-item.move-down {
-            animation: moveDown 0.5s ease;
-        }
-
-        @keyframes moveUp {
-            0% { transform: translateY(0); background: var(--verde); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0); }
-        }
-
-        @keyframes moveDown {
-            0% { transform: translateY(0); background: var(--rojo); }
-            50% { transform: translateY(10px); }
-            100% { transform: translateY(0); }
-        }
 
         .ranking-position {
             font-weight: bold;
@@ -699,6 +789,14 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+        
+        .ranking-streak-badge { /* Nuevo: Emblema de racha */
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.9em;
+            color: var(--amarillo);
+            text-shadow: var(--neon-amarillo);
+        }
 
         /* Resultados finales */
         .final-results {
@@ -716,14 +814,17 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out; /* Transición de pantalla */
         }
-
+        
+        /* Animación para el podio */
         .podium {
             display: flex;
             justify-content: center;
             align-items: flex-end;
             margin: 30px 0;
             height: 250px;
+            perspective: 1000px; /* Para efecto 3D */
         }
 
         .podium-place {
@@ -731,6 +832,17 @@
             flex-direction: column;
             align-items: center;
             margin: 0 10px;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            animation: podiumEnter 0.8s forwards ease-out;
+        }
+        .podium-place:nth-child(2) { animation-delay: 0.2s; } /* 1er lugar */
+        .podium-place:nth-child(1) { animation-delay: 0s; } /* 2do lugar */
+        .podium-place:nth-child(3) { animation-delay: 0.4s; } /* 3er lugar */
+
+        @keyframes podiumEnter {
+            0% { opacity: 0; transform: translateY(50px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .podium-1 {
@@ -740,7 +852,20 @@
             border-radius: 8px 8px 0 0;
             animation: bounce 1s ease;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            position: relative; /* Para la estrella */
         }
+        .podium-1::before { /* Estrella para el primer lugar */
+            content: '⭐';
+            position: absolute;
+            top: -30px;
+            font-size: 2.5rem;
+            animation: starShine 1.5s infinite alternate;
+        }
+        @keyframes starShine {
+            0% { transform: scale(1); opacity: 0.8; text-shadow: var(--neon-amarillo); }
+            100% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 15px rgba(255, 215, 0, 1); }
+        }
+
 
         .podium-2 {
             height: 150px;
@@ -807,6 +932,10 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             align-items: center;
+        }
+        
+        .other-player[data-player-color] { /* Color personalizado del jugador */
+            background: rgba(var(--player-color-rgb), 0.1);
         }
 
         .other-player:hover {
@@ -1032,6 +1161,21 @@
             transform: translateX(-50%);
             z-index: 100;
         }
+        
+        /* Controles de profesor/host */
+        .host-controls {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--panel);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--morado);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
 
         /* Logros y medallas */
         .achievement-badge {
@@ -1057,9 +1201,10 @@
             z-index: 1000;
             text-align: center;
             display: none;
-            animation: achievementUnlock 1s ease;
+            animation: achievementUnlock 1s ease forwards; /* Cambiado a forwards */
             backdrop-filter: blur(10px);
             border: 2px solid var(--amarillo);
+            overflow: hidden; /* Para el efecto de partículas */
         }
 
         @keyframes achievementUnlock {
@@ -1072,7 +1217,28 @@
             font-size: 3rem;
             margin-bottom: 10px;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            position: relative;
+            display: inline-block;
         }
+        
+        .achievement-icon::before { /* Brillo alrededor del icono */
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,0,0.7) 0%, transparent 70%);
+            z-index: -1;
+            animation: iconPulse 1.5s infinite alternate;
+        }
+
+        @keyframes iconPulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.2); opacity: 0.9; }
+        }
+
 
         /* Estadísticas del jugador */
         .player-stats {
@@ -1167,6 +1333,34 @@
             font-size: 1.2rem;
             text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
         }
+        
+        .power-up-buttons { /* Nuevo: Botones de Power-ups */
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .power-up-btn {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: var(--azul);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .power-up-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        }
+        
+        .power-up-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
         /* Efecto de vidrio esmerilado */
         .glass-panel {
@@ -1210,7 +1404,7 @@
                 box-shadow: 0 0 10px var(--azul), 0 0 20px var(--morado), 0 0 30px var(--morado);
             }
         }
-
+        
         /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
@@ -1218,13 +1412,30 @@
             }
             
             .keyboard {
-                grid-template-columns: repeat(3, 70px);
+                grid-template-columns: repeat(3, 1fr); /* Haz las teclas expandibles */
+                max-width: 90%; /* Ajuste para pantallas pequeñas */
+            }
+            .key {
+                padding: 12px; /* Un poco menos de padding */
+                font-size: 1.1rem;
             }
 
             .live-ranking {
-                width: 200px;
+                width: 150px; /* Reducir en móvil */
                 left: 10px;
                 top: 10px;
+                padding: 10px;
+            }
+            .live-ranking h3 {
+                font-size: 1.1rem;
+            }
+            .ranking-item {
+                font-size: 0.9rem;
+                padding: 5px 8px;
+            }
+            .ranking-avatar {
+                width: 18px;
+                height: 18px;
             }
 
             .podium-place {
@@ -1232,7 +1443,21 @@
             }
 
             .podium-1, .podium-2, .podium-3 {
-                width: 80px;
+                width: 70px; /* Más pequeños */
+            }
+            .podium-1 { height: 160px; }
+            .podium-2 { height: 120px; }
+            .podium-3 { height: 80px; }
+
+            .podium-name {
+                font-size: 1rem;
+            }
+            .podium-points {
+                font-size: 0.8rem;
+            }
+            
+            .other-players {
+                width: 95%;
             }
 
             .true-false-buttons {
@@ -1247,7 +1472,8 @@
             .player-stats {
                 bottom: 70px;
                 right: 10px;
-                max-width: 200px;
+                max-width: 180px;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -1286,6 +1512,12 @@
                     <img src="https://i.pravatar.cc/150?img=6" class="avatar-option" data-avatar="6">
                 </div>
             </div>
+
+            <div class="input-group">
+                <label>Color de tu nombre:</label>
+                <div class="color-selector" id="colorSelector">
+                    <div class="color-option" data-color="#4e8cff" style="background-color: #4e8cff;"></div> <div class="color-option" data-color="#ff6b6b" style="background-color: #ff6b6b;"></div> <div class="color-option" data-color="#6bff6b" style="background-color: #6bff6b;"></div> <div class="color-option" data-color="#ffde59" style="background-color: #ffde59;"></div> <div class="color-option" data-color="#a459ff" style="background-color: #a459ff;"></div> <div class="color-option" data-color="#ff9900" style="background-color: #ff9900;"></div> </div>
+            </div>
             
             <button class="btn" id="joinGame">Unirse</button>
             <button class="btn btn-secondary" id="createGame">Crear nueva sala</button>
@@ -1296,7 +1528,7 @@
     <div class="multiplayer-lobby" id="multiplayerLobby">
         <div class="lobby-container glass-panel">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
-            <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
+            <div class="player-count">Jugadores: <span id="playerCount">0</span>/<span id="maxPlayersAllowed">15</span></div>
             
             <div class="vote-section">
                 <h3>Votar modo de juego:</h3>
@@ -1310,7 +1542,7 @@
                     <button class="mode-btn" data-mode="relampago">⚡ Modo Relámpago</button>
                     <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
                     <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
-                </div>
+                    <button class="mode-btn" data-mode="supervivencia">🔥 Supervivencia</button> <button class="mode-btn" data-mode="duelo">⚔️ Duelo (1 vs 1)</button> </div>
                 <div class="vote-results glass-panel">
                     <h4>Resultados:</h4>
                     <div id="voteResults"></div>
@@ -1318,6 +1550,19 @@
             </div>
             
             <div class="player-list" id="multiplayerPlayerList"></div>
+            
+            <div class="emote-selector">
+                <button class="emote-btn" data-emote="👍">👍</button>
+                <button class="emote-btn" data-emote="😂">😂</button>
+                <button class="emote-btn" data-emote="🔥">🔥</button>
+                <button class="emote-btn" data-emote="😮">😮</button>
+                <button class="emote-btn" data-emote="🤔">🤔</button>
+            </div>
+
+            <div class="host-controls" id="hostControls" style="display: none;">
+                <h3>Controles de Profesor:</h3>
+                <button class="btn btn-secondary" id="toggleSpectatorMode">👁️ Modo Espectador</button> <button class="btn btn-secondary" id="activatePowerUp">✨ Activar Power-Up (Demo)</button> <button class="btn btn-secondary" id="activateRandomEvent">🎲 Evento Aleatorio</button> </div>
+
             <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
             <button class="btn" id="startVoteBtn" style="display:none;">Iniciar Votación</button> 
         </div>
@@ -1367,6 +1612,12 @@
             <div class="true-false-buttons" id="trueFalseButtons" style="display: none;">
                 <button class="true-false-btn true-btn" id="trueBtn">✅ Verdadero</button>
                 <button class="true-false-btn false-btn" id="falseBtn">❌ Falso</button>
+            </div>
+            
+            <div class="power-up-buttons" id="playerPowerUps" style="display: none;">
+                <button class="power-up-btn" id="powerUpTime" data-powerup="time" disabled>+10s ⏳</button>
+                <button class="power-up-btn" id="powerUpDouble" data-powerup="double" disabled>x2 Puntos ✨</button>
+                <button class="power-up-btn" id="powerUpHint" data-powerup="hint" disabled>Pista 💡</button>
             </div>
         </div>
 
@@ -1437,6 +1688,15 @@
             <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
         </div>
     </div>
+    
+    <div id="hintModal" class="reveal-phase" style="display: none;">
+        <div class="reveal-content glass-panel">
+            <h2>💡 Pista:</h2>
+            <p id="hintContent" style="font-size: 1.5rem; margin-top: 20px; color: var(--texto);"></p>
+            <button class="btn" id="closeHintModal" style="margin-top: 20px;">Entendido</button>
+        </div>
+    </div>
+
 
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
     <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
@@ -1445,6 +1705,9 @@
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
     <audio id="achievementSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
     <audio id="revealSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="powerUpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sweep-appeal-124.mp3" preload="auto"></audio>
+    <audio id="eventSound" src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-bonus-achievement-2808.mp3" preload="auto"></audio>
+
 
     <script>
         class GameManager {
@@ -1456,7 +1719,8 @@
                     VOTING: 3,
                     PLAYING: 4,
                     RESULTS: 5,
-                    REVEAL: 6
+                    REVEAL: 6,
+                    SPECTATING: 7 // Nuevo estado
                 };
                 this.state = this.STATES.LOADING;
 
@@ -1466,6 +1730,7 @@
                     grade: "",
                     displayName: "",
                     avatar: "1",
+                    color: "#4e8cff", // Nuevo: color del jugador
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
@@ -1480,7 +1745,12 @@
                     favoriteMode: null,
                     modeStats: {},
                     achievements: [],
-                    lastAnswerCorrect: false
+                    lastAnswerCorrect: false,
+                    powerUps: { // Nuevo: Power-ups del jugador
+                        time: 1,
+                        double: 1,
+                        hint: 1
+                    }
                 };
                 
                 this.questions = [];
@@ -1498,7 +1768,12 @@
                 this.lastAnswerTime = null;
                 this.revealPhaseActive = false;
                 this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
-                
+                this.isSpectator = false; // Nuevo: si el jugador es espectador
+                this.activePowerUps = { // Power-ups activos globalmente
+                    doubleScore: false
+                };
+                this.currentDifficulty = 1; // Para modo supervivencia
+
                 this.isMultiplayer = false;
                 this.isHost = false; 
                 this.gamePin = '';
@@ -1522,7 +1797,9 @@
                     combinadas: 0,
                     relampago: 0,
                     "verdadero-falso": 0,
-                    "mas-cercano": 0
+                    "mas-cercano": 0,
+                    supervivencia: 0, // Nuevo
+                    duelo: 0 // Nuevo
                 };
                 this.isVotingActive = false; 
                 
@@ -1534,7 +1811,7 @@
                     perfectStreak: {
                         id: "perfectStreak",
                         title: "Racha Perfecta",
-                        description: "Responde correctamente todas las preguntas en una partida",
+                        description: "Responde correctamente 10 preguntas seguidas",
                         icon: "🏅",
                         condition: (player) => player.streak >= 10
                     },
@@ -1566,9 +1843,23 @@
                         icon: "👑",
                         condition: (player) => {
                             const modes = Object.keys(player.modeStats || {});
-                            const gameModes = ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "relampago", "verdadero-falso", "mas-cercano"];
+                            const gameModes = ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "relampago", "verdadero-falso", "mas-cercano", "supervivencia", "duelo"]; // Actualizado
                             return gameModes.every(mode => player.modeStats[mode] && player.modeStats[mode].wins > 0);
                         }
+                    },
+                    firstWin: { // Nuevo logro
+                        id: "firstWin",
+                        title: "Primera Victoria",
+                        description: "Gana tu primera partida",
+                        icon: "🥇",
+                        condition: (player) => player.gamesPlayed >= 1 && Object.values(player.modeStats).some(s => s.wins > 0)
+                    },
+                    powerUser: { // Nuevo logro
+                        id: "powerUser",
+                        title: "Usuario de Poder",
+                        description: "Usa todos los Power-Ups al menos una vez",
+                        icon: "🔋",
+                        condition: (player) => player.powerUpsUsed && Object.keys(player.powerUpsUsed).length === 3 && Object.values(player.powerUpsUsed).every(count => count > 0)
                     }
                 };
                 
@@ -1590,10 +1881,22 @@
                 this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
+                this.hostControls = document.getElementById('hostControls'); // Nuevo
+                this.toggleSpectatorModeBtn = document.getElementById('toggleSpectatorMode'); // Nuevo
+                this.activatePowerUpBtn = document.getElementById('activatePowerUp'); // Nuevo
+                this.activateRandomEventBtn = document.getElementById('activateRandomEvent'); // Nuevo
+                this.playerPowerUpsContainer = document.getElementById('playerPowerUps'); // Nuevo
+                this.powerUpTimeBtn = document.getElementById('powerUpTime'); // Nuevo
+                this.powerUpDoubleBtn = document.getElementById('powerUpDouble'); // Nuevo
+                this.powerUpHintBtn = document.getElementById('powerUpHint'); // Nuevo
+                this.hintModal = document.getElementById('hintModal'); // Nuevo
+                this.hintContent = document.getElementById('hintContent'); // Nuevo
+                this.closeHintModal = document.getElementById('closeHintModal'); // Nuevo
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
-                this.loadPlayerStats();
+                this.loadPlayerStats(); // Cargar estadísticas del jugador desde localStorage
+                this.applyPlayerColor(); // Aplicar el color guardado
                 
                 setTimeout(() => {
                     this.setState(this.STATES.JOIN_SCREEN);
@@ -1601,12 +1904,67 @@
                 }, 1500);
             }
 
+            // Función para cambiar de estado con transiciones
             setState(newState) {
+                const oldStateElement = this.getCurrentStateElement();
+                const newStateElement = this.getStateElement(newState);
+
+                if (oldStateElement && oldStateElement !== newStateElement) {
+                    oldStateElement.classList.add('screen-exit-active');
+                    oldStateElement.classList.add('screen-exit');
+                    setTimeout(() => {
+                        oldStateElement.style.display = 'none';
+                        oldStateElement.classList.remove('screen-exit-active', 'screen-exit');
+                        this.transitionToNewState(newState, newStateElement);
+                    }, 500); // Duración de la animación de salida
+                } else {
+                    this.transitionToNewState(newState, newStateElement);
+                }
+            }
+
+            getCurrentStateElement() {
+                switch(this.state) {
+                    case this.STATES.LOADING: return document.getElementById('loadingScreen');
+                    case this.STATES.JOIN_SCREEN: return document.getElementById('joinScreen');
+                    case this.STATES.LOBBY:
+                    case this.STATES.VOTING: return document.getElementById('multiplayerLobby');
+                    case this.STATES.PLAYING: return document.getElementById('gameContainer');
+                    case this.STATES.REVEAL: return this.revealPhase;
+                    case this.STATES.RESULTS: return document.getElementById('finalResults');
+                    case this.STATES.SPECTATING: return document.getElementById('multiplayerLobby'); // Puede ser lobby o juego, dependiendo
+                    default: return null;
+                }
+            }
+
+            getStateElement(state) {
+                switch(state) {
+                    case this.STATES.LOADING: return document.getElementById('loadingScreen');
+                    case this.STATES.JOIN_SCREEN: return document.getElementById('joinScreen');
+                    case this.STATES.LOBBY:
+                    case this.STATES.VOTING: return document.getElementById('multiplayerLobby');
+                    case this.STATES.PLAYING: return document.getElementById('gameContainer');
+                    case this.STATES.REVEAL: return this.revealPhase;
+                    case this.STATES.RESULTS: return document.getElementById('finalResults');
+                    case this.STATES.SPECTATING: return document.getElementById('multiplayerLobby');
+                    default: return null;
+                }
+            }
+
+            transitionToNewState(newState, newStateElement) {
                 this.state = newState;
+                if (newStateElement) {
+                    newStateElement.style.display = 'flex'; // o 'block' si es #gameContainer
+                    if (newState === this.STATES.PLAYING) newStateElement.style.display = 'block';
+                    newStateElement.classList.add('screen-enter-active');
+                    setTimeout(() => {
+                        newStateElement.classList.remove('screen-enter-active');
+                    }, 500); // Duración de la animación de entrada
+                }
                 this.updateUIForState();
             }
 
             updateUIForState() {
+                // Ocultar todos los elementos principales primero
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('joinScreen').style.display = 'none';
                 document.getElementById('multiplayerLobby').style.display = 'none';
@@ -1617,6 +1975,10 @@
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
                 this.revealPhase.style.display = 'none';
+                this.hostControls.style.display = 'none'; // Nuevo
+                this.playerPowerUpsContainer.style.display = 'none'; // Nuevo
+                this.hintModal.style.display = 'none'; // Nuevo
+
 
                 switch(this.state) {
                     case this.STATES.LOADING:
@@ -1626,18 +1988,21 @@
                         document.getElementById('joinScreen').style.display = 'flex';
                         break;
                     case this.STATES.LOBBY:
+                    case this.STATES.SPECTATING: // Espectador también ve el lobby
                         document.getElementById('multiplayerLobby').style.display = 'flex';
-                        this.readyBtn.style.display = 'block'; 
-                        if (this.isHost) {
+                        this.readyBtn.style.display = this.isSpectator ? 'none' : 'block'; 
+                        if (this.isHost && !this.isSpectator) { // Solo el host no espectador tiene el botón de iniciar votación
                             this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
+                            this.hostControls.style.display = 'flex'; // Mostrar controles de host
                         }
-                        this.enableVotingButtons(true); 
+                        this.enableVotingButtons(!this.isSpectator); // Espectadores no votan
                         break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = 'none'; 
                         this.startVoteBtn.style.display = 'none'; 
-                        this.enableVotingButtons(true); 
+                        this.enableVotingButtons(!this.isSpectator); 
+                        if (this.isHost) this.hostControls.style.display = 'flex';
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
@@ -1647,6 +2012,11 @@
                         this.startVoteBtn.style.display = 'none';
                         if (this.isProfessor) { 
                             this.skipQuestionBtn.style.display = 'block';
+                            this.hostControls.style.display = 'flex'; // Mostrar controles de host durante el juego también
+                        }
+                        if (!this.isSpectator) { // Power-ups solo para jugadores
+                            this.playerPowerUpsContainer.style.display = 'flex';
+                            this.updatePowerUpButtons();
                         }
                         break;
                     case this.STATES.REVEAL:
@@ -1674,8 +2044,21 @@
                         this.playSound('clickSound');
                     });
                 });
-                
+                // Seleccionar el primer avatar por defecto al cargar
                 document.querySelector('.avatar-option').click();
+
+                // Nuevo: Event Listeners para selector de color
+                document.querySelectorAll('.color-option').forEach(colorDiv => {
+                    colorDiv.addEventListener('click', () => {
+                        document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+                        colorDiv.classList.add('selected');
+                        this.player.color = colorDiv.dataset.color;
+                        this.applyPlayerColor();
+                        this.playSound('clickSound');
+                    });
+                });
+                // Seleccionar el primer color por defecto al cargar
+                document.querySelector('.color-option').click();
                 
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
                 document.getElementById('createGame').addEventListener('click', () => this.createGame());
@@ -1732,6 +2115,23 @@
                         this.attemptReconnect();
                     }
                 });
+
+                // Nuevo: Event listeners para emotes
+                document.querySelectorAll('.emote-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.sendEmote(btn.dataset.emote));
+                });
+
+                // Nuevo: Event listener para modo espectador
+                this.toggleSpectatorModeBtn.addEventListener('click', () => this.toggleSpectatorMode());
+
+                // Nuevo: Event listeners para Power-Ups
+                this.powerUpTimeBtn.addEventListener('click', () => this.usePowerUp('time'));
+                this.powerUpDoubleBtn.addEventListener('click', () => this.usePowerUp('double'));
+                this.powerUpHintBtn.addEventListener('click', () => this.usePowerUp('hint'));
+                this.closeHintModal.addEventListener('click', () => { this.hintModal.style.display = 'none'; });
+
+                // Nuevo: Event listener para Evento Aleatorio
+                this.activateRandomEventBtn.addEventListener('click', () => this.activateRandomEventAsHost());
             }
 
             checkDarkModePreference() {
@@ -1742,19 +2142,70 @@
                 }
             }
 
+            // Nuevo: Aplicar color del jugador
+            applyPlayerColor() {
+                document.documentElement.style.setProperty('--player-color', this.player.color);
+                const rgb = this.hexToRgb(this.player.color);
+                document.documentElement.style.setProperty('--player-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+                document.documentElement.style.setProperty('--player-color-dark', this.darkenColor(this.player.color, 20));
+                document.documentElement.style.setProperty('--player-color-light', this.lightenColor(this.player.color, 20));
+            }
+
+            hexToRgb(hex) {
+                const bigint = parseInt(hex.slice(1), 16);
+                const r = (bigint >> 16) & 255;
+                const g = (bigint >> 8) & 255;
+                const b = bigint & 255;
+                return { r, g, b };
+            }
+
+            lightenColor(hex, percent) {
+                let r = parseInt(hex.slice(1, 3), 16),
+                    g = parseInt(hex.slice(3, 5), 16),
+                    b = parseInt(hex.slice(5, 7), 16);
+                r = Math.min(255, r + (r * percent / 100));
+                g = Math.min(255, g + (g * percent / 100));
+                b = Math.min(255, b + (b * percent / 100));
+                return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+            }
+
+            darkenColor(hex, percent) {
+                let r = parseInt(hex.slice(1, 3), 16),
+                    g = parseInt(hex.slice(3, 5), 16),
+                    b = parseInt(hex.slice(5, 7), 16);
+                r = Math.max(0, r - (r * percent / 100));
+                g = Math.max(0, g - (g * percent / 100));
+                b = Math.max(0, b - (b * percent / 100));
+                return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+            }
+
+
             loadPlayerStats() {
                 const savedStats = localStorage.getItem('playerStats');
                 if (savedStats) {
                     try {
                         const stats = JSON.parse(savedStats);
-                        if (!this.player.id || stats.id === this.player.id) {
+                        // Asegurarse de que el ID del jugador persista si existe
+                        const storedPlayerId = localStorage.getItem('playerId');
+                        if (!storedPlayerId || stats.id === storedPlayerId) {
+                            this.player.id = storedPlayerId;
                             this.player.gamesPlayed = stats.gamesPlayed || 0;
                             this.player.modeStats = stats.modeStats || {};
                             this.player.achievements = stats.achievements || [];
                             this.player.favoriteMode = stats.favoriteMode || null;
+                            this.player.powerUps = stats.powerUps || { time: 1, double: 1, hint: 1 }; // Cargar power-ups
+                            this.player.powerUpsUsed = stats.powerUpsUsed || {}; // Cargar power-ups usados
+                            this.player.maxStreak = stats.maxStreak || 0;
+                            this.player.color = stats.color || "#4e8cff"; // Cargar color
+                            this.applyPlayerColor();
+                        } else {
+                            // Si el playerId no coincide, inicializar stats
+                            localStorage.removeItem('playerStats');
+                            localStorage.removeItem('playerId');
                         }
                     } catch (e) {
                         console.error("Error al cargar estadísticas:", e);
+                        localStorage.removeItem('playerStats'); // Limpiar stats corruptas
                     }
                 }
             }
@@ -1766,7 +2217,11 @@
                         gamesPlayed: this.player.gamesPlayed,
                         modeStats: this.player.modeStats,
                         achievements: this.player.achievements,
-                        favoriteMode: this.player.favoriteMode
+                        favoriteMode: this.player.favoriteMode,
+                        powerUps: this.player.powerUps, // Guardar power-ups
+                        powerUpsUsed: this.player.powerUpsUsed, // Guardar power-ups usados
+                        maxStreak: this.player.maxStreak,
+                        color: this.player.color // Guardar color
                     };
                     localStorage.setItem('playerStats', JSON.stringify(statsToSave));
                 } catch (e) {
@@ -1826,6 +2281,18 @@
                         `;
                     });
                 }
+                
+                // Nuevo: Estadísticas de Power-Ups
+                statsHTML += `<h4>Power-Ups disponibles:</h4>`;
+                for (const pu in this.player.powerUps) {
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">${this.getPowerUpName(pu)}:</span>
+                            <span class="stat-value">${this.player.powerUps[pu]}</span>
+                        </div>
+                    `;
+                }
+
 
                 this.statsContent.innerHTML = statsHTML;
                 this.playerStats.style.display = 'block';
@@ -1863,31 +2330,40 @@
                     localStorage.setItem('playerId', playerId);
                 }
 
+                // Cargar estadísticas persistentes si existen y el ID coincide
+                this.loadPlayerStats();
+                if (this.player.id !== playerId) { // Si el ID de localStorage no coincide o es nuevo
+                    this.player.id = playerId;
+                    this.player.gamesPlayed = 0;
+                    this.player.modeStats = {};
+                    this.player.achievements = [];
+                    this.player.favoriteMode = null;
+                    this.player.powerUps = { time: 1, double: 1, hint: 1 };
+                    this.player.powerUpsUsed = {};
+                    this.player.maxStreak = 0;
+                    // Mantener el color seleccionado en el UI, no sobrescribir con el por defecto de player obj
+                }
+
                 this.player = {
+                    ...this.player, // Mantener las propiedades cargadas de localStorage
                     id: playerId,
                     name: playerName,
                     grade: grade,
                     displayName: `${playerName} (${grade})`,
                     avatar: this.player.avatar,
+                    color: this.player.color, // Usar el color seleccionado/cargado
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
                     streak: 0,
-                    maxStreak: 0,
-                    avgResponseTime: 0,
-                    responseTimes: [],
-                    history: [],
                     isProfessor: false,
                     isReady: false,
-                    gamesPlayed: this.player.gamesPlayed || 0,
-                    favoriteMode: this.player.favoriteMode || null,
-                    modeStats: this.player.modeStats || {},
-                    achievements: this.player.achievements || [],
                     lastAnswerCorrect: false
                 };
 
                 this.gamePin = gamePin;
                 this.isHost = false; 
+                this.isSpectator = false; // Asegurarse que no es espectador al unirse
                 this.connectToServer();
             }
 
@@ -1916,34 +2392,42 @@
                     playerId = this.generateId();
                     localStorage.setItem('playerId', playerId);
                 }
+                
+                // Cargar estadísticas persistentes si existen y el ID coincide
+                this.loadPlayerStats();
+                if (this.player.id !== playerId) { // Si el ID de localStorage no coincide o es nuevo
+                    this.player.id = playerId;
+                    this.player.gamesPlayed = 0;
+                    this.player.modeStats = {};
+                    this.player.achievements = [];
+                    this.player.favoriteMode = null;
+                    this.player.powerUps = { time: 1, double: 1, hint: 1 };
+                    this.player.powerUpsUsed = {};
+                    this.player.maxStreak = 0;
+                }
 
                 this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
                 document.getElementById('gamePin').value = this.gamePin; 
                 
                 this.player = {
+                    ...this.player, // Mantener las propiedades cargadas de localStorage
                     id: playerId,
                     name: playerName,
                     grade: grade,
                     displayName: `${playerName} (Profesor)`,
                     avatar: this.player.avatar,
+                    color: this.player.color, // Usar el color seleccionado/cargado
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
                     streak: 0,
-                    maxStreak: 0,
-                    avgResponseTime: 0,
-                    responseTimes: [],
-                    history: [],
                     isProfessor: true, 
                     isReady: false,
-                    gamesPlayed: this.player.gamesPlayed || 0,
-                    favoriteMode: this.player.favoriteMode || null,
-                    modeStats: this.player.modeStats || {},
-                    achievements: this.player.achievements || [],
                     lastAnswerCorrect: false
                 };
                 
                 this.isHost = true; 
+                this.isSpectator = false; // Asegurarse que no es espectador al crear sala
                 
                 console.log("[Cliente] Intentando conectar al servidor para crear sala...");
                 this.connectToServer(); 
@@ -1985,7 +2469,7 @@
                             message = "Conexión finalizada (normal)";
                             this.updateConnectionStatus('disconnected', `🔴 ${message}`);
                         } else {
-                            if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
+                            if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN || this.state === this.STATES.LOBBY) { 
                                 this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
                                 this.attemptReconnect();
                             } else {
@@ -2019,9 +2503,11 @@
                                 id: this.player.id,
                                 name: this.player.displayName,
                                 avatar: this.player.avatar,
+                                color: this.player.color, // Enviar color
                                 points: this.player.points, 
                                 isProfessor: this.player.isProfessor, 
-                                isReady: this.player.isReady
+                                isReady: this.player.isReady,
+                                isSpectator: this.isSpectator // Enviar estado de espectador
                             }
                         }));
                     };
@@ -2202,23 +2688,53 @@
                         } else {
                             this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
                         }
+                        this.updateUIForState(); // Actualizar botones de host
                         break;
                         
                     case 'reveal_phase':
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
                         break;
                     
-                    // --- NUEVO CASE AÑADIDO ---
                     case 'ranking_update':
-                        // El servidor nos envía la lista actualizada de todos los jugadores
                         this.players = data.players;
-                        this.updateLiveRanking(); // Actualizamos el ranking en la pantalla
+                        this.updateLiveRanking(); 
                         
-                        // Actualizamos el puntaje del jugador actual en su propia UI
                         const myData = this.players.find(p => p.id === this.player.id);
                         if (myData) {
                             this.updatePlayerScore(myData.id, myData.points, myData.streak, myData.maxStreak, myData.avgResponseTime);
                         }
+                        break;
+                    
+                    case 'emote_received': // Nuevo: Emote recibido
+                        this.displayEmote(data.playerId, data.emote);
+                        break;
+
+                    case 'spectator_mode_toggle': // Nuevo: Host activó/desactivó modo espectador
+                        if (data.isSpectatorMode) {
+                            this.showNotification("El anfitrión ha activado el modo espectador. Los nuevos jugadores solo podrán observar.");
+                        } else {
+                            this.showNotification("El modo espectador ha sido desactivado por el anfitrión.");
+                        }
+                        break;
+                    case 'power_up_used': // Nuevo: Power-up usado por alguien
+                        this.showNotification(`${this.extractName(data.playerName)} usó el Power-Up: ${this.getPowerUpName(data.powerUpType)}!`);
+                        if (data.powerUpType === 'time') {
+                            this.timeLeft += 10; // Sumar tiempo si es el de tiempo
+                            this.timerDuration += 10; // Ajustar duración total para que la barra se actualice bien
+                            this.updateTimerUI();
+                        } else if (data.powerUpType === 'double') {
+                            this.activePowerUps.doubleScore = true;
+                            setTimeout(() => {
+                                this.activePowerUps.doubleScore = false;
+                                this.showNotification("El efecto de doble puntuación ha terminado.");
+                            }, 10000); // 10 segundos de doble puntuación
+                        }
+                        break;
+                    case 'hint_revealed': // Nuevo: Pista revelada
+                        this.showHintModal(data.hint);
+                        break;
+                    case 'random_event_triggered': // Nuevo: Evento aleatorio
+                        this.handleRandomEvent(data.eventType);
                         break;
 
                     default:
@@ -2231,14 +2747,17 @@
                 this.isMultiplayer = true; 
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
+                this.isSpectator = data.isSpectator; // Actualizar estado de espectador del jugador
                 
                 this.gamePin = data.pin; 
                 document.getElementById('lobbyPin').textContent = this.gamePin; 
+                document.getElementById('maxPlayersAllowed').textContent = data.maxPlayers || 15; // Mostrar max jugadores
 
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
                     this.player.isProfessor = currentPlayerFromServer.isProfessor;
                     this.player.isReady = currentPlayerFromServer.isReady; 
+                    this.isSpectator = currentPlayerFromServer.isSpectator; // Confirmar estado de espectador
                 }
 
                 this.updatePlayerList();
@@ -2258,6 +2777,12 @@
                 }
                 
                 if (data.isGameRunning) {
+                    // Si el juego ya está corriendo, unirse como espectador por defecto si no es jugador activo
+                    if (!currentPlayerFromServer || !currentPlayerFromServer.isPlaying) { // Asumimos que el servidor enviaría 'isPlaying'
+                        this.isSpectator = true;
+                        this.showNotification("Te uniste como espectador a una partida en curso.");
+                        this.setState(this.STATES.SPECTATING);
+                    }
                     this.startGame(data.gameMode, data.closestAnswerMode);
                     this.currentQuestionIndex = data.questionIndex;
                     this.handleQuestionUpdate(data); 
@@ -2269,11 +2794,15 @@
                 if (!existingPlayer) {
                     this.players.push(data.player);
                     this.updatePlayerList();
-                    this.showNotification(`${data.player.name} se ha unido`);
+                    if (data.player.id !== this.player.id) { // Notificar solo si es otro jugador
+                        this.showNotification(`${this.extractName(data.player.name)} se ha unido`);
+                    }
                 } else {
                     Object.assign(existingPlayer, data.player);
                     this.updatePlayerList();
-                    this.showNotification(`${data.player.name} se ha reconectado`);
+                    if (data.player.id !== this.player.id) { // Notificar solo si es otro jugador
+                        this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
+                    }
                 }
             }
 
@@ -2307,8 +2836,8 @@
                 
                 if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
                     const minPlayersForVote = 2;
-                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0);
+                    const nonSpectatorPlayers = this.players.filter(p => !p.isSpectator);
+                    const playersReadyForVote = nonSpectatorPlayers.filter(p => p.isReady).length + (this.player.isProfessor && !this.isSpectator ? 1 : 0);
                     const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
                     
                     this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
@@ -2319,6 +2848,10 @@
             }
 
             toggleReady() {
+                if (this.isSpectator) {
+                    this.showNotification("No puedes estar listo en modo espectador.");
+                    return;
+                }
                 this.readyBtn.disabled = true; 
                 this.player.isReady = !this.player.isReady;
                 
@@ -2331,13 +2864,42 @@
                     }));
                 }
             }
+            
+            // Nuevo: Toggle Modo Espectador (solo para host)
+            toggleSpectatorMode() {
+                if (!this.isHost) {
+                    this.showNotification("Solo el anfitrión puede activar/desactivar el modo espectador.");
+                    return;
+                }
+                // Esta lógica se enviaría al servidor para que el servidor la maneje
+                // Por ahora, solo simulará el cambio local para el host
+                this.isSpectator = !this.isSpectator;
+                if (this.isSpectator) {
+                    this.showNotification("Has activado el MODO ESPECTADOR. Los nuevos jugadores se unirán como espectadores.");
+                    this.toggleSpectatorModeBtn.textContent = "✅ Modo Espectador (Activo)";
+                } else {
+                    this.showNotification("Has desactivado el MODO ESPECTADOR.");
+                    this.toggleSpectatorModeBtn.textContent = "👁️ Modo Espectador";
+                }
+
+                // El servidor necesitaría un mensaje para esto:
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'set_spectator_mode',
+                        pin: this.gamePin,
+                        isSpectatorMode: this.isSpectator
+                    }));
+                }
+                this.updateUIForState();
+            }
+
 
             initiateVoteAsHost() {
                 if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
 
                 const minPlayersForVote = 2;
-                const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0);
+                const nonSpectatorPlayers = this.players.filter(p => !p.isSpectator);
+                const playersInLobby = nonSpectatorPlayers.length + (this.player.isProfessor && !this.isSpectator ? 1 : 0);
 
                 if (playersInLobby < minPlayersForVote) {
                     this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
@@ -2379,6 +2941,7 @@
                         id: p.id,
                         name: p.name || p.displayName,
                         avatar: p.avatar || '1',
+                        color: p.color || '#4e8cff', // Usar el color del jugador
                         points: p.points || 0,
                         streak: p.streak || 0,
                         maxStreak: p.maxStreak || 0,
@@ -2391,50 +2954,53 @@
             }
 
             updatePlayerStatistics(finalRanking) {
-                this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
-                
-                if (this.selectedGameMode) {
-                    if (!this.player.modeStats) {
-                        this.player.modeStats = {};
-                    }
+                // Solo actualizar si no es un espectador
+                if (!this.isSpectator) {
+                    this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
                     
-                    if (!this.player.modeStats[this.selectedGameMode]) {
-                        this.player.modeStats[this.selectedGameMode] = {
-                            games: 0,
-                            wins: 0,
-                            points: 0,
-                            maxStreak: 0
-                        };
-                    }
-                    
-                    const modeStats = this.player.modeStats[this.selectedGameMode];
-                    modeStats.games += 1;
-                    modeStats.points += this.player.points; 
-                    
-                    if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
-                        modeStats.maxStreak = this.player.maxStreak;
-                    }
-                    
-                    const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
-                    if (playerPosition >= 0 && playerPosition < 3) {
-                        modeStats.wins += 1;
-                    }
-                    
-                    let maxGames = 0;
-                    let favoriteMode = null;
-                    
-                    for (const mode in this.player.modeStats) {
-                        if (this.player.modeStats[mode].games > maxGames) {
-                            maxGames = this.player.modeStats[mode].games;
-                            favoriteMode = mode;
+                    if (this.selectedGameMode) {
+                        if (!this.player.modeStats) {
+                            this.player.modeStats = {};
                         }
+                        
+                        if (!this.player.modeStats[this.selectedGameMode]) {
+                            this.player.modeStats[this.selectedGameMode] = {
+                                games: 0,
+                                wins: 0,
+                                points: 0,
+                                maxStreak: 0
+                            };
+                        }
+                        
+                        const modeStats = this.player.modeStats[this.selectedGameMode];
+                        modeStats.games += 1;
+                        modeStats.points += this.player.points; 
+                        
+                        if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
+                            modeStats.maxStreak = this.player.maxStreak;
+                        }
+                        
+                        const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
+                        if (playerPosition >= 0 && playerPosition < 3) { // Top 3 se consideran victorias para el maestro
+                            modeStats.wins += 1;
+                        }
+                        
+                        let maxGames = 0;
+                        let favoriteMode = null;
+                        
+                        for (const mode in this.player.modeStats) {
+                            if (this.player.modeStats[mode].games > maxGames) {
+                                maxGames = this.player.modeStats[mode].games;
+                                favoriteMode = mode;
+                            }
+                        }
+                        
+                        this.player.favoriteMode = favoriteMode;
                     }
                     
-                    this.player.favoriteMode = favoriteMode;
-                }
-                
-                if (this.player.streak > this.player.maxStreak) {
-                    this.player.maxStreak = this.player.streak;
+                    if (this.player.streak > this.player.maxStreak) {
+                        this.player.maxStreak = this.player.streak;
+                    }
                 }
 
                 this.checkAchievements();
@@ -2476,12 +3042,52 @@
                 this.achievementPopup.style.display = 'block';
                 this.playSound('achievementSound');
                 
+                // Generar partículas para el logro (animación extra)
+                this.createParticleEffect(this.achievementPopup.querySelector('.achievement-icon'));
+
                 setTimeout(() => {
                     if (this.achievementPopup.style.display === 'block') {
                         this.achievementPopup.style.display = 'none';
                     }
                 }, 5000);
             }
+            
+            // Nuevo: Efecto de partículas para logros
+            createParticleEffect(element) {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.position = 'fixed';
+                    particle.style.width = '8px';
+                    particle.style.height = '8px';
+                    particle.style.borderRadius = '50%';
+                    particle.style.backgroundColor = `hsl(${Math.random() * 60 + 30}, 100%, 70%)`; // Colores cálidos (amarillos-naranjas)
+                    particle.style.left = `${centerX}px`;
+                    particle.style.top = `${centerY}px`;
+                    particle.style.zIndex = '1001';
+                    particle.style.opacity = '0';
+                    document.body.appendChild(particle);
+
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * 100 + 50;
+                    const finalX = centerX + Math.cos(angle) * distance;
+                    const finalY = centerY + Math.sin(angle) * distance;
+
+                    particle.animate([
+                        { opacity: 0, transform: `translate(-50%, -50%) scale(0)` },
+                        { opacity: 1, transform: `translate(-50%, -50%) scale(1.2)` },
+                        { opacity: 0, transform: `translate(${finalX - centerX - 4}px, ${finalY - centerY - 4}px) scale(0.5)` }
+                    ], {
+                        duration: 1500,
+                        easing: 'ease-out',
+                        delay: Math.random() * 200
+                    }).onfinish = () => particle.remove();
+                }
+            }
+
 
             handleError(data) {
                 document.getElementById('joinError').textContent = data.message;
@@ -2500,14 +3106,23 @@
                 sortedPlayers.forEach(player => {
                     const playerElement = document.createElement('div');
                     playerElement.className = 'player-badge';
+                    
+                    // Aplicar color personalizado al jugador en la lista
+                    if (player.color) {
+                        playerElement.style.setProperty('--player-color-dark', this.darkenColor(player.color, 20));
+                        playerElement.style.setProperty('--player-color-light', this.lightenColor(player.color, 20));
+                        playerElement.style.background = `linear-gradient(45deg, ${this.darkenColor(player.color, 20)}, ${player.color})`;
+                        if (player.id === this.player.id) { // Si es el jugador actual, usar el borde amarillo
+                            playerElement.style.border = '2px solid var(--amarillo)';
+                        }
+                    } else { // Si no hay color, usar el gradiente por defecto
+                        playerElement.style.background = 'linear-gradient(45deg, var(--azul), var(--morado))';
+                    }
+
                     playerElement.innerHTML = `
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
                         <span>${this.extractName(player.name)}</span>
                     `;
-                    
-                    if (player.id === this.player.id) {
-                        playerElement.style.border = '2px solid var(--amarillo)';
-                    }
                     
                     if (player.isProfessor) {
                         playerElement.innerHTML += ' 👨‍🏫';
@@ -2516,15 +3131,20 @@
                     if (player.isReady) {
                         playerElement.innerHTML += ' ✓';
                     }
+                    if (player.isSpectator) { // Nuevo: Indicador de espectador
+                        playerElement.innerHTML += ' 👁️';
+                    }
                     
                     playerList.appendChild(playerElement);
                 });
                 
-                document.getElementById('playerCount').textContent = this.players.length;
+                document.getElementById('playerCount').textContent = this.players.filter(p => !p.isSpectator).length;
+                document.getElementById('maxPlayersAllowed').textContent = this.maxPlayers; // Actualizar límite si el servidor lo envía
                 
                 if (this.players.some(p => p.id === this.player.id)) { 
-                    this.readyBtn.disabled = this.player.isReady;
+                    this.readyBtn.disabled = this.player.isReady || this.isSpectator; // Deshabilitar si es espectador
                     this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
+                    if (this.isSpectator) this.readyBtn.textContent = "👁️ Modo Espectador";
                 }
             }
 
@@ -2539,13 +3159,14 @@
 
                 this.voteCounts = {
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
-                    combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0
+                    combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
+                    supervivencia: 0, duelo: 0 // Nuevos modos
                 };
                 document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
                 this.player.hasVoted = false; 
 
                 this.players.forEach(p => p.hasVoted = false); 
-                this.enableVotingButtons(true); 
+                this.enableVotingButtons(!this.isSpectator); // Espectadores no votan
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.classList.remove('selected', 'voted'); 
                 });
@@ -2578,7 +3199,7 @@
             }
 
             castVote(mode) {
-                if (!this.isVotingActive || this.player.hasVoted) return; 
+                if (!this.isVotingActive || this.player.hasVoted || this.isSpectator) return; 
                 
                 this.player.hasVoted = true;
                 this.showNotification(`Has votado por: ${this.getModeName(mode)}`);
@@ -2637,9 +3258,20 @@
                     combinadas: '🧩 Operaciones Combinadas',
                     relampago: '⚡ Modo Relámpago',
                     "verdadero-falso": '✅❌ Verdadero/Falso',
-                    "mas-cercano": '🎯 El más cercano gana'
+                    "mas-cercano": '🎯 El más cercano gana',
+                    supervivencia: '🔥 Supervivencia', // Nuevo
+                    duelo: '⚔️ Duelo (1 vs 1)' // Nuevo
                 };
                 return names[mode] || mode;
+            }
+
+            getPowerUpName(type) { // Nuevo: Nombres de power-ups
+                const names = {
+                    time: '+10 segundos',
+                    double: 'Doble Puntuación',
+                    hint: 'Pista'
+                };
+                return names[type] || type;
             }
 
             startGame(mode, closestAnswerMode = false) {
@@ -2657,9 +3289,10 @@
                 if (mode === 'relampago') {
                     this.timerDuration = 5;
                     document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso') {
-                    this.timerDuration = 15;
-                } else {
+                } else if (mode === 'verdadero-falso' || mode === 'supervivencia' || mode === 'duelo') { // Nuevo: ajustar duración para nuevos modos
+                    this.timerDuration = 15; // Un poco más de tiempo para estos modos
+                }
+                 else {
                     this.timerDuration = 30;
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
                 }
@@ -2674,17 +3307,28 @@
                     document.getElementById('trueFalseButtons').style.display = 'none';
                 }
                 
-                if (this.isHost) {
-                    this.questions = this.generarPreguntas(mode, 10); 
-                    this.currentQuestionIndex = 0;
-                    this.shareQuestionWithPlayers();
-                }
-                
+                // Reiniciar puntos y rachas para el nuevo juego
                 this.player.points = 0;
                 this.player.streak = 0;
                 this.player.responseTimes = [];
                 this.player.history = []; 
                 this.updatePlayerScore(this.player.id, 0, 0); 
+                this.activePowerUps.doubleScore = false; // Resetear power-ups activos
+                this.currentDifficulty = 1; // Resetear dificultad para supervivencia
+                
+                // Solo el host genera y comparte preguntas
+                if (this.isHost) {
+                    this.questions = this.generarPreguntas(mode, 10); // Generar preguntas iniciales
+                    this.currentQuestionIndex = 0;
+                    this.shareQuestionWithPlayers();
+                } else if (this.isSpectator) {
+                    // Si es espectador, no se muestran elementos de juego interactivos
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                    document.getElementById('playerPowerUps').style.display = 'none';
+                    document.getElementById('reiniciarBtn').style.display = 'none';
+                    document.getElementById('mensajeVictoria').style.display = 'none';
+                }
                 
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
@@ -2718,13 +3362,24 @@
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 
-                const generarOperacion = () => {
-                    const num1 = Math.floor(Math.random() * 15) + 1; 
-                    const num2 = Math.floor(Math.random() * 15) + 1;
-                    const operadores = ['+', '-', '*', '/'];
+                const generarOperacion = (difficulty = 1) => {
+                    let num1, num2, respuesta;
+                    const operadores = ['+', '-', '*'];
                     let operador = operadores[Math.floor(Math.random() * operadores.length)];
                     
-                    let pregunta, respuesta;
+                    // Ajustar rango de números según la dificultad
+                    const maxNum = 15 * difficulty;
+                    const maxFactor = 10 * difficulty;
+
+                    if (operador === '*') {
+                        num1 = Math.floor(Math.random() * maxFactor) + 1;
+                        num2 = Math.floor(Math.random() * (maxFactor / 2)) + 1; // Evitar números muy grandes
+                    } else {
+                        num1 = Math.floor(Math.random() * maxNum) + 1; 
+                        num2 = Math.floor(Math.random() * maxNum) + 1;
+                    }
+
+                    let pregunta;
                     
                     if (operador === '/') {
                         let divisor = Math.floor(Math.random() * 8) + 2; 
@@ -2753,9 +3408,11 @@
                     return { pregunta, respuesta, tipo: 'operacion' };
                 };
                 
-                const generarMisterioso = () => {
-                    const num1 = Math.floor(Math.random() * 20) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
+                const generarMisterioso = (difficulty = 1) => {
+                    const maxNum = 20 * difficulty;
+                    const maxFactor = 10 * difficulty;
+                    const num1 = Math.floor(Math.random() * maxNum) + 1;
+                    const num2 = Math.floor(Math.random() * maxFactor) + 1;
                     const tipoOp = Math.random();
                     
                     let pregunta, respuesta;
@@ -2774,12 +3431,12 @@
                     return { pregunta, respuesta, tipo: 'misterioso' };
                 };
                 
-                const generarSecuencia = () => {
+                const generarSecuencia = (difficulty = 1) => {
                     const patrones = [
                         { inicio: 2, paso: 2, longitud: 5 }, 
                         { inicio: 1, paso: 3, longitud: 5 }, 
-                        { inicio: 10, paso: -2, longitud: 5 }, 
-                        { inicio: 5, paso: 5, longitud: 5 }, 
+                        { inicio: 10 * difficulty, paso: -2, longitud: 5 }, 
+                        { inicio: 5, paso: 5 * difficulty, longitud: 5 }, 
                         { inicio: 3, paso: 4, longitud: 5 }  
                     ];
                     
@@ -2802,9 +3459,9 @@
                     return { pregunta, respuesta, tipo: 'secuencia' };
                 };
                 
-                const generarPotenciacion = () => {
-                    const base = Math.floor(Math.random() * 4) + 2; 
-                    const exponente = Math.floor(Math.random() * 3) + 2; 
+                const generarPotenciacion = (difficulty = 1) => {
+                    const base = Math.floor(Math.random() * (3 + difficulty)) + 2; 
+                    const exponente = Math.floor(Math.random() * (2 + Math.min(1, difficulty -1))) + 2; 
                     const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
                     const pregunta = `${base}${superScripts[exponente]} = ?`;
                     const respuesta = Math.pow(base, exponente);
@@ -2812,10 +3469,10 @@
                     return { pregunta, respuesta, tipo: 'potenciacion' };
                 };
                 
-                const generarCombinadas = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
-                    const num3 = Math.floor(Math.random() * 5) + 1;
+                const generarCombinadas = (difficulty = 1) => {
+                    const num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                    const num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                    const num3 = Math.floor(Math.random() * (5 * difficulty)) + 1;
                     
                     let pregunta = '';
                     let respuesta = 0;
@@ -2839,9 +3496,9 @@
                     return { pregunta, respuesta, tipo: 'combinadas' };
                 };
                 
-                const generarVerdaderoFalso = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
+                const generarVerdaderoFalso = (difficulty = 1) => {
+                    const num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                    const num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
                     const operadores = ['+', '-', '*', '/'];
                     const operador = operadores[Math.floor(Math.random() * operadores.length)];
                     
@@ -2889,23 +3546,6 @@
                     };
                 };
                 
-                let generador;
-                switch(mode) {
-                    case 'operaciones': generador = generarOperacion; break;
-                    case 'misterioso': generador = generarMisterioso; break;
-                    case 'secuencia': generador = generarSecuencia; break;
-                    case 'potenciacion': generador = generarPotenciacion; break;
-                    case 'combinadas': generador = generarCombinadas; break;
-                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
-                    case 'mas-cercano': generador = generarOperacion; break; 
-                    default: generador = generarOperacion;
-                }
-                
-                for (let i = 0; i < count; i++) {
-                    preguntas.push(generador());
-                }
-                
-                const numImages = Math.floor(Math.random() * 3) + 1; 
                 const preguntasConImagen = [
                     {
                         pregunta: "¿Cuántos cuadrados hay en esta figura?",
@@ -2927,9 +3567,29 @@
                     }
                 ];
 
-                for (let i = 0; i < numImages && preguntasConImagen.length > 0; i++) {
-                    const randomIndexImage = Math.floor(Math.random() * preguntasConImagen.length);
-                    const imageQuestion = preguntasConImagen.splice(randomIndexImage, 1)[0]; 
+                let generador;
+                switch(mode) {
+                    case 'operaciones': generador = generarOperacion; break;
+                    case 'misterioso': generador = generarMisterioso; break;
+                    case 'secuencia': generador = generarSecuencia; break;
+                    case 'potenciacion': generador = generarPotenciacion; break;
+                    case 'combinadas': generador = generarCombinadas; break;
+                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
+                    case 'mas-cercano': generador = generarOperacion; break; 
+                    case 'supervivencia': generador = () => generarOperacion(this.currentDifficulty); break; // Dificultad adaptativa
+                    case 'duelo': generador = generarOperacion; break;
+                    default: generador = generarOperacion;
+                }
+                
+                for (let i = 0; i < count; i++) {
+                    preguntas.push(generador());
+                }
+                
+                const numImages = Math.floor(Math.random() * 3) + 1; 
+                let tempImageQuestions = [...preguntasConImagen]; // Copia para no modificar el original
+                for (let i = 0; i < numImages && tempImageQuestions.length > 0; i++) {
+                    const randomIndexImage = Math.floor(Math.random() * tempImageQuestions.length);
+                    const imageQuestion = tempImageQuestions.splice(randomIndexImage, 1)[0]; 
                     const indexToReplace = Math.floor(Math.random() * preguntas.length);
                     preguntas[indexToReplace] = imageQuestion;
                 }
@@ -2972,6 +3632,14 @@
                         document.getElementById('trueFalseButtons').style.display = 'none';
                     }
 
+                    // Power-ups habilitados solo si el jugador no es espectador
+                    if (!this.isSpectator) {
+                        this.playerPowerUpsContainer.style.display = 'flex';
+                        this.updatePowerUpButtons();
+                    } else {
+                        this.playerPowerUpsContainer.style.display = 'none';
+                    }
+
                     this.resetTimer();
                 } catch (error) {
                     console.error("Error al mostrar pregunta:", error);
@@ -2982,45 +3650,44 @@
             // --- FUNCIÓN REEMPLAZADA ---
             checkAnswer(userAnswer) {
                 try {
-                    if (this.player.hasAnswered) {
-                        console.log("Ya respondiste esta pregunta");
+                    if (this.player.hasAnswered || this.isSpectator) {
+                        console.log("Ya respondiste esta pregunta o eres espectador.");
                         return;
                     }
 
-                    // Deshabilitar botones para evitar doble respuesta
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
+                    this.disablePowerUpButtons(); // Deshabilitar power-ups al responder
 
                     this.player.hasAnswered = true;
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
                     document.getElementById("answerResult").className = "result waiting";
 
-                    // MODIFICADO: Ya no calculamos puntos aquí. Solo enviamos la respuesta.
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({
-                            type: 'submit_answer', // NUEVO tipo de mensaje
+                            type: 'submit_answer', 
                             pin: this.gamePin,
                             playerId: this.player.id,
-                            answer: userAnswer, // Enviamos la respuesta en crudo
+                            answer: userAnswer, 
                             responseTime: responseTime
                         }));
                     } else {
-                        // La lógica para un solo jugador puede permanecer aquí si la usas,
-                        // pero el foco principal es el multijugador.
-                        console.log("Modo de un solo jugador no implementado con la nueva lógica del servidor.");
+                        console.log("Modo de un solo jugador o servidor no conectado. No se envía respuesta.");
+                        // Aquí podrías manejar la lógica para un jugador si el juego permite este modo
                     }
 
                 } catch (error) {
                     console.error("Error al enviar respuesta:", error);
                     this.showError("Error al enviar la respuesta.");
                     document.getElementById('submitAnswer').disabled = false;
+                    this.enablePowerUpButtons(); // Habilitar si falla
                     this.player.hasAnswered = false;
                 } finally {
-                    document.getElementById('trueBtn').disabled = false;
-                    document.getElementById('falseBtn').disabled = false;
+                    // Se re-habilitan los botones una vez que el servidor responda
+                    // o cuando pase a la siguiente pregunta.
                 }
             }
 
@@ -3035,21 +3702,27 @@
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 
-                // Mostrar el resultado del jugador
-                if (playerCorrect) {
-                    this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
-                    this.revealPlayerResult.style.color = 'var(--verde)';
-                    this.playSound('correctSound');
+                // Mostrar el resultado del jugador si no es espectador
+                if (!this.isSpectator) {
+                    if (playerCorrect) {
+                        this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
+                        this.revealPlayerResult.style.color = 'var(--verde)';
+                        this.playSound('correctSound');
+                    } else {
+                        this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
+                        this.revealPlayerResult.style.color = 'var(--rojo)';
+                        this.playSound('wrongSound');
+                    }
+                    
+                    // Mostrar bonificación por racha si aplica
+                    if (streakBonus > 0) {
+                        this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
+                    } else {
+                        this.revealStreakBonus.innerHTML = '';
+                    }
                 } else {
-                    this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
-                    this.revealPlayerResult.style.color = 'var(--rojo)';
-                    this.playSound('wrongSound');
-                }
-                
-                // Mostrar bonificación por racha si aplica
-                if (streakBonus > 0) {
-                    this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
-                } else {
+                    // Ocultar resultados individuales para el espectador
+                    this.revealPlayerResult.innerHTML = '';
                     this.revealStreakBonus.innerHTML = '';
                 }
                 
@@ -3058,13 +3731,31 @@
                     this.setState(this.STATES.PLAYING);
                     
                     if (this.isHost) {
-                        this.currentQuestionIndex++;
-                        if (this.currentQuestionIndex < this.questions.length) {
+                        // Para modo supervivencia, generar una nueva pregunta si es correcta
+                        if (this.selectedGameMode === 'supervivencia' && playerCorrect) {
+                            this.currentDifficulty++;
+                            this.questions = [this.generarPreguntas('operaciones', 1)[0]]; // Generar solo 1 nueva pregunta
+                            this.currentQuestionIndex = 0; // Resetear índice para la nueva pregunta
                             this.shareQuestionWithPlayers();
+                            this.showNotification(`¡Dificultad aumentada a nivel ${this.currentDifficulty}!`);
+                        } else if (this.selectedGameMode === 'supervivencia' && !playerCorrect) {
+                            this.endGame(); // Fin del juego en supervivencia al primer error
                         } else {
-                            this.endGame();
+                            this.currentQuestionIndex++;
+                            if (this.currentQuestionIndex < this.questions.length) {
+                                this.shareQuestionWithPlayers();
+                            } else {
+                                this.endGame();
+                            }
+                        }
+                    } else if (this.isSpectator) {
+                         // Los espectadores también necesitan actualizar su vista a la siguiente pregunta
+                        // pero sin generar nada
+                        if (this.selectedGameMode === 'supervivencia' && !playerCorrect) {
+                             this.endGame(); // Si el juego termina para el host en supervivencia
                         }
                     }
+                    this.enablePowerUpButtons(); // Habilitar power-ups para la siguiente pregunta
                 }, this.revealPhaseDuration);
             }
 
@@ -3088,32 +3779,86 @@
 
             updateLiveRanking() {
                 const rankingList = document.getElementById('rankingList');
+                // Clonar para ordenar sin afectar la lista original
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    // Desempate por tiempo de respuesta promedio (más bajo es mejor)
+                    if (a.avgResponseTime !== b.avgResponseTime) return (a.avgResponseTime || Infinity) - (b.avgResponseTime || Infinity);
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
                 
-                rankingList.innerHTML = ''; 
-                
+                // Limpiar animaciones de movimiento antes de aplicar nuevas
+                document.querySelectorAll('.ranking-item.moved').forEach(item => {
+                    item.classList.remove('moved');
+                    item.style.setProperty('--move-y', '0px');
+                });
+
                 currentRanking.forEach((player, index) => {
-                    const playerElement = document.createElement('div');
+                    const existingElement = document.getElementById(`ranking-player-${player.id}`);
+                    const newPosition = index + 1;
+                    const oldPosition = this.lastRanking.findIndex(p => p.id === player.id) + 1;
+
+                    let playerElement;
+                    if (existingElement) {
+                        playerElement = existingElement;
+                        // Aplicar animación si la posición cambió
+                        if (oldPosition > 0 && oldPosition !== newPosition) {
+                            const movePx = (newPosition - oldPosition) * (20 + 8); // Altura del item + margin
+                            playerElement.style.setProperty('--move-y', `${-movePx}px`);
+                            playerElement.classList.add('moved');
+                        }
+                    } else {
+                        playerElement = document.createElement('div');
+                        playerElement.id = `ranking-player-${player.id}`;
+                    }
+
                     playerElement.className = 'ranking-item';
                     
                     if (player.id === this.player.id) {
                         playerElement.classList.add('current-player');
                     }
                     
-                    const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
+                    // Aplicar color personalizado al jugador en el ranking
+                    if (player.color) {
+                         playerElement.style.setProperty('--player-color', player.color);
+                         const rgb = this.hexToRgb(player.color);
+                         playerElement.style.setProperty('--player-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+                         playerElement.style.borderLeft = `4px solid ${player.color}`;
+                         playerElement.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
+                    } else {
+                         playerElement.style.borderLeft = '4px solid var(--morado)';
+                         playerElement.style.background = 'rgba(78, 140, 255, 0.1)';
+                    }
+
+
+                    const streakBadge = player.streak > 3 ? `<span class="ranking-streak-badge">🔥${player.streak}</span>` : '';
                     
                     playerElement.innerHTML = `
-                        <span class="ranking-position">${index + 1}°</span>
+                        <span class="ranking-position">${newPosition}°</span>
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
                         <span class="ranking-name">${this.extractName(player.name)}</span>
                         <span class="ranking-points">${player.points || 0}${streakBadge}</span>
                     `;
                     
-                    rankingList.appendChild(playerElement);
+                    if (!existingElement) { // Si es un nuevo elemento, insertarlo en la posición correcta
+                        if (rankingList.children.length === 0 || index >= rankingList.children.length) {
+                            rankingList.appendChild(playerElement);
+                        } else {
+                            rankingList.insertBefore(playerElement, rankingList.children[index]);
+                        }
+                    } else if (existingElement && existingElement.previousElementSibling && existingElement.previousElementSibling.id !== rankingList.children[index].id) {
+                        // Si el elemento ya existe pero no está en la posición correcta, moverlo
+                        rankingList.insertBefore(playerElement, rankingList.children[index]);
+                    }
+                });
+
+                // Eliminar jugadores que ya no están en la lista
+                const currentIds = new Set(currentRanking.map(p => p.id));
+                Array.from(rankingList.children).forEach(child => {
+                    const playerId = child.id.replace('ranking-player-', '');
+                    if (!currentIds.has(playerId)) {
+                        child.remove();
+                    }
                 });
                 
                 this.lastRanking = currentRanking; 
@@ -3144,32 +3889,29 @@
                         if (this.timeLeft <= 0) {
                             clearInterval(this.timerInterval);
                             if (this.isMultiplayer) {
-                                if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
+                                if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered && !this.isSpectator) {
                                     this.player.hasAnswered = true; 
                                     this.player.streak = 0; 
                                     document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
                                     document.getElementById("answerResult").className = "result incorrect";
                                     
                                     this.socket.send(JSON.stringify({
-                                        type: 'player_answer',
+                                        type: 'submit_answer', // Enviar respuesta vacía/incorrecta
                                         pin: this.gamePin,
                                         playerId: this.player.id,
-                                        isCorrect: false,
-                                        pointsEarned: 0,
-                                        totalPoints: this.player.points, 
-                                        streak: this.player.streak,
-                                        maxStreak: this.player.maxStreak,
-                                        avgResponseTime: this.player.avgResponseTime,
-                                        streakBonus: 0
+                                        answer: null, // Respuesta nula para tiempo agotado
+                                        responseTime: this.timerDuration // Tiempo máximo
                                     }));
                                 }
                                 if (this.isHost) {
-                                    // Enviar fase de revelación para todos
+                                    // Enviar fase de revelación para todos (con respuesta del host si no hay respuesta general)
                                     const correctAnswer = this.currentQuestionData.respuesta;
                                     this.socket.send(JSON.stringify({
                                         type: 'reveal_phase',
                                         pin: this.gamePin,
-                                        correctAnswer: correctAnswer
+                                        correctAnswer: correctAnswer,
+                                        playerCorrect: false, // Por ahora, el host no sabe si alguien más respondió bien
+                                        streakBonus: 0
                                     }));
                                 }
                             } else {
@@ -3266,7 +4008,7 @@
             getFinalRanking() {
                 return [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    if (a.avgResponseTime !== b.avgResponseTime) return (a.avgResponseTime || Infinity) - (b.avgResponseTime || Infinity);
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
             }
@@ -3312,6 +4054,7 @@
                     
                     otherPlayers.innerHTML = '';
                     
+                    // Limpiar podio antes de mostrar resultados
                     document.getElementById('firstName').textContent = '-';
                     document.getElementById('firstAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     firstPlace.querySelector('.podium-points').textContent = '0 pts';
@@ -3322,18 +4065,28 @@
                     document.getElementById('thirdAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     thirdPlace.querySelector('.podium-points').textContent = '0 pts';
 
+                    // Asegurar que el orden del podio sea 2do, 1ero, 3ero para la animación
+                    const podiumContainer = document.querySelector('.podium');
+                    const elements = [secondPlace, firstPlace, thirdPlace];
+                    elements.forEach(el => podiumContainer.appendChild(el));
 
                     if (finalRanking.length > 0) {
                         const first = finalRanking[0];
                         document.getElementById('firstName').textContent = this.extractName(first.name);
                         document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
                         firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
+                        // Aplicar color al nombre del podio
+                        firstPlace.querySelector('.podium-name').style.color = first.color || 'var(--texto)';
+                        firstPlace.querySelector('.podium-points').style.color = first.color || 'var(--texto)';
+                        if (first.id === this.player.id) this.playSound('winSound');
                         
                         if (finalRanking.length > 1) {
                             const second = finalRanking[1];
                             document.getElementById('secondName').textContent = this.extractName(second.name);
                             document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
                             secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
+                            secondPlace.querySelector('.podium-name').style.color = second.color || 'var(--texto)';
+                            secondPlace.querySelector('.podium-points').style.color = second.color || 'var(--texto)';
                         }
                         
                         if (finalRanking.length > 2) {
@@ -3341,6 +4094,8 @@
                             document.getElementById('thirdName').textContent = this.extractName(third.name);
                             document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
                             thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
+                            thirdPlace.querySelector('.podium-name').style.color = third.color || 'var(--texto)';
+                            thirdPlace.querySelector('.podium-points').style.color = third.color || 'var(--texto)';
                         }
                     }
                     
@@ -3350,7 +4105,14 @@
                         
                         const playerElement = document.createElement('div');
                         playerElement.className = 'other-player';
-                        
+                        // Aplicar color personalizado al jugador en la lista "otros jugadores"
+                        if (player.color) {
+                            playerElement.style.setProperty('--player-color', player.color);
+                            const rgb = this.hexToRgb(player.color);
+                            playerElement.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
+                            playerElement.style.color = player.color; // Color del texto
+                        }
+
                         let playerInfoHtml = `
                             <div class="player-info">
                                 <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
@@ -3423,6 +4185,14 @@
                     this.player.hasVoted = false;
                     this.player.isReady = false; 
                     this.player.lastAnswerCorrect = false;
+                    this.activePowerUps.doubleScore = false;
+                    this.currentDifficulty = 1;
+
+                    // Mantener powerUps que ya tiene el jugador, solo reponer si es necesario
+                    this.player.powerUps.time = Math.max(1, this.player.powerUps.time);
+                    this.player.powerUps.double = Math.max(1, this.player.powerUps.double);
+                    this.player.powerUps.hint = Math.max(1, this.player.powerUps.hint);
+                    this.savePlayerStats(); // Guardar el estado de los powerUps
 
                     this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
 
@@ -3454,8 +4224,10 @@
                     } else {
                         this.isHost = false; 
                         this.player.isProfessor = false; 
+                        this.isSpectator = false; // Asegurarse de resetear si se reinicia un juego single-player
                         this.setState(this.STATES.JOIN_SCREEN);
                     }
+                    this.updatePowerUpButtons(); // Asegurar que los botones de power-up se actualicen
                 } catch (error) {
                     console.error("Error al reiniciar juego:", error);
                     this.showError("Error al reiniciar el juego.");
@@ -3463,7 +4235,7 @@
             }
 
             addNumber(num) {
-                if (this.currentQuestionData && !this.player.hasAnswered) {
+                if (this.currentQuestionData && !this.player.hasAnswered && !this.isSpectator) {
                     this.playSound('clickSound');
                     const playerAnswerInput = document.getElementById('playerAnswer');
                     playerAnswerInput.value += num;
@@ -3471,8 +4243,10 @@
             }
 
             clearNumber() {
-                this.playSound('clickSound');
-                document.getElementById('playerAnswer').value = "";
+                if (!this.player.hasAnswered && !this.isSpectator) {
+                    this.playSound('clickSound');
+                    document.getElementById('playerAnswer').value = "";
+                }
             }
 
             submitAnswer() {
@@ -3499,6 +4273,144 @@
                     }
                 } catch (error) {
                     console.error("Error con el sonido:", error);
+                }
+            }
+
+            // Nuevo: Enviar emote
+            sendEmote(emote) {
+                if (this.socket && this.socket.readyState === WebSocket.OPEN && this.gamePin) {
+                    this.playSound('clickSound');
+                    this.socket.send(JSON.stringify({
+                        type: 'send_emote',
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        emote: emote
+                    }));
+                }
+            }
+            
+            // Nuevo: Mostrar emote
+            displayEmote(playerId, emote) {
+                const playerBadge = document.querySelector(`.player-badge[data-player-id="${playerId}"]`);
+                if (playerBadge) {
+                    const emoteDisplay = document.createElement('div');
+                    emoteDisplay.className = 'emote-display';
+                    emoteDisplay.textContent = emote;
+                    playerBadge.appendChild(emoteDisplay);
+                    setTimeout(() => emoteDisplay.remove(), 1000);
+                } else {
+                    this.showNotification(`${this.extractName(this.players.find(p => p.id === playerId)?.name || 'Un jugador')} ${emote}`);
+                }
+            }
+
+            // Nuevo: Lógica de Power-Ups
+            updatePowerUpButtons() {
+                this.powerUpTimeBtn.disabled = this.player.powerUps.time <= 0 || this.player.hasAnswered;
+                this.powerUpDoubleBtn.disabled = this.player.powerUps.double <= 0 || this.player.hasAnswered;
+                this.powerUpHintBtn.disabled = this.player.powerUps.hint <= 0 || this.player.hasAnswered || this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'mas-cercano';
+                
+                this.powerUpTimeBtn.textContent = `+10s ⏳ (${this.player.powerUps.time})`;
+                this.powerUpDoubleBtn.textContent = `x2 Puntos ✨ (${this.player.powerUps.double})`;
+                this.powerUpHintBtn.textContent = `Pista 💡 (${this.player.powerUps.hint})`;
+            }
+
+            disablePowerUpButtons() {
+                this.powerUpTimeBtn.disabled = true;
+                this.powerUpDoubleBtn.disabled = true;
+                this.powerUpHintBtn.disabled = true;
+            }
+
+            enablePowerUpButtons() {
+                this.updatePowerUpButtons();
+            }
+
+            usePowerUp(type) {
+                if (this.player.powerUps[type] <= 0 || this.player.hasAnswered || this.isSpectator) return;
+                
+                this.playSound('powerUpSound');
+                this.player.powerUps[type]--;
+                this.player.powerUpsUsed = this.player.powerUpsUsed || {};
+                this.player.powerUpsUsed[type] = (this.player.powerUpsUsed[type] || 0) + 1;
+                this.updatePowerUpButtons();
+                this.savePlayerStats();
+
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'use_power_up',
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        powerUpType: type
+                    }));
+                }
+
+                // Lógica de efecto inmediato del power-up (solo para el jugador que lo usa)
+                if (type === 'time') {
+                    this.timeLeft = Math.min(this.timerDuration, this.timeLeft + 10);
+                    this.updateTimerUI();
+                    this.showNotification("¡Tiempo extra concedido!");
+                } else if (type === 'double') {
+                    this.showNotification("¡Próxima respuesta correcta vale el DOBLE!");
+                    // La lógica del servidor manejará la doble puntuación cuando se envíe la respuesta.
+                    // Aquí solo se muestra una notificación.
+                } else if (type === 'hint') {
+                    // Enviar solicitud de pista al servidor, el servidor la revelará a todos.
+                    this.showNotification("Solicitando pista...");
+                    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        this.socket.send(JSON.stringify({
+                            type: 'request_hint',
+                            pin: this.gamePin,
+                            playerId: this.player.id
+                        }));
+                    }
+                }
+            }
+
+            showHintModal(hint) {
+                this.hintContent.textContent = hint;
+                this.hintModal.style.display = 'flex';
+            }
+
+            // Nuevo: Lógica de eventos aleatorios (solo para host)
+            activateRandomEventAsHost() {
+                if (!this.isHost) {
+                    this.showNotification("Solo el anfitrión puede activar eventos aleatorios.");
+                    return;
+                }
+                
+                this.playSound('eventSound');
+                const events = ['ronda_rapida', 'pregunta_invertida'];
+                const randomEvent = events[Math.floor(Math.random() * events.length)];
+                
+                this.showNotification(`¡Evento aleatorio: ${randomEvent.replace('_', ' ').toUpperCase()}!`);
+                
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'trigger_random_event',
+                        pin: this.gamePin,
+                        eventType: randomEvent
+                    }));
+                }
+                this.handleRandomEvent(randomEvent); // Aplicar localmente también
+            }
+
+            handleRandomEvent(eventType) {
+                switch(eventType) {
+                    case 'ronda_rapida':
+                        this.showNotification("¡RONDA RÁPIDA! El tiempo se reduce a la mitad y los puntos se duplican.");
+                        this.timerDuration = Math.max(5, Math.floor(this.timerDuration / 2));
+                        this.resetTimer();
+                        this.activePowerUps.doubleScore = true; // Activar doble puntuación para esta ronda
+                        setTimeout(() => {
+                            this.activePowerUps.doubleScore = false;
+                            this.showNotification("El efecto de doble puntuación de la ronda rápida ha terminado.");
+                        }, this.timerDuration * 1000); // Duración de la ronda rápida
+                        break;
+                    case 'pregunta_invertida':
+                        this.showNotification("¡PREGUNTA INVERTIDA! Se muestra el resultado, encuentra la operación.");
+                        // Esto requiere que generarPreguntas pueda generar preguntas invertidas.
+                        // Para simplificar, si el host genera una invertida, todos la verán así.
+                        // Por ahora, solo es una notificación visual.
+                        break;
                 }
             }
         }

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Challenge PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <title>Desafío Matemático Universitario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --azul: #4e8cff;
@@ -40,7 +40,7 @@
         }
 
         body {
-            font-family: 'Comic Neue', cursive;
+            font-family: 'Montserrat', sans-serif;
             text-align: center;
             background: var(--fondo);
             color: var(--texto);
@@ -58,7 +58,8 @@
         }
 
         h1, h2, h3 {
-            font-family: 'Fredoka One', cursive;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
             color: var(--texto);
             margin-bottom: 20px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -155,7 +156,7 @@
             border: 2px solid var(--borde);
             border-radius: 8px;
             font-size: 1rem;
-            font-family: 'Comic Neue', cursive;
+            font-family: 'Montserrat', sans-serif;
             transition: all 0.3s;
             background: rgba(255,255,255,0.1);
         }
@@ -203,7 +204,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Comic Neue', cursive;
+            font-family: 'Montserrat', sans-serif;
             margin: 8px;
             background: linear-gradient(45deg, var(--azul), var(--morado));
             color: white;
@@ -338,7 +339,7 @@
 
         .mode-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 10px;
             margin: 20px 0;
         }
@@ -362,7 +363,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: 0.5s;
         }
 
@@ -463,7 +464,6 @@
             margin-bottom: 15px;
             border: 2px solid var(--borde);
             border-radius: 8px;
-            font-family: 'Comic Neue', cursive;
             background: rgba(255,255,255,0.1);
             transition: all 0.3s;
         }
@@ -656,9 +656,19 @@
             animation: moveUp 0.5s ease;
         }
 
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
+        }
+
         @keyframes moveUp {
             0% { transform: translateY(0); background: var(--verde); }
             50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes moveDown {
+            0% { transform: translateY(0); background: var(--rojo); }
+            50% { transform: translateY(10px); }
             100% { transform: translateY(0); }
         }
 
@@ -695,7 +705,7 @@
             width: 100%;
             height: 100%;
             background: var(--fondo);
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -748,9 +758,8 @@
         }
 
         @keyframes bounce {
-            0% { transform: translateY(0); }
+            0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
-            100% { transform: translateY(0); }
         }
 
         .podium-name {
@@ -791,8 +800,8 @@
             justify-content: space-between;
             padding: 10px;
             margin: 5px 0;
-            border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
             transition: all 0.3s ease;
             align-items: center;
         }
@@ -898,7 +907,7 @@
             transform: rotate(30deg);
         }
 
-        /* Botón saltar pregunta (modo profesor) */
+        /* Botón saltar pregunta (modo anfitrión) */
         .skip-btn {
             position: fixed;
             bottom: 20px;
@@ -1431,23 +1440,24 @@
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <h2>Cargando Math Challenge PRO...</h2>
+        <h2>Cargando Desafío Matemático Universitario...</h2>
     </div>
 
     <div class="join-screen" id="joinScreen">
-        <h1>✨ Math Challenge PRO ✨</h1>
+        <h1>Desafío Matemático Universitario</h1>
         <div class="join-form glass-panel">
-            <h2>¡Únete al desafío!</h2>
+            <h2>¡Únete al Desafío!</h2>
             <div class="input-group">
                 <label for="playerName">Tu nombre:</label>
-                <input type="text" id="playerName" placeholder="Ej: Juan" maxlength="20">
+                <input type="text" id="playerName" placeholder="Ej: Alex" maxlength="20">
             </div>
             <div class="input-group">
-                <label for="gradeLevelSelect">Nivel de Grado:</label>
-                <select id="gradeLevelSelect">
-                    <option value="4-5">4° - 5° Primaria</option>
-                    <option value="6-7">6° - 7° Secundaria</option>
+                <label for="selectedDifficultyLevelSelect">Nivel de Dificultad de la Sala:</label>
+                <select id="selectedDifficultyLevelSelect">
+                    <option value="universidad">Nivel Universitario</option>
                     <option value="8-9">8° - 9° Secundaria</option>
+                    <option value="6-7">6° - 7° Secundaria</option>
+                    <option value="4-5">4° - 5° Primaria</option>
                 </select>
             </div>
             <div class="input-group">
@@ -1468,7 +1478,7 @@
             </div>
             
             <button class="btn" id="joinGame">Unirse</button>
-            <button class="btn btn-secondary" id="createGame">Crear nueva sala</button>
+            <button class="btn btn-secondary" id="createGame">Crear Sesión</button>
             <p id="joinError" class="error-message"></p>
         </div>
     </div>
@@ -1477,7 +1487,7 @@
         <div class="lobby-container glass-panel">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
-            <div class="lobby-grade-level">Nivel de la Sala: <span id="lobbyGradeLevel"></span></div>
+            <div class="lobby-difficulty-level">Dificultad de la Sala: <span id="lobbyDifficultyLevel"></span></div>
             
             <div class="vote-section">
                 <h3>Votar modo de juego:</h3>
@@ -1502,7 +1512,7 @@
     </div>
 
     <div id="gameContainer">
-        <h1>✨ Math Challenge PRO ✨</h1>
+        <h1>Desafío Matemático Universitario</h1>
         <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
 
         <div class="timer-container">
@@ -1580,7 +1590,7 @@
             </div>
         </div>
         <div class="other-players glass-panel" id="otherPlayers"></div>
-        <button class="btn" id="backToLobby">Volver al Lobby</button>
+        <button class="btn" id="backToLobby">Volver a la Sala</button>
     </div>
 
     <div class="theme-toggle" id="themeToggle">🌙</div>
@@ -1636,24 +1646,25 @@
                 this.player = {
                     id: null,
                     name: "",
-                    gradeLevel: "", // Almacena el nivel de grado (ej. "4-5")
+                    // Cambiamos 'major' a 'selectedDifficultyLevel' para almacenar la elección del profesor
+                    selectedDifficultyLevel: "universidad", // Default: Nivel Universitario
                     displayName: "",
                     avatar: "1",
                     points: 0,
-                    hasAnswered: false, // Indica si el jugador local ya respondió la pregunta actual
-                    hasVoted: false, // Indica si el jugador local ya votó en la votación actual
-                    streak: 0, // Racha actual de respuestas correctas
-                    maxStreak: 0, // Racha máxima alcanzada en la partida
-                    avgResponseTime: 0, // Tiempo promedio de respuesta
-                    responseTimes: [], // Historial de tiempos de respuesta
-                    history: [], // Historial de respuestas del jugador
-                    isProfessor: false, // True si el jugador es el anfitrión/profesor
-                    isReady: false, // True si el jugador está listo en el lobby
-                    gamesPlayed: 0, // Número de partidas jugadas
-                    favoriteMode: null, // Modo de juego favorito (basado en estadísticas)
-                    modeStats: {}, // Estadísticas por modo de juego
-                    achievements: [], // Logros desbloqueados
-                    lastAnswerCorrect: false // Si la última respuesta fue correcta
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    gamesPlayed: 0,
+                    favoriteMode: null,
+                    modeStats: {},
+                    achievements: [],
+                    lastAnswerCorrect: false
                 };
                 
                 this.questions = []; // Preguntas generadas para la partida actual (solo en el host)
@@ -1688,11 +1699,20 @@
                 this.voteTime = 30; // Tiempo restante para la votación
                 this.voteInterval = null; // ID del intervalo de votación
                 this.voteCounts = { // Conteo de votos por modo (recibido del servidor)
+                    // Modos universitarios
+                    calculo_diferencial: 0,
+                    calculo_integral: 0,
+                    algebra_lineal: 0,
+                    ecuaciones_diferenciales: 0,
+                    estadistica: 0,
+                    logica: 0,
+                    // Modos de colegio
                     operaciones: 0,
                     misterioso: 0,
                     secuencia: 0,
                     potenciacion: 0,
                     combinadas: 0,
+                    // Modos generales/especiales
                     relampago: 0,
                     "verdadero-falso": 0,
                     "mas-cercano": 0
@@ -1739,14 +1759,78 @@
                         icon: "👑",
                         condition: (player) => {
                             const modes = Object.keys(player.modeStats || {});
-                            const gameModes = ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "relampago", "verdadero-falso", "mas-cercano"];
-                            return gameModes.every(mode => player.modeStats[mode] && player.modeStats[mode].wins > 0);
+                            // Ajustar esta lista para incluir TODOS los modos posibles
+                            const allGameModes = [
+                                "calculo_diferencial", "calculo_integral", "algebra_lineal",
+                                "ecuaciones_diferenciales", "estadistica", "logica",
+                                "operaciones", "misterioso", "secuencia", "potenciacion",
+                                "combinadas", "verdadero-falso", "mas-cercano", "relampago"
+                            ];
+                            return allGameModes.every(mode => player.modeStats[mode] && player.modeStats[mode].wins > 0);
                         }
                     }
                 };
                 
-                // --- PREGUNTAS PREDEFINIDAS POR NIVEL Y MODO ---
+                // --- PREGUNTAS PREDEFINIDAS POR NIVEL DE DIFICULTAD Y MODO ---
                 this.questionsByLevelAndMode = {
+                    "universidad": { // Nivel Universitario (Modos originales)
+                        calculo_diferencial: [
+                            { pregunta: "Si f(x) = 3x^2, calcula f'(2) = ?", respuesta: 12, tipo: 'numerica' },
+                            { pregunta: "Si f(x) = 5x^3, calcula f'(1) = ?", respuesta: 15, tipo: 'numerica' },
+                            { pregunta: "Calcula la derivada de f(x) = 4x^4 en x=0.", respuesta: 0, tipo: 'numerica' },
+                            { pregunta: "Si g(x) = 2x^2 + 7x, calcula g'(1).", respuesta: 11, tipo: 'numerica' },
+                            { pregunta: "La derivada de f(x) = 10 es:", respuesta: 0, tipo: 'numerica' }
+                        ],
+                        calculo_integral: [
+                            { pregunta: "Calcula la integral definida: ∫ (de 0 a 1) 2x dx = ?", respuesta: 1, tipo: 'numerica' },
+                            { pregunta: "Calcula la integral definida: ∫ (de 0 a 2) 3x^2 dx = ?", respuesta: 8, tipo: 'numerica' },
+                            { pregunta: "Calcula la integral definida: ∫ (de 1 a 2) x dx = ?", respuesta: 1.5, tipo: 'numerica' },
+                            { pregunta: "Calcula la integral indefinida de 4x^3. Si C=0, la respuesta es:", respuesta: 1, tipo: 'numerica' }, 
+                            { pregunta: "Evalúa ∫ (de 0 a 1) (x + 1) dx.", respuesta: 1.5, tipo: 'numerica' }
+                        ],
+                        algebra_lineal: [
+                            { pregunta: "Calcula el determinante de la matriz [[2, 1], [3, 4]] = ?", respuesta: 5, tipo: 'numerica' },
+                            { pregunta: "Calcula el determinante de la matriz [[1, 0], [0, 1]] = ?", respuesta: 1, tipo: 'numerica' },
+                            { pregunta: "Calcula el determinante de la matriz [[-1, 2], [3, -4]] = ?", respuesta: -2, tipo: 'numerica' },
+                            { pregunta: "Si la matriz es [[5, -2], [1, 3]], ¿cuál es su determinante?", respuesta: 17, tipo: 'numerica' },
+                            { pregunta: "Dada la matriz A = [[2, -3], [-1, 2]], su determinante es:", respuesta: 1, tipo: 'numerica' }
+                        ],
+                        estadistica: [
+                            { pregunta: "Calcula la media del conjunto de datos {1, 2, 3, 4} = ?", respuesta: 2.5, tipo: 'numerica' },
+                            { pregunta: "Calcula la media del conjunto de datos {5, 5, 5, 5} = ?", respuesta: 5, tipo: 'numerica' },
+                            { pregunta: "Calcula la media de {10, 20, 30}.", respuesta: 20, tipo: 'numerica' },
+                            { pregunta: "Si un conjunto de datos es {7, 8, 9}, ¿cuál es su media?", respuesta: 8, tipo: 'numerica' },
+                            { pregunta: "La media de {1, 1, 1, 1, 1, 5} es:", respuesta: 1.6666666666666667, tipo: 'numerica' }
+                        ],
+                        logica: [
+                            { pregunta: "Convierte el número binario 101 a decimal.", respuesta: 5, tipo: 'numerica' },
+                            { pregunta: "Convierte el número binario 1000 a decimal.", respuesta: 8, tipo: 'numerica' },
+                            { pregunta: "Convierte el número binario 111 a decimal.", respuesta: 7, tipo: 'numerica' },
+                            { pregunta: "El número decimal 6 en binario es:", respuesta: 110, tipo: 'numerica' },
+                            { pregunta: "Si el binario es 1101, ¿cuál es el decimal?", respuesta: 13, tipo: 'numerica' }
+                        ],
+                        ecuaciones_diferenciales: [ // Usaremos Verdadero/Falso aquí
+                            { pregunta: "y = e^(2x) es una solución para y' - 2y = 0.", respuesta: true, explicacion: "Si y=e^(2x), entonces y'=2e^(2x). Sustituyendo: 2e^(2x) - 2(e^(2x)) = 0.", tipo: 'verdadero-falso' },
+                            { pregunta: "y' + y = 0 tiene como solución general y = Ce^(-x).", respuesta: true, explicacion: "Es una ED lineal de primer orden, y su solución es de esa forma.", tipo: 'verdadero-falso' },
+                            { pregunta: "La ecuación y'' + y = 0 tiene soluciones de la forma seno y coseno.", respuesta: true, explicacion: "Correcto, las raíces de la ecuación característica son imaginarias.", tipo: 'verdadero-falso' },
+                            { pregunta: "Una ecuación diferencial ordinaria de segundo orden siempre tiene dos constantes de integración.", respuesta: true, explicacion: "El número de constantes de integración en la solución general es igual al orden de la EDO.", tipo: 'verdadero-falso' },
+                            { pregunta: "La derivada de una función es siempre una ecuación diferencial.", respuesta: false, explicacion: "Una ecuación diferencial involucra una función y sus derivadas. Una derivada es un cálculo, no una ecuación.", tipo: 'verdadero-falso' }
+                        ],
+                        "verdadero-falso": [ // Notas la clave en comillas por el guion
+                            { pregunta: "¿El agua hierve a 100°C a nivel del mar? Verdadero o Falso.", respuesta: true, explicacion: "Es el punto de ebullición estándar del agua.", tipo: 'verdadero-falso' },
+                            { pregunta: "¿El Sol es un planeta? Verdadero o Falso.", respuesta: false, explicacion: "El Sol es una estrella.", tipo: 'verdadero-falso' },
+                            { pregunta: "¿La Tierra es plana? Verdadero o Falso.", respuesta: false, explicacion: "La Tierra tiene forma de geoide (esferoide oblato).", tipo: 'verdadero-falso' },
+                            { pregunta: "¿Todos los mamíferos ponen huevos? Verdadero o Falso.", respuesta: false, explicacion: "La mayoría de los mamíferos dan a luz crías vivas, excepto los monotremas como el ornitorrinco.", tipo: 'verdadero-falso' },
+                            { pregunta: "¿El lenguaje de programación JavaScript solo se usa en navegadores web? Verdadero o Falso.", respuesta: false, explicacion: "JavaScript se usa en navegadores, servidores (Node.js), aplicaciones de escritorio, móviles, etc.", tipo: 'verdadero-falso' }
+                        ],
+                        "mas-cercano": [ // No es modo universitario, pero lo incluimos para completar la lógica
+                            { pregunta: "El número más cercano a 1500 ÷ 30 es:", objetivo: 50, tipo: 'numerica' },
+                            { pregunta: "El más cercano al resultado de (12.5 × 4) es:", objetivo: 50, tipo: 'numerica' },
+                            { pregunta: "El número más cercano a la raíz cuadrada de 144 es:", objetivo: 12, tipo: 'numerica' },
+                            { pregunta: "El más cercano al resultado de 3/2 + 0.5 es:", objetivo: 2, tipo: 'numerica' },
+                            { pregunta: "Adivina el número más cercano al PI (3.14159...):", objetivo: Math.PI, tipo: 'numerica' },
+                        ]
+                    },
                     "4-5": { // Primaria Superior (Grados 4 y 5)
                         operaciones: [
                             { pregunta: "5 + 7 = ?", respuesta: 12, tipo: 'numerica' },
@@ -2022,7 +2106,7 @@
                         }
                         this.updateModeButtonsVisibility(); // Actualizar botones al entrar al lobby
                         this.enableVotingButtons(true); 
-                        document.getElementById('lobbyGradeLevel').textContent = this.player.gradeLevel; // Muestra el nivel de la sala
+                        document.getElementById('lobbyDifficultyLevel').textContent = this.getDifficultyLevelName(this.player.selectedDifficultyLevel); // Muestra el nivel de la sala
                         break;
                     case this.STATES.VOTING:
                         document.getElementById('multiplayerLobby').style.display = 'flex';
@@ -2030,7 +2114,7 @@
                         this.startVoteBtn.style.display = 'none'; 
                         this.updateModeButtonsVisibility(); // Actualizar botones durante votación
                         this.enableVotingButtons(true); 
-                        document.getElementById('lobbyGradeLevel').textContent = this.player.gradeLevel;
+                        document.getElementById('lobbyDifficultyLevel').textContent = this.getDifficultyLevelName(this.player.selectedDifficultyLevel);
                         break;
                     case this.STATES.PLAYING:
                         document.getElementById('gameContainer').style.display = 'block';
@@ -2149,23 +2233,42 @@
                         }, 300); // Pequeño retraso para que el teclado tenga tiempo de aparecer
                     });
                 }
+            }
 
+            // --- NUEVA FUNCIÓN: CONVERTIR CLAVE DE DIFICULTAD A NOMBRE AMIGABLE ---
+            getDifficultyLevelName(levelKey) {
+                const names = {
+                    "universidad": "Nivel Universitario",
+                    "4-5": "4° - 5° Primaria",
+                    "6-7": "6° - 7° Secundaria",
+                    "8-9": "8° - 9° Secundaria"
+                };
+                return names[levelKey] || levelKey;
             }
 
             // --- NUEVA FUNCIÓN: ACTUALIZAR VISIBILIDAD DE BOTONES DE MODO ---
             updateModeButtonsVisibility() {
-                const availableModes = {
+                // Definir los modos disponibles por nivel
+                const availableModesByDifficulty = {
+                    "universidad": ["calculo_diferencial", "calculo_integral", "algebra_lineal", "ecuaciones_diferenciales", "estadistica", "logica", "verdadero-falso", "relampago"],
                     "4-5": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
                     "6-7": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
                     "8-9": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"]
                 };
                 
-                // Obtener el nivel de grado del jugador local, que ya está sincronizado con la sala
-                const currentLevelModes = availableModes[this.player.gradeLevel] || [];
+                // Obtener el nivel de dificultad de la sala actual
+                const currentLevelModes = availableModesByDifficulty[this.player.selectedDifficultyLevel] || [];
                 
                 this.modeButtons.innerHTML = ''; // Limpiar botones existentes
 
-                const modeNames = { // Nombres amigables para los modos
+                // Nombres amigables para los modos
+                const modeNames = {
+                    calculo_diferencial: '🧠 Cálculo Diferencial',
+                    calculo_integral: '📈 Cálculo Integral',
+                    algebra_lineal: '🧮 Álgebra Lineal',
+                    ecuaciones_diferenciales: '📉 Ecuaciones Diferenciales',
+                    estadistica: '📊 Estadística y Probabilidad',
+                    logica: '🤖 Lógica Matemática',
                     operaciones: '🔢 Operación Rápida',
                     misterioso: '❓ Número Misterioso',
                     secuencia: '📈 Secuencia Numérica',
@@ -2301,16 +2404,17 @@
 
             joinGame() {
                 const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const gradeLevel = document.getElementById('gradeLevelSelect').value; 
+                // Cambiado de 'major' a 'selectedDifficultyLevelSelect'
+                const selectedDifficultyLevel = document.getElementById('selectedDifficultyLevelSelect').value; 
                 const gamePin = document.getElementById('gamePin').value.trim();
 
                 if (!playerName || playerName.length < 3) {
-                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres.';
                     return;
                 }
 
-                if (!gradeLevel) { 
-                    document.getElementById('joinError').textContent = 'Por favor, selecciona tu nivel de grado.';
+                if (!selectedDifficultyLevel) { 
+                    document.getElementById('joinError').textContent = 'Por favor, selecciona un nivel de dificultad.';
                     return;
                 }
 
@@ -2331,8 +2435,9 @@
                     ...this.player,
                     id: playerId,
                     name: playerName,
-                    gradeLevel: gradeLevel, 
-                    displayName: `${playerName} (${gradeLevel})`,
+                    // Almacenar el nivel de dificultad seleccionado por el jugador
+                    selectedDifficultyLevel: selectedDifficultyLevel, 
+                    displayName: `${playerName}`, // La dificultad se muestra en el lobby de la sala
                     avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
@@ -2352,15 +2457,16 @@
 
             createGame() {
                 const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const gradeLevel = document.getElementById('gradeLevelSelect').value; 
+                // Cambiado de 'major' a 'selectedDifficultyLevelSelect'
+                const selectedDifficultyLevel = document.getElementById('selectedDifficultyLevelSelect').value; 
                 
                 if (!playerName || playerName.length < 3) {
-                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres.';
                     return;
                 }
 
-                if (!gradeLevel) { 
-                    document.getElementById('joinError').textContent = 'Por favor, selecciona tu nivel de grado.';
+                if (!selectedDifficultyLevel) { 
+                    document.getElementById('joinError').textContent = 'Por favor, selecciona un nivel de dificultad.';
                     return;
                 }
                 
@@ -2368,7 +2474,7 @@
 
                 const createBtn = document.getElementById('createGame');
                 createBtn.disabled = true;
-                createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
+                createBtn.innerHTML = '<span class="loader-small"></span> Creando sesión...';
 
                 let playerId = localStorage.getItem('playerId');
                 if (!playerId) {
@@ -2383,8 +2489,8 @@
                     ...this.player,
                     id: playerId,
                     name: playerName,
-                    gradeLevel: gradeLevel, // Asignar el nivel de grado
-                    displayName: `${playerName} (Profesor)`,
+                    selectedDifficultyLevel: selectedDifficultyLevel, // Asignar el nivel de dificultad
+                    displayName: `${playerName} (Profesor)`, // Mostrar rol de profesor en el display name
                     avatar: this.player.avatar,
                     points: 0,
                     hasAnswered: false,
@@ -2404,7 +2510,7 @@
 
                 setTimeout(() => {
                     createBtn.disabled = false;
-                    createBtn.textContent = 'Crear nueva sala';
+                    createBtn.textContent = 'Crear Sesión';
                 }, 2000);
             }
 
@@ -2476,7 +2582,8 @@
                                 points: this.player.points, 
                                 isProfessor: this.player.isProfessor, 
                                 isReady: this.player.isReady,
-                                gradeLevel: this.player.gradeLevel // ¡Enviar el nivel de grado!
+                                // Enviar el nivel de dificultad seleccionado por el profesor/jugador
+                                selectedDifficultyLevel: this.player.selectedDifficultyLevel 
                             }
                         }));
                     };
@@ -2622,7 +2729,8 @@
                         this.startGame(data.mode, data.closestAnswerMode);
                         if (this.isHost) {
                             console.log("[Cliente Host] Generando y enviando la primera pregunta al servidor...");
-                            this.questions = this.generarPreguntas(data.mode, 10, this.player.gradeLevel); 
+                            // Pasar el selectedDifficultyLevel para generar preguntas del nivel correcto
+                            this.questions = this.generarPreguntas(data.mode, 10, this.player.selectedDifficultyLevel); 
                             this.currentQuestionIndex = 0;
                             this.shareQuestionWithPlayers(); 
                         }
@@ -2637,12 +2745,23 @@
                         break;
                         
                     case 'player_score_update': 
-                        this.updatePlayerScore(data.playerId, data.points, data.streak, data.maxStreak, data.avgResponseTime);
+                        // El servidor ahora envía una lista completa de jugadores para el ranking
+                        this.players = data.players; // Actualizar la lista global de jugadores
+                        this.updateLiveRanking(); // Actualizar el ranking en vivo
+                        // También actualizar los datos del jugador local si es necesario
+                        const myUpdatedData = this.players.find(p => p.id === this.player.id);
+                        if (myUpdatedData) {
+                            this.player.points = myUpdatedData.points;
+                            this.player.streak = myUpdatedData.streak;
+                            this.player.maxStreak = myUpdatedData.maxStreak;
+                            this.player.avgResponseTime = myUpdatedData.avgResponseTime;
+                            document.getElementById('playerScore').textContent = this.player.points;
+                        }
                         break;
                     
                     case 'host_skipped_question': 
                         if (!this.isHost) { 
-                            this.showNotification("El profesor ha saltado la pregunta.");
+                            this.showNotification("El anfitrión ha saltado la pregunta.");
                         }
                         break;
 
@@ -2654,14 +2773,14 @@
                         if (data.newHostId === this.player.id) {
                             this.isHost = true;
                             this.player.isProfessor = true;
-                            this.showNotification("¡Ahora eres el nuevo profesor y anfitrión!");
+                            this.showNotification("¡Ahora eres el nuevo anfitrión!");
                         } else {
-                            this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
+                            this.showNotification(`${data.newHostName} es ahora el nuevo anfitrión.`);
                         }
                         break;
                         
                     case 'reveal_phase':
-                        // Aquí el servidor nos dirá si NUESTRA respuesta fue correcta y nuestro bonus
+                        // El servidor ahora envía la información específica del jugador local
                         this.startRevealPhase(data.correctAnswer, data.isCorrect, data.streakBonus, data.explanation);
                         break;
                     
@@ -2679,15 +2798,17 @@
                 this.isMultiplayer = true; 
                 this.players = data.players || [];
                 this.isHost = data.isHost; 
-                this.player.gradeLevel = data.gradeLevel; // ¡Obtener el nivel de la sala!
-                
+                // Sincronizar el nivel de dificultad de la sala para el jugador que se une
+                this.player.selectedDifficultyLevel = data.selectedDifficultyLevel; 
+                document.getElementById('lobbyDifficultyLevel').textContent = this.getDifficultyLevelName(this.player.selectedDifficultyLevel);
+
                 // Actualizar el player local con los datos del servidor (si se reconecta)
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
                     Object.assign(this.player, currentPlayerFromServer);
                 }
 
-                this.updatePlayerList(); // Llama a esta función aquí
+                this.updatePlayerList(); 
                 
                 this.isVotingActive = data.isVotingActive || false; 
                 if (this.isVotingActive) {
@@ -2715,18 +2836,15 @@
             }
 
             handlePlayerJoined(data) {
-                // Esta función se llama cuando un nuevo jugador se une o uno existente se reconecta.
-                // Es importante mantener la lista `this.players` sincronizada con el servidor.
                 const existingPlayer = this.players.find(p => p.id === data.player.id);
                 if (!existingPlayer) {
                     this.players.push(data.player);
-                    this.showNotification(`${data.player.name} se ha unido`);
+                    this.showNotification(`${this.extractName(data.player.name)} se ha unido`);
                 } else {
-                    // Si el jugador ya existe (reconexión o actualización de estado), actualiza sus datos
                     Object.assign(existingPlayer, data.player); 
-                    this.showNotification(`${data.player.name} se ha reconectado`); // O simplemente "se ha actualizado"
+                    this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
                 }
-                this.updatePlayerList(); // Actualiza la UI de la lista de jugadores
+                this.updatePlayerList(); 
             }
 
             handlePlayerLeft(data) {
@@ -2765,7 +2883,7 @@
                     
                     this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
                     if (!allNeededPlayersReady) {
-                        this.showNotification(`Profesor: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                        this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
                     }
                 }
             }
@@ -2797,7 +2915,7 @@
                 }
                 
                 this.playSound('clickSound');
-                this.showNotification("El profesor ha iniciado la votación!");
+                this.showNotification("El anfitrión ha iniciado la votación!");
                 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
@@ -2819,6 +2937,8 @@
 
                 // Resetear voteCounts con todos los modos posibles, se filtrarán al mostrar
                 this.voteCounts = { 
+                    calculo_diferencial: 0, calculo_integral: 0, algebra_lineal: 0,
+                    ecuaciones_diferenciales: 0, estadistica: 0, logica: 0,
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
                     combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0
                 };
@@ -2898,12 +3018,13 @@
                 let resultsHTML = '';
                 
                 // Filtrar solo los modos relevantes para el nivel actual antes de mostrar resultados
-                const allAvailableModes = {
+                const allAvailableModesByDifficulty = {
+                    "universidad": ["calculo_diferencial", "calculo_integral", "algebra_lineal", "ecuaciones_diferenciales", "estadistica", "logica", "verdadero-falso", "relampago"],
                     "4-5": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
                     "6-7": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"],
                     "8-9": ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "verdadero-falso", "mas-cercano", "relampago"]
                 };
-                const currentLevelModes = allAvailableModes[this.player.gradeLevel] || [];
+                const currentLevelModes = allAvailableModesByDifficulty[this.player.selectedDifficultyLevel] || [];
 
                 const sortedModes = Object.entries(this.voteCounts)
                     .filter(([mode]) => currentLevelModes.includes(mode)) // Solo mostrar modos del nivel actual
@@ -2922,6 +3043,12 @@
 
             getModeName(mode) {
                 const names = {
+                    calculo_diferencial: '🧠 Cálculo Diferencial',
+                    calculo_integral: '📈 Cálculo Integral',
+                    algebra_lineal: '🧮 Álgebra Lineal',
+                    ecuaciones_diferenciales: '📉 Ecuaciones Diferenciales',
+                    estadistica: '📊 Estadística y Probabilidad',
+                    logica: '🤖 Lógica Matemática',
                     operaciones: '🔢 Operación Rápida',
                     misterioso: '❓ Número Misterioso',
                     secuencia: '📈 Secuencia Numérica',
@@ -2951,7 +3078,7 @@
                 if (mode === 'relampago') {
                     this.timerDuration = 10; 
                     document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso' || mode === 'mas-cercano') { 
+                } else if (mode === 'verdadero-falso' || mode === 'mas-cercano' || mode === 'ecuaciones_diferenciales') { // Añadir ecuaciones diferenciales a tiempo corto
                     this.timerDuration = 15;
                     document.getElementById('gameContainer').classList.remove('lightning-mode');
                 } else {
@@ -2962,7 +3089,7 @@
                 this.setState(this.STATES.PLAYING);
                 
                 // Mostrar/ocultar inputs según el tipo de pregunta del modo
-                if (mode === 'verdadero-falso') {
+                if (mode === 'verdadero-falso' || mode === 'ecuaciones_diferenciales') {
                     this.standardInputContainer.style.display = 'none';
                     this.trueFalseButtons.style.display = 'flex';
                 } else {
@@ -2972,7 +3099,8 @@
                 
                 // Solo el host genera y comparte las preguntas
                 if (this.isHost) {
-                    this.questions = this.generarPreguntas(mode, 10, this.player.gradeLevel); // Pasa el nivel de grado
+                    // Pasar el selectedDifficultyLevel para generar preguntas del nivel correcto
+                    this.questions = this.generarPreguntas(mode, 10, this.player.selectedDifficultyLevel); 
                     this.currentQuestionIndex = 0;
                     this.shareQuestionWithPlayers();
                 }
@@ -3002,6 +3130,10 @@
                 delete questionToSend.respuesta; 
                 delete questionToSend.explicacion; 
                 delete questionToSend.objetivo; 
+                // Si tiene imagen, la URL no es un secreto, así que se envía
+                if (questionToSend.imagen) {
+                    questionToSend.imagen = question.imagen;
+                }
 
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
@@ -3010,27 +3142,28 @@
                     questionIndex: this.currentQuestionIndex,
                     totalQuestions: this.questions.length,
                     gameMode: this.selectedGameMode,
-                    gradeLevel: this.player.gradeLevel 
+                    selectedDifficultyLevel: this.player.selectedDifficultyLevel 
                 }));
                 
                 this.displayQuestion(question);
                 this.resetTimer();
             }
 
-            generarPreguntas(mode, count, gradeLevel) {
+            generarPreguntas(mode, count, selectedDifficultyLevel) {
                 let preguntasFuente;
-                // Asegúrate de que el gradeLevel exista y el modo exista dentro de ese gradeLevel
-                if (this.questionsByLevelAndMode[gradeLevel] && this.questionsByLevelAndMode[gradeLevel][mode]) {
-                    preguntasFuente = this.questionsByLevelAndMode[gradeLevel][mode];
+                
+                // Asegúrate de que el selectedDifficultyLevel exista y el modo exista dentro de ese nivel
+                if (this.questionsByLevelAndMode[selectedDifficultyLevel] && this.questionsByLevelAndMode[selectedDifficultyLevel][mode]) {
+                    preguntasFuente = this.questionsByLevelAndMode[selectedDifficultyLevel][mode];
                 } else {
-                    console.warn(`No hay preguntas definidas para el nivel ${gradeLevel} y modo ${mode}. Usando "operaciones" de 4-5 por defecto.`);
+                    console.warn(`No hay preguntas definidas para el nivel ${selectedDifficultyLevel} y modo ${mode}. Usando "operaciones" de 4-5 Primaria por defecto.`);
                     // Fallback si el nivel o modo no están definidos
                     preguntasFuente = this.questionsByLevelAndMode["4-5"]["operaciones"];
                 }
 
-                // Si es modo relámpago, selecciona de todos los modos disponibles para ese gradeLevel
+                // Si es modo relámpago, selecciona de todos los modos disponibles para ese nivel
                 if (mode === 'relampago') {
-                    const allAvailableModesForLevel = this.questionsByLevelAndMode[gradeLevel] || {};
+                    const allAvailableModesForLevel = this.questionsByLevelAndMode[selectedDifficultyLevel] || {};
                     const allAvailableQuestionsForLevel = [];
                     for (const subMode in allAvailableModesForLevel) {
                         if (subMode !== 'relampago') { // Evitar incluir el modo relámpago en sí mismo
@@ -3043,6 +3176,17 @@
                 
                 // Para otros modos, toma directamente del array predefinido y baraja
                 const shuffled = [...preguntasFuente].sort(() => 0.5 - Math.random()); 
+                // Añadir preguntas con imagen si el nivel lo permite y hay alguna definida
+                if (selectedDifficultyLevel === "4-5" && this.questionsByLevelAndMode["4-5"].imagen && this.questionsByLevelAndMode["4-5"].imagen.length > 0) {
+                    const numImagesToAdd = Math.min(Math.floor(Math.random() * 3) + 1, shuffled.length); // Añadir 1-3 imágenes si hay espacio
+                    const availableImageQuestions = [...this.questionsByLevelAndMode["4-5"].imagen].sort(() => 0.5 - Math.random()); // Clonar y barajar
+                    for (let i = 0; i < numImagesToAdd; i++) {
+                        if (availableImageQuestions.length > i) {
+                            const randomIndexToReplace = Math.floor(Math.random() * shuffled.length);
+                            shuffled[randomIndexToReplace] = availableImageQuestions[i];
+                        }
+                    }
+                }
                 return shuffled.slice(0, count);
             }
             
@@ -3066,22 +3210,23 @@
                     this.lastAnswerTime = Date.now();
                     
                     const questionImage = document.getElementById('questionImage');
-                    if (question.imagen) { 
+                    if (question.imagen) { // Si la pregunta tiene una imagen, la muestra
                         questionImage.src = question.imagen;
                         questionImage.style.display = 'block';
                     } else {
                         questionImage.style.display = 'none';
                     }
                     
-                    if (this.selectedGameMode === 'verdadero-falso') {
+                    // Mostrar/ocultar inputs según el tipo de pregunta del modo
+                    if (this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'ecuaciones_diferenciales') {
                         this.standardInputContainer.style.display = 'none';
                         this.trueFalseButtons.style.display = 'flex';
-                    } else {
+                    } else { // numérico o cualquier otro que use el teclado
                         this.standardInputContainer.style.display = 'block';
                         this.trueFalseButtons.style.display = 'none';
                     }
                     
-                    // Limpiar y re-habilitar botones (V/F y teclado si es necesario)
+                    // Limpiar y re-habilitar botones (V/F)
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;
 
@@ -3099,13 +3244,13 @@
                         return;
                     }
 
-                    // Deshabilitar botones para evitar doble respuesta o respuestas no válidas
+                    // Deshabilitar botones para evitar doble respuesta
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
 
                     // Validar si la respuesta está vacía (solo para inputs de texto)
-                    if (this.selectedGameMode !== 'verdadero-falso' && (userAnswer === null || userAnswer.toString().trim() === "")) {
+                    if (this.selectedGameMode !== 'verdadero-falso' && this.selectedGameMode !== 'ecuaciones_diferenciales' && (userAnswer === null || userAnswer.toString().trim() === "")) {
                         this.showResult("¡Escribe una respuesta!", false);
                         document.getElementById('submitAnswer').disabled = false; 
                         this.player.hasAnswered = false; 
@@ -3146,12 +3291,12 @@
                 const currentQuestion = this.currentQuestionData;
 
                 // Mostrar la respuesta correcta
-                if (currentQuestion.tipo === 'verdadero-falso') {
+                if (currentQuestion.tipo === 'verdadero-falso' || this.selectedGameMode === 'ecuaciones_diferenciales') {
                      this.revealCorrectAnswer.innerHTML = `Respuesta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span><br><small>${explanation || 'No hay explicación disponible.'}</small>`;
                 } else if (this.closestAnswerMode) { 
                     this.revealCorrectAnswer.innerHTML = `El objetivo era: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
-                else { 
+                else { // Para numéricas y otros
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 
@@ -3346,7 +3491,7 @@
 
             skipQuestionAsProfessor() {
                 if (!this.player.isProfessor || !this.isHost) {
-                    this.showNotification("Solo el profesor puede saltar preguntas.");
+                    this.showNotification("Solo el anfitrión puede saltar preguntas.");
                     return;
                 }
                 this.playSound('clickSound');

@@ -3330,15 +3330,17 @@
 
                     // Validar si la respuesta está vacía (solo para inputs de texto)
                     if (this.standardInputContainer.style.display !== 'none' && (userAnswer === null || userAnswer.toString().trim() === "")) {
-                        this.showResult("¡Escribe una respuesta!", false);
+                        // REMOVIDO: this.showResult("¡Escribe una respuesta!", false); 
+                        document.getElementById("answerResult").textContent = "No respondiste. Esperando a los demás..."; // Mensaje más neutro
+                        document.getElementById("answerResult").className = "result waiting";
                         document.getElementById('submitAnswer').disabled = false; 
-                        this.player.hasAnswered = false; 
+                        this.player.hasAnswered = false; // Permite que el jugador intente responder de nuevo si no envió nada válido
                         return;
                     }
 
                     this.player.hasAnswered = true; 
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
-                    document.getElementById("answerResult").className = "result waiting";
+                    document.getElementById("answerResult").className = "result waiting"; 
 
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     
@@ -3856,7 +3858,7 @@
                             }));
                         } else {
                             // Si no es el host, la UI simplemente vuelve al lobby
-                            // y espera a que el servidor envíe un 'game_state_reset' si el host lo hizo.
+                            // y espera a que el servidor envíe un 'game_state_reset' if the host did.
                         }
                         this.updatePlayerList(); // Asegurar que la lista de jugadores se refresque
                     } else {

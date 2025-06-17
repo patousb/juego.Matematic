@@ -3186,17 +3186,22 @@
                 }
                 
                 const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question; // Guardar la pregunta completa en el cliente host
+                this.currentQuestionData = question;
                 
                 const questionToSend = { ...question };
-                // El cliente host envía la pregunta COMPLETA al servidor.
-                // Es responsabilidad del servidor limpiar la pregunta antes de retransmitirla a los demás clientes.
-                // Ya no borramos 'respuesta', 'explicacion', 'objetivo' aquí en el cliente antes de enviar al servidor.
-                
+                // Eliminar la respuesta, explicación y objetivo para no revelarlas antes de tiempo
+                delete questionToSend.respuesta; 
+                delete questionToSend.explicacion; 
+                delete questionToSend.objetivo; 
+                // Si tiene imagen, la URL no es un secreto, así que se envía
+                if (questionToSend.imagen) {
+                    questionToSend.imagen = question.imagen;
+                }
+
                 this.socket.send(JSON.stringify({
                     type: 'question_update',
                     pin: this.gamePin,
-                    question: questionToSend, // Enviar la pregunta COMPLETA al servidor
+                    question: questionToSend,
                     questionIndex: this.currentQuestionIndex,
                     totalQuestions: this.questions.length,
                     gameMode: this.selectedGameMode,
@@ -3259,11 +3264,10 @@
             handleQuestionUpdate(data) {
                 // Sincronizar el estado de la pregunta con el servidor
                 this.currentQuestionIndex = data.questionIndex;
-                // Importante: Guardamos la 'pregunta' recibida del servidor (que ya viene limpia, sin respuesta/objetivo)
-                this.currentQuestionData = data.question; 
+                this.currentQuestionData = data.question;
                 this.selectedGameMode = data.gameMode;
-                this.timerDuration = data.timerDuration; 
-                this.closestAnswerMode = (data.gameMode === "mas-cercano"); 
+                this.timerDuration = data.timerDuration; // Usar la duración del temporizador enviada por el host
+                this.closestAnswerMode = (data.gameMode === "mas-cercano"); // Sincronizar flag
 
                 this.displayQuestion(data.question);
                 document.getElementById('progressBar').style.width = `${((this.currentQuestionIndex + 1) / data.totalQuestions) * 100}%`;
@@ -3330,17 +3334,15 @@
 
                     // Validar si la respuesta está vacía (solo para inputs de texto)
                     if (this.standardInputContainer.style.display !== 'none' && (userAnswer === null || userAnswer.toString().trim() === "")) {
-                        // REMOVIDO: this.showResult("¡Escribe una respuesta!", false); 
-                        document.getElementById("answerResult").textContent = "No respondiste. Esperando a los demás..."; // Mensaje más neutro
-                        document.getElementById("answerResult").className = "result waiting";
+                        this.showResult("¡Escribe una respuesta!", false);
                         document.getElementById('submitAnswer').disabled = false; 
-                        this.player.hasAnswered = false; // Permite que el jugador intente responder de nuevo si no envió nada válido
+                        this.player.hasAnswered = false; 
                         return;
                     }
 
                     this.player.hasAnswered = true; 
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
-                    document.getElementById("answerResult").className = "result waiting"; 
+                    document.getElementById("answerResult").className = "result waiting";
 
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     
@@ -3369,14 +3371,13 @@
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // La variable `correctAnswer` ya viene del servidor con el valor correcto.
-                // La `currentQuestionData` en el cliente no host no tiene la respuesta real.
+                const currentQuestion = this.currentQuestionData;
 
                 // Mostrar la respuesta correcta
-                // El tipo de pregunta (verdadero/falso vs. numérica) se infiere del `selectedGameMode` o `currentQuestionData.tipo`
-                if (this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'ecuaciones_diferenciales') {
+                if (currentQuestion.tipo === 'verdadero-falso' || this.selectedGameMode === 'ecuaciones_diferenciales') {
                      this.revealCorrectAnswer.innerHTML = `Respuesta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span><br><small>${explanation || 'No hay explicación disponible.'}</small>`;
                 } else if (this.closestAnswerMode) { 
+                    // Para el modo "el más cercano", correctAnswer ya es el objetivo enviado por el servidor
                     this.revealCorrectAnswer.innerHTML = `El objetivo era: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 else { // Para numéricas y otros
@@ -3403,23 +3404,20 @@
                 
                 setTimeout(() => {
                     // Si el juego terminó, no volver a PLAYING, sino a RESULTS
-                    // El servidor decide si el juego terminó y envía 'game_over'
-                    // El cliente simplemente espera el siguiente estado del servidor.
-                    this.setState(this.STATES.PLAYING);
-                    // Si es host, proceder con la siguiente pregunta. Los no-host esperan 'question_update' del servidor.
-                    if (this.isHost) {
-                        this.currentQuestionIndex++;
-                        if (this.currentQuestionIndex < this.questions.length) {
+                    if (this.currentQuestionIndex + 1 >= this.questions.length && this.isHost) {
+                        this.endGame(); // Host decide el final del juego
+                    } else if (!this.isHost && this.currentQuestionIndex + 1 >= this.questions.length) {
+                        // Cliente no host, espera el 'game_over' del servidor
+                        this.setState(this.STATES.PLAYING); // Puede que el servidor aún no haya enviado 'game_over'
+                        document.getElementById("currentQuestion").textContent = "Esperando resultados finales...";
+                    }
+                     else {
+                        this.setState(this.STATES.PLAYING);
+                        if (this.isHost) {
+                            this.currentQuestionIndex++;
                             this.shareQuestionWithPlayers();
-                        } else {
-                            this.endGame(); // El host termina el juego si no hay más preguntas
                         }
-                    } else {
-                        // Cliente no-host, la pregunta actual ya no importa. Espera la próxima 'question_update' o 'game_over'
-                        document.getElementById("currentQuestion").textContent = "Esperando próxima pregunta...";
-                        document.getElementById("answerResult").textContent = "Esperando... 🤔";
-                        document.getElementById("answerResult").className = "result waiting";
-                        document.getElementById('questionImage').style.display = 'none';
+                        // Clientes no-host esperan el 'question_update' del servidor
                     }
                 }, this.revealPhaseDuration);
             }
@@ -3477,6 +3475,7 @@
                 // Clonar la lista de jugadores y ordenarla para el ranking
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
+                    // Para el modo "más cercano", un tiempo promedio de respuesta más bajo es mejor
                     if (a.avgResponseTime !== undefined && b.avgResponseTime !== undefined) {
                         const avgA = a.avgResponseTime === 0 ? Infinity : a.avgResponseTime; 
                         const avgB = b.avgResponseTime === 0 ? Infinity : b.avgResponseTime;
@@ -3858,7 +3857,7 @@
                             }));
                         } else {
                             // Si no es el host, la UI simplemente vuelve al lobby
-                            // y espera a que el servidor envíe un 'game_state_reset' if the host did.
+                            // y espera a que el servidor envíe un 'game_state_reset' si el host lo hizo.
                         }
                         this.updatePlayerList(); // Asegurar que la lista de jugadores se refresque
                     } else {

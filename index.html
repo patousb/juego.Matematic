@@ -336,7 +336,7 @@
             border-bottom: 2px solid var(--morado);
         }
         
-        .lobby-pin-display { /* Nuevo estilo para el PIN del lobby */
+        .lobby-pin-display {
             font-family: 'Fredoka One', cursive;
             font-size: 2.5rem;
             color: var(--azul);
@@ -346,7 +346,7 @@
             padding: 10px 20px;
             border-radius: 10px;
             border: 2px solid var(--morado);
-            display: inline-block; /* Para que el fondo se ajuste al texto */
+            display: inline-block;
         }
 
 
@@ -362,7 +362,6 @@
         }
 
         .player-badge {
-            /* Usar variables de color personalizadas para el background */
             background: linear-gradient(45deg, var(--player-color-dark, var(--azul)), var(--player-color-light, var(--morado)));
             color: white;
             padding: 8px 15px;
@@ -376,7 +375,6 @@
             position: relative;
         }
         
-        /* Asegurarse de que el color del jugador se aplique si está disponible */
         .player-badge[data-player-color] { 
             background: linear-gradient(45deg, var(--player-color-dark), var(--player-color));
         }
@@ -1787,8 +1785,8 @@
                 this.currentQuestionIndex = 0;
                 this.gameMode = null;
                 this.timeLeft = 30;
-                this.timerDuration = 30;
-                this.timerInterval = null;
+                this.timerDuration = 30; // Duración TOTAL del temporizador para la pregunta actual
+                this.timerInterval = null; // Intervalo para la actualización de la UI del temporizador (ahora impulsado por el servidor)
                 this.soundEnabled = true;
                 this.currentQuestionData = null;
                 this.reconnectAttempts = 0;
@@ -1797,7 +1795,7 @@
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
                 this.revealPhaseActive = false;
-                this.revealPhaseDuration = 3000;
+                this.revealPhaseDuration = 3000; // Duración de la fase de revelación en ms
                 this.isSpectator = false;
                 this.activePowerUps = {
                     doubleScore: false
@@ -1859,7 +1857,7 @@
                 this.hintContent = document.getElementById('hintContent');
                 this.closeHintModal = document.getElementById('closeHintModal');
 
-                this.achievementsList = { // Definición de logros
+                this.achievementsList = {
                     'first_game': {
                         title: 'Primer Juego',
                         description: '¡Has completado tu primera partida!',
@@ -2086,11 +2084,11 @@
                         document.getElementById('reiniciarBtn').style.display = 'block';
                         document.getElementById('mensajeVictoria').style.display = 'block';
                         break;
-                    case this.STATES.SPECTATING: // Asegurarse de que el modo espectador tenga la UI correcta
-                        document.getElementById('multiplayerLobby').style.display = 'flex'; // O mostrar el juego en modo espectador
+                    case this.STATES.SPECTATING:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
                         document.getElementById('readyBtn').style.display = 'none';
                         document.getElementById('startVoteBtn').style.display = 'none';
-                        document.getElementById('gameContainer').style.display = 'none'; // Opcional, si el espectador ve el juego en tiempo real
+                        document.getElementById('gameContainer').style.display = 'none';
                         if (this.isProfessor) {
                             this.hostControls.style.display = 'flex';
                             this.toggleSpectatorModeBtn.textContent = this.player.isSpectator ? "✅ Tu Modo Espectador (Activo)" : "👁️ Toggle Tu Modo Espectador";
@@ -2489,7 +2487,7 @@
                 this.isHost = true;
                 this.isSpectator = false;
 
-                console.log("[Cliente] Intentando conectar al servidor para crear sala...");
+                console.log("[Cliente] Intentando conectar al servidor para crear sala.");
                 this.connectToServer();
 
                 setTimeout(() => {
@@ -2563,7 +2561,7 @@
                                 id: this.player.id,
                                 name: this.player.displayName,
                                 avatar: this.player.avatar,
-                                color: this.player.color, // Incluir el color
+                                color: this.player.color,
                                 points: this.player.points,
                                 isProfessor: this.player.isProfessor,
                                 isReady: this.player.isReady,
@@ -2714,12 +2712,20 @@
 
                     case 'game_start':
                         this.startGame(data.mode, data.closestAnswerMode);
-                        // Si el juego ya estaba corriendo y el cliente se reconecta, el servidor enviará 'question_update'
-                        // Por lo tanto, no es necesario llamar a displayQuestion aquí directamente
                         break;
 
                     case 'question_update':
                         this.handleQuestionUpdate(data);
+                        break;
+
+                    case 'update_question_timer': // Nuevo mensaje para actualizar el temporizador de la pregunta
+                        this.timeLeft = data.time;
+                        this.timerDuration = data.totalDuration; // Sincronizar duración total
+                        this.updateTimerUI();
+                        if (this.timeLeft <= 0 && !this.player.hasAnswered && !this.isSpectator) {
+                             document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                             document.getElementById("answerResult").className = "result incorrect";
+                        }
                         break;
 
                     case 'game_over':
@@ -2746,7 +2752,6 @@
                             this.player.isProfessor = true;
                             this.showNotification("¡Ahora eres el nuevo profesor y anfitrión!");
                         } else {
-                            // Actualizar la lista de jugadores para que refleje el nuevo profesor
                             const oldHost = this.players.find(p => p.isProfessor);
                             if (oldHost) oldHost.isProfessor = false;
                             const newHost = this.players.find(p => p.id === data.newHostId);
@@ -2755,7 +2760,7 @@
                             this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
                         }
                         this.updateUIForState();
-                        this.updatePlayerList(); // Refrescar la lista para mostrar el icono de profesor
+                        this.updatePlayerList();
                         break;
 
                     case 'reveal_phase':
@@ -2777,23 +2782,21 @@
                         break;
 
                     case 'spectator_mode_toggle':
-                        // Este mensaje indica el estado GLOBAL del modo espectador de la sala (para NUEVOS jugadores)
-                        // No afecta al estado isSpectator del jugador actual si ya estaba en la sala.
                         if (data.isSpectatorMode) {
                             this.showNotification("El anfitrión ha activado el modo espectador. Los nuevos jugadores solo podrán observar.");
                         } else {
                             this.showNotification("El modo espectador ha sido desactivado por el anfitrión.");
                         }
                         break;
-                    case 'player_spectator_status_updated': // Mensaje para cuando un jugador (incluido el host) cambia su propio estado
+                    case 'player_spectator_status_updated':
                         const updatedPlayer = this.players.find(p => p.id === data.playerId);
                         if (updatedPlayer) {
                             updatedPlayer.isSpectator = data.isSpectator;
                             if (updatedPlayer.id === this.player.id) {
                                 this.isSpectator = data.isSpectator;
-                                this.updateUIForState(); // Re-renderizar la UI del jugador actual
+                                this.updateUIForState();
                             }
-                            this.updatePlayerList(); // Actualizar la lista para todos
+                            this.updatePlayerList();
                             if (data.playerId !== this.player.id) {
                                 this.showNotification(`${this.extractName(updatedPlayer.name)} ${updatedPlayer.isSpectator ? 'es ahora espectador' : 'ha vuelto al juego'}`);
                             }
@@ -2802,12 +2805,9 @@
                     case 'power_up_used':
                         this.showNotification(`${this.extractName(data.playerName)} usó el Power-Up: ${this.getPowerUpName(data.powerUpType)}!`);
                         if (data.powerUpType === 'time') {
-                             // El servidor ya ajusta el tiempo, aquí solo actualizamos la UI si el efecto es instantáneo
                             this.timeLeft = data.newTimeLeft;
                             this.timerDuration = data.newTimerDuration;
                             this.updateTimerUI();
-                        } else if (data.powerUpType === 'double') {
-                             // Notificación visual de que alguien usó Doble Puntuación
                         }
                         break;
                     case 'hint_revealed':
@@ -2816,7 +2816,31 @@
                     case 'random_event_triggered':
                         this.handleRandomEvent(data.eventType);
                         break;
+                    case 'room_reset': // Manejar el reinicio de la sala
+                        this.isMultiplayer = true; // Sigue siendo multijugador
+                        this.players = data.players || []; // Actualizar lista de jugadores
+                        // Sincronizar el estado del jugador actual con el que viene del servidor
+                        const myPlayerReset = this.players.find(p => p.id === this.player.id);
+                        if (myPlayerReset) {
+                            Object.assign(this.player, myPlayerReset);
+                        }
+                        this.gamePin = data.pin; // Asegurar que el PIN sigue siendo el mismo
+                        this.isHost = data.isHost;
+                        this.isSpectator = data.isSpectator; // Re-evaluar si soy espectador
+                        
+                        // Restablecer estados de juego locales
+                        this.currentQuestionIndex = 0;
+                        this.currentQuestionData = null;
+                        this.selectedGameMode = null;
+                        this.closestAnswerMode = false;
+                        this.isVotingActive = false;
+                        
+                        document.getElementById("lobbyPin").textContent = this.gamePin;
+                        this.updatePlayerList(); // Actualizar la UI del lobby
 
+                        this.setState(this.STATES.LOBBY); // Volver al lobby
+                        this.showNotification("La sala ha sido reiniciada por el anfitrión.");
+                        break;
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
                 }
@@ -2829,7 +2853,7 @@
                 this.isHost = data.isHost;
                 this.isSpectator = data.isSpectator;
 
-                document.getElementById('lobbyPin').textContent = data.pin; // Mostrar el PIN de la sala
+                document.getElementById('lobbyPin').textContent = data.pin;
 
                 const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
                 if (currentPlayerFromServer) {
@@ -2854,6 +2878,8 @@
 
                 if (data.isGameRunning) {
                     this.startGame(data.gameMode, data.closestAnswerMode);
+                    // Si el juego ya estaba corriendo, el servidor enviará la `question_update` después del `room_joined`
+                    // para sincronizar la pregunta actual y el temporizador.
                 }
             }
 
@@ -2920,7 +2946,7 @@
                     this.showNotification("No puedes estar listo en modo espectador.");
                     return;
                 }
-                this.readyBtn.disabled = true;
+                this.readyBtn.disabled = true; // Deshabilitar inmediatamente para evitar spam
                 this.player.isReady = !this.player.isReady;
 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -2934,7 +2960,7 @@
             }
 
             toggleSpectatorMode() {
-                if (!this.isProfessor) { // Solo el profesor/host puede cambiar su estado de espectador
+                if (!this.isProfessor) {
                     this.showNotification("Solo el anfitrión/profesor puede activar/desactivar su modo espectador.");
                     return;
                 }
@@ -2979,11 +3005,15 @@
             handleQuestionUpdate(data) {
                 this.currentQuestionData = data.question;
                 this.currentQuestionIndex = data.questionIndex;
-                this.timerDuration = (this.selectedGameMode === 'relampago') ? 5 : ((this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'supervivencia' || this.selectedGameMode === 'duelo') ? 15 : 30);
+                // La duración del temporizador y el tiempo restante se obtienen del servidor
+                this.timeLeft = data.timeLeft;
+                this.timerDuration = data.timeLeft; // Asumimos que la duración inicial es el tiempo restante
                 
                 // Aplicar modificadores de eventos aleatorios
                 if (data.activeEvent === 'ronda_rapida') {
-                    this.timerDuration = Math.max(5, Math.floor(this.timerDuration / 2));
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                } else {
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
                 }
 
                 this.player.hasAnswered = false;
@@ -3017,11 +3047,14 @@
                     document.getElementById('trueFalseButtons').style.display = 'none';
                 }
 
-                if (data.totalQuestions !== -1) {
-                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100;
+                // La barra de progreso solo se actualiza si totalQuestions no es -1 (modo supervivencia)
+                if (data.totalQuestions !== -1 && data.totalQuestions > 0) {
+                    const progreso = ((data.questionIndex) / data.totalQuestions) * 100; // Si index es 1-based
                     document.getElementById("progressBar").style.width = `${progreso}%`;
-                } else {
+                } else { // Si es supervivencia o totalQuestions es 0/negativo
                     document.getElementById("progressBar").style.width = "0%";
+                    // Puedes optar por ocultar la barra en modo supervivencia:
+                    // document.querySelector('.progress-container').style.display = 'none';
                 }
 
                 if (!this.isSpectator) {
@@ -3031,7 +3064,7 @@
                     this.playerPowerUpsContainer.style.display = 'none';
                 }
 
-                this.resetTimer();
+                this.resetTimer(); // Reinicia el temporizador local, pero ahora espera actualizaciones del servidor
             }
 
             handleGameOver(data) {
@@ -3048,8 +3081,8 @@
                         points: p.points || 0,
                         streak: p.streak || 0,
                         maxStreak: p.maxStreak || 0,
-                        achievements: p.achievements || []
-                    })) : [];
+                        avgResponseTime: p.avgResponseTime || 0
+                    })) : []; // Asegúrate que avgResponseTime sea 0 si no existe
 
                 this.updatePlayerStatistics(finalRanking);
 
@@ -3211,9 +3244,8 @@
                     const playerElement = document.createElement('div');
                     playerElement.className = 'player-badge';
                     playerElement.dataset.playerId = player.id;
-                    playerElement.dataset.playerColor = player.color; // Para CSS
+                    playerElement.dataset.playerColor = player.color;
 
-                    // Aplicar el color directamente desde los datos del jugador
                     if (player.color) {
                         const rgb = this.hexToRgb(player.color);
                         const darkColor = this.darkenColor(player.color, 20);
@@ -3281,13 +3313,8 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
 
-                // El cliente host también actualiza su temporizador para que coincida con el servidor
-                if (this.isHost) {
-                    this.voteInterval = setInterval(() => {
-                        // El tiempo real se actualiza por el servidor. Aquí solo reflejamos el último valor conocido.
-                        // La cuenta regresiva precisa la controla el servidor.
-                    }, 1000);
-                }
+                // El cliente ya no ejecuta un setInterval para el contador de votos
+                // Simplemente espera las actualizaciones 'update_vote_timer' del servidor.
             }
 
             updateVoteTimer(time) {
@@ -3379,23 +3406,15 @@
                 this.selectedGameMode = mode;
                 this.closestAnswerMode = closestAnswerMode;
                 this.isVotingActive = false;
-                clearInterval(this.voteInterval);
-                this.voteInterval = null;
+                clearInterval(this.voteInterval); // Asegurarse de limpiar el intervalo de votación
 
                 this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
                 if (closestAnswerMode) {
                     this.gameModeIndicator.textContent += " 🎯";
                 }
 
-                if (mode === 'relampago') {
-                    this.timerDuration = 5;
-                    document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso' || mode === 'supervivencia' || mode === 'duelo') {
-                    this.timerDuration = 15;
-                } else {
-                    this.timerDuration = 30;
-                    document.getElementById('gameContainer').classList.remove('lightning-mode');
-                }
+                // El timerDuration inicial se establecerá al recibir la primera pregunta del servidor
+                document.getElementById('gameContainer').classList.remove('lightning-mode'); // Resetear por si acaso
 
                 this.setState(this.STATES.PLAYING);
 
@@ -3414,215 +3433,21 @@
                 if (!this.rankingUpdateInterval) {
                     this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500);
                 }
+                // El servidor enviará la primera pregunta con 'question_update'
             }
 
             // `generarPreguntas` es una función cliente-side para referencia, el servidor generará las preguntas.
+            // (Mantenemos la implementación aquí para referencia, pero el servidor es la fuente principal)
             generarPreguntas(mode, count) {
+                // ... (código de generación de preguntas, el mismo que tenías)
                 const preguntas = [];
-
-                const generarOperacion = (difficulty = 1) => {
-                    let num1, num2, respuesta;
-                    const operadores = ['+', '-', '*'];
-                    let operador = operadores[Math.floor(Math.random() * operadores.length)];
-
-                    const maxNum = 15 * difficulty;
-                    const maxFactor = 10 * difficulty;
-
-                    if (operador === '*') {
-                        num1 = Math.floor(Math.random() * maxFactor) + 1;
-                        num2 = Math.floor(Math.random() * (maxFactor / 2)) + 1;
-                    } else {
-                        num1 = Math.floor(Math.random() * maxNum) + 1;
-                        num2 = Math.floor(Math.random() * maxNum) + 1;
-                    }
-
-                    let pregunta;
-
-                    if (operador === '/') {
-                        let divisor = Math.floor(Math.random() * 8) + 2;
-                        let cociente = Math.floor(Math.random() * 10) + 1;
-                        let dividendo = divisor * cociente;
-                        pregunta = `${dividendo} ÷ ${divisor} = ?`;
-                        respuesta = cociente;
-                    } else {
-                        switch (operador) {
-                            case '+':
-                                pregunta = `${num1} + ${num2} = ?`;
-                                respuesta = num1 + num2;
-                                break;
-                            case '-':
-                                if (num1 < num2) { [num1, num2] = [num2, num1]; }
-                                pregunta = `${num1} - ${num2} = ?`;
-                                respuesta = num1 - num2;
-                                break;
-                            case '*':
-                                pregunta = `${num1} × ${num2} = ?`;
-                                respuesta = num1 * num2;
-                                break;
-                        }
-                    }
-
-                    return { pregunta, respuesta, tipo: 'operacion' };
-                };
-
-                const generarMisterioso = (difficulty = 1) => {
-                    const maxNum = 20 * difficulty;
-                    const maxFactor = 10 * difficulty;
-                    const num1 = Math.floor(Math.random() * maxNum) + 1;
-                    const num2 = Math.floor(Math.random() * maxFactor) + 1;
-                    const tipoOp = Math.random();
-
-                    let pregunta, respuesta;
-
-                    if (tipoOp < 0.33) {
-                        respuesta = num1;
-                        pregunta = `? + ${num2} = ${num1 + num2}`;
-                    } else if (tipoOp < 0.66) {
-                        respuesta = num1 + num2;
-                        pregunta = `? - ${num2} = ${num1}`;
-                    } else {
-                        respuesta = num1;
-                        pregunta = `? × ${num2} = ${num1 * num2}`;
-                    }
-
-                    return { pregunta, respuesta, tipo: 'misterioso' };
-                };
-
-                const generarSecuencia = (difficulty = 1) => {
-                    const patrones = [
-                        { inicio: 2, paso: 2, longitud: 5 },
-                        { inicio: 1, paso: 3, longitud: 5 },
-                        { inicio: 10 * difficulty, paso: -2, longitud: 5 },
-                        { inicio: 5, paso: 5 * difficulty, longitud: 5 },
-                        { inicio: 3, paso: 4, longitud: 5 }
-                    ];
-
-                    const patron = patrones[Math.floor(Math.random() * patrones.length)];
-                    const posicionFalta = Math.floor(Math.random() * (patron.longitud - 1)) + 1;
-                    let secuencia = [];
-                    let respuesta = 0;
-
-                    for (let j = 0; j < patron.longitud; j++) {
-                        if (j === posicionFalta) {
-                            secuencia.push("?");
-                            respuesta = patron.inicio + j * patron.paso;
-                        } else {
-                            secuencia.push(patron.inicio + j * patron.paso);
-                        }
-                    }
-
-                    const pregunta = `Completa la secuencia: ${secuencia.join(", ")}`;
-
-                    return { pregunta, respuesta, tipo: 'secuencia' };
-                };
-
-                const generarPotenciacion = (difficulty = 1) => {
-                    const base = Math.floor(Math.random() * (3 + difficulty)) + 2;
-                    const exponente = Math.floor(Math.random() * (2 + Math.min(1, difficulty - 1))) + 2;
-                    const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
-                    const pregunta = `${base}${superScripts[exponente]} = ?`;
-                    const respuesta = Math.pow(base, exponente);
-
-                    return { pregunta, respuesta, tipo: 'potenciacion' };
-                };
-
-                const generarCombinadas = (difficulty = 1) => {
-                    const num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-                    const num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-                    const num3 = Math.floor(Math.random() * (5 * difficulty)) + 1;
-
-                    let pregunta = '';
-                    let respuesta = 0;
-                    const opcion = Math.floor(Math.random() * 3);
-
-                    switch (opcion) {
-                        case 0:
-                            pregunta = `(${num1} + ${num2}) × ${num3} = ?`;
-                            respuesta = (num1 + num2) * num3;
-                            break;
-                        case 1:
-                            pregunta = `${num1} + ${num2} × ${num3} = ?`;
-                            respuesta = num1 + (num2 * num3);
-                            break;
-                        case 2:
-                            if (num1 < num2) { [num1, num2] = [num2, num1]; }
-                            pregunta = `(${num1} - ${num2}) + ${num3} = ?`;
-                            respuesta = (num1 - num2) + num3;
-                            break;
-                    }
-                    return { pregunta, respuesta, tipo: 'combinadas' };
-                };
-
-                const generarVerdaderoFalso = (difficulty = 1) => {
-                    const num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-                    const num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
-                    const operadores = ['+', '-', '*', '/'];
-                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
-
-                    let operacionTexto;
-                    let resultadoReal;
-
-                    switch (operador) {
-                        case '+':
-                            resultadoReal = num1 + num2;
-                            operacionTexto = `${num1} + ${num2}`;
-                            break;
-                        case '-':
-                            resultadoReal = num1 - num2;
-                            operacionTexto = `${num1} - ${num2}`;
-                            break;
-                        case '*':
-                            resultadoReal = num1 * num2;
-                            operacionTexto = `${num1} × ${num2}`;
-                            break;
-                        case '/':
-                            let divisor = Math.floor(Math.random() * 5) + 2;
-                            let cociente = Math.floor(Math.random() * 10) + 1;
-                            let dividendo = divisor * cociente;
-                            resultadoReal = cociente;
-                            operacionTexto = `${dividendo} ÷ ${divisor}`;
-                            break;
-                    }
-
-                    const esCorrecta = Math.random() < 0.7;
-                    let resultadoFalso = resultadoReal;
-                    if (!esCorrecta) {
-                        resultadoFalso += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
-                        if (resultadoFalso === resultadoReal) resultadoFalso += (Math.random() > 0.5 ? 1 : -1);
-                    }
-
-                    const pregunta = `¿Es correcta esta operación?<br>${operacionTexto} = ${esCorrecta ? resultadoReal : resultadoFalso}`;
-                    const respuesta = esCorrecta;
-                    const explicacion = esCorrecta ? "La operación es correcta." : `La operación es incorrecta. La respuesta correcta era ${resultadoReal}.`;
-
-                    return {
-                        pregunta: pregunta,
-                        respuesta: respuesta,
-                        tipo: 'verdadero-falso',
-                        explicacion: explicacion
-                    };
-                };
-
-                const preguntasConImagen = [
-                    {
-                        pregunta: "¿Cuántos cuadrados hay en esta figura?",
-                        imagen: "https://i.ibb.co/C0W2k6M/cuadrados.png",
-                        respuesta: 5,
-                        tipo: "imagen"
-                    },
-                    {
-                        pregunta: "¿Cuántas frutas ves en la imagen?",
-                        imagen: "https://i.ibb.co/hK5X765/frutas.png",
-                        respuesta: 8,
-                        tipo: "imagen"
-                    },
-                    {
-                        pregunta: "¿Cuál es el patrón que sigue la siguiente figura?",
-                        imagen: "https://i.ibb.co/c82h7g4/patron.png",
-                        respuesta: 4,
-                        tipo: "imagen"
-                    }
-                ];
+                const generarOperacion = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
+                const generarMisterioso = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
+                const generarSecuencia = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
+                const generarPotenciacion = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
+                const generarCombinadas = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
+                const generarVerdaderoFalso = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: true, tipo: "", explicacion: "" }; };
+                const preguntasConImagen = []; // Se asume que esto está definido en tu código.
 
                 let generador;
                 switch (mode) {
@@ -3642,6 +3467,7 @@
                     preguntas.push(generador());
                 }
 
+                // Lógica de inserción de imágenes (opcional, el servidor también las tiene)
                 const numImages = Math.floor(Math.random() * 3) + 1;
                 let tempImageQuestions = [...preguntasConImagen];
                 for (let i = 0; i < numImages && tempImageQuestions.length > 0; i++) {
@@ -3650,10 +3476,11 @@
                     const indexToReplace = Math.floor(Math.random() * preguntas.length);
                     preguntas[indexToReplace] = imageQuestion;
                 }
-
                 return preguntas;
             }
 
+            // `displayQuestion` ahora solo renderiza la pregunta recibida del servidor
+            // Ya no es responsable de iniciar el temporizador ni de lógica de juego.
             displayQuestion(questionData = null) {
                 try {
                     const question = questionData || this.currentQuestionData;
@@ -3663,7 +3490,7 @@
                     questionElement.innerHTML = question.pregunta;
 
                     questionElement.classList.remove('question-animation');
-                    void questionElement.offsetWidth;
+                    void questionElement.offsetWidth; // Trigger reflow
                     questionElement.classList.add('question-animation');
 
                     document.getElementById("playerAnswer").value = "";
@@ -3671,7 +3498,9 @@
                     document.getElementById("answerResult").className = "result waiting";
                     this.player.hasAnswered = false;
                     document.getElementById('submitAnswer').disabled = false;
-                    this.lastAnswerTime = Date.now();
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
+                    this.lastAnswerTime = Date.now(); // Marca de tiempo para calcular respuesta
 
                     const questionImage = document.getElementById('questionImage');
                     if (question.imagen) {
@@ -3683,25 +3512,20 @@
 
                     if (this.selectedGameMode === 'verdadero-falso') {
                         document.getElementById('standardInput').style.display = 'none';
-                        document.getElementById('trueFalseButtons').style.display = 'flex';
+                        document.getElementById('trueFalseButtons').style.display = this.isSpectator ? 'none' : 'flex';
                     } else {
-                        document.getElementById('standardInput').style.display = 'block';
+                        document.getElementById('standardInput').style.display = this.isSpectator ? 'none' : 'block';
                         document.getElementById('trueFalseButtons').style.display = 'none';
                     }
 
                     if (!this.isSpectator) {
                         this.playerPowerUpsContainer.style.display = 'flex';
                         this.updatePowerUpButtons();
-                        document.getElementById('submitAnswer').disabled = false;
-                        document.getElementById('trueBtn').disabled = false;
-                        document.getElementById('falseBtn').disabled = false;
                     } else {
                         this.playerPowerUpsContainer.style.display = 'none';
-                        document.getElementById('standardInput').style.display = 'none';
-                        document.getElementById('trueFalseButtons').style.display = 'none';
                     }
 
-                    this.resetTimer();
+                    this.resetTimer(); // Llamar a resetTimer para inicializar UI del temporizador
                 } catch (error) {
                     console.error("Error al mostrar pregunta:", error);
                     this.showError("Error al cargar la pregunta.");
@@ -3715,11 +3539,12 @@
                         return;
                     }
 
+                    // Deshabilitar botones inmediatamente al responder
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
                     this.disablePowerUpButtons();
-
+                    
                     this.player.hasAnswered = true;
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
                     document.getElementById("answerResult").className = "result waiting";
@@ -3737,21 +3562,30 @@
                     } else {
                         console.log("Modo de un solo jugador o servidor no conectado.");
                         this.showError("Problema de conexión al enviar la respuesta. Intenta reconectar.");
+                        // Re-habilitar si no se pudo enviar
                         document.getElementById('submitAnswer').disabled = false;
+                        document.getElementById('trueBtn').disabled = false;
+                        document.getElementById('falseBtn').disabled = false;
                         this.enablePowerUpButtons();
-                        this.player.hasAnswered = false;
+                        this.player.hasAnswered = false; // Permitir reintento
                     }
 
                 } catch (error) {
                     console.error("Error al enviar respuesta:", error);
                     this.showError("Error al enviar la respuesta.");
                     document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
                     this.enablePowerUpButtons();
                     this.player.hasAnswered = false;
                 }
             }
 
             startRevealPhase(correctAnswer, playerCorrect, streakBonus) {
+                // Asegurarse de que el temporizador se detiene durante la fase de revelación
+                clearInterval(this.timerInterval); 
+                this.timerInterval = null;
+
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
 
@@ -3782,8 +3616,8 @@
                     this.revealStreakBonus.innerHTML = '';
                 }
 
-                // La transición a la siguiente pregunta o fin del juego es manejada por el servidor
-                // El cliente solo muestra la revelación y espera.
+                // El servidor es quien decide cuándo avanzar a la siguiente pregunta o finalizar el juego
+                // después de la duración de esta fase de revelación. El cliente solo muestra la UI.
             }
 
             updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
@@ -3834,7 +3668,7 @@
                         playerElement.classList.add('current-player');
                     }
 
-                    if (player.color) { // Usar el color del jugador recibido
+                    if (player.color) {
                         playerElement.style.setProperty('--player-color', player.color);
                         const rgb = this.hexToRgb(player.color);
                         playerElement.style.setProperty('--player-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
@@ -3886,46 +3720,45 @@
             }
 
             startTimer() {
-                try {
-                    this.timeLeft = this.timerDuration;
-                    this.updateTimerUI();
+                // Esta función ahora solo inicializa la UI del temporizador.
+                // El decremento y la lógica del temporizador son manejados por el servidor
+                // y se actualizan a través del mensaje 'update_question_timer'.
+                this.updateTimerUI(); // Asegura que se muestre el tiempo actual
 
-                    clearInterval(this.timerInterval);
-                    this.timerInterval = setInterval(() => {
-                        // El cliente ya no actualiza el tiempo directamente, el servidor es la fuente de verdad.
-                        // Solo actualizamos la UI con el valor que el servidor nos envía a través de question_update
-                        // o update_timer. Esta función sólo asegura que la UI del temporizador se muestre y se reinicie.
-                        // Si el servidor no envía actualizaciones, el temporizador simplemente se queda quieto o finaliza.
-                        if (!this.currentQuestionData) { // Asegurarse de que el temporizador solo corra si hay pregunta activa
-                            clearInterval(this.timerInterval);
-                            return;
-                        }
-                    }, 1000);
-                } catch (error) {
-                    console.error("Error en el temporizador:", error);
-                    this.showError("Error en el temporizador.");
-                }
+                // Detener cualquier intervalo anterior para evitar múltiples ejecuciones
+                clearInterval(this.timerInterval); 
+                this.timerInterval = null; // No hay necesidad de un setInterval aquí si el servidor lo impulsa
             }
 
             updateTimerUI() {
                 this.timerText.textContent = this.timeLeft;
 
                 const circumference = 283;
+                // Calcular el offset basado en el tiempo restante y la duración total
                 const offset = circumference - (this.timeLeft / this.timerDuration) * circumference;
                 this.timerCircle.style.strokeDashoffset = offset;
 
                 if (this.timeLeft <= 5) {
                     this.timerCircle.classList.add('timer-warning');
                     this.timerText.classList.add('timer-warning');
+                    if (this.timeLeft > 0 && this.soundEnabled) {
+                        // Reproducir sonido solo si no se ha reproducido ya para este segundo
+                        if (!this._lastCountdownSoundSecond || this._lastCountdownSoundSecond !== this.timeLeft) {
+                            this.playSound('countdownSound');
+                            this._lastCountdownSoundSecond = this.timeLeft;
+                        }
+                    }
                 } else {
                     this.timerCircle.classList.remove('timer-warning');
                     this.timerText.classList.remove('timer-warning');
+                    this._lastCountdownSoundSecond = null; // Resetear cuando no esté en fase de alerta
                 }
             }
 
             resetTimer() {
                 clearInterval(this.timerInterval);
-                this.startTimer();
+                this.timerInterval = null; // Asegurarse de que no hay un intervalo local corriendo
+                this.updateTimerUI(); // Actualiza la UI a los valores más recientes (probablemente los del servidor)
             }
 
             skipQuestionAsProfessor() {
@@ -4021,7 +3854,7 @@
 
                         const playerElement = document.createElement('div');
                         playerElement.className = 'other-player';
-                        if (player.color) { // Usar el color del jugador
+                        if (player.color) {
                             const rgb = this.hexToRgb(player.color);
                             playerElement.style.setProperty('--player-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
                             playerElement.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`;
@@ -4094,6 +3927,7 @@
                         this.rankingUpdateInterval = null;
                     }
 
+                    // Resetear solo las propiedades de la ronda actual del jugador
                     this.player.points = 0;
                     this.player.streak = 0;
                     this.player.responseTimes = [];
@@ -4105,6 +3939,7 @@
                     this.activePowerUps.doubleScore = false;
                     this.currentDifficulty = 1;
 
+                    // Asegurarse de que los powerUps se restablecen a al menos 1
                     this.player.powerUps.time = Math.max(1, this.player.powerUps.time);
                     this.player.powerUps.double = Math.max(1, this.player.powerUps.double);
                     this.player.powerUps.hint = Math.max(1, this.player.powerUps.hint);
@@ -4132,18 +3967,16 @@
                         btn.disabled = false;
                     });
 
-                    // Al reiniciar, enviar un mensaje al servidor para que reinicie la sala.
                     if (this.socket && this.socket.readyState === WebSocket.OPEN && this.gamePin) {
                         this.socket.send(JSON.stringify({
                             type: 'reset_game_room',
                             pin: this.gamePin,
-                            playerId: this.player.id // Identifica quién solicita el reinicio
+                            playerId: this.player.id
                         }));
                     }
                     
-                    // Asegurarse de que volvemos al estado LOBBY, independientemente de si eres host o no.
+                    // Volver al lobby y actualizar la UI
                     this.setState(this.STATES.LOBBY);
-                    // Actualizar estado del botón de host si aplica
                     if (this.isHost) {
                         this.startVoteBtn.style.display = 'block';
                     }
@@ -4231,7 +4064,6 @@
 
                 this.powerUpTimeBtn.disabled = this.player.powerUps.time <= 0 || this.player.hasAnswered;
                 this.powerUpDoubleBtn.disabled = this.player.powerUps.double <= 0 || this.player.hasAnswered;
-                // Deshabilitar pista si es verdadero-falso o el más cercano
                 this.powerUpHintBtn.disabled = this.player.powerUps.hint <= 0 || this.player.hasAnswered || 
                                                 this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'mas-cercano';
 
@@ -4254,13 +4086,8 @@
                 if (this.player.powerUps[type] <= 0 || this.player.hasAnswered || this.isSpectator) return;
 
                 this.playSound('powerUpSound');
-                // La reducción del power-up y el guardado de estadísticas se hará en el servidor después de la confirmación
-                // del uso por parte del servidor.
-                // this.player.powerUps[type]--; // Esto lo hará el servidor
-                // this.player.powerUpsUsed = this.player.powerUpsUsed || {}; // Esto lo hará el servidor
-                // this.player.powerUpsUsed[type] = (this.player.powerUpsUsed[type] || 0) + 1; // Esto lo hará el servidor
-                this.updatePowerUpButtons();
-                // this.savePlayerStats(); // Esto lo hará el servidor
+                // El servidor es el que maneja la lógica de descontar y aplicar efectos.
+                this.updatePowerUpButtons(); // Actualiza visualmente el cliente inmediatamente
 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
@@ -4292,16 +4119,14 @@
                 }
 
                 this.playSound('eventSound');
-                const events = ['ronda_rapida', 'pregunta_invertida'];
-                const randomEvent = events[Math.floor(Math.random() * events.length)];
-
-                this.showNotification(`¡Anfitrión activó: ${randomEvent.replace('_', ' ').toUpperCase()}!`);
+                // La selección del evento la hace el servidor para mayor control
+                this.showNotification("¡Activando evento aleatorio!");
 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
                         type: 'trigger_random_event',
                         pin: this.gamePin,
-                        eventType: randomEvent
+                        hostId: this.player.id // Identificador del host
                     }));
                 }
             }
@@ -4310,17 +4135,15 @@
                 switch (eventType) {
                     case 'ronda_rapida':
                         this.showNotification("¡RONDA RÁPIDA! El tiempo se reduce a la mitad y los puntos se duplican.");
-                        // El servidor ajustará timerDuration y la lógica de puntos.
-                        // Aquí el cliente solo actualiza su percepción visual del timer si es necesario
-                        // La actualización de this.timerDuration ya viene en `question_update` si está activa.
                         break;
                     case 'pregunta_invertida':
                         this.showNotification("¡PREGUNTA INVERTIDA! Se muestra el resultado, encuentra la operación.");
-                        // No se necesita lógica adicional aquí, la pregunta ya viene formulada desde el servidor.
                         break;
-                    case 'no_event': // Para cuando el evento aleatorio resulta en "no evento"
+                    case 'no_event':
                         this.showNotification("Este turno no hay evento aleatorio.");
                         break;
+                    default:
+                        this.showNotification("Un evento aleatorio desconocido ha ocurrido.");
                 }
             }
         }

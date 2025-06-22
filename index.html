@@ -23,6 +23,12 @@
             --neon-morado: 0 0 10px rgba(164, 89, 255, 0.8);
             --neon-verde: 0 0 10px rgba(107, 255, 107, 0.8);
             --neon-rojo: 0 0 10px rgba(255, 107, 107, 0.8);
+            --neon-amarillo: 0 0 10px rgba(255, 222, 89, 0.8);
+            /* Variables para color de jugador (por defecto, serán sobrescritas) */
+            --player-color: #4e8cff;
+            --player-color-rgb: 78, 140, 255;
+            --player-color-dark: #3a75e0;
+            --player-color-light: #6aa3ff;
         }
 
         .dark-mode {
@@ -45,10 +51,11 @@
             background: var(--fondo);
             color: var(--texto);
             min-height: 100vh;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease-in-out;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -124,6 +131,20 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out;
+        }
+        /* Animaciones de pantalla */
+        .screen-enter {
+            transform: translateX(100%);
+        }
+        .screen-enter-active {
+            transform: translateX(0);
+        }
+        .screen-exit {
+            transform: translateX(0);
+        }
+        .screen-exit-active {
+            transform: translateX(-100%);
         }
 
         .join-form {
@@ -194,6 +215,30 @@
             transform: scale(1.1);
             box-shadow: var(--neon-morado);
         }
+        
+        .color-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .color-option.selected {
+            border-color: var(--texto);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
 
         .btn {
             padding: 12px 25px;
@@ -202,7 +247,7 @@
             border-radius: 50px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
             font-family: 'Comic Neue', cursive;
             margin: 8px;
             background: linear-gradient(45deg, var(--azul), var(--morado));
@@ -224,8 +269,8 @@
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px var(--sombra);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px var(--sombra);
         }
 
         .btn:hover::before {
@@ -233,8 +278,15 @@
         }
 
         .btn:active {
-            transform: translateY(1px);
+            transform: translateY(1px) scale(0.98);
             box-shadow: 0 2px 5px var(--sombra);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .btn-secondary {
@@ -246,13 +298,6 @@
         .btn-secondary:hover {
             border-color: var(--morado);
             box-shadow: var(--neon-morado);
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
         }
 
         .error-message {
@@ -269,14 +314,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--fondo);
-            z-index: 1000;
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out;
         }
 
         .lobby-container {
@@ -290,6 +335,20 @@
             border: 1px solid rgba(255,255,255,0.2);
             border-bottom: 2px solid var(--morado);
         }
+        
+        .lobby-pin-display {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: var(--azul);
+            text-shadow: var(--neon-azul);
+            margin-bottom: 15px;
+            background: rgba(var(--player-color-rgb), 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--morado);
+            display: inline-block;
+        }
+
 
         .player-list {
             display: flex;
@@ -297,10 +356,13 @@
             gap: 10px;
             justify-content: center;
             margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
         }
 
         .player-badge {
-            background: linear-gradient(45deg, var(--azul), var(--morado));
+            background: linear-gradient(45deg, var(--player-color-dark, var(--azul)), var(--player-color-light, var(--morado)));
             color: white;
             padding: 8px 15px;
             border-radius: 20px;
@@ -310,6 +372,11 @@
             gap: 8px;
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             transition: all 0.3s;
+            position: relative;
+        }
+        
+        .player-badge[data-player-color] { 
+            background: linear-gradient(45deg, var(--player-color-dark), var(--player-color));
         }
 
         .player-badge:hover {
@@ -361,7 +428,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: 0.5s;
         }
 
@@ -411,12 +478,56 @@
             border: 2px solid var(--borde);
             backdrop-filter: blur(5px);
         }
+        
+        .emote-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
-        /* Juego principal */
+        .emote-btn {
+            background: var(--panel);
+            border: 1px solid var(--borde);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .emote-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--morado);
+        }
+        
+        .emote-display {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            animation: emotePop 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes emotePop {
+            0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+            50% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-40px) scale(1); }
+        }
+
+        /* Game Container (Animación de pantalla) */
         #gameContainer {
             display: none;
             max-width: 800px;
             margin: 0 auto;
+            transition: transform 0.5s ease-in-out;
         }
 
         .game {
@@ -492,7 +603,7 @@
             background: var(--panel);
             border: 2px solid var(--borde);
             border-radius: 8px;
-            transition: all 0.2s;
+            transition: all 0.2s ease, transform 0.1s ease;
             user-select: none;
         }
 
@@ -503,7 +614,7 @@
         }
 
         .key:active {
-            transform: translateY(1px);
+            transform: scale(0.95);
         }
 
         .key.negative {
@@ -571,7 +682,7 @@
             stroke-width: 6;
             stroke-dasharray: 283;
             stroke-dashoffset: 0;
-            transition: stroke-dashoffset 1s linear;
+            transition: stroke-dashoffset 0.5s linear;
             filter: drop-shadow(0 0 5px var(--morado));
         }
 
@@ -643,6 +754,12 @@
             background: rgba(78, 140, 255, 0.1);
             transition: all 0.5s ease;
             animation: slideIn 0.5s ease;
+            align-items: center;
+        }
+        
+        .ranking-item[data-player-color] {
+            background: rgba(var(--player-color-rgb), 0.1);
+            border-left: 4px solid var(--player-color);
         }
 
         @keyframes slideIn {
@@ -654,26 +771,16 @@
             background: rgba(255, 222, 89, 0.2);
             border-left: 4px solid var(--amarillo);
         }
-
-        .ranking-item.move-up {
-            animation: moveUp 0.5s ease;
+        
+        /* Animación de cambio de posición */
+        .ranking-item.moved {
+            animation: rankMove 0.5s ease-in-out;
+        }
+        @keyframes rankMove {
+            0% { transform: translateY(var(--move-y, 0)); background-color: rgba(255, 255, 0, 0.3); }
+            100% { transform: translateY(0); background-color: rgba(78, 140, 255, 0.1); }
         }
 
-        .ranking-item.move-down {
-            animation: moveDown 0.5s ease;
-        }
-
-        @keyframes moveUp {
-            0% { transform: translateY(0); background: var(--verde); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0); }
-        }
-
-        @keyframes moveDown {
-            0% { transform: translateY(0); background: var(--rojo); }
-            50% { transform: translateY(10px); }
-            100% { transform: translateY(0); }
-        }
 
         .ranking-position {
             font-weight: bold;
@@ -699,6 +806,14 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+        
+        .ranking-streak-badge {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 0.9em;
+            color: var(--amarillo);
+            text-shadow: var(--neon-amarillo);
+        }
 
         /* Resultados finales */
         .final-results {
@@ -716,14 +831,17 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
+            transition: transform 0.5s ease-in-out;
         }
-
+        
+        /* Animación para el podio */
         .podium {
             display: flex;
             justify-content: center;
             align-items: flex-end;
             margin: 30px 0;
             height: 250px;
+            perspective: 1000px;
         }
 
         .podium-place {
@@ -731,6 +849,17 @@
             flex-direction: column;
             align-items: center;
             margin: 0 10px;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            animation: podiumEnter 0.8s forwards ease-out;
+        }
+        .podium-place:nth-child(2) { animation-delay: 0.2s; }
+        .podium-place:nth-child(1) { animation-delay: 0s; }
+        .podium-place:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes podiumEnter {
+            0% { opacity: 0; transform: translateY(50px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .podium-1 {
@@ -740,7 +869,20 @@
             border-radius: 8px 8px 0 0;
             animation: bounce 1s ease;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            position: relative;
         }
+        .podium-1::before {
+            content: '⭐';
+            position: absolute;
+            top: -30px;
+            font-size: 2.5rem;
+            animation: starShine 1.5s infinite alternate;
+        }
+        @keyframes starShine {
+            0% { transform: scale(1); opacity: 0.8; text-shadow: var(--neon-amarillo); }
+            100% { transform: scale(1.1); opacity: 1; text-shadow: 0 0 15px rgba(255, 215, 0, 1); }
+        }
+
 
         .podium-2 {
             height: 150px;
@@ -807,6 +949,10 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             align-items: center;
+        }
+        
+        .other-player[data-player-color] {
+            background: rgba(var(--player-color-rgb), 0.1);
         }
 
         .other-player:hover {
@@ -1412,7 +1558,7 @@
 
     <div class="theme-toggle" id="themeToggle">🌙</div>
     
-    <button class="btn skip-btn" id="skipQuestion"⏭️ Saltar pregunta</button>
+    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
 
     <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
 
@@ -1497,7 +1643,7 @@
                 this.closestAnswerMode = false;
                 this.lastAnswerTime = null;
                 this.revealPhaseActive = false;
-                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
+                this.revealPhaseDuration = 3000;
                 
                 this.isMultiplayer = false;
                 this.isHost = false; 
@@ -2171,11 +2317,15 @@
                         break;
                         
                     case 'question_update':
+                        // Ocultar la pantalla de revelación cuando llega una nueva pregunta
+                        this.revealPhase.style.display = 'none'; // SOLUCIÓN CRÍTICA
                         this.handleQuestionUpdate(data);
                         break;
                         
                     case 'game_over':
                         this.handleGameOver(data);
+                        // Asegurarse de que la revelación también se oculte al finalizar el juego
+                        this.revealPhase.style.display = 'none'; // SOLUCIÓN CRÍTICA
                         break;
                         
                     case 'player_score_update': 
@@ -2208,13 +2358,10 @@
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
                         break;
                     
-                    // --- NUEVO CASE AÑADIDO ---
                     case 'ranking_update':
-                        // El servidor nos envía la lista actualizada de todos los jugadores
                         this.players = data.players;
-                        this.updateLiveRanking(); // Actualizamos el ranking en la pantalla
+                        this.updateLiveRanking();
                         
-                        // Actualizamos el puntaje del jugador actual en su propia UI
                         const myData = this.players.find(p => p.id === this.player.id);
                         if (myData) {
                             this.updatePlayerScore(myData.id, myData.points, myData.streak, myData.maxStreak, myData.avgResponseTime);
@@ -2361,6 +2508,9 @@
                 this.lastAnswerTime = Date.now();
                 this.currentQuestionIndex = data.questionIndex; 
                 
+                // Ocultar la pantalla de revelación al recibir nueva pregunta
+                this.revealPhase.style.display = 'none'; // SOLUCIÓN APLICADA AQUÍ
+
                 this.displayQuestion(data.question);
                 
                 if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
@@ -2373,6 +2523,9 @@
                 clearInterval(this.timerInterval);
                 clearInterval(this.rankingUpdateInterval);
                 this.rankingUpdateInterval = null; 
+                
+                // Ocultar la pantalla de revelación al finalizar el juego
+                this.revealPhase.style.display = 'none'; // SOLUCIÓN APLICADA AQUÍ
                 
                 const finalRanking = Array.isArray(data.finalRanking) ? 
                     data.finalRanking.map(p => ({
@@ -2691,30 +2844,6 @@
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
-            shareQuestionWithPlayers() {
-                if (!this.isHost || !this.questions.length) return;
-                
-                const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question;
-                
-                const questionToSend = { ...question };
-                if (questionToSend.tipo === 'verdadero-falso') {
-                    delete questionToSend.respuesta; 
-                    delete questionToSend.explicacion;
-                }
-
-                this.socket.send(JSON.stringify({
-                    type: 'question_update',
-                    pin: this.gamePin,
-                    question: questionToSend,
-                    questionIndex: this.currentQuestionIndex,
-                    totalQuestions: this.questions.length
-                }));
-                
-                this.displayQuestion(question);
-                this.resetTimer();
-            }
-
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 
@@ -2979,7 +3108,6 @@
                 }
             }
             
-            // --- FUNCIÓN REEMPLAZADA ---
             checkAnswer(userAnswer) {
                 try {
                     if (this.player.hasAnswered) {
@@ -2987,7 +3115,6 @@
                         return;
                     }
 
-                    // Deshabilitar botones para evitar doble respuesta
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
@@ -2996,20 +3123,17 @@
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
                     document.getElementById("answerResult").className = "result waiting";
 
-                    // MODIFICADO: Ya no calculamos puntos aquí. Solo enviamos la respuesta.
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({
-                            type: 'submit_answer', // NUEVO tipo de mensaje
+                            type: 'submit_answer',
                             pin: this.gamePin,
                             playerId: this.player.id,
-                            answer: userAnswer, // Enviamos la respuesta en crudo
+                            answer: userAnswer,
                             responseTime: responseTime
                         }));
                     } else {
-                        // La lógica para un solo jugador puede permanecer aquí si la usas,
-                        // pero el foco principal es el multijugador.
                         console.log("Modo de un solo jugador no implementado con la nueva lógica del servidor.");
                     }
 
@@ -3028,14 +3152,12 @@
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // Mostrar la respuesta correcta
                 if (this.selectedGameMode === 'verdadero-falso') {
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer ? '✅ Verdadero' : '❌ Falso'}</span>`;
                 } else {
                     this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
                 }
                 
-                // Mostrar el resultado del jugador
                 if (playerCorrect) {
                     this.revealPlayerResult.innerHTML = `✅ <strong>Correcto!</strong>`;
                     this.revealPlayerResult.style.color = 'var(--verde)';
@@ -3046,26 +3168,14 @@
                     this.playSound('wrongSound');
                 }
                 
-                // Mostrar bonificación por racha si aplica
                 if (streakBonus > 0) {
                     this.revealStreakBonus.innerHTML = `🔥 Racha +${streakBonus} puntos!`;
                 } else {
                     this.revealStreakBonus.innerHTML = '';
                 }
                 
-                // Configurar el temporizador para ocultar la fase de revelación
-                setTimeout(() => {
-                    this.setState(this.STATES.PLAYING);
-                    
-                    if (this.isHost) {
-                        this.currentQuestionIndex++;
-                        if (this.currentQuestionIndex < this.questions.length) {
-                            this.shareQuestionWithPlayers();
-                        } else {
-                            this.endGame();
-                        }
-                    }
-                }, this.revealPhaseDuration);
+                // ELIMINADO: setTimeout que avanzaba el juego desde el cliente.
+                // Ahora, el servidor es quien envía la siguiente pregunta o el fin del juego.
             }
 
             updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
@@ -3096,7 +3206,7 @@
                 
                 rankingList.innerHTML = ''; 
                 
-                currentRanking.forEach((player, index) => {
+                currentRanking.forEach(player => {
                     const playerElement = document.createElement('div');
                     playerElement.className = 'ranking-item';
                     
@@ -3107,7 +3217,7 @@
                     const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
                     
                     playerElement.innerHTML = `
-                        <span class="ranking-position">${index + 1}°</span>
+                        <span class="ranking-position">${currentRanking.indexOf(player) + 1}°</span>
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
                         <span class="ranking-name">${this.extractName(player.name)}</span>
                         <span class="ranking-points">${player.points || 0}${streakBadge}</span>
@@ -3164,7 +3274,6 @@
                                     }));
                                 }
                                 if (this.isHost) {
-                                    // Enviar fase de revelación para todos
                                     const correctAnswer = this.currentQuestionData.respuesta;
                                     this.socket.send(JSON.stringify({
                                         type: 'reveal_phase',
@@ -3456,6 +3565,8 @@
                         this.player.isProfessor = false; 
                         this.setState(this.STATES.JOIN_SCREEN);
                     }
+                    // Ocultar la fase de revelación al reiniciar el juego
+                    this.revealPhase.style.display = 'none'; // SOLUCIÓN APLICADA AQUÍ
                 } catch (error) {
                     console.error("Error al reiniciar juego:", error);
                     this.showError("Error al reiniciar el juego.");

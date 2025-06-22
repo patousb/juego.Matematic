@@ -1732,7 +1732,7 @@
                     PLAYING: 4,
                     RESULTS: 5,
                     REVEAL: 6,
-                    SPECTATING: 7
+                    SPECTATING: 7 // Nuevo estado
                 };
                 this.state = this.STATES.LOADING;
 
@@ -1742,7 +1742,7 @@
                     grade: "",
                     displayName: "",
                     avatar: "1",
-                    color: "#4e8cff",
+                    color: "#4e8cff", // Nuevo: color del jugador
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
@@ -1750,76 +1750,103 @@
                     maxStreak: 0,
                     avgResponseTime: 0,
                     responseTimes: [],
-                    history: [],
+                    history: [], // Historial de respuestas para logros (ej. tiempo de respuesta)
                     isProfessor: false,
                     isReady: false,
-                    gamesPlayed: 0,
-                    favoriteMode: null,
-                    modeStats: {},
-                    achievements: [],
-                    lastAnswerCorrect: false,
-                    powerUps: {
+                    gamesPlayed: 0, // Estadísticas persistentes
+                    favoriteMode: null, // Estadísticas persistentes
+                    modeStats: {}, // Estadísticas persistentes
+                    achievements: [], // Estadísticas persistentes
+                    lastAnswerCorrect: false, // Resultado de la última respuesta
+                    powerUps: { // Power-ups del jugador (persistente)
                         time: 1,
                         double: 1,
                         hint: 1
                     },
-                    powerUpsUsed: {}
+                    powerUpsUsed: {} // Registro de power-ups usados para logros (persistente)
                 };
                 
-                this.questions = [];
+                this.questions = []; // Preguntas del juego actual (host genera, clientes reciben)
                 this.currentQuestionIndex = 0;
-                this.gameMode = null; 
-                this.timeLeft = 30;
-                this.timerDuration = 30;
-                this.timerInterval = null;
+                this.gameMode = null; // Modo de juego actual (ej. operaciones, relampago)
+                this.timeLeft = 30; // Tiempo restante en el temporizador
+                this.timerDuration = 30; // Duración total del temporizador para la pregunta actual
+                this.timerInterval = null; // ID del intervalo del temporizador
                 this.soundEnabled = true;
-                this.currentQuestionData = null;
+                this.currentQuestionData = null; // Datos de la pregunta actual
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
-                this.closestAnswerMode = false;
-                this.lastAnswerTime = null;
-                this.revealPhaseActive = false;
-                this.revealPhaseDuration = 3000;
-                this.isSpectator = false;
-                this.activePowerUps = {
+                this.closestAnswerMode = false; // Si el modo es "El más cercano gana"
+                this.lastAnswerTime = null; // Marca de tiempo cuando la pregunta se muestra para calcular el tiempo de respuesta
+                this.revealPhaseActive = false; // Indica si la fase de revelación está activa
+                this.revealPhaseDuration = 3000; // Duración de la fase de revelación en ms
+                this.isSpectator = false; // Si el jugador actual es un espectador
+                this.activePowerUps = { // Power-ups activos temporalmente (ej. doble puntuación)
                     doubleScore: false
                 };
-                this.currentDifficulty = 1;
+                this.currentDifficulty = 1; // Nivel de dificultad actual para modos como Supervivencia
 
-                this.isMultiplayer = false;
-                this.isHost = false; 
-                this.gamePin = '';
-                this.players = [];
-                this.playerVotes = {}; 
-                this.selectedGameMode = null; 
-                this.playerRanking = [];
-                this.maxPlayers = 15;
-                this.socket = null;
-                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
-                this.heartbeatInterval = null;
-                this.lastPongTime = null;
-                
-                this.voteTime = 30;
-                this.voteInterval = null;
-                this.voteCounts = { 
-                    operaciones: 0,
-                    misterioso: 0,
-                    secuencia: 0,
-                    potenciacion: 0,
-                    combinadas: 0,
-                    relampago: 0,
-                    "verdadero-falso": 0,
-                    "mas-cercano": 0,
-                    supervivencia: 0,
-                    duelo: 0
+                // Variables de Multijugador
+                this.isMultiplayer = false; // Si está en modo multijugador
+                this.isHost = false; // Si el jugador actual es el anfitrión de la sala
+                this.gamePin = ''; // PIN de la sala
+                this.players = []; // Lista de todos los jugadores en la sala
+                this.playerVotes = {}; // Votos de los jugadores (no directamente usada en cliente, solo voteCounts)
+                this.selectedGameMode = null; // Modo de juego seleccionado para la partida
+                this.playerRanking = []; // Ranking de jugadores (actualizado en vivo y al final)
+                this.maxPlayers = 15; // Límite de jugadores en una sala
+                this.socket = null; // Objeto WebSocket
+                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; // URL del servidor WebSocket
+                this.heartbeatInterval = null; // Intervalo para keep-alive del WebSocket
+                this.lastPongTime = null; // Última vez que se recibió un pong
+
+                // Variables de Votación
+                this.voteTime = 30; // Tiempo restante para la votación
+                this.voteInterval = null; // ID del intervalo de votación
+                this.voteCounts = { // Conteo de votos por modo
+                    operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
+                    combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
+                    supervivencia: 0, duelo: 0
                 };
-                this.isVotingActive = false; 
-                
-                this.lastRanking = [];
-                this.rankingUpdateInterval = null;
-                this.animationPending = false; 
-                
+                this.isVotingActive = false; // Si la votación está en curso
+
+                // Variables de Ranking
+                this.lastRanking = []; // Ranking de la ronda anterior para animaciones
+                this.rankingUpdateInterval = null; // Intervalo para actualizar el ranking en vivo
+                this.animationPending = false; // Indica si hay una animación de ranking pendiente
+
+                // Referencias a elementos del DOM
+                this.themeToggle = document.getElementById('themeToggle');
+                this.timerCircle = document.querySelector('.timer-circle');
+                this.timerText = document.getElementById('timerText');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.skipQuestionBtn = document.getElementById('skipQuestion');
+                this.readyBtn = document.getElementById('readyBtn');
+                this.startVoteBtn = document.getElementById('startVoteBtn');
+                this.gameModeIndicator = document.getElementById('gameModeIndicator');
+                this.achievementPopup = document.getElementById('achievementPopup');
+                this.closeAchievement = document.getElementById('closeAchievement');
+                this.playerStats = document.getElementById('playerStats');
+                this.closeStats = document.getElementById('closeStats');
+                this.statsContent = document.getElementById('statsContent');
+                this.modeButtons = document.getElementById('modeButtons');
+                this.revealPhase = document.getElementById('revealPhase');
+                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
+                this.revealPlayerResult = document.getElementById('revealPlayerResult');
+                this.revealStreakBonus = document.getElementById('revealStreakBonus');
+                this.hostControls = document.getElementById('hostControls');
+                this.toggleSpectatorModeBtn = document.getElementById('toggleSpectatorMode');
+                this.activateRandomEventBtn = document.getElementById('activateRandomEvent');
+                this.playerPowerUpsContainer = document.getElementById('playerPowerUps');
+                this.powerUpTimeBtn = document.getElementById('powerUpTime');
+                this.powerUpDoubleBtn = document.getElementById('powerUpDouble');
+                this.powerUpHintBtn = document.getElementById('powerUpHint');
+                this.hintModal = document.getElementById('hintModal');
+                this.hintContent = document.getElementById('hintContent');
+                this.closeHintModal = document.getElementById('closeHintModal');
+
+                // Lista de Logros
                 this.achievementsList = {
                     'first_game': {
                         title: 'Primer Juego',
@@ -1876,35 +1903,7 @@
                         condition: (player) => player.modeStats['relampago'] && player.modeStats['relampago'].games > 0
                     }
                 };
-                
-                this.themeToggle = document.getElementById('themeToggle');
-                this.timerCircle = document.querySelector('.timer-circle');
-                this.timerText = document.getElementById('timerText');
-                this.connectionStatus = document.getElementById('connectionStatus');
-                this.skipQuestionBtn = document.getElementById('skipQuestion');
-                this.readyBtn = document.getElementById('readyBtn');
-                this.startVoteBtn = document.getElementById('startVoteBtn'); 
-                this.gameModeIndicator = document.getElementById('gameModeIndicator');
-                this.achievementPopup = document.getElementById('achievementPopup');
-                this.closeAchievement = document.getElementById('closeAchievement');
-                this.playerStats = document.getElementById('playerStats');
-                this.closeStats = document.getElementById('closeStats');
-                this.statsContent = document.getElementById('statsContent');
-                this.modeButtons = document.getElementById('modeButtons'); 
-                this.revealPhase = document.getElementById('revealPhase');
-                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
-                this.revealPlayerResult = document.getElementById('revealPlayerResult');
-                this.revealStreakBonus = document.getElementById('revealStreakBonus');
-                this.hostControls = document.getElementById('hostControls');
-                this.toggleSpectatorModeBtn = document.getElementById('toggleSpectatorMode');
-                this.activateRandomEventBtn = document.getElementById('activateRandomEvent');
-                this.playerPowerUpsContainer = document.getElementById('playerPowerUps');
-                this.powerUpTimeBtn = document.getElementById('powerUpTime');
-                this.powerUpDoubleBtn = document.getElementById('powerUpDouble');
-                this.powerUpHintBtn = document.getElementById('powerUpHint');
-                this.hintModal = document.getElementById('hintModal');
-                this.hintContent = document.getElementById('hintContent');
-                this.closeHintModal = document.getElementById('closeHintModal');
+
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
@@ -1986,9 +1985,9 @@
                 this.skipQuestionBtn.style.display = 'none';
                 this.startVoteBtn.style.display = 'none';
                 this.revealPhase.style.display = 'none';
-                this.hostControls.style.display = 'none';
-                this.playerPowerUpsContainer.style.display = 'none';
-                this.hintModal.style.display = 'none';
+                this.hostControls.style.display = 'none'; // Ocultar controles de host
+                this.playerPowerUpsContainer.style.display = 'none'; // Ocultar power-ups
+                this.hintModal.style.display = 'none'; // Ocultar modal de pistas
 
                 // Restablecer estilos de inputs y botones de respuesta para el estado normal
                 document.getElementById('standardInput').style.display = 'block';
@@ -3004,7 +3003,7 @@
                 this.timerDuration = data.totalDuration;
                 
                 // Ocultar la pantalla de revelación cuando llega una nueva pregunta
-                this.revealPhase.style.display = 'none'; 
+                this.revealPhase.style.display = 'none';
                 // Quitar cualquier clase de "lightning-mode" y volver a aplicar si es necesario
                 document.getElementById('gameContainer').classList.remove('lightning-mode');
                 if (this.selectedGameMode === 'relampago' || data.activeEvent === 'ronda_rapida') {
@@ -3427,7 +3426,6 @@
                 }
             }
 
-            // `generarPreguntas` es una función cliente-side para referencia, el servidor generará las preguntas.
             generarPreguntas(mode, count) {
                 const preguntas = [];
                 const generarOperacion = (difficulty = 1) => { /* ... */ return { pregunta: "", respuesta: 0, tipo: "" }; };
@@ -3996,4 +3994,135 @@
                         sound.currentTime = 0;
                         sound.play().catch(e => console.log("Error al reproducir sonido (posiblemente autoprotección del navegador):", e));
                     }
+                } catch (error) {
+                    console.error("Error con el sonido:", error);
                 }
+            }
+
+            sendEmote(emote) {
+                if (this.socket && this.socket.readyState === WebSocket.OPEN && this.gamePin) {
+                    this.playSound('clickSound');
+                    this.socket.send(JSON.stringify({
+                        type: 'send_emote',
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        emote: emote
+                    }));
+                }
+            }
+
+            displayEmote(playerId, emote) {
+                const playerBadge = document.querySelector(`.player-badge[data-player-id="${playerId}"]`);
+                if (playerBadge) {
+                    const emoteDisplay = document.createElement('div');
+                    emoteDisplay.className = 'emote-display';
+                    emoteDisplay.textContent = emote;
+                    playerBadge.appendChild(emoteDisplay);
+                    setTimeout(() => emoteDisplay.remove(), 1000);
+                } else {
+                    this.showNotification(`${this.extractName(this.players.find(p => p.id === playerId)?.name || 'Un jugador')} ${emote}`);
+                }
+            }
+
+            updatePowerUpButtons() {
+                if (this.isSpectator) {
+                    this.playerPowerUpsContainer.style.display = 'none';
+                    return;
+                }
+                this.playerPowerUpsContainer.style.display = 'flex';
+
+                this.powerUpTimeBtn.disabled = this.player.powerUps.time <= 0 || this.player.hasAnswered;
+                this.powerUpDoubleBtn.disabled = this.player.powerUps.double <= 0 || this.player.hasAnswered;
+                this.powerUpHintBtn.disabled = this.player.powerUps.hint <= 0 || this.player.hasAnswered || 
+                                                this.selectedGameMode === 'verdadero-falso' || this.selectedGameMode === 'mas-cercano';
+
+                this.powerUpTimeBtn.textContent = `+10s ⏳ (${this.player.powerUps.time})`;
+                this.powerUpDoubleBtn.textContent = `x2 Puntos ✨ (${this.player.powerUps.double})`;
+                this.powerUpHintBtn.textContent = `Pista 💡 (${this.player.powerUps.hint})`;
+            }
+
+            disablePowerUpButtons() {
+                this.powerUpTimeBtn.disabled = true;
+                this.powerUpDoubleBtn.disabled = true;
+                this.powerUpHintBtn.disabled = true;
+            }
+
+            enablePowerUpButtons() {
+                this.updatePowerUpButtons();
+            }
+
+            usePowerUp(type) {
+                if (this.player.powerUps[type] <= 0 || this.player.hasAnswered || this.isSpectator) return;
+
+                this.playSound('powerUpSound');
+                this.updatePowerUpButtons();
+
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'use_power_up',
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        powerUpType: type
+                    }));
+                }
+
+                if (type === 'time') {
+                    this.showNotification("¡Solicitando tiempo extra!");
+                } else if (type === 'double') {
+                    this.showNotification("¡Solicitando Doble Puntuación para la próxima!");
+                } else if (type === 'hint') {
+                    this.showNotification("Solicitando pista...");
+                }
+            }
+
+            showHintModal(hint) {
+                this.hintContent.textContent = hint;
+                this.hintModal.style.display = 'flex';
+            }
+
+            activateRandomEventAsHost() {
+                if (!this.isProfessor) {
+                    this.showNotification("Solo el profesor puede activar eventos aleatorios.");
+                    return;
+                }
+
+                this.playSound('eventSound');
+                this.showNotification("¡Activando evento aleatorio!");
+
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'trigger_random_event',
+                        pin: this.gamePin,
+                        hostId: this.player.id
+                    }));
+                }
+            }
+
+            handleRandomEvent(eventType) {
+                switch (eventType) {
+                    case 'ronda_rapida':
+                        this.showNotification("¡RONDA RÁPIDA! El tiempo se reduce a la mitad y los puntos se duplican.");
+                        break;
+                    case 'pregunta_invertida':
+                        this.showNotification("¡PREGUNTA INVERTIDA! Se muestra el resultado, encuentra la operación.");
+                        break;
+                    case 'no_event':
+                        this.showNotification("Este turno no hay evento aleatorio.");
+                        break;
+                    default:
+                        this.showNotification("Un evento aleatorio desconocido ha ocurrido.");
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const game = new GameManager();
+            } catch (error) {
+                console.error("Error al iniciar el juego:", error);
+                alert("Ocurrió un error al cargar el juego. Por favor recarga la página.");
+            }
+        });
+    </script>
+</body>
+</html>

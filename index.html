@@ -1732,7 +1732,7 @@
                     PLAYING: 4,
                     RESULTS: 5,
                     REVEAL: 6,
-                    SPECTATING: 7 // Nuevo estado
+                    SPECTATING: 7
                 };
                 this.state = this.STATES.LOADING;
 
@@ -1742,7 +1742,7 @@
                     grade: "",
                     displayName: "",
                     avatar: "1",
-                    color: "#4e8cff", // Nuevo: color del jugador
+                    color: "#4e8cff",
                     points: 0,
                     hasAnswered: false,
                     hasVoted: false,
@@ -1750,103 +1750,76 @@
                     maxStreak: 0,
                     avgResponseTime: 0,
                     responseTimes: [],
-                    history: [], // Historial de respuestas para logros (ej. tiempo de respuesta)
+                    history: [],
                     isProfessor: false,
                     isReady: false,
-                    gamesPlayed: 0, // Estadísticas persistentes
-                    favoriteMode: null, // Estadísticas persistentes
-                    modeStats: {}, // Estadísticas persistentes
-                    achievements: [], // Estadísticas persistentes
-                    lastAnswerCorrect: false, // Resultado de la última respuesta
-                    powerUps: { // Power-ups del jugador (persistente)
+                    gamesPlayed: 0,
+                    favoriteMode: null,
+                    modeStats: {},
+                    achievements: [],
+                    lastAnswerCorrect: false,
+                    powerUps: {
                         time: 1,
                         double: 1,
                         hint: 1
                     },
-                    powerUpsUsed: {} // Registro de power-ups usados para logros (persistente)
+                    powerUpsUsed: {}
                 };
                 
-                this.questions = []; // Preguntas del juego actual (host genera, clientes reciben)
+                this.questions = [];
                 this.currentQuestionIndex = 0;
-                this.gameMode = null; // Modo de juego actual (ej. operaciones, relampago)
-                this.timeLeft = 30; // Tiempo restante en el temporizador
-                this.timerDuration = 30; // Duración total del temporizador para la pregunta actual
-                this.timerInterval = null; // ID del intervalo del temporizador
+                this.gameMode = null; 
+                this.timeLeft = 30;
+                this.timerDuration = 30;
+                this.timerInterval = null;
                 this.soundEnabled = true;
-                this.currentQuestionData = null; // Datos de la pregunta actual
+                this.currentQuestionData = null;
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
-                this.closestAnswerMode = false; // Si el modo es "El más cercano gana"
-                this.lastAnswerTime = null; // Marca de tiempo cuando la pregunta se muestra para calcular el tiempo de respuesta
-                this.revealPhaseActive = false; // Indica si la fase de revelación está activa
-                this.revealPhaseDuration = 3000; // Duración de la fase de revelación en ms
-                this.isSpectator = false; // Si el jugador actual es un espectador
-                this.activePowerUps = { // Power-ups activos temporalmente (ej. doble puntuación)
+                this.closestAnswerMode = false;
+                this.lastAnswerTime = null;
+                this.revealPhaseActive = false;
+                this.revealPhaseDuration = 3000;
+                this.isSpectator = false;
+                this.activePowerUps = {
                     doubleScore: false
                 };
-                this.currentDifficulty = 1; // Nivel de dificultad actual para modos como Supervivencia
+                this.currentDifficulty = 1;
 
-                // Variables de Multijugador
-                this.isMultiplayer = false; // Si está en modo multijugador
-                this.isHost = false; // Si el jugador actual es el anfitrión de la sala
-                this.gamePin = ''; // PIN de la sala
-                this.players = []; // Lista de todos los jugadores en la sala
-                this.playerVotes = {}; // Votos de los jugadores (no directamente usada en cliente, solo voteCounts)
-                this.selectedGameMode = null; // Modo de juego seleccionado para la partida
-                this.playerRanking = []; // Ranking de jugadores (actualizado en vivo y al final)
-                this.maxPlayers = 15; // Límite de jugadores en una sala
-                this.socket = null; // Objeto WebSocket
-                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; // URL del servidor WebSocket
-                this.heartbeatInterval = null; // Intervalo para keep-alive del WebSocket
-                this.lastPongTime = null; // Última vez que se recibió un pong
-
-                // Variables de Votación
-                this.voteTime = 30; // Tiempo restante para la votación
-                this.voteInterval = null; // ID del intervalo de votación
-                this.voteCounts = { // Conteo de votos por modo
-                    operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
-                    combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
-                    supervivencia: 0, duelo: 0
+                this.isMultiplayer = false;
+                this.isHost = false; 
+                this.gamePin = '';
+                this.players = [];
+                this.playerVotes = {}; 
+                this.selectedGameMode = null; 
+                this.playerRanking = [];
+                this.maxPlayers = 15;
+                this.socket = null;
+                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
+                this.heartbeatInterval = null;
+                this.lastPongTime = null;
+                
+                this.voteTime = 30;
+                this.voteInterval = null;
+                this.voteCounts = { 
+                    operaciones: 0,
+                    misterioso: 0,
+                    secuencia: 0,
+                    potenciacion: 0,
+                    combinadas: 0,
+                    relampago: 0,
+                    "verdadero-falso": 0,
+                    "mas-cercano": 0,
+                    supervivencia: 0,
+                    duelo: 0
                 };
-                this.isVotingActive = false; // Si la votación está en curso
-
-                // Variables de Ranking
-                this.lastRanking = []; // Ranking de la ronda anterior para animaciones
-                this.rankingUpdateInterval = null; // Intervalo para actualizar el ranking en vivo
-                this.animationPending = false; // Indica si hay una animación de ranking pendiente
-
-                // Referencias a elementos del DOM
-                this.themeToggle = document.getElementById('themeToggle');
-                this.timerCircle = document.querySelector('.timer-circle');
-                this.timerText = document.getElementById('timerText');
-                this.connectionStatus = document.getElementById('connectionStatus');
-                this.skipQuestionBtn = document.getElementById('skipQuestion');
-                this.readyBtn = document.getElementById('readyBtn');
-                this.startVoteBtn = document.getElementById('startVoteBtn');
-                this.gameModeIndicator = document.getElementById('gameModeIndicator');
-                this.achievementPopup = document.getElementById('achievementPopup');
-                this.closeAchievement = document.getElementById('closeAchievement');
-                this.playerStats = document.getElementById('playerStats');
-                this.closeStats = document.getElementById('closeStats');
-                this.statsContent = document.getElementById('statsContent');
-                this.modeButtons = document.getElementById('modeButtons');
-                this.revealPhase = document.getElementById('revealPhase');
-                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
-                this.revealPlayerResult = document.getElementById('revealPlayerResult');
-                this.revealStreakBonus = document.getElementById('revealStreakBonus');
-                this.hostControls = document.getElementById('hostControls');
-                this.toggleSpectatorModeBtn = document.getElementById('toggleSpectatorMode');
-                this.activateRandomEventBtn = document.getElementById('activateRandomEvent');
-                this.playerPowerUpsContainer = document.getElementById('playerPowerUps');
-                this.powerUpTimeBtn = document.getElementById('powerUpTime');
-                this.powerUpDoubleBtn = document.getElementById('powerUpDouble');
-                this.powerUpHintBtn = document.getElementById('powerUpHint');
-                this.hintModal = document.getElementById('hintModal');
-                this.hintContent = document.getElementById('hintContent');
-                this.closeHintModal = document.getElementById('closeHintModal');
-
-                // Lista de Logros
+                this.isVotingActive = false; 
+                
+                this.lastRanking = [];
+                this.rankingUpdateInterval = null;
+                this.animationPending = false; 
+                
                 this.achievementsList = {
                     'first_game': {
                         title: 'Primer Juego',
@@ -1903,17 +1876,53 @@
                         condition: (player) => player.modeStats['relampago'] && player.modeStats['relampago'].games > 0
                     }
                 };
-
+                
+                this.themeToggle = document.getElementById('themeToggle');
+                this.timerCircle = document.querySelector('.timer-circle');
+                this.timerText = document.getElementById('timerText');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.skipQuestionBtn = document.getElementById('skipQuestion');
+                this.readyBtn = document.getElementById('readyBtn');
+                this.startVoteBtn = document.getElementById('startVoteBtn'); 
+                this.gameModeIndicator = document.getElementById('gameModeIndicator');
+                this.achievementPopup = document.getElementById('achievementPopup');
+                this.closeAchievement = document.getElementById('closeAchievement');
+                this.playerStats = document.getElementById('playerStats');
+                this.closeStats = document.getElementById('closeStats');
+                this.statsContent = document.getElementById('statsContent');
+                this.modeButtons = document.getElementById('modeButtons'); 
+                this.revealPhase = document.getElementById('revealPhase');
+                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
+                this.revealPlayerResult = document.getElementById('revealPlayerResult');
+                this.revealStreakBonus = document.getElementById('revealStreakBonus');
+                this.hostControls = document.getElementById('hostControls');
+                this.toggleSpectatorModeBtn = document.getElementById('toggleSpectatorMode');
+                this.activateRandomEventBtn = document.getElementById('activateRandomEvent');
+                this.playerPowerUpsContainer = document.getElementById('playerPowerUps');
+                this.powerUpTimeBtn = document.getElementById('powerUpTime');
+                this.powerUpDoubleBtn = document.getElementById('powerUpDouble');
+                this.powerUpHintBtn = document.getElementById('powerUpHint');
+                this.hintModal = document.getElementById('hintModal');
+                this.hintContent = document.getElementById('hintContent');
+                this.closeHintModal = document.getElementById('closeHintModal');
 
                 this.setupEventListeners();
                 this.checkDarkModePreference();
                 this.loadPlayerStats();
                 this.applyPlayerColor();
 
-                setTimeout(() => {
-                    this.setState(this.STATES.JOIN_SCREEN);
-                    document.getElementById('loadingScreen').style.display = 'none';
-                }, 1500);
+                // Intentar iniciar la pantalla de unión después de un breve retardo.
+                // Cualquier error en el constructor o eventos iniciales debe ser capturado.
+                try {
+                    setTimeout(() => {
+                        this.setState(this.STATES.JOIN_SCREEN);
+                        document.getElementById('loadingScreen').style.display = 'none';
+                    }, 1500);
+                } catch (e) {
+                    console.error("Error durante la inicialización de GameManager:", e);
+                    alert("Ocurrió un error crítico al iniciar el juego. Por favor, revisa la consola para más detalles.");
+                    document.getElementById('loadingScreen').textContent = "Error crítico al cargar. Revisa la consola.";
+                }
             }
 
             setState(newState) {
@@ -1923,15 +1932,31 @@
                 if (oldStateElement && oldStateElement !== newStateElement) {
                     oldStateElement.classList.add('screen-exit-active');
                     oldStateElement.classList.add('screen-exit');
+                    // Retardo para que la animación de salida se complete
                     setTimeout(() => {
                         oldStateElement.style.display = 'none';
                         oldStateElement.classList.remove('screen-exit-active', 'screen-exit');
                         this.transitionToNewState(newState, newStateElement);
-                    }, 500);
+                    }, 500); // Duración de la transición de CSS
                 } else {
                     this.transitionToNewState(newState, newStateElement);
                 }
             }
+
+            transitionToNewState(newState, newStateElement) {
+                this.state = newState;
+                if (newStateElement) {
+                    newStateElement.style.display = 'flex';
+                    if (newState === this.STATES.PLAYING) newStateElement.style.display = 'block'; // PLAYING es block
+                    newStateElement.classList.add('screen-enter-active');
+                    // Retardo para que la animación de entrada se complete
+                    setTimeout(() => {
+                        newStateElement.classList.remove('screen-enter-active');
+                    }, 500); // Duración de la transición de CSS
+                }
+                this.updateUIForState();
+            }
+
 
             getCurrentStateElement() {
                 switch (this.state) {
@@ -1961,33 +1986,21 @@
                 }
             }
 
-            transitionToNewState(newState, newStateElement) {
-                this.state = newState;
-                if (newStateElement) {
-                    newStateElement.style.display = 'flex';
-                    if (newState === this.STATES.PLAYING) newStateElement.style.display = 'block';
-                    newStateElement.classList.add('screen-enter-active');
-                    setTimeout(() => {
-                        newStateElement.classList.remove('screen-enter-active');
-                    }, 500);
-                }
-                this.updateUIForState();
-            }
-
             updateUIForState() {
+                // Ocultar todas las pantallas por defecto, luego mostrar la activa
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('joinScreen').style.display = 'none';
                 document.getElementById('multiplayerLobby').style.display = 'none';
                 document.getElementById('gameContainer').style.display = 'none';
                 document.getElementById('finalResults').style.display = 'none';
-                document.getElementById('liveRanking').style.display = 'none';
+                document.getElementById('liveRanking').style.display = 'none'; // Siempre oculto por defecto
                 this.gameModeIndicator.style.display = 'none';
                 this.skipQuestionBtn.style.display = 'none';
                 this.startVoteBtn.style.display = 'none';
                 this.revealPhase.style.display = 'none';
-                this.hostControls.style.display = 'none'; // Ocultar controles de host
-                this.playerPowerUpsContainer.style.display = 'none'; // Ocultar power-ups
-                this.hintModal.style.display = 'none'; // Ocultar modal de pistas
+                this.hostControls.style.display = 'none';
+                this.playerPowerUpsContainer.style.display = 'none';
+                this.hintModal.style.display = 'none';
 
                 // Restablecer estilos de inputs y botones de respuesta para el estado normal
                 document.getElementById('standardInput').style.display = 'block';
@@ -2028,7 +2041,7 @@
                         }
                         break;
                     case this.STATES.PLAYING:
-                        document.getElementById('gameContainer').style.display = 'block';
+                        document.getElementById('gameContainer').style.display = 'block'; // Asegurarse de que el contenedor del juego sea visible
                         document.getElementById('liveRanking').style.display = 'block';
                         this.gameModeIndicator.style.display = 'block';
                         this.readyBtn.style.display = 'none';
@@ -2075,10 +2088,10 @@
                         document.getElementById('mensajeVictoria').style.display = 'block';
                         break;
                     case this.STATES.SPECTATING:
-                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        document.getElementById('multiplayerLobby').style.display = 'flex'; // Los espectadores suelen ver el lobby o un tablero
                         document.getElementById('readyBtn').style.display = 'none';
                         document.getElementById('startVoteBtn').style.display = 'none';
-                        document.getElementById('gameContainer').style.display = 'none';
+                        document.getElementById('gameContainer').style.display = 'none'; // Ocultar juego para espectador
                         if (this.isProfessor) {
                             this.hostControls.style.display = 'flex';
                             this.toggleSpectatorModeBtn.textContent = this.player.isSpectator ? "✅ Tu Modo Espectador (Activo)" : "👁️ Toggle Tu Modo Espectador";
@@ -3003,7 +3016,7 @@
                 this.timerDuration = data.totalDuration;
                 
                 // Ocultar la pantalla de revelación cuando llega una nueva pregunta
-                this.revealPhase.style.display = 'none';
+                this.revealPhase.style.display = 'none'; 
                 // Quitar cualquier clase de "lightning-mode" y volver a aplicar si es necesario
                 document.getElementById('gameContainer').classList.remove('lightning-mode');
                 if (this.selectedGameMode === 'relampago' || data.activeEvent === 'ronda_rapida') {

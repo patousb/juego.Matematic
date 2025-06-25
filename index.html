@@ -750,14 +750,14 @@
             animation: moveUp 0.5s ease;
         }
 
-        .ranking-item.move-down {
-            animation: moveDown 0.5s ease;
-        }
-
         @keyframes moveUp {
             0% { transform: translateY(0); background: var(--verde); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0); }
+        }
+
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
         }
 
         @keyframes moveDown {
@@ -988,15 +988,15 @@
             text-shadow: var(--neon-rojo);
         }
 
-        .connection-status.connecting {
-            color: var(--amarillo);
-            text-shadow: var(--neon-amarillo);
-        }
-
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
             100% { opacity: 1; }
+        }
+
+        .connection-status.connecting {
+            color: var(--amarillo);
+            text-shadow: var(--neon-amarillo);
         }
 
         /* Botón tema nocturno */
@@ -1262,16 +1262,16 @@
             text-shadow: var(--neon-verde);
         }
 
+        .reveal-correct-answer {
+            color: var(--verde);
+            text-shadow: var(--neon-verde);
+        }
+
         .reveal-player-result {
             margin: 15px 0;
             padding: 10px;
             border-radius: 8px;
             font-size: 1.5rem;
-        }
-
-        .reveal-correct-answer {
-            color: var(--verde);
-            text-shadow: var(--neon-verde);
         }
 
         .reveal-streak-bonus {
@@ -1648,19 +1648,19 @@
                     lastAnswerCorrect: false
                 };
                 
-                this.questions = [];
+                this.questions = []; // Ya no se usan para generar, solo para el host en simulación de un jugador
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
                 this.timeLeft = 30;
-                this.timerDuration = 30;
+                this.timerDuration = 30; // Duración del temporizador actual, establecida por el servidor
                 this.timerInterval = null;
                 this.soundEnabled = true;
-                this.currentQuestionData = null;
+                this.currentQuestionData = null; // Almacena la pregunta recibida del servidor
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
-                this.lastAnswerTime = null;
+                this.lastAnswerTime = null; // Hora en que la pregunta actual fue mostrada
                 this.revealPhaseActive = false;
                 this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
                 
@@ -1688,12 +1688,12 @@
                     relampago: 0,
                     "verdadero-falso": 0,
                     "mas-cercano": 0,
-                    "sumamultiplicacion": 0, // Nuevo modo
-                    "informatica": 0 // Nuevo modo
+                    "sumamultiplicacion": 0,
+                    "informatica": 0
                 };
                 this.isVotingActive = false; 
                 
-                this.lastRanking = []; // Para detectar cambios de puesto
+                this.lastRanking = []; 
                 this.rankingUpdateInterval = null;
                 this.animationPending = false; 
                 
@@ -1739,7 +1739,7 @@
                     }
                 };
 
-                // Referencias a nuevos elementos HTML
+                // Referencias a elementos HTML
                 this.lobby3DCanvas = document.getElementById('lobby3DCanvas');
                 this.lobbyCountdownMessage = document.getElementById('lobbyCountdownMessage');
                 this.abcdButtonsContainer = document.getElementById('abcdButtons');
@@ -1768,13 +1768,12 @@
                 this.setupEventListeners();
                 this.checkDarkModePreference();
                 this.loadPlayerStats();
-                this.initLobby3D(); // Inicializar el fondo 3D
+                this.initLobby3D();
 
-                // Animación de entrada de la pantalla de unión
                 setTimeout(() => {
                     this.setState(this.STATES.JOIN_SCREEN);
                     document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('joinScreen').classList.add('active'); // Activa la animación
+                    document.getElementById('joinScreen').classList.add('active'); 
                 }, 1500);
             }
 
@@ -1794,14 +1793,12 @@
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
                 this.revealPhase.style.display = 'none';
-                this.lobbyCountdownMessage.style.display = 'none'; // Ocultar mensaje de lobby
-                this.lobbyCountdownMessage.classList.remove('active'); // Quita la clase activa de animación
+                this.lobbyCountdownMessage.style.display = 'none'; 
+                this.lobbyCountdownMessage.classList.remove('active'); 
 
-                // Reinicia las clases de animación del join screen cada vez que se oculta
                 if (this.state !== this.STATES.JOIN_SCREEN) {
                     document.getElementById('joinScreen').classList.remove('active');
                 }
-
 
                 switch(this.state) {
                     case this.STATES.LOADING:
@@ -1817,9 +1814,9 @@
                             this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
                         }
                         this.enableVotingButtons(true); 
-                        if (this.lobby3DCanvas.style.display !== 'block') { // Mostrar canvas si no está visible
+                        if (this.lobby3DCanvas.style.display !== 'block') { 
                              this.lobby3DCanvas.style.display = 'block';
-                             this.animateLobby3D(); // Iniciar animación 3D
+                             this.animateLobby3D(); 
                         }
                         break;
                     case this.STATES.VOTING:
@@ -1841,8 +1838,8 @@
                         if (this.isProfessor) { 
                             this.skipQuestionBtn.style.display = 'block';
                         }
-                        this.lobby3DCanvas.style.display = 'none'; // Ocultar canvas 3D durante el juego
-                        cancelAnimationFrame(this.lobbyAnimationId); // Detener la animación 3D
+                        this.lobby3DCanvas.style.display = 'none'; 
+                        cancelAnimationFrame(this.lobbyAnimationId); 
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
@@ -1898,13 +1895,26 @@
                 document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
                 document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
 
-                // Nuevos listeners para botones A/B/C/D
                 document.querySelectorAll('.abcd-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.submitABCDAnswer(btn.dataset.answer));
                 });
                 
-                document.getElementById('reiniciarBtn').addEventListener('click', () => this.reiniciarJuego());
-                document.getElementById('backToLobby').addEventListener('click', () => this.reiniciarJuego());
+                // Cuando se hace clic en Reiniciar o Volver al Lobby
+                document.getElementById('reiniciarBtn').addEventListener('click', () => {
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        // Notificar al servidor que se reinicia/vuelve al lobby
+                        this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
+                    }
+                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                });
+
+                document.getElementById('backToLobby').addEventListener('click', () => {
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        // Notificar al servidor que se reinicia/vuelve al lobby
+                        this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
+                    }
+                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                });
                 
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
@@ -2001,7 +2011,13 @@
                 }
 
                 if (this.player.responseTimes.length > 0) { 
-                    this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+                    // Calcular avgResponseTime solo si hay datos para evitar NaN
+                    if (this.player.responseTimes.length > 0) {
+                        this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+                    } else {
+                        this.player.avgResponseTime = 0;
+                    }
+
                     statsHTML += `
                         <div class="stat-item">
                             <span class="stat-label">Tiempo promedio:</span>
@@ -2333,7 +2349,7 @@
             }
 
             handleSocketMessage(data) {
-                console.log("[Cliente] Mensaje recibido y manejando:", data.type);
+                console.log("[Cliente] Mensaje WS recibido:", data.type);
                 
                 switch(data.type) {
                     case 'room_created': 
@@ -2368,11 +2384,11 @@
                         
                     case 'game_starting': 
                         this.showNotification(`¡El juego comenzará! Modo: ${this.getModeName(data.mode)}`);
-                        // Animación de inicio de ronda
                         this.animateLobbyCountdown(data.mode);
                         break;
                         
                     case 'game_start': 
+                        // El servidor ahora enviará la primera pregunta a través de 'question_update'
                         this.startGame(data.mode, data.closestAnswerMode);
                         break;
                         
@@ -2390,8 +2406,6 @@
                     
                     case 'host_skipped_question': 
                         if (!this.isHost) { 
-                            this.currentQuestionIndex++; 
-                            this.displayQuestion(); 
                             this.showNotification("El profesor ha saltado la pregunta.");
                         }
                         break;
@@ -2406,25 +2420,25 @@
                             this.player.isProfessor = true;
                             this.showNotification("¡Ahora eres el nuevo profesor y anfitrión!");
                         } else {
-                            this.showNotification(`${data.newHostName} es ahora el nuevo profesor.`);
+                            this.showNotification(`${this.extractName(data.newHostName)} es ahora el nuevo profesor.`);
                         }
                         break;
                         
                     case 'reveal_phase':
-                        // Asegúrate de pasar el cuarto parámetro 'options' si existe
                         this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.options); 
                         break;
                     
                     case 'ranking_update':
-                        // El servidor nos envía la lista actualizada de todos los jugadores
                         this.players = data.players;
-                        this.updateLiveRanking(); // Actualizamos el ranking en la pantalla
-                        
-                        // Actualizamos el puntaje del jugador actual en su propia UI
+                        this.updateLiveRanking(); 
                         const myData = this.players.find(p => p.id === this.player.id);
                         if (myData) {
                             this.updatePlayerScore(myData.id, myData.points, myData.streak, myData.maxStreak, myData.avgResponseTime);
                         }
+                        break;
+                    
+                    case 'answer_received': 
+                        console.log("Servidor: Respuesta recibida.");
                         break;
 
                     default:
@@ -2463,8 +2477,8 @@
                     this.setState(this.STATES.LOBBY);
                 }
                 
-                if (data.isGameRunning) {
-                    this.startGame(data.gameMode, data.closestAnswerMode);
+                if (data.isGameRunning && data.question) { 
+                    this.startGame(data.gameMode, data.closestAnswerMode); 
                     this.currentQuestionIndex = data.questionIndex;
                     this.handleQuestionUpdate(data); 
                 }
@@ -2475,7 +2489,7 @@
                 if (!existingPlayer) {
                     this.players.push(data.player);
                     this.updatePlayerList();
-                    this.showNotification(`Jugador ${this.extractName(data.player.name)} se ha unido :3`); // Mensaje "Jugador se ha unido"
+                    this.showNotification(`Jugador ${this.extractName(data.player.name)} se ha unido :3`); 
                 } else {
                     Object.assign(existingPlayer, data.player);
                     this.updatePlayerList();
@@ -2505,21 +2519,23 @@
                         this.readyBtn.disabled = data.isReady; 
                     }
                     
-                    if (data.playerId !== this.player.id) {
+                    if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
+                        const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                        const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.players.some(p => p.isProfessor) ? 1 : 0);
+                        const minPlayersForVote = 2; 
+
+                        const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
+                        
+                        this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
+                        if (!allNeededPlayersReady) {
+                            this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                        } else {
+                            this.showNotification("Anfitrión: ¡Todos listos para iniciar la votación!");
+                        }
+                    }
+                    else if (data.playerId !== this.player.id) {
                         const action = data.isReady ? "está listo" : "ya no está listo";
                         this.showNotification(`${this.extractName(player.name)} ${action}`);
-                    }
-                }
-                
-                if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
-                    const minPlayersForVote = 2;
-                    const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                    const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.player.isProfessor ? 1 : 0);
-                    const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
-                    
-                    this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
-                    if (!allNeededPlayersReady) {
-                        this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
                     }
                 }
             }
@@ -2541,9 +2557,9 @@
             initiateVoteAsHost() {
                 if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
 
-                const minPlayersForVote = 2;
                 const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
-                const playersInLobby = nonProfessorPlayers.length + (this.player.isProfessor ? 1 : 0);
+                const playersInLobby = nonProfessorPlayers.length + (this.players.some(p => p.isProfessor) ? 1 : 0);
+                const minPlayersForVote = 2; 
 
                 if (playersInLobby < minPlayersForVote) {
                     this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
@@ -2563,9 +2579,11 @@
             }
 
             handleQuestionUpdate(data) {
-                this.currentQuestionData = data.question;
-                this.lastAnswerTime = Date.now();
+                // Almacena la pregunta que viene del servidor (ya viene sin respuesta si es necesario)
+                this.currentQuestionData = data.question; 
+                this.lastAnswerTime = Date.now(); // Marca el tiempo en que la pregunta es recibida/mostrada
                 this.currentQuestionIndex = data.questionIndex; 
+                this.timerDuration = data.timerDuration || 30; // Actualiza la duración del temporizador
                 
                 this.displayQuestion(data.question);
                 
@@ -2760,18 +2778,30 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
-                if (this.isHost) {
-                    this.voteInterval = setInterval(() => {
+                // Si eres el host, el temporizador de votación lo controla el servidor
+                // Si no eres el host, solo actualizas la UI
+                if (!this.isHost && time > 0) {
+                    // Limpiar cualquier temporizador anterior del cliente
+                    if (this._clientVoteCountdownInterval) {
+                        clearInterval(this._clientVoteCountdownInterval);
+                    }
+                    this._clientVoteCountdownInterval = setInterval(() => {
                         this.voteTime--;
                         document.getElementById('voteTime').textContent = this.voteTime;
-                        
                         if (this.voteTime <= 0) {
-                            clearInterval(this.voteInterval);
-                            this.voteInterval = null;
-                            this.isVotingActive = false; 
-                            this.enableVotingButtons(false); 
+                            clearInterval(this._clientVoteCountdownInterval);
+                            this._clientVoteCountdownInterval = null;
+                            this.isVotingActive = false;
+                            this.enableVotingButtons(false);
                         }
                     }, 1000);
+                } else if (time <= 0) {
+                    if (this._clientVoteCountdownInterval) {
+                        clearInterval(this._clientVoteCountdownInterval);
+                        this._clientVoteCountdownInterval = null;
+                    }
+                    this.isVotingActive = false;
+                    this.enableVotingButtons(false);
                 }
             }
 
@@ -2845,24 +2875,22 @@
                     relampago: '⚡ Modo Relámpago',
                     "verdadero-falso": '✅❌ Verdadero/Falso',
                     "mas-cercano": '🎯 El más cercano gana',
-                    "sumamultiplicacion": '➕✖️ Suma y Multiplicación', // Nuevo
-                    "informatica": '💻 Informática' // Nuevo
+                    "sumamultiplicacion": '➕✖️ Suma y Multiplicación', 
+                    "informatica": '💻 Informática' 
                 };
                 return names[mode] || mode;
             }
 
-            // Animación de inicio de ronda en el lobby
             animateLobbyCountdown(mode) {
                 this.lobbyCountdownMessage.textContent = `¡El modo ${this.getModeName(mode)} comenzará pronto!`;
                 this.lobbyCountdownMessage.style.display = 'block';
-                this.lobbyCountdownMessage.classList.add('active'); // Activa la animación CSS
+                this.lobbyCountdownMessage.classList.add('active'); 
 
                 setTimeout(() => {
                     this.lobbyCountdownMessage.classList.remove('active');
                     this.lobbyCountdownMessage.style.display = 'none';
-                }, 3000); // Duración de la animación
+                }, 3000); 
             }
-
 
             startGame(mode, closestAnswerMode = false) {
                 this.selectedGameMode = mode;
@@ -2876,22 +2904,13 @@
                     this.gameModeIndicator.textContent += " 🎯";
                 }
                 
+                document.getElementById('gameContainer').classList.remove('lightning-mode'); 
                 if (mode === 'relampago') {
-                    this.timerDuration = 5;
                     document.getElementById('gameContainer').classList.add('lightning-mode');
-                } else if (mode === 'verdadero-falso') {
-                    this.timerDuration = 15;
-                } else if (mode === 'informatica') { // Nuevo modo informática
-                    this.timerDuration = 20; // Tiempo para preguntas de informática
-                }
-                else {
-                    this.timerDuration = 30;
-                    document.getElementById('gameContainer').classList.remove('lightning-mode');
                 }
                 
                 this.setState(this.STATES.PLAYING);
                 
-                // Control de visibilidad de los botones de respuesta
                 document.getElementById('standardInput').style.display = 'none';
                 document.getElementById('trueFalseButtons').style.display = 'none';
                 this.abcdButtonsContainer.style.display = 'none';
@@ -2899,22 +2918,16 @@
                 if (mode === 'verdadero-falso') {
                     document.getElementById('trueFalseButtons').style.display = 'flex';
                 } else if (mode === 'informatica') {
-                    this.abcdButtonsContainer.style.display = 'grid'; // Usa grid para A/B/C/D
+                    this.abcdButtonsContainer.style.display = 'grid'; 
                 } else {
                     document.getElementById('standardInput').style.display = 'block';
-                }
-                
-                if (this.isHost) {
-                    this.questions = this.generarPreguntas(mode, 10); 
-                    this.currentQuestionIndex = 0;
-                    this.shareQuestionWithPlayers();
                 }
                 
                 this.player.points = 0;
                 this.player.streak = 0;
                 this.player.responseTimes = [];
                 this.player.history = []; 
-                this.player.lastAnswerCorrect = false; // Resetear para el bonus de racha
+                this.player.lastAnswerCorrect = false; 
                 this.updatePlayerScore(this.player.id, 0, 0); 
                 
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
@@ -2922,324 +2935,41 @@
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
-            shareQuestionWithPlayers() {
-                if (!this.isHost || !this.questions.length) return;
-                
-                const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question; // <-- Guarda la pregunta completa en el cliente también
-
-                const questionToSend = { ...question };
-                // Asegurar que la respuesta correcta no se envíe al cliente en algunos modos
-                if (questionToSend.tipo === 'verdadero-falso' || questionToSend.tipo === 'informatica') {
-                    delete questionToSend.respuesta; 
-                    // Si hay explicación, también se podría quitar si no quieres que el cliente la vea antes de la revelación
-                    // delete questionToSend.explicacion; 
-                }
-
-                this.socket.send(JSON.stringify({
-                    type: 'question_update',
-                    pin: this.gamePin,
-                    question: questionToSend,
-                    questionIndex: this.currentQuestionIndex,
-                    totalQuestions: this.questions.length
-                }));
-                
-                this.displayQuestion(question); // Usa la pregunta completa para mostrarla
-                this.resetTimer();
-            }
-
+            // Esta función `generarPreguntas` ya NO es usada en el flujo multijugador real.
+            // La generación de preguntas es responsabilidad del servidor.
+            // Se mantiene aquí por si tuvieras un modo de un jugador o para referencia.
             generarPreguntas(mode, count) {
                 const preguntas = [];
-                
-                const generarOperacion = (operator = null) => {
-                    const num1 = Math.floor(Math.random() * 15) + 1; 
-                    const num2 = Math.floor(Math.random() * 15) + 1;
-                    const operadores = ['+', '-', '*', '/'];
-                    let op = operator || operadores[Math.floor(Math.random() * operadores.length)];
-                    
-                    let pregunta, respuesta;
-                    
-                    if (op === '/') {
-                        let divisor = Math.floor(Math.random() * 8) + 2; 
-                        let cociente = Math.floor(Math.random() * 10) + 1; 
-                        let dividendo = divisor * cociente;
-                        pregunta = `${dividendo} ÷ ${divisor} = ?`;
-                        respuesta = cociente;
-                    } else {
-                         switch(op) {
-                            case '+':
-                                pregunta = `${num1} + ${num2} = ?`;
-                                respuesta = num1 + num2;
-                                break;
-                            case '-':
-                                if (num1 < num2) { [num1, num2] = [num2, num1]; } 
-                                pregunta = `${num1} - ${num2} = ?`;
-                                respuesta = num1 - num2;
-                                break;
-                            case '*':
-                                pregunta = `${num1} × ${num2} = ?`;
-                                respuesta = num1 * num2;
-                                break;
-                        }
-                    }
-                    
-                    return { pregunta, respuesta, tipo: 'operacion' };
-                };
-                
-                const generarMisterioso = () => {
-                    const num1 = Math.floor(Math.random() * 20) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
-                    const tipoOp = Math.random();
-                    
-                    let pregunta, respuesta;
-                    
-                    if (tipoOp < 0.33) { 
-                        respuesta = num1;
-                        pregunta = `? + ${num2} = ${num1 + num2}`;
-                    } else if (tipoOp < 0.66) { 
-                        respuesta = num1 + num2; 
-                        pregunta = `? - ${num2} = ${num1}`;
-                    } else { 
-                        respuesta = num1;
-                        pregunta = `? × ${num2} = ${num1 * num2}`;
-                    }
-                    
-                    return { pregunta, respuesta, tipo: 'misterioso' };
-                };
-                
-                const generarSecuencia = () => {
-                    const patrones = [
-                        { inicio: 2, paso: 2, longitud: 5 }, 
-                        { inicio: 1, paso: 3, longitud: 5 }, 
-                        { inicio: 10, paso: -2, longitud: 5 }, 
-                        { inicio: 5, paso: 5, longitud: 5 }, 
-                        { inicio: 3, paso: 4, longitud: 5 }  
-                    ];
-                    
-                    const patron = patrones[Math.floor(Math.random() * patrones.length)];
-                    const posicionFalta = Math.floor(Math.random() * (patron.longitud - 1)) + 1; 
-                    let secuencia = [];
-                    let respuesta = 0;
-                    
-                    for (let j = 0; j < patron.longitud; j++) {
-                        if (j === posicionFalta) {
-                            secuencia.push("?");
-                            respuesta = patron.inicio + j * patron.paso;
-                        } else {
-                            secuencia.push(patron.inicio + j * patron.paso);
-                        }
-                    }
-                    
-                    const pregunta = `Completa la secuencia: ${secuencia.join(", ")}`;
-                    
-                    return { pregunta, respuesta, tipo: 'secuencia' };
-                };
-                
-                const generarPotenciacion = () => {
-                    const base = Math.floor(Math.random() * 4) + 2; 
-                    const exponente = Math.floor(Math.random() * 3) + 2; 
-                    const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
-                    const pregunta = `${base}${superScripts[exponente]} = ?`;
-                    const respuesta = Math.pow(base, exponente);
-                    
-                    return { pregunta, respuesta, tipo: 'potenciacion' };
-                };
-                
-                const generarCombinadas = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
-                    const num3 = Math.floor(Math.random() * 5) + 1;
-                    
-                    let pregunta = '';
-                    let respuesta = 0;
-                    const opcion = Math.floor(Math.random() * 3);
-
-                    switch(opcion) {
-                        case 0: 
-                            pregunta = `(${num1} + ${num2}) × ${num3} = ?`;
-                            respuesta = (num1 + num2) * num3;
-                            break;
-                        case 1: 
-                            pregunta = `${num1} + ${num2} × ${num3} = ?`;
-                            respuesta = num1 + (num2 * num3);
-                            break;
-                        case 2: 
-                            if (num1 < num2) { [num1, num2] = [num2, num1]; }
-                            pregunta = `(${num1} - ${num2}) + ${num3} = ?`;
-                            respuesta = (num1 - num2) + num3;
-                            break;
-                    }
-                    return { pregunta, respuesta, tipo: 'combinadas' };
-                };
-                
-                const generarVerdaderoFalso = () => {
-                    const num1 = Math.floor(Math.random() * 10) + 1;
-                    const num2 = Math.floor(Math.random() * 10) + 1;
-                    const operadores = ['+', '-', '*', '/'];
-                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
-                    
-                    let operacionTexto;
-                    let resultadoReal;
-                    
-                    switch(operador) {
-                        case '+':
-                            resultadoReal = num1 + num2;
-                            operacionTexto = `${num1} + ${num2}`;
-                            break;
-                        case '-':
-                            resultadoReal = num1 - num2;
-                            operacionTexto = `${num1} - ${num2}`;
-                            break;
-                        case '*':
-                            resultadoReal = num1 * num2;
-                            operacionTexto = `${num1} × ${num2}`;
-                            break;
-                        case '/':
-                            let divisor = Math.floor(Math.random() * 5) + 2; 
-                            let cociente = Math.floor(Math.random() * 10) + 1;
-                            let dividendo = divisor * cociente;
-                            resultadoReal = cociente;
-                            operacionTexto = `${dividendo} ÷ ${divisor}`;
-                            break;
-                    }
-
-                    const esCorrecta = Math.random() < 0.7;
-                    let resultadoFalso = resultadoReal;
-                    if (!esCorrecta) {
-                        resultadoFalso += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1); 
-                        if (resultadoFalso === resultadoReal) resultadoFalso += (Math.random() > 0.5 ? 1 : -1); 
-                    }
-                    
-                    const pregunta = `¿Es correcta esta operación?<br>${operacionTexto} = ${esCorrecta ? resultadoReal : resultadoFalso}`;
-                    const respuesta = esCorrecta; 
-                    const explicacion = esCorrecta ? "La operación es correcta." : `La operación es incorrecta. La respuesta correcta era ${resultadoReal}.`;
-                    
-                    return { 
-                        pregunta: pregunta, 
-                        respuesta: respuesta,
-                        tipo: 'verdadero-falso',
-                        explicacion: explicacion
-                    };
-                };
-
-                const informaticaQuestions = [
-                    {
-                        pregunta: "¿Cuál de estos es un navegador de internet?",
-                        opciones: { A: "Microsoft Word", B: "Google Chrome", C: "WhatsApp", D: "Photoshop" },
-                        respuesta: "B",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Cuál de estos es un emoji?",
-                        opciones: { A: "@", B: "#", C: "😂", D: "/" },
-                        respuesta: "C",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué red social es conocida por compartir fotos y videos cortos?",
-                        opciones: { A: "Facebook", B: "TikTok", C: "WordPress", D: "Excel" },
-                        respuesta: "B",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué icono es el de 'guardar' en muchos programas?",
-                        opciones: { A: "Una carpeta", B: "Un disquete (💾)", C: "Una nube", D: "Una lupa" },
-                        respuesta: "B",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué puedes hacer con un 'USB'?",
-                        opciones: { A: "Guardar fotos o documentos", B: "Hacer llamadas", C: "Navegar en internet", D: "Jugar videojuegos" },
-                        respuesta: "A",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué app te permite hacer videollamadas gratis?",
-                        opciones: { A: "Netflix", B: "Zoom", C: "Spotify", D: "Minecraft" },
-                        respuesta: "B",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Cuál es la red social con más usuarios activos en el mundo?",
-                        opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" },
-                        respuesta: "C",
-                        tipo: "informatica"
-                    },
-                     {
-                        pregunta: "¿Qué significa WWW en una dirección web?",
-                        opciones: { A: "World Wide Web", B: "Windows Web Works", C: "Web World Wide", D: "Web Wonder World" },
-                        respuesta: "A",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué parte de la computadora es el 'cerebro'?",
-                        opciones: { A: "Monitor", B: "Teclado", C: "CPU", D: "Impresora" },
-                        respuesta: "C",
-                        tipo: "informatica"
-                    },
-                    {
-                        pregunta: "¿Qué es un 'hashtag'?",
-                        opciones: { A: "Un tipo de comida", B: "Una forma de categorizar temas en redes sociales", C: "Un programa de dibujo", D: "Un juego de mesa" },
-                        respuesta: "B",
-                        tipo: "informatica"
-                    }
-                ];
-                
-                let generador;
-                switch(mode) {
-                    case 'operaciones': generador = generarOperacion; break;
-                    case 'misterioso': generador = generarMisterioso; break;
-                    case 'secuencia': generador = generarSecuencia; break;
-                    case 'potenciacion': generador = generarPotenciacion; break;
-                    case 'combinadas': generador = generarCombinadas; break;
-                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
-                    case 'mas-cercano': generador = () => generarOperacion(); break; // Se mantiene operación para "más cercano"
-                    case 'sumamultiplicacion':
-                        // 5 de suma y 5 de multiplicación
-                        for (let i = 0; i < 5; i++) preguntas.push(generarOperacion('+'));
-                        for (let i = 0; i < 5; i++) preguntas.push(generarOperacion('*'));
-                        return preguntas; // Retornar directamente, ya que el bucle principal es diferente
-                    case 'informatica':
-                        // Barajar y tomar 'count' preguntas o todas si 'count' es mayor
-                        const shuffled = [...informaticaQuestions].sort(() => 0.5 - Math.random());
-                        return shuffled.slice(0, Math.min(count, shuffled.length));
-                    default: generador = generarOperacion;
-                }
-                
-                for (let i = 0; i < count; i++) {
-                    preguntas.push(generador());
-                }
-                
-                const numImages = Math.floor(Math.random() * 3) + 1; 
-                const preguntasConImagen = [
-                    {
-                        pregunta: "¿Cuántos cuadrados hay en esta figura?",
-                        imagen: "https://placehold.co/400x200/FF0000/FFFFFF?text=Imagen+de+Cuadrados", // Placeholder de imagen
-                        respuesta: 5,
-                        tipo: "imagen"
-                    },
-                    {
-                        pregunta: "¿Cuántas frutas ves en la imagen?",
-                        imagen: "https://placehold.co/400x200/00FF00/000000?text=Imagen+de+Frutas", // Placeholder de imagen
-                        respuesta: 8,
-                        tipo: "imagen"
-                    },
-                    {
-                        pregunta: "¿Cuál es el patrón que sigue la siguiente figura?",
-                        imagen: "https://placehold.co/400x200/0000FF/FFFFFF?text=Imagen+de+Patron", // Placeholder de imagen
-                        respuesta: 4, 
-                        tipo: "imagen"
-                    }
-                ];
-
-                for (let i = 0; i < numImages && preguntasConImagen.length > 0; i++) {
-                    const randomIndexImage = Math.floor(Math.random() * preguntasConImagen.length);
-                    const imageQuestion = preguntasConImagen.splice(randomIndexImage, 1)[0]; 
-                    const indexToReplace = Math.floor(Math.random() * preguntas.length);
-                    preguntas[indexToReplace] = imageQuestion;
-                }
-                
+                // ... (código de generarOperacion, generarMisterioso, etc. de tu versión anterior)
                 return preguntas;
+            }
+
+            shareQuestionWithPlayers() {
+                // Esta función solo es llamada por el HOST si la generación de preguntas estuviera en el cliente.
+                // Con la generación en el servidor, esta función ya NO debería ser llamada.
+                // Si la ves ejecutarse, indica un error de flujo.
+                console.error("ERROR: shareQuestionWithPlayers no debería ser llamada en el cliente en este flujo multijugador.");
+                
+                // Si por alguna razón un modo híbrido lo necesitara, sería así:
+                // const question = this.questions[this.currentQuestionIndex];
+                // const questionToSend = { ...question };
+                // if (questionToSend.tipo === 'verdadero-falso') {
+                //     delete questionToSend.respuesta; 
+                //     delete questionToSend.explicacion; 
+                // } else if (questionToSend.tipo === 'informatica') {
+                //     // Mantener 'opciones', solo eliminar 'respuesta'
+                //     delete questionToSend.respuesta; 
+                //     delete questionToSend.explicacion; 
+                // }
+                // this.socket.send(JSON.stringify({
+                //     type: 'question_update',
+                //     pin: this.gamePin,
+                //     question: questionToSend,
+                //     questionIndex: this.currentQuestionIndex,
+                //     totalQuestions: this.questions.length
+                // }));
+                // this.displayQuestion(question); 
+                // this.resetTimer();
             }
 
             displayQuestion(questionData = null) {
@@ -3269,20 +2999,17 @@
                         questionImage.style.display = 'none';
                     }
                     
-                    // Ocultar todos los tipos de entrada y luego mostrar el correcto
                     document.getElementById('standardInput').style.display = 'none';
                     document.getElementById('trueFalseButtons').style.display = 'none';
                     this.abcdButtonsContainer.style.display = 'none';
 
-                    // Quitar la selección de botones A/B/C/D
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.classList.remove('selected-answer'));
 
                     if (this.selectedGameMode === 'verdadero-falso') {
                         document.getElementById('trueFalseButtons').style.display = 'flex';
                     } else if (this.selectedGameMode === 'informatica') {
-                        this.abcdButtonsContainer.style.display = 'grid'; // Usa grid para A/B/C/D
-                        // Actualizar opciones de respuesta para Informática
-                        const options = question.opciones;
+                        this.abcdButtonsContainer.style.display = 'grid'; 
+                        const options = question.opciones; // Las opciones ahora vienen en questionData del servidor
                         document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
                         document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
                         document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
@@ -3292,14 +3019,13 @@
                         document.getElementById('standardInput').style.display = 'block';
                     }
 
-                    this.resetTimer();
+                    this.resetTimer(); // Reiniciar el temporizador con la nueva duración de la pregunta
                 } catch (error) {
                     console.error("Error al mostrar pregunta:", error);
                     this.showError("Error al cargar la pregunta.");
                 }
             }
             
-            // Lógica unificada para enviar la respuesta (numérica, true/false, A/B/C/D)
             checkAnswer(userAnswer) {
                 try {
                     if (this.player.hasAnswered) {
@@ -3307,12 +3033,10 @@
                         return;
                     }
 
-                    // Deshabilitar botones para evitar doble respuesta
                     document.getElementById('submitAnswer').disabled = true;
                     document.getElementById('trueBtn').disabled = true;
                     document.getElementById('falseBtn').disabled = true;
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = true);
-
 
                     this.player.hasAnswered = true;
                     document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
@@ -3329,52 +3053,31 @@
                             responseTime: responseTime
                         }));
                     } else {
-                        // Lógica para un solo jugador (simulada)
-                        // Aquí es donde el cliente calcularía la respuesta y los puntos si no hubiera servidor
+                        // Este bloque DEBERÍA SER INALCANZABLE en un juego multijugador con servidor.
+                        // Solo se ejecutaría si no hay conexión al servidor o si se simula un modo de un jugador.
+                        console.error("Advertencia: Lógica de calificación local ejecutada. ¡Debe ser manejada por el servidor!");
+                        // Para evitar el error de "undefined" en una simulación local sin servidor:
                         let isCorrect = false;
-                        let pointsEarned = 0;
-                        let streakBonus = 0;
-
-                        const correctAnswer = this.currentQuestionData.respuesta;
-
-                        if (this.selectedGameMode === 'verdadero-falso') {
-                            isCorrect = (userAnswer === 'true' && correctAnswer === true) || (userAnswer === 'false' && correctAnswer === false);
-                        } else if (this.selectedGameMode === 'informatica') {
-                            isCorrect = (userAnswer === correctAnswer);
-                        }
-                         else {
-                            isCorrect = (parseInt(userAnswer) === correctAnswer);
-                        }
-
-                        if (isCorrect) {
-                            pointsEarned = 100; // Puntos base
-                            // Bonificación por tiempo (simulación)
-                            if (responseTime <= 5) pointsEarned += 50;
-                            else if (responseTime <= 10) pointsEarned += 20;
-                            else if (responseTime <= 20) pointsEarned += 10;
-
-                            this.player.streak++;
-                            if (this.player.streak % 3 === 0) { // Bonus por racha de 3
-                                streakBonus = 50; // Puntos extra por racha
-                                pointsEarned += streakBonus;
+                        let formattedCorrectAnswer = "Desconocido";
+                        if (this.currentQuestionData && this.currentQuestionData.respuesta !== undefined) {
+                            const correctAnswer = this.currentQuestionData.respuesta;
+                            if (this.selectedGameMode === 'verdadero-falso') {
+                                isCorrect = (userAnswer === 'true') === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
+                            } else if (this.selectedGameMode === 'informatica' && this.currentQuestionData.opciones) {
+                                isCorrect = (userAnswer === correctAnswer);
+                                formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
+                            } else {
+                                isCorrect = parseFloat(userAnswer) === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer;
                             }
-                        } else {
-                            this.player.streak = 0;
                         }
-
-                        // Actualizar estadísticas del jugador localmente
-                        this.player.points += pointsEarned;
-                        this.player.responseTimes.push(responseTime);
-                        if (this.player.streak > this.player.maxStreak) {
-                            this.player.maxStreak = this.player.streak;
-                        }
+                        
+                        this.player.streak = isCorrect ? (this.player.streak + 1) : 0;
                         this.player.lastAnswerCorrect = isCorrect;
-
-                        // Mostrar la fase de revelación (en modo un jugador, pasamos las opciones del currentQuestionData)
-                        this.startRevealPhase(correctAnswer, isCorrect, streakBonus, this.currentQuestionData.opciones);
-
-                        // Si no hay servidor, avanzar a la siguiente pregunta después de la revelación
-                        // (Esto lo maneja startRevealPhase en el setTimeout)
+                        let streakBonus = 0; // Para simulación, no calcularemos bonus complejo aquí
+                        
+                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, streakBonus, this.currentQuestionData ? this.currentQuestionData.opciones : undefined);
                     }
 
                 } catch (error) {
@@ -3386,40 +3089,39 @@
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
                     this.player.hasAnswered = false;
                 } finally {
-                    // Re-habilitar si es necesario (cuando no hay servidor, ya se maneja en startRevealPhase)
-                    // Para el modo multijugador, el servidor habilitará los botones en la siguiente pregunta.
+                    // Los botones serán re-habilitados por el mensaje de `question_update` o `game_over` del servidor
                 }
             }
 
-            // Nuevo método para manejar las respuestas A/B/C/D
             submitABCDAnswer(answer) {
                 if (this.player.hasAnswered) return;
 
-                // Visualmente seleccionar la respuesta
                 document.querySelectorAll('.abcd-btn').forEach(btn => {
                     btn.classList.remove('selected-answer');
-                    btn.disabled = true; // Deshabilita todos los botones ABCD al seleccionar
+                    btn.disabled = true; 
                 });
                 document.querySelector(`.abcd-btn[data-answer="${answer}"]`).classList.add('selected-answer');
 
                 this.checkAnswer(answer);
             }
 
-            startRevealPhase(correctAnswer, playerCorrect, streakBonus, options = undefined) { // <-- AÑADIR 'options' como parámetro
+            // `options` ahora viene del servidor
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus, receivedOptions = undefined) { 
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // Mostrar la respuesta correcta
+                // Determinar qué opciones usar para mostrar la respuesta completa
+                // 'receivedOptions' es lo que el servidor nos envía
+                const displayOptions = receivedOptions || {}; 
+
                 let formattedCorrectAnswer = correctAnswer;
                 if (this.selectedGameMode === 'verdadero-falso') {
                     formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
-                } else if (this.selectedGameMode === 'informatica' && options) { // Usar el nuevo parámetro 'options'
-                    // Aquí, correctAnswer es la letra (ej. 'B'), y 'options' tiene {A: '...', B: '...'}
-                    formattedCorrectAnswer = `${correctAnswer}) ${options[correctAnswer]}`;
+                } else if (this.selectedGameMode === 'informatica' && displayOptions && displayOptions[correctAnswer]) { 
+                    formattedCorrectAnswer = `${correctAnswer}) ${displayOptions[correctAnswer]}`;
                 }
                 this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
                 
-                // Mostrar el resultado del jugador
                 if (playerCorrect) {
                     this.revealPlayerResult.innerHTML = `✅ <strong>¡Correcto!</strong>`;
                     this.revealPlayerResult.style.color = 'var(--verde)';
@@ -3430,30 +3132,22 @@
                     this.playSound('wrongSound');
                 }
                 
-                // Mostrar bonificación por racha si aplica
                 if (streakBonus > 0) {
                     this.revealStreakBonus.innerHTML = `🔥 ¡Racha +${streakBonus} puntos!`;
                 } else {
                     this.revealStreakBonus.innerHTML = '';
                 }
                 
-                // Configurar el temporizador para ocultar la fase de revelación
                 setTimeout(() => {
-                    this.setState(this.STATES.PLAYING);
+                    this.setState(this.STATES.PLAYING); 
                     
-                    if (this.isHost) {
-                        this.currentQuestionIndex++;
-                        if (this.currentQuestionIndex < this.questions.length) {
-                            this.shareQuestionWithPlayers();
-                        } else {
-                            this.endGame();
-                        }
-                    }
-                    // Re-habilitar los botones de respuesta para la siguiente pregunta
                     document.getElementById('submitAnswer').disabled = false;
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
+
+                    // El avance a la siguiente pregunta o fin de juego lo maneja el servidor.
+                    // El cliente solo espera el próximo 'question_update' o 'game_over'.
                 }, this.revealPhaseDuration);
             }
 
@@ -3479,7 +3173,9 @@
                 const rankingList = document.getElementById('rankingList');
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    if (avgA !== avgB) return avgA - avgB; 
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
                 
@@ -3504,9 +3200,8 @@
                     
                     rankingList.appendChild(playerElement);
 
-                    // Detectar si el jugador ha subido de puesto
                     const lastPlayerRank = this.lastRanking.findIndex(p => p.id === player.id);
-                    if (lastPlayerRank !== -1 && lastPlayerRank > index) { // Si estaba más abajo y ahora está más arriba
+                    if (lastPlayerRank !== -1 && lastPlayerRank > index) { 
                         this.showNotification(`¡${this.extractName(player.name)} ha subido de puesto, qué pro!`);
                     }
                 });
@@ -3524,7 +3219,7 @@
 
             startTimer() {
                 try {
-                    this.timeLeft = this.timerDuration;
+                    this.timeLeft = this.timerDuration; 
                     this.updateTimerUI();
                     
                     clearInterval(this.timerInterval); 
@@ -3538,46 +3233,22 @@
                         
                         if (this.timeLeft <= 0) {
                             clearInterval(this.timerInterval);
-                            if (this.isMultiplayer) {
-                                if (this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
-                                    this.player.hasAnswered = true; 
-                                    this.player.streak = 0; 
-                                    document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
-                                    document.getElementById("answerResult").className = "result incorrect";
-                                    
-                                    this.socket.send(JSON.stringify({
-                                        type: 'player_answer',
-                                        pin: this.gamePin,
-                                        playerId: this.player.id,
-                                        isCorrect: false,
-                                        pointsEarned: 0,
-                                        totalPoints: this.player.points, 
-                                        streak: this.player.streak,
-                                        maxStreak: this.player.maxStreak,
-                                        avgResponseTime: this.player.avgResponseTime,
-                                        streakBonus: 0
-                                    }));
-                                }
-                                if (this.isHost) {
-                                    // Enviar fase de revelación para todos (con respuesta correcta del host, ya que los demás no la calcularon)
-                                    // La respuesta correcta y opciones deben estar en this.currentQuestionData.
-                                    const correctAnswer = this.currentQuestionData.respuesta;
-                                    const options = this.currentQuestionData.opciones; // Obtener opciones del host
-                                    this.socket.send(JSON.stringify({
-                                        type: 'reveal_phase',
-                                        pin: this.gamePin,
-                                        correctAnswer: correctAnswer,
-                                        playerCorrect: false, // El host no respondió a tiempo
-                                        streakBonus: 0,
-                                        options: options // Enviar las opciones también
-                                    }));
-                                }
-                            } else {
+                            if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
+                                this.player.hasAnswered = true; 
+                                this.player.streak = 0; 
+                                document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                                document.getElementById("answerResult").className = "result incorrect";
+                                
+                                this.socket.send(JSON.stringify({
+                                    type: 'submit_answer',
+                                    pin: this.gamePin,
+                                    playerId: this.player.id,
+                                    answer: null, 
+                                    responseTime: this.timerDuration 
+                                }));
+                            } else if (!this.isMultiplayer) {
                                 this.showResult("¡Tiempo agotado! ⏳", false);
-                                // Simular la fase de revelación para un solo jugador
-                                const correctAnswer = this.currentQuestionData.respuesta;
-                                const options = this.currentQuestionData.opciones; // Obtener opciones para modo un jugador
-                                this.startRevealPhase(correctAnswer, false, 0, options); // Falso porque se acabó el tiempo
+                                this.startRevealPhase("N/A", false, 0, {}); 
                             }
                         }
                     }, 1000);
@@ -3608,17 +3279,6 @@
                 this.startTimer();
             }
 
-            skipQuestion() {
-                 if (!this.isHost) return; 
-                
-                this.currentQuestionIndex++;
-                if (this.currentQuestionIndex < this.questions.length) {
-                    this.shareQuestionWithPlayers();
-                } else {
-                    this.endGame();
-                }
-            }
-
             skipQuestionAsProfessor() {
                 if (!this.isProfessor || !this.isHost) {
                     this.showNotification("Solo el profesor puede saltar preguntas.");
@@ -3633,78 +3293,43 @@
                         hostId: this.player.id 
                     }));
                 }
-                this.skipQuestion(); 
             }
 
-            endGame() {
-                try {
-                    clearInterval(this.timerInterval);
-                    
-                    if (this.rankingUpdateInterval) {
-                        clearInterval(this.rankingUpdateInterval);
-                        this.rankingUpdateInterval = null;
-                    }
-                    
-                    if (this.isMultiplayer && this.isHost) {
-                        const finalRanking = this.getFinalRanking();
-                        this.socket.send(JSON.stringify({
-                            type: 'game_over',
-                            pin: this.gamePin,
-                            finalRanking: finalRanking,
-                            hostId: this.player.id 
-                        }));
-                        this.showMultiplayerResults(finalRanking);
-                    } else if (this.isMultiplayer && !this.isHost) {
-                        this.showNotification("Juego terminado. Esperando resultados...");
-                    } else {
-                        this.showWinner(); 
-                        this.setState(this.STATES.RESULTS); 
-                    }
-                } catch (error) {
-                    console.error("Error al finalizar juego:", error);
-                    this.showError("Error al finalizar el juego.");
+            endGameServerDriven() {
+                clearInterval(this.timerInterval);
+                if (this.rankingUpdateInterval) {
+                    clearInterval(this.rankingUpdateInterval);
+                    this.rankingUpdateInterval = null;
                 }
+                this.showNotification("Juego terminado. Esperando resultados finales del servidor...");
             }
 
             getFinalRanking() {
                 return [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    if (a.avgResponseTime !== b.avgResponseTime) return a.avgResponseTime - b.avgResponseTime;
+                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    if (avgA !== avgB) return avgA - avgB; 
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
             }
 
             showWinner() {
-                try {
-                    let mensaje = "";
-                    
-                    if (this.isMultiplayer) {
-                        const ranking = this.getFinalRanking();
-                        const playerPosition = ranking.findIndex(p => p.id === this.player.id) + 1;
-                        mensaje = `¡Terminaste en posición ${playerPosition} con ${this.player.points} puntos!`;
-                        
-                        if (playerPosition === 1) {
-                            mensaje = `¡Ganaste! 🏆 (${this.player.points} puntos)`;
-                            this.playSound('winSound');
-                        }
-                    } else {
-                        mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
-                        if (this.player.points > 0) {
-                            this.playSound('winSound');
-                        }
+                let mensaje = "";
+                if (this.isMultiplayer) {
+                    mensaje = "Resultados enviados por el servidor.";
+                } else {
+                    mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
+                    if (this.player.points > 0) {
+                        this.playSound('winSound');
                     }
-                    
-                    document.getElementById("mensajeVictoria").innerHTML = mensaje;
-                } catch (error) {
-                    console.error("Error al mostrar ganador:", error);
-                    this.showError("Error al determinar el ganador.");
                 }
+                document.getElementById("mensajeVictoria").innerHTML = mensaje;
             }
 
             showMultiplayerResults(finalRanking) {
                 try {
                     console.log("Mostrando resultados finales:", finalRanking);
-                    
                     this.setState(this.STATES.RESULTS);
                     
                     const firstPlace = document.getElementById('firstPlace');
@@ -3713,9 +3338,8 @@
                     const otherPlayers = document.getElementById('otherPlayers');
                     
                     otherPlayers.innerHTML = '';
-                    this.winnerDancingEmoji.style.display = 'none'; // Ocultar el emoji bailarín
+                    this.winnerDancingEmoji.style.display = 'none'; 
 
-                    // Resetear los placeholders
                     document.getElementById('firstName').textContent = '-';
                     document.getElementById('firstAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     firstPlace.querySelector('.podium-points').textContent = '0 pts';
@@ -3726,16 +3350,15 @@
                     document.getElementById('thirdAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     thirdPlace.querySelector('.podium-points').textContent = '0 pts';
 
-                    // Animación de cuenta atrás 3-2-1 antes de mostrar el podio
                     this.showResultsCountdown(3, () => {
-                        this.playSound('winSound'); // Sonido de victoria cuando el podio es visible
+                        this.playSound('winSound'); 
                         
                         if (finalRanking.length > 0) {
                             const first = finalRanking[0];
                             document.getElementById('firstName').textContent = this.extractName(first.name);
                             document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
                             firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
-                            this.winnerDancingEmoji.style.display = 'block'; // Mostrar el emoji bailarín
+                            this.winnerDancingEmoji.style.display = 'block'; 
                             
                             if (finalRanking.length > 1) {
                                 const second = finalRanking[1];
@@ -3793,19 +3416,18 @@
                 }
             }
 
-            // Animación de cuenta atrás para los resultados (Kahoot-like)
             showResultsCountdown(count, callback) {
                 this.resultsCountdownOverlay.style.display = 'flex';
-                this.resultsCountdownOverlay.textContent = ''; // Limpiar contenido anterior
+                this.resultsCountdownOverlay.textContent = ''; 
 
                 let currentCount = count;
                 const countdownInterval = setInterval(() => {
                     if (currentCount > 0) {
                         this.resultsCountdownOverlay.textContent = currentCount;
-                        this.resultsCountdownOverlay.style.animation = 'none'; // Reinicia la animación
-                        void this.resultsCountdownOverlay.offsetWidth; // Trigger reflow
+                        this.resultsCountdownOverlay.style.animation = 'none'; 
+                        void this.resultsCountdownOverlay.offsetWidth; 
                         this.resultsCountdownOverlay.style.animation = 'scaleInAndFade 1s forwards';
-                        this.playSound('countdownSound'); // Sonido para la cuenta atrás
+                        this.playSound('countdownSound'); 
                         currentCount--;
                     } else {
                         clearInterval(countdownInterval);
@@ -3838,7 +3460,7 @@
                 }, 3000);
             }
 
-            reiniciarJuego() {
+            reiniciarJuegoLocal() {
                 try {
                     this.playSound('clickSound');
                     clearInterval(this.timerInterval);
@@ -3863,7 +3485,7 @@
                     this.selectedGameMode = null; 
                     this.closestAnswerMode = false;
                     this.isVotingActive = false; 
-                    this.winnerDancingEmoji.style.display = 'none'; // Asegurar que el emoji bailarín se oculte
+                    this.winnerDancingEmoji.style.display = 'none'; 
 
                     document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
                     document.getElementById("playerAnswer").value = "";
@@ -3879,24 +3501,17 @@
                         btn.disabled = false; 
                     });
 
-                    // Ocultar todos los tipos de entrada al reiniciar
                     document.getElementById('standardInput').style.display = 'none';
                     document.getElementById('trueFalseButtons').style.display = 'none';
                     this.abcdButtonsContainer.style.display = 'none';
                     
-                    if (this.isMultiplayer) {
-                        this.setState(this.STATES.LOBBY);
-                        if (this.isHost) {
-                            this.startVoteBtn.style.display = 'block';
-                        }
-                    } else {
-                        this.isHost = false; 
-                        this.player.isProfessor = false; 
-                        this.setState(this.STATES.JOIN_SCREEN);
+                    this.setState(this.STATES.LOBBY); 
+                    if (this.isHost) {
+                        this.startVoteBtn.style.display = 'block';
                     }
                 } catch (error) {
-                    console.error("Error al reiniciar juego:", error);
-                    this.showError("Error al reiniciar el juego.");
+                    console.error("Error al reiniciar juego localmente:", error);
+                    this.showError("Error al reiniciar el juego localmente.");
                 }
             }
 
@@ -3940,23 +3555,19 @@
                 }
             }
 
-            // --- Lógica para el fondo 3D del lobby con Three.js ---
             initLobby3D() {
-                // Crear escena, cámara y renderizador
                 this.scene = new THREE.Scene();
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                this.renderer = new THREE.WebGLRenderer({ canvas: this.lobby3DCanvas, alpha: true }); // Fondo transparente
+                this.renderer = new THREE.WebGLRenderer({ canvas: this.lobby3DCanvas, alpha: true }); 
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setPixelRatio(window.devicePixelRatio); // Para pantallas de alta resolución
+                this.renderer.setPixelRatio(window.devicePixelRatio); 
 
-                // Añadir luz
-                const ambientLight = new THREE.AmbientLight(0x404040); // Luz ambiental
+                const ambientLight = new THREE.AmbientLight(0x404040); 
                 this.scene.add(ambientLight);
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); // Luz direccional
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); 
                 directionalLight.position.set(0, 1, 0);
                 this.scene.add(directionalLight);
 
-                // Crear partículas (cubos pequeños para simular estrellas o puntos flotantes)
                 const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
                 this.particles = [];
                 for (let i = 0; i < 500; i++) {
@@ -3969,10 +3580,8 @@
                     this.particles.push(particle);
                 }
 
-                // Posicionar la cámara
                 this.camera.position.z = 5;
 
-                // Manejar redimensionamiento de ventana
                 window.addEventListener('resize', () => {
                     this.camera.aspect = window.innerWidth / window.innerHeight;
                     this.camera.updateProjectionMatrix();
@@ -3981,18 +3590,15 @@
             }
 
             animateLobby3D = () => {
-                // Animar las partículas
                 this.particles.forEach(particle => {
                     particle.rotation.x += 0.01;
                     particle.rotation.y += 0.005;
-                    // Mover partículas para dar sensación de movimiento constante
                     particle.position.z += 0.01;
                     if (particle.position.z > this.camera.position.z + 5) {
                         particle.position.z = this.camera.position.z - 15;
                     }
                 });
 
-                // Rotar la escena ligeramente
                 this.scene.rotation.y += 0.001;
                 this.scene.rotation.x += 0.0005;
 
@@ -4006,7 +3612,6 @@
                 const game = new GameManager();
             } catch (error) {
                 console.error("Error al iniciar el juego:", error);
-                // Usar una notificación personalizada en lugar de alert
                 const errorMessage = document.createElement('div');
                 errorMessage.className = 'notification';
                 errorMessage.textContent = "Ocurrió un error al cargar el juego. Por favor recarga la página.";

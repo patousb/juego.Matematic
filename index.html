@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Challenge PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Three.js para el fondo 3D en el lobby -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
@@ -248,6 +247,13 @@
             box-shadow: 0 2px 5px var(--sombra);
         }
 
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
         .btn-secondary {
             background: var(--panel);
             border: 2px solid var(--borde);
@@ -257,13 +263,6 @@
         .btn-secondary:hover {
             border-color: var(--morado);
             box-shadow: var(--neon-morado);
-        }
-
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
         }
 
         .error-message {
@@ -1524,7 +1523,6 @@
                 <button class="true-false-btn false-btn" id="falseBtn">❌ Falso</button>
             </div>
 
-            <!-- Nuevo contenedor para botones de A/B/C/D -->
             <div class="abcd-buttons" id="abcdButtons" style="display: none;">
                 <button class="abcd-btn" data-answer="A"><span class="letter">A</span> <span class="answer-text">Opción A</span></button>
                 <button class="abcd-btn" data-answer="B"><span class="letter">B</span> <span class="answer-text">Opción B</span></button>
@@ -1602,7 +1600,6 @@
         </div>
     </div>
 
-    <!-- Contenedor para la animación de cuenta atrás de resultados -->
     <div id="resultsCountdownOverlay" class="results-countdown" style="display: none;"></div>
 
 
@@ -2934,7 +2931,8 @@
                 // Asegurar que la respuesta correcta no se envíe al cliente en algunos modos
                 if (questionToSend.tipo === 'verdadero-falso' || questionToSend.tipo === 'informatica') {
                     delete questionToSend.respuesta; 
-                    delete questionToSend.explicacion; // Si hay explicación, también se podría quitar
+                    // Si hay explicación, también se podría quitar si no quieres que el cliente la vea antes de la revelación
+                    // delete questionToSend.explicacion; 
                 }
 
                 this.socket.send(JSON.stringify({
@@ -3164,6 +3162,24 @@
                         pregunta: "¿Cuál es la red social con más usuarios activos en el mundo?",
                         opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" },
                         respuesta: "C",
+                        tipo: "informatica"
+                    },
+                     {
+                        pregunta: "¿Qué significa WWW en una dirección web?",
+                        opciones: { A: "World Wide Web", B: "Windows Web Works", C: "Web World Wide", D: "Web Wonder World" },
+                        respuesta: "A",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué parte de la computadora es el 'cerebro'?",
+                        opciones: { A: "Monitor", B: "Teclado", C: "CPU", D: "Impresora" },
+                        respuesta: "C",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué es un 'hashtag'?",
+                        opciones: { A: "Un tipo de comida", B: "Una forma de categorizar temas en redes sociales", C: "Un programa de dibujo", D: "Un juego de mesa" },
+                        respuesta: "B",
                         tipo: "informatica"
                     }
                 ];
@@ -3542,6 +3558,7 @@
                                 }
                                 if (this.isHost) {
                                     // Enviar fase de revelación para todos (con respuesta correcta del host, ya que los demás no la calcularon)
+                                    // La respuesta correcta debe estar en this.currentQuestionData.respuesta en el host.
                                     const correctAnswer = this.currentQuestionData.respuesta;
                                     this.socket.send(JSON.stringify({
                                         type: 'reveal_phase',

@@ -280,12 +280,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: flex; /* Changed from none to flex */
-            flex-direction: column; /* Changed from flex to column */
-            justify-content: center;
-            align-items: center;
             background: var(--fondo);
             z-index: 1000;
+            display: none;
+            flex-direction: column; /* Cambiado de flex a column */
+            justify-content: center;
+            align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
@@ -751,14 +751,14 @@
             animation: moveUp 0.5s ease;
         }
 
+        .ranking-item.move-down {
+            animation: moveDown 0.5s ease;
+        }
+
         @keyframes moveUp {
             0% { transform: translateY(0); background: var(--verde); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0); }
-        }
-
-        .ranking-item.move-down {
-            animation: moveDown 0.5s ease;
         }
 
         @keyframes moveDown {
@@ -1651,7 +1651,7 @@
                     lastAnswerCorrect: false
                 };
                 
-                this.questions = []; // Las preguntas las genera y maneja el servidor
+                this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
                 this.timeLeft = 30;
@@ -1705,7 +1705,7 @@
                         id: "perfectStreak",
                         title: "Racha Perfecta",
                         description: "Responde correctamente todas las preguntas en una partida",
-                        icon: "�",
+                        icon: "🏅",
                         condition: (player) => player.streak >= 10
                     },
                     lightningFast: {
@@ -2376,12 +2376,10 @@
                         break;
                         
                     case 'game_start': 
-                        // El servidor ahora enviará la primera pregunta en 'question_update'
                         this.startGame(data.mode, data.closestAnswerMode);
                         break;
                         
                     case 'question_update':
-                        // Este es el mensaje clave para actualizar la pregunta en todos los clientes
                         this.handleQuestionUpdate(data);
                         break;
                         
@@ -2394,9 +2392,11 @@
                         break;
                     
                     case 'host_skipped_question': 
-                        // Si el host salta, el servidor enviará un 'reveal_phase' y luego el siguiente 'question_update'
-                        // Si no soy el host, no necesito hacer nada aquí más que esperar el 'reveal_phase'
-                        this.showNotification("El profesor ha saltado la pregunta.");
+                        if (!this.isHost) { 
+                            this.currentQuestionIndex++; 
+                            this.displayQuestion(); 
+                            this.showNotification("El profesor ha saltado la pregunta.");
+                        }
                         break;
 
                     case 'error':
@@ -2451,53 +2451,24 @@
 
                 this.updatePlayerList();
                 
-                // Si el juego ya está en curso, sincronizar al jugador con la pregunta actual
-                if (data.isGameRunning && data.currentQuestion) {
-                    this.selectedGameMode = data.gameMode;
-                    this.closestAnswerMode = data.closestAnswerMode;
-                    
-                    // Asegurarse de que el estado sea PLAYING
-                    this.setState(this.STATES.PLAYING); 
-
-                    // Actualizar datos de la pregunta actual del cliente
-                    this.currentQuestionData = data.currentQuestion;
-                    this.currentQuestionIndex = data.questionIndex;
-                    // Actualizar la duración del temporizador para que coincida con el modo de juego del servidor
-                    if (this.selectedGameMode === 'relampago') {
-                        this.timerDuration = 5;
-                    } else if (this.selectedGameMode === 'verdadero-falso') {
-                        this.timerDuration = 15;
-                    } else if (this.selectedGameMode === 'informatica') {
-                        this.timerDuration = 20;
-                    } else {
-                        this.timerDuration = 30;
-                    }
-                    
-                    this.displayQuestion(data.currentQuestion); // Mostrar la pregunta recibida del servidor
-                    
-                    // Reiniciar el temporizador para el cliente que se une a una partida en curso
-                    // Esto asume que el temporizador del servidor también está corriendo.
-                    this.resetTimer();
-
-                    // También actualiza el progreso en la barra
-                    if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
-                        const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
-                        document.getElementById("progressBar").style.width = `${progreso}%`;
-                    }
-
-                    this.showNotification("¡Te has unido a una partida en curso!");
-
-                } else if (data.isVotingActive) { // Si hay votación activa
+                this.isVotingActive = data.isVotingActive || false; 
+                if (this.isVotingActive) {
                     this.setState(this.STATES.VOTING);
                     this.startVoteCountdown(data.voteTimeRemaining); 
                     this.updateVoteResults(data.currentVotes); 
                     this.selectedGameMode = data.selectedGameMode; 
-                } else if (data.selectedGameMode) { // Si ya hay un modo seleccionado pero no hay votación
+                } else if (data.selectedGameMode) {
                     this.selectedGameMode = data.selectedGameMode;
                     this.showNotification(`Modo de juego pre-seleccionado: ${this.getModeName(this.selectedGameMode)}`);
                     this.setState(this.STATES.LOBBY); 
-                } else { // Estado predeterminado del lobby
+                } else {
                     this.setState(this.STATES.LOBBY);
+                }
+                
+                if (data.isGameRunning) {
+                    this.startGame(data.gameMode, data.closestAnswerMode);
+                    this.currentQuestionIndex = data.questionIndex;
+                    this.handleQuestionUpdate(data); 
                 }
             }
 
@@ -2593,46 +2564,12 @@
                 }
             }
 
-            // Ya no es necesario generar preguntas en el cliente
-            // generarPreguntas(mode, count) { ... }
-
-            // Ya no es necesario que el host comparta las preguntas con este método
-            // shareQuestionWithPlayers() { ... }
-
             handleQuestionUpdate(data) {
-                // Este método ahora es el único responsable de actualizar la pregunta
-                // en el cliente, recibiendo los datos del servidor.
                 this.currentQuestionData = data.question;
                 this.lastAnswerTime = Date.now();
                 this.currentQuestionIndex = data.questionIndex; 
                 
-                // Si el modo de juego ha cambiado (al iniciar partida), actualizar timerDuration
-                if (this.selectedGameMode !== data.gameMode) {
-                    this.selectedGameMode = data.gameMode; // Sincronizar gameMode con el servidor
-                    if (this.selectedGameMode === 'relampago') {
-                        this.timerDuration = 5;
-                    } else if (this.selectedGameMode === 'verdadero-falso') {
-                        this.timerDuration = 15;
-                    } else if (this.selectedGameMode === 'informatica') {
-                        this.timerDuration = 20;
-                    } else {
-                        this.timerDuration = 30;
-                    }
-                     // Control de visibilidad de los botones de respuesta basado en el modo
-                    document.getElementById('standardInput').style.display = 'none';
-                    document.getElementById('trueFalseButtons').style.display = 'none';
-                    this.abcdButtonsContainer.style.display = 'none';
-
-                    if (this.selectedGameMode === 'verdadero-falso') {
-                        document.getElementById('trueFalseButtons').style.display = 'flex';
-                    } else if (this.selectedGameMode === 'informatica') {
-                        this.abcdButtonsContainer.style.display = 'grid';
-                    } else {
-                        document.getElementById('standardInput').style.display = 'block';
-                    }
-                }
-
-                this.displayQuestion(data.question); // Mostrar la pregunta
+                this.displayQuestion(data.question);
                 
                 if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
                     const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
@@ -2811,8 +2748,7 @@
                 this.voteCounts = {
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
                     combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
-                    "sumamultiplicacion": 0, // Nuevo modo
-                    "informatica": 0 // Nuevo modo
+                    "sumamultiplicacion": 0, "informatica": 0
                 };
                 document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
                 this.player.hasVoted = false; 
@@ -2942,9 +2878,19 @@
                     this.gameModeIndicator.textContent += " 🎯";
                 }
                 
-                // Las duraciones del temporizador se establecen en handleQuestionUpdate o handleRoomJoined
-                // para asegurar que coincidan con el servidor.
-
+                if (mode === 'relampago') {
+                    this.timerDuration = 5;
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                } else if (mode === 'verdadero-falso') {
+                    this.timerDuration = 15;
+                } else if (mode === 'informatica') { // Nuevo modo informática
+                    this.timerDuration = 20; // Tiempo para preguntas de informática
+                }
+                else {
+                    this.timerDuration = 30;
+                    document.getElementById('gameContainer').classList.remove('lightning-mode');
+                }
+                
                 this.setState(this.STATES.PLAYING);
                 
                 // Control de visibilidad de los botones de respuesta
@@ -2960,15 +2906,11 @@
                     document.getElementById('standardInput').style.display = 'block';
                 }
                 
-                // El anfitrión YA NO genera preguntas ni envía la primera.
-                // El servidor las generará y enviará el primer 'question_update' a TODOS.
-                /*
                 if (this.isHost) {
                     this.questions = this.generarPreguntas(mode, 10); 
                     this.currentQuestionIndex = 0;
-                    this.shareQuestionWithPlayers(); // ESTA LLAMADA SE ELIMINA/ES INNECESARIA AQUI
+                    this.shareQuestionWithPlayers();
                 }
-                */
                 
                 this.player.points = 0;
                 this.player.streak = 0;
@@ -2981,16 +2923,7 @@
                 this.updateLiveRanking();
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
-            
-            // ELIMINADA: La función generarPreguntas ya no es necesaria en el cliente.
-            // Es responsabilidad del servidor.
-            /*
-            generarPreguntas(mode, count) { ... }
-            */
 
-            // ELIMINADA: La función shareQuestionWithPlayers ya no es necesaria.
-            // El servidor envía las preguntas.
-            /*
             shareQuestionWithPlayers() {
                 if (!this.isHost || !this.questions.length) return;
                 
@@ -2998,24 +2931,299 @@
                 this.currentQuestionData = question;
                 
                 const questionToSend = { ...question };
+                // Asegurar que la respuesta correcta no se envíe al cliente en algunos modos
                 if (questionToSend.tipo === 'verdadero-falso' || questionToSend.tipo === 'informatica') {
                     delete questionToSend.respuesta; 
-                    delete questionToSend.explicacion;
+                    delete questionToSend.explicacion; // Si hay explicación, también se podría quitar
                 }
 
-                // EL CLIENTE YA NO ENVÍA question_update AL SERVIDOR
-                // this.socket.send(JSON.stringify({
-                //     type: 'question_update',
-                //     pin: this.gamePin,
-                //     question: questionToSend,
-                //     questionIndex: this.currentQuestionIndex,
-                //     totalQuestions: this.questions.length
-                // }));
+                this.socket.send(JSON.stringify({
+                    type: 'question_update',
+                    pin: this.gamePin,
+                    question: questionToSend,
+                    questionIndex: this.currentQuestionIndex,
+                    totalQuestions: this.questions.length
+                }));
                 
                 this.displayQuestion(question);
                 this.resetTimer();
             }
-            */
+
+            generarPreguntas(mode, count) {
+                const preguntas = [];
+                
+                const generarOperacion = (operator = null) => {
+                    const num1 = Math.floor(Math.random() * 15) + 1; 
+                    const num2 = Math.floor(Math.random() * 15) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    let op = operator || operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let pregunta, respuesta;
+                    
+                    if (op === '/') {
+                        let divisor = Math.floor(Math.random() * 8) + 2; 
+                        let cociente = Math.floor(Math.random() * 10) + 1; 
+                        let dividendo = divisor * cociente;
+                        pregunta = `${dividendo} ÷ ${divisor} = ?`;
+                        respuesta = cociente;
+                    } else {
+                         switch(op) {
+                            case '+':
+                                pregunta = `${num1} + ${num2} = ?`;
+                                respuesta = num1 + num2;
+                                break;
+                            case '-':
+                                if (num1 < num2) { [num1, num2] = [num2, num1]; } 
+                                pregunta = `${num1} - ${num2} = ?`;
+                                respuesta = num1 - num2;
+                                break;
+                            case '*':
+                                pregunta = `${num1} × ${num2} = ?`;
+                                respuesta = num1 * num2;
+                                break;
+                        }
+                    }
+                    
+                    return { pregunta, respuesta, tipo: 'operacion' };
+                };
+                
+                const generarMisterioso = () => {
+                    const num1 = Math.floor(Math.random() * 20) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const tipoOp = Math.random();
+                    
+                    let pregunta, respuesta;
+                    
+                    if (tipoOp < 0.33) { 
+                        respuesta = num1;
+                        pregunta = `? + ${num2} = ${num1 + num2}`;
+                    } else if (tipoOp < 0.66) { 
+                        respuesta = num1 + num2; 
+                        pregunta = `? - ${num2} = ${num1}`;
+                    } else { 
+                        respuesta = num1;
+                        pregunta = `? × ${num2} = ${num1 * num2}`;
+                    }
+                    
+                    return { pregunta, respuesta, tipo: 'misterioso' };
+                };
+                
+                const generarSecuencia = () => {
+                    const patrones = [
+                        { inicio: 2, paso: 2, longitud: 5 }, 
+                        { inicio: 1, paso: 3, longitud: 5 }, 
+                        { inicio: 10, paso: -2, longitud: 5 }, 
+                        { inicio: 5, paso: 5, longitud: 5 }, 
+                        { inicio: 3, paso: 4, longitud: 5 }  
+                    ];
+                    
+                    const patron = patrones[Math.floor(Math.random() * patrones.length)];
+                    const posicionFalta = Math.floor(Math.random() * (patron.longitud - 1)) + 1; 
+                    let secuencia = [];
+                    let respuesta = 0;
+                    
+                    for (let j = 0; j < patron.longitud; j++) {
+                        if (j === posicionFalta) {
+                            secuencia.push("?");
+                            respuesta = patron.inicio + j * patron.paso;
+                        } else {
+                            secuencia.push(patron.inicio + j * patron.paso);
+                        }
+                    }
+                    
+                    const pregunta = `Completa la secuencia: ${secuencia.join(", ")}`;
+                    
+                    return { pregunta, respuesta, tipo: 'secuencia' };
+                };
+                
+                const generarPotenciacion = () => {
+                    const base = Math.floor(Math.random() * 4) + 2; 
+                    const exponente = Math.floor(Math.random() * 3) + 2; 
+                    const superScripts = ['⁰', '¹', '²', '³', '⁴', '⁵'];
+                    const pregunta = `${base}${superScripts[exponente]} = ?`;
+                    const respuesta = Math.pow(base, exponente);
+                    
+                    return { pregunta, respuesta, tipo: 'potenciacion' };
+                };
+                
+                const generarCombinadas = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const num3 = Math.floor(Math.random() * 5) + 1;
+                    
+                    let pregunta = '';
+                    let respuesta = 0;
+                    const opcion = Math.floor(Math.random() * 3);
+
+                    switch(opcion) {
+                        case 0: 
+                            pregunta = `(${num1} + ${num2}) × ${num3} = ?`;
+                            respuesta = (num1 + num2) * num3;
+                            break;
+                        case 1: 
+                            pregunta = `${num1} + ${num2} × ${num3} = ?`;
+                            respuesta = num1 + (num2 * num3);
+                            break;
+                        case 2: 
+                            if (num1 < num2) { [num1, num2] = [num2, num1]; }
+                            pregunta = `(${num1} - ${num2}) + ${num3} = ?`;
+                            respuesta = (num1 - num2) + num3;
+                            break;
+                    }
+                    return { pregunta, respuesta, tipo: 'combinadas' };
+                };
+                
+                const generarVerdaderoFalso = () => {
+                    const num1 = Math.floor(Math.random() * 10) + 1;
+                    const num2 = Math.floor(Math.random() * 10) + 1;
+                    const operadores = ['+', '-', '*', '/'];
+                    const operador = operadores[Math.floor(Math.random() * operadores.length)];
+                    
+                    let operacionTexto;
+                    let resultadoReal;
+                    
+                    switch(operador) {
+                        case '+':
+                            resultadoReal = num1 + num2;
+                            operacionTexto = `${num1} + ${num2}`;
+                            break;
+                        case '-':
+                            resultadoReal = num1 - num2;
+                            operacionTexto = `${num1} - ${num2}`;
+                            break;
+                        case '*':
+                            resultadoReal = num1 * num2;
+                            operacionTexto = `${num1} × ${num2}`;
+                            break;
+                        case '/':
+                            let divisor = Math.floor(Math.random() * 5) + 2; 
+                            let cociente = Math.floor(Math.random() * 10) + 1;
+                            let dividendo = divisor * cociente;
+                            resultadoReal = cociente;
+                            operacionTexto = `${dividendo} ÷ ${divisor}`;
+                            break;
+                    }
+
+                    const esCorrecta = Math.random() < 0.7;
+                    let resultadoFalso = resultadoReal;
+                    if (!esCorrecta) {
+                        resultadoFalso += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1); 
+                        if (resultadoFalso === resultadoReal) resultadoFalso += (Math.random() > 0.5 ? 1 : -1); 
+                    }
+                    
+                    const pregunta = `¿Es correcta esta operación?<br>${operacionTexto} = ${esCorrecta ? resultadoReal : resultadoFalso}`;
+                    const respuesta = esCorrecta; 
+                    const explicacion = esCorrecta ? "La operación es correcta." : `La operación es incorrecta. La respuesta correcta era ${resultadoReal}.`;
+                    
+                    return { 
+                        pregunta: pregunta, 
+                        respuesta: respuesta,
+                        tipo: 'verdadero-falso',
+                        explicacion: explicacion
+                    };
+                };
+
+                const informaticaQuestions = [
+                    {
+                        pregunta: "¿Cuál de estos es un navegador de internet?",
+                        opciones: { A: "Microsoft Word", B: "Google Chrome", C: "WhatsApp", D: "Photoshop" },
+                        respuesta: "B",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Cuál de estos es un emoji?",
+                        opciones: { A: "@", B: "#", C: "😂", D: "/" },
+                        respuesta: "C",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué red social es conocida por compartir fotos y videos cortos?",
+                        opciones: { A: "Facebook", B: "TikTok", C: "WordPress", D: "Excel" },
+                        respuesta: "B",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué icono es el de 'guardar' en muchos programas?",
+                        opciones: { A: "Una carpeta", B: "Un disquete (💾)", C: "Una nube", D: "Una lupa" },
+                        respuesta: "B",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué puedes hacer con un 'USB'?",
+                        opciones: { A: "Guardar fotos o documentos", B: "Hacer llamadas", C: "Navegar en internet", D: "Jugar videojuegos" },
+                        respuesta: "A",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Qué app te permite hacer videollamadas gratis?",
+                        opciones: { A: "Netflix", B: "Zoom", C: "Spotify", D: "Minecraft" },
+                        respuesta: "B",
+                        tipo: "informatica"
+                    },
+                    {
+                        pregunta: "¿Cuál es la red social con más usuarios activos en el mundo?",
+                        opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" },
+                        respuesta: "C",
+                        tipo: "informatica"
+                    }
+                ];
+                
+                let generador;
+                switch(mode) {
+                    case 'operaciones': generador = generarOperacion; break;
+                    case 'misterioso': generador = generarMisterioso; break;
+                    case 'secuencia': generador = generarSecuencia; break;
+                    case 'potenciacion': generador = generarPotenciacion; break;
+                    case 'combinadas': generador = generarCombinadas; break;
+                    case 'verdadero-falso': generador = generarVerdaderoFalso; break;
+                    case 'mas-cercano': generador = () => generarOperacion(); break; // Se mantiene operación para "más cercano"
+                    case 'sumamultiplicacion':
+                        // 5 de suma y 5 de multiplicación
+                        for (let i = 0; i < 5; i++) preguntas.push(generarOperacion('+'));
+                        for (let i = 0; i < 5; i++) preguntas.push(generarOperacion('*'));
+                        return preguntas; // Retornar directamente, ya que el bucle principal es diferente
+                    case 'informatica':
+                        // Barajar y tomar 'count' preguntas o todas si 'count' es mayor
+                        const shuffled = [...informaticaQuestions].sort(() => 0.5 - Math.random());
+                        return shuffled.slice(0, Math.min(count, shuffled.length));
+                    default: generador = generarOperacion;
+                }
+                
+                for (let i = 0; i < count; i++) {
+                    preguntas.push(generador());
+                }
+                
+                const numImages = Math.floor(Math.random() * 3) + 1; 
+                const preguntasConImagen = [
+                    {
+                        pregunta: "¿Cuántos cuadrados hay en esta figura?",
+                        imagen: "https://placehold.co/400x200/FF0000/FFFFFF?text=Imagen+de+Cuadrados", // Placeholder de imagen
+                        respuesta: 5,
+                        tipo: "imagen"
+                    },
+                    {
+                        pregunta: "¿Cuántas frutas ves en la imagen?",
+                        imagen: "https://placehold.co/400x200/00FF00/000000?text=Imagen+de+Frutas", // Placeholder de imagen
+                        respuesta: 8,
+                        tipo: "imagen"
+                    },
+                    {
+                        pregunta: "¿Cuál es el patrón que sigue la siguiente figura?",
+                        imagen: "https://placehold.co/400x200/0000FF/FFFFFF?text=Imagen+de+Patron", // Placeholder de imagen
+                        respuesta: 4, 
+                        tipo: "imagen"
+                    }
+                ];
+
+                for (let i = 0; i < numImages && preguntasConImagen.length > 0; i++) {
+                    const randomIndexImage = Math.floor(Math.random() * preguntasConImagen.length);
+                    const imageQuestion = preguntasConImagen.splice(randomIndexImage, 1)[0]; 
+                    const indexToReplace = Math.floor(Math.random() * preguntas.length);
+                    preguntas[indexToReplace] = imageQuestion;
+                }
+                
+                return preguntas;
+            }
 
             displayQuestion(questionData = null) {
                 try {
@@ -3058,15 +3266,10 @@
                         this.abcdButtonsContainer.style.display = 'grid'; // Usa grid para A/B/C/D
                         // Actualizar opciones de respuesta para Informática
                         const options = question.opciones;
-                        if (options) { // Asegurarse de que las opciones existan
-                            document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A || '';
-                            document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B || '';
-                            document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C || '';
-                            document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D || '';
-                        } else {
-                            console.warn("Opciones de pregunta de informática no encontradas:", question);
-                            document.querySelectorAll('.abcd-btn .answer-text').forEach(el => el.textContent = 'Error: No Options');
-                        }
+                        document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
+                        document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
+                        document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
+                        document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D;
 
                     } else {
                         document.getElementById('standardInput').style.display = 'block';
@@ -3101,8 +3304,6 @@
                     const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
                     
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                        // El cliente SÓLO envía la respuesta y el tiempo al servidor.
-                        // El servidor se encargará de toda la lógica de cálculo de puntos y revelación.
                         this.socket.send(JSON.stringify({
                             type: 'submit_answer',
                             pin: this.gamePin,
@@ -3111,10 +3312,8 @@
                             responseTime: responseTime
                         }));
                     } else {
-                        // Esta es la lógica para UN SOLO JUGADOR (simulación).
-                        // En un entorno de producción MULTIJUGADOR, esta rama NUNCA debería ejecutarse,
-                        // ya que la puntuación y la revelación las maneja el servidor.
-                        console.warn("Modo de un solo jugador activado (no conectado al servidor). Simulación de respuesta.");
+                        // Lógica para un solo jugador (simulada)
+                        // Aquí es donde el cliente calcularía la respuesta y los puntos si no hubiera servidor
                         let isCorrect = false;
                         let pointsEarned = 0;
                         let streakBonus = 0;
@@ -3146,7 +3345,7 @@
                             this.player.streak = 0;
                         }
 
-                        // Actualizar estadísticas del jugador localmente (solo en simulación de un jugador)
+                        // Actualizar estadísticas del jugador localmente
                         this.player.points += pointsEarned;
                         this.player.responseTimes.push(responseTime);
                         if (this.player.streak > this.player.maxStreak) {
@@ -3154,8 +3353,8 @@
                         }
                         this.player.lastAnswerCorrect = isCorrect;
 
-                        // Mostrar la fase de revelación (solo en simulación de un jugador)
-                        this.startRevealPhase(this.currentQuestionData.respuesta, isCorrect, streakBonus);
+                        // Mostrar la fase de revelación
+                        this.startRevealPhase(correctAnswer, isCorrect, streakBonus);
 
                         // Si no hay servidor, avanzar a la siguiente pregunta después de la revelación
                         // (Esto lo maneja startRevealPhase en el setTimeout)
@@ -3170,8 +3369,8 @@
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
                     this.player.hasAnswered = false;
                 } finally {
-                    // Los botones se re-habilitarán al inicio de la siguiente pregunta por parte del servidor
-                    // o después de la fase de revelación en el modo de un jugador simulado.
+                    // Re-habilitar si es necesario (cuando no hay servidor, ya se maneja en startRevealPhase)
+                    // Para el modo multijugador, el servidor habilitará los botones en la siguiente pregunta.
                 }
             }
 
@@ -3193,9 +3392,14 @@
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // La 'correctAnswer' que se pasa aquí ya viene formateada del servidor
-                // (o de la simulación de un jugador), por lo que no necesita reformateo.
-                this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${correctAnswer}</span>`;
+                // Mostrar la respuesta correcta
+                let formattedCorrectAnswer = correctAnswer;
+                if (this.selectedGameMode === 'verdadero-falso') {
+                    formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
+                } else if (this.selectedGameMode === 'informatica' && this.currentQuestionData.opciones) {
+                    formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
+                }
+                this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
                 
                 // Mostrar el resultado del jugador
                 if (playerCorrect) {
@@ -3219,19 +3423,14 @@
                 setTimeout(() => {
                     this.setState(this.STATES.PLAYING);
                     
-                    // En un entorno multijugador, el servidor enviará la siguiente pregunta
-                    // (o el mensaje de game_over) DESPUÉS de que esta fase de revelación termine
-                    // para todos los clientes.
-                    /*
-                    if (this.isHost) { // ESTO LO MANEJA AHORA EL SERVIDOR COMPLETAMENTE
+                    if (this.isHost) {
                         this.currentQuestionIndex++;
                         if (this.currentQuestionIndex < this.questions.length) {
-                            this.shareQuestionWithPlayers(); // Esto ya no es necesario aquí
+                            this.shareQuestionWithPlayers();
                         } else {
                             this.endGame();
                         }
                     }
-                    */
                     // Re-habilitar los botones de respuesta para la siguiente pregunta
                     document.getElementById('submitAnswer').disabled = false;
                     document.getElementById('trueBtn').disabled = false;
@@ -3328,22 +3527,35 @@
                                     document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
                                     document.getElementById("answerResult").className = "result incorrect";
                                     
-                                    // Cuando el tiempo se agota, el cliente envía su respuesta vacía
-                                    // El servidor procesará esto y enviará la fase de revelación
                                     this.socket.send(JSON.stringify({
-                                        type: 'submit_answer', // Se usa submit_answer para el tiempo agotado
+                                        type: 'player_answer',
                                         pin: this.gamePin,
                                         playerId: this.player.id,
-                                        answer: '', // Respuesta vacía por tiempo agotado
-                                        responseTime: this.timerDuration // Tiempo máximo
+                                        isCorrect: false,
+                                        pointsEarned: 0,
+                                        totalPoints: this.player.points, 
+                                        streak: this.player.streak,
+                                        maxStreak: this.player.maxStreak,
+                                        avgResponseTime: this.player.avgResponseTime,
+                                        streakBonus: 0
+                                    }));
+                                }
+                                if (this.isHost) {
+                                    // Enviar fase de revelación para todos (con respuesta correcta del host, ya que los demás no la calcularon)
+                                    const correctAnswer = this.currentQuestionData.respuesta;
+                                    this.socket.send(JSON.stringify({
+                                        type: 'reveal_phase',
+                                        pin: this.gamePin,
+                                        correctAnswer: correctAnswer,
+                                        playerCorrect: false, // El host no respondió a tiempo
+                                        streakBonus: 0
                                     }));
                                 }
                             } else {
-                                // Lógica para un solo jugador (simulada) cuando se agota el tiempo
                                 this.showResult("¡Tiempo agotado! ⏳", false);
                                 // Simular la fase de revelación para un solo jugador
-                                // La respuesta correcta y otros datos ya estarán en currentQuestionData
-                                this.startRevealPhase(this.currentQuestionData.respuesta, false, 0); 
+                                const correctAnswer = this.currentQuestionData.respuesta;
+                                this.startRevealPhase(correctAnswer, false, 0); // Falso porque se acabó el tiempo
                             }
                         }
                     }, 1000);
@@ -3375,9 +3587,21 @@
             }
 
             skipQuestion() {
-                // Esta función solo debe ser llamada por el profesor host en el cliente,
-                // y su efecto real se gestiona en el servidor.
-                 if (!this.isHost || !this.isProfessor) return; 
+                 if (!this.isHost) return; 
+                
+                this.currentQuestionIndex++;
+                if (this.currentQuestionIndex < this.questions.length) {
+                    this.shareQuestionWithPlayers();
+                } else {
+                    this.endGame();
+                }
+            }
+
+            skipQuestionAsProfessor() {
+                if (!this.isProfessor || !this.isHost) {
+                    this.showNotification("Solo el profesor puede saltar preguntas.");
+                    return;
+                }
                 
                 this.playSound('clickSound');
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -3387,14 +3611,8 @@
                         hostId: this.player.id 
                     }));
                 }
-                // El cliente no avanza directamente; espera la señal del servidor.
+                this.skipQuestion(); 
             }
-
-            skipQuestionAsProfessor() {
-                // Esta función se llama desde el botón, y luego llama a skipQuestion
-                this.skipQuestion();
-            }
-
 
             endGame() {
                 try {
@@ -3407,21 +3625,16 @@
                     
                     if (this.isMultiplayer && this.isHost) {
                         const finalRanking = this.getFinalRanking();
-                        // El anfitrión informa al servidor que el juego ha terminado.
                         this.socket.send(JSON.stringify({
                             type: 'game_over',
                             pin: this.gamePin,
                             finalRanking: finalRanking,
                             hostId: this.player.id 
                         }));
-                        // El anfitrión también muestra los resultados
                         this.showMultiplayerResults(finalRanking);
                     } else if (this.isMultiplayer && !this.isHost) {
                         this.showNotification("Juego terminado. Esperando resultados...");
-                        // Los jugadores no anfitriones esperan el mensaje 'game_over' del servidor
-                        // para mostrar los resultados.
                     } else {
-                        // Lógica para un solo jugador (no se usa en multijugador)
                         this.showWinner(); 
                         this.setState(this.STATES.RESULTS); 
                     }
@@ -3781,4 +3994,3 @@
     </script>
 </body>
 </html>
-�

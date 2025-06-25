@@ -2411,7 +2411,8 @@
                         break;
                         
                     case 'reveal_phase':
-                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus);
+                        // Asegúrate de pasar el cuarto parámetro 'options' si existe
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.options); 
                         break;
                     
                     case 'ranking_update':
@@ -2925,8 +2926,8 @@
                 if (!this.isHost || !this.questions.length) return;
                 
                 const question = this.questions[this.currentQuestionIndex];
-                this.currentQuestionData = question;
-                
+                this.currentQuestionData = question; // <-- Guarda la pregunta completa en el cliente también
+
                 const questionToSend = { ...question };
                 // Asegurar que la respuesta correcta no se envíe al cliente en algunos modos
                 if (questionToSend.tipo === 'verdadero-falso' || questionToSend.tipo === 'informatica') {
@@ -2943,7 +2944,7 @@
                     totalQuestions: this.questions.length
                 }));
                 
-                this.displayQuestion(question);
+                this.displayQuestion(question); // Usa la pregunta completa para mostrarla
                 this.resetTimer();
             }
 
@@ -3369,8 +3370,8 @@
                         }
                         this.player.lastAnswerCorrect = isCorrect;
 
-                        // Mostrar la fase de revelación
-                        this.startRevealPhase(correctAnswer, isCorrect, streakBonus);
+                        // Mostrar la fase de revelación (en modo un jugador, pasamos las opciones del currentQuestionData)
+                        this.startRevealPhase(correctAnswer, isCorrect, streakBonus, this.currentQuestionData.opciones);
 
                         // Si no hay servidor, avanzar a la siguiente pregunta después de la revelación
                         // (Esto lo maneja startRevealPhase en el setTimeout)
@@ -3404,7 +3405,7 @@
                 this.checkAnswer(answer);
             }
 
-            startRevealPhase(correctAnswer, playerCorrect, streakBonus) {
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus, options = undefined) { // <-- AÑADIR 'options' como parámetro
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
@@ -3412,8 +3413,9 @@
                 let formattedCorrectAnswer = correctAnswer;
                 if (this.selectedGameMode === 'verdadero-falso') {
                     formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
-                } else if (this.selectedGameMode === 'informatica' && this.currentQuestionData.opciones) {
-                    formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
+                } else if (this.selectedGameMode === 'informatica' && options) { // Usar el nuevo parámetro 'options'
+                    // Aquí, correctAnswer es la letra (ej. 'B'), y 'options' tiene {A: '...', B: '...'}
+                    formattedCorrectAnswer = `${correctAnswer}) ${options[correctAnswer]}`;
                 }
                 this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
                 
@@ -3558,21 +3560,24 @@
                                 }
                                 if (this.isHost) {
                                     // Enviar fase de revelación para todos (con respuesta correcta del host, ya que los demás no la calcularon)
-                                    // La respuesta correcta debe estar en this.currentQuestionData.respuesta en el host.
+                                    // La respuesta correcta y opciones deben estar en this.currentQuestionData.
                                     const correctAnswer = this.currentQuestionData.respuesta;
+                                    const options = this.currentQuestionData.opciones; // Obtener opciones del host
                                     this.socket.send(JSON.stringify({
                                         type: 'reveal_phase',
                                         pin: this.gamePin,
                                         correctAnswer: correctAnswer,
                                         playerCorrect: false, // El host no respondió a tiempo
-                                        streakBonus: 0
+                                        streakBonus: 0,
+                                        options: options // Enviar las opciones también
                                     }));
                                 }
                             } else {
                                 this.showResult("¡Tiempo agotado! ⏳", false);
                                 // Simular la fase de revelación para un solo jugador
                                 const correctAnswer = this.currentQuestionData.respuesta;
-                                this.startRevealPhase(correctAnswer, false, 0); // Falso porque se acabó el tiempo
+                                const options = this.currentQuestionData.opciones; // Obtener opciones para modo un jugador
+                                this.startRevealPhase(correctAnswer, false, 0, options); // Falso porque se acabó el tiempo
                             }
                         }
                     }, 1000);

@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Challenge PRO</title>
+    <title>Math Challenge PRO - ¡Tu Kahoot Matemático!</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
+        /* Variables CSS para facilitar el cambio de tema y colores */
         :root {
             --azul: #4e8cff;
             --rojo: #ff6b6b;
@@ -27,6 +28,7 @@
             --neon-amarillo: 0 0 10px rgba(255, 222, 89, 0.8);
         }
 
+        /* Modo oscuro */
         .dark-mode {
             --fondo: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             --texto: #f0f0f0;
@@ -35,6 +37,7 @@
             --sombra: rgba(0, 0, 0, 0.3);
         }
 
+        /* Estilos generales */
         * {
             margin: 0;
             padding: 0;
@@ -51,7 +54,7 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow: hidden; /* Evita barras de desplazamiento innecesarias */
+            overflow: hidden; /* Evita barras de desplazamiento innecesarias en el cuerpo principal */
         }
 
         @keyframes gradientBG {
@@ -111,8 +114,8 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Pantalla de unión */
-        .join-screen {
+        /* Pantallas principales (unión, lobby, creación) */
+        .screen-container {
             position: fixed;
             top: 0;
             left: 0;
@@ -122,30 +125,32 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: var(--fondo);
+            background: var(--fondo); /* Usar el fondo animado */
             z-index: 1000;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            opacity: 0; /* Inicialmente oculto para animación */
-            transform: translateY(20px) scale(0.95); /* Inicialmente movido y escalado */
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Transición para animación */
+            opacity: 0; 
+            transform: translateY(20px) scale(0.95); 
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            overflow-y: auto; /* Permitir scroll si el contenido es grande */
         }
-        .join-screen.active { /* Clase para activar la animación */
+        .screen-container.active { 
             opacity: 1;
             transform: translateY(0) scale(1);
         }
 
-        .join-form {
-            background: var(--panel);
-            padding: 30px;
+        /* Formularios y paneles con efecto de vidrio */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 30px;
             width: 100%;
             max-width: 500px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--morado);
         }
 
         .input-group {
@@ -168,14 +173,16 @@
             font-family: 'Comic Neue', cursive;
             transition: all 0.3s;
             background: rgba(255,255,255,0.1);
+            color: var(--texto); /* Asegura que el texto sea legible en dark mode */
         }
 
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             outline: none;
             border-color: var(--morado);
             box-shadow: var(--neon-morado);
         }
 
+        /* Selector de avatar */
         .avatar-selector {
             display: flex;
             flex-wrap: wrap;
@@ -205,6 +212,7 @@
             box-shadow: var(--neon-morado);
         }
 
+        /* Botones de acción general */
         .btn {
             padding: 12px 25px;
             font-size: 1.1rem;
@@ -272,46 +280,22 @@
             text-shadow: var(--neon-rojo);
         }
 
-        /* Lobby multijugador */
-        .multiplayer-lobby {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--fondo);
-            z-index: 1000;
-            display: none;
-            flex-direction: column; /* Cambiado de flex a column */
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            overflow: hidden; /* Asegura que el canvas no cause scroll */
-        }
-        /* Canvas de Three.js */
+        /* Canvas de Three.js (fondo del lobby) */
         #lobby3DCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Detrás del contenido del lobby */
+            z-index: -1; 
         }
 
-        .lobby-container {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            width: 100%;
+        /* Lobby multijugador */
+        .multiplayer-lobby .glass-panel {
             max-width: 800px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
             border-bottom: 2px solid var(--morado);
-            position: relative; /* Para que el contenido esté por encima del canvas */
-            z-index: 1; /* Asegura que el contenido del lobby esté encima del canvas 3D */
+            position: relative; 
+            z-index: 1; 
         }
 
         .player-list {
@@ -372,7 +356,6 @@
             opacity: 1;
             transform: scale(1) translateY(0);
         }
-
 
         .mode-buttons {
             display: grid;
@@ -585,7 +568,7 @@
             text-align: center;
             font-family: 'Fredoka One', cursive;
             font-size: 1.2rem;
-            flex-shrink: 0; /* Evita que la letra se encoja */
+            flex-shrink: 0; 
         }
 
         .abcd-btn:hover {
@@ -594,7 +577,7 @@
             border-color: var(--morado);
         }
 
-        .abcd-btn.selected-answer { /* Estilo cuando el jugador elige una respuesta */
+        .abcd-btn.selected-answer { 
             background: var(--azul);
             color: white;
             border-color: var(--azul);
@@ -799,7 +782,7 @@
             width: 100%;
             height: 100%;
             background: var(--fondo);
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -815,7 +798,7 @@
             align-items: flex-end;
             margin: 30px 0;
             height: 250px;
-            position: relative; /* Para posicionar el muñequito bailarín */
+            position: relative; 
         }
 
         .podium-place {
@@ -867,7 +850,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 2; /* Para que el nombre y avatar estén encima del podio */
+            z-index: 2; 
         }
 
         .podium-points {
@@ -884,10 +867,10 @@
         .winner-dancing-emoji {
             font-size: 3rem;
             position: absolute;
-            bottom: 210px; /* Ajusta según la altura del podio-1 + un poco más */
+            bottom: 210px; 
             animation: dance 0.8s infinite alternate;
-            z-index: 3; /* Asegura que esté por encima de todo */
-            pointer-events: none; /* Para que no interfiera con clics */
+            z-index: 3; 
+            pointer-events: none; 
         }
 
         @keyframes dance {
@@ -1286,7 +1269,7 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 10px;
+            border-radius: 15px; /* Ajustado a 15px para consistencia */
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
@@ -1348,6 +1331,102 @@
             50% { transform: scale(1.2); opacity: 1; }
             100% { transform: scale(1); opacity: 0; }
         }
+
+        /* Pantalla de Creación de Preguntas (NUEVO) */
+        .create-questions-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--fondo);
+            z-index: 1000;
+            padding: 20px;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow-y: auto; /* Para permitir scroll si hay muchas preguntas */
+        }
+
+        .create-questions-form {
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--sombra);
+            width: 100%;
+            max-width: 700px; /* Un poco más ancho para el creador */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 2px solid var(--verde); /* Borde diferente para este modo */
+        }
+
+        .question-builder {
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px dashed var(--borde);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        #questionListContainer {
+            max-height: 250px; /* Altura máxima para la lista de preguntas */
+            overflow-y: auto;
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.05);
+        }
+
+        .created-question-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(78, 140, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            word-break: break-word; /* Romper palabras largas */
+        }
+        .created-question-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .created-question-item .remove-btn {
+            background: var(--rojo);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .created-question-item .remove-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons-bottom {
+            margin-top: 25px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .input-group select {
+            appearance: none; 
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20448%22%20enable-background%3D%22new%200%200%20256%20448%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22m%200%2C128%20l%20128%2C128%20l%20128%2C-128%20z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px; 
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
@@ -1359,7 +1438,7 @@
             }
 
             .abcd-buttons {
-                grid-template-columns: 1fr; /* Una columna en móviles */
+                grid-template-columns: 1fr; 
             }
 
             .live-ranking {
@@ -1377,7 +1456,7 @@
             }
 
             .winner-dancing-emoji {
-                bottom: 160px; /* Ajuste para móviles */
+                bottom: 160px; 
                 font-size: 2.5rem;
             }
 
@@ -1399,18 +1478,28 @@
             .results-countdown {
                 font-size: 5em;
             }
+             .create-questions-form {
+                max-width: 95%; /* Ajuste para pantallas pequeñas */
+                padding: 15px;
+            }
+            .question-builder {
+                padding: 10px;
+            }
+            #questionListContainer {
+                max-height: 150px; /* Menos alto en móviles */
+            }
         }
     </style>
 </head>
 <body>
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <h2>Cargando El Juego De Matematicas Por favor Espera:3...</h2>
+        <h2>Cargando El Juego De Matematicas:3...</h2>
     </div>
 
-    <div class="join-screen" id="joinScreen">
-        <h1>✨ Juego De Matematicas Pro ✨</h1>
-        <div class="join-form glass-panel">
+    <div class="screen-container" id="joinScreen">
+        <h1>✨ Juego De Matematicas Pro Mancos ✨</h1>
+        <div class="glass-panel join-form">
             <h2>¡Únete al juego!</h2>
             <div class="input-group">
                 <label for="playerName">Tu nombre:</label>
@@ -1443,9 +1532,82 @@
         </div>
     </div>
 
-    <div class="multiplayer-lobby" id="multiplayerLobby">
-        <canvas id="lobby3DCanvas"></canvas>
-        <div class="lobby-container glass-panel">
+    <div class="screen-container" id="createQuestionsScreen">
+        <h1>✍️ Crea tus Preguntas PRO ✍️</h1>
+        <div class="glass-panel create-questions-form">
+            <h2>Mi Set de Preguntas</h2>
+            <div id="questionListContainer">
+                </div>
+            
+            <div class="question-builder glass-panel">
+                <h3>Añadir Nueva Pregunta</h3>
+                <div class="input-group">
+                    <label for="questionType">Tipo de Pregunta:</label>
+                    <select id="questionType">
+                        <option value="numerica">🔢 Numérica (Respuesta con teclado)</option>
+                        <option value="abcd">📝 A/B/C/D (Múltiple Opción)</option>
+                        <option value="verdadero-falso">✅❌ Verdadero/Falso</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="questionText">Texto de la Pregunta:</label>
+                    <input type="text" id="questionText" placeholder="Ej: ¿Cuánto es 5 + 3?" maxlength="150">
+                </div>
+                <div class="input-group" id="questionImageGroup" style="display:none;">
+                    <label for="questionImageURL">URL de Imagen (Opcional):</label>
+                    <input type="url" id="questionImageURL" placeholder="Ej: https://ejemplo.com/imagen.png">
+                </div>
+                
+                <div id="numericTrueFalseAnswer" class="input-group">
+                    <label for="correctAnswerValue">Respuesta Correcta:</label>
+                    <input type="text" id="correctAnswerValue" placeholder="Ej: 8" maxlength="50">
+                </div>
+
+                <div id="abcdOptions" style="display:none;">
+                    <div class="input-group">
+                        <label for="optionA">Opción A:</label>
+                        <input type="text" id="optionA" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <label for="optionB">Opción B:</label>
+                        <input type="text" id="optionB" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <label for="optionC">Opción C:</label>
+                        <input type="text" id="optionC" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <label for="optionD">Opción D:</label>
+                        <input type="text" id="optionD" maxlength="50">
+                    </div>
+                    <div class="input-group">
+                        <label for="correctAnswerABCD">Respuesta Correcta (A, B, C o D):</label>
+                        <select id="correctAnswerABCD">
+                            <option value="">Selecciona</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" id="addQuestionBtn">➕ Añadir Pregunta</button>
+            </div>
+            
+            <p id="questionCreatorError" class="error-message"></p>
+
+            <div class="buttons-bottom">
+                <button class="btn btn-secondary" id="backToJoinScreenFromCreator">Volver al Inicio</button>
+                <button class="btn" id="saveCustomQuestions">💾 Guardar y Usar Preguntas</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="lobby3DCanvas"></canvas>
+
+    <div class="screen-container" id="multiplayerLobby">
+        <div class="glass-panel lobby-container">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
             
@@ -1464,6 +1626,7 @@
                     <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
                     <button class="mode-btn" data-mode="sumamultiplicacion">➕✖️ Suma y Multiplicación</button>
                     <button class="mode-btn" data-mode="informatica">💻 Informática</button>
+                    <button class="mode-btn" data-mode="custom:placeholder" id="customQuestionsModeBtn">🌟 Mis Preguntas</button>
                 </div>
                 <div class="vote-results glass-panel">
                     <h4>Resultados:</h4>
@@ -1477,14 +1640,14 @@
         </div>
     </div>
 
-    <div class="live-ranking glass-panel" id="liveRanking">
+    <div class="glass-panel live-ranking" id="liveRanking">
         <h3>🏆 Ranking en Vivo</h3>
         <div id="rankingList"></div>
     </div>
 
     <div id="gameContainer">
-        <h1>✨ Juego Matematica Pro ✨</h1>
-        <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
+        <h1>✨ Juego Matematico Pro ✨</h1>
+        <div class="glass-panel game-mode-indicator" id="gameModeIndicator"></div>
 
         <div class="timer-container">
             <svg class="timer-svg" viewBox="0 0 100 100">
@@ -1539,7 +1702,7 @@
         <p id="mensajeVictoria" class="result"></p>
     </div>
 
-    <div class="final-results" id="finalResults">
+    <div class="final-results screen-container" id="finalResults">
         <h1>🏆 ¡Juego Terminado! 🏆</h1>
         <div class="podium">
             <div class="podium-place" id="secondPlace">
@@ -1568,27 +1731,8 @@
                 <div class="podium-points">0 pts</div>
             </div>
         </div>
-        <div class="other-players glass-panel" id="otherPlayers"></div>
+        <div class="glass-panel other-players" id="otherPlayers"></div>
         <button class="btn" id="backToLobby">Volver al Lobby</button>
-    </div>
-
-    <div class="theme-toggle" id="themeToggle">🌙</div>
-    
-    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
-
-    <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
-
-    <div class="achievement-popup glass-panel" id="achievementPopup">
-        <div class="achievement-icon">🏆</div>
-        <h3 id="achievementTitle">Logro Desbloqueado</h3>
-        <p id="achievementDescription">Descripción del logro</p>
-        <button class="btn" id="closeAchievement">¡Genial!</button>
-    </div>
-
-    <div class="player-stats glass-panel" id="playerStats">
-        <h3>📊 Mis Estadísticas</h3>
-        <div id="statsContent"></div>
-        <button class="btn" id="closeStats">Cerrar</button>
     </div>
 
     <div id="revealPhase" class="reveal-phase" style="display: none;">
@@ -1602,6 +1746,20 @@
 
     <div id="resultsCountdownOverlay" class="results-countdown" style="display: none;"></div>
 
+    <div class="theme-toggle" id="themeToggle">🌙</div>
+    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
+    <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
+    <div class="glass-panel achievement-popup" id="achievementPopup">
+        <div class="achievement-icon">🏆</div>
+        <h3 id="achievementTitle">Logro Desbloqueado</h3>
+        <p id="achievementDescription">Descripción del logro</p>
+        <button class="btn" id="closeAchievement">¡Genial!</button>
+    </div>
+    <div class="glass-panel player-stats" id="playerStats">
+        <h3>📊 Mis Estadísticas</h3>
+        <div id="statsContent"></div>
+        <button class="btn" id="closeStats">Cerrar</button>
+    </div>
 
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
     <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
@@ -1616,12 +1774,13 @@
             constructor() {
                 this.STATES = {
                     LOADING: 0,
-                    JOIN_SCREEN: 1,
-                    LOBBY: 2,
-                    VOTING: 3,
-                    PLAYING: 4,
-                    RESULTS: 5,
-                    REVEAL: 6
+                    JOIN_SCREEN: 1, // Pantalla principal de unión
+                    CREATE_QUESTIONS_SCREEN: 2, // Nueva pantalla para crear preguntas
+                    LOBBY: 3, // Lobby de espera y votación
+                    VOTING: 4, // Estado durante la votación en el lobby
+                    PLAYING: 5, // Juego en curso
+                    RESULTS: 6, // Pantalla de resultados finales
+                    REVEAL: 7 // Fase de revelación de respuesta
                 };
                 this.state = this.STATES.LOADING;
 
@@ -1648,21 +1807,21 @@
                     lastAnswerCorrect: false
                 };
                 
-                this.questions = []; // Ya no se usan para generar, solo para el host en simulación de un jugador
+                this.questions = []; // Para el host, preguntas que el servidor generaría (no usadas para generar)
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
                 this.timeLeft = 30;
                 this.timerDuration = 30; // Duración del temporizador actual, establecida por el servidor
                 this.timerInterval = null;
                 this.soundEnabled = true;
-                this.currentQuestionData = null; // Almacena la pregunta recibida del servidor
+                this.currentQuestionData = null; // Almacena la pregunta actual recibida del servidor
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
-                this.lastAnswerTime = null; // Hora en que la pregunta actual fue mostrada
+                this.lastAnswerTime = null; 
                 this.revealPhaseActive = false;
-                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
+                this.revealPhaseDuration = 3000; 
                 
                 this.isMultiplayer = false;
                 this.isHost = false; 
@@ -1674,8 +1833,7 @@
                 this.maxPlayers = 15;
                 this.socket = null;
                 this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
-                this.heartbeatInterval = null;
-                this.lastPongTime = null;
+                this.heartbeatInterval = null; 
                 
                 this.voteTime = 30;
                 this.voteInterval = null;
@@ -1689,7 +1847,9 @@
                     "verdadero-falso": 0,
                     "mas-cercano": 0,
                     "sumamultiplicacion": 0,
-                    "informatica": 0
+                    "informatica": 0,
+                    // Asegúrate de que 'custom' se reinicie también si está en voteCounts del server
+                    "custom:placeholder": 0 // Placeholder para el modo personalizado
                 };
                 this.isVotingActive = false; 
                 
@@ -1739,7 +1899,11 @@
                     }
                 };
 
-                // Referencias a elementos HTML
+                // Propiedades para la creación de preguntas personalizadas
+                this.customQuestions = []; // Array de preguntas que el usuario está creando localmente
+                this.customQuestionId = localStorage.getItem('lastCustomQuestionId'); // ID del último set guardado
+                
+                // Referencias a elementos HTML (para todas las pantallas)
                 this.lobby3DCanvas = document.getElementById('lobby3DCanvas');
                 this.lobbyCountdownMessage = document.getElementById('lobbyCountdownMessage');
                 this.abcdButtonsContainer = document.getElementById('abcdButtons');
@@ -1765,11 +1929,32 @@
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
+                // Referencias a elementos de la nueva pantalla de creación de preguntas
+                this.createQuestionsScreen = document.getElementById('createQuestionsScreen');
+                this.questionTypeSelect = document.getElementById('questionType');
+                this.questionText = document.getElementById('questionText');
+                this.questionImageURL = document.getElementById('questionImageURL');
+                this.numericTrueFalseAnswerDiv = document.getElementById('numericTrueFalseAnswer');
+                this.correctAnswerValueInput = document.getElementById('correctAnswerValue');
+                this.abcdOptionsDiv = document.getElementById('abcdOptions');
+                this.optionAInput = document.getElementById('optionA');
+                this.optionBInput = document.getElementById('optionB');
+                this.optionCInput = document.getElementById('optionC');
+                this.optionDInput = document.getElementById('optionD');
+                this.correctAnswerABCDSelect = document.getElementById('correctAnswerABCD');
+                this.addQuestionBtn = document.getElementById('addQuestionBtn');
+                this.questionListContainer = document.getElementById('questionListContainer');
+                this.questionCreatorError = document.getElementById('questionCreatorError');
+                this.backToJoinScreenFromCreatorBtn = document.getElementById('backToJoinScreenFromCreator');
+                this.saveCustomQuestionsBtn = document.getElementById('saveCustomQuestions');
+                this.customQuestionsModeBtn = document.getElementById('customQuestionsModeBtn'); // Botón en el lobby
+                
                 this.setupEventListeners();
                 this.checkDarkModePreference();
                 this.loadPlayerStats();
                 this.initLobby3D();
 
+                // Inicio: mostrar la pantalla de unión después de un breve tiempo
                 setTimeout(() => {
                     this.setState(this.STATES.JOIN_SCREEN);
                     document.getElementById('loadingScreen').style.display = 'none';
@@ -1777,18 +1962,23 @@
                 }, 1500);
             }
 
+            // Centraliza la gestión de qué pantalla se muestra
             setState(newState) {
                 this.state = newState;
                 this.updateUIForState();
             }
 
             updateUIForState() {
+                // Ocultar todas las pantallas principales por defecto
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('joinScreen').style.display = 'none';
                 document.getElementById('multiplayerLobby').style.display = 'none';
                 document.getElementById('gameContainer').style.display = 'none';
                 document.getElementById('finalResults').style.display = 'none';
                 document.getElementById('liveRanking').style.display = 'none';
+                this.createQuestionsScreen.style.display = 'none'; // Nueva pantalla
+
+                // Ocultar overlays y elementos de juego específicos
                 this.gameModeIndicator.style.display = 'none';
                 this.skipQuestionBtn.style.display = 'none'; 
                 this.startVoteBtn.style.display = 'none'; 
@@ -1796,37 +1986,70 @@
                 this.lobbyCountdownMessage.style.display = 'none'; 
                 this.lobbyCountdownMessage.classList.remove('active'); 
 
+                // Reiniciar clases de animación para la pantalla de unión si no es la activa
                 if (this.state !== this.STATES.JOIN_SCREEN) {
                     document.getElementById('joinScreen').classList.remove('active');
                 }
+                
+                // Asegurarse de que el canvas 3D del lobby esté activo solo en el lobby
+                if (this.state === this.STATES.LOBBY || this.state === this.STATES.VOTING) {
+                    this.lobby3DCanvas.style.display = 'block';
+                    this.animateLobby3D(); 
+                } else {
+                    this.lobby3DCanvas.style.display = 'none';
+                    cancelAnimationFrame(this.lobbyAnimationId); 
+                }
 
+                // Mostrar la pantalla según el estado actual
                 switch(this.state) {
                     case this.STATES.LOADING:
                         document.getElementById('loadingScreen').style.display = 'flex';
                         break;
                     case this.STATES.JOIN_SCREEN:
                         document.getElementById('joinScreen').style.display = 'flex';
+                        // Limpiar y preparar la pantalla de unión
+                        document.getElementById('joinError').textContent = '';
+                        document.getElementById('playerName').value = this.player.name; // Restaurar nombre
+                        document.getElementById('grade').value = this.player.grade; // Restaurar grado
+                        // Mostrar ID de preguntas personalizadas si existe en el campo PIN
+                        if (this.customQuestionId) {
+                            document.getElementById('gamePin').value = this.customQuestionId;
+                        } else {
+                            document.getElementById('gamePin').value = ''; // Limpiar si no hay custom ID
+                        }
+                        break;
+                    case this.STATES.CREATE_QUESTIONS_SCREEN: // Nueva pantalla
+                        this.createQuestionsScreen.style.display = 'flex';
+                        this.renderCustomQuestionsList(); // Renderizar lista actual de preguntas creadas
+                        this.toggleQuestionTypeFields(); // Asegurar que los campos correctos estén visibles
+                        this.questionCreatorError.textContent = ''; // Limpiar errores
+                        this.questionText.value = ''; // Limpiar formulario de creación
+                        this.questionImageURL.value = '';
+                        this.correctAnswerValueInput.value = '';
+                        this.optionAInput.value = '';
+                        this.optionBInput.value = '';
+                        this.optionCInput.value = '';
+                        this.optionDInput.value = '';
+                        this.correctAnswerABCDSelect.value = '';
+                        this.questionTypeSelect.value = 'numerica';
+                        this.saveCustomQuestionsBtn.disabled = false;
+                        this.saveCustomQuestionsBtn.innerHTML = '💾 Guardar y Usar Preguntas';
                         break;
                     case this.STATES.LOBBY:
+                    case this.STATES.VOTING: // El estado de votación es una sub-pantalla del lobby
                         document.getElementById('multiplayerLobby').style.display = 'flex';
                         this.readyBtn.style.display = 'block'; 
                         if (this.isHost) {
                             this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
                         }
                         this.enableVotingButtons(true); 
-                        if (this.lobby3DCanvas.style.display !== 'block') { 
-                             this.lobby3DCanvas.style.display = 'block';
-                             this.animateLobby3D(); 
-                        }
-                        break;
-                    case this.STATES.VOTING:
-                        document.getElementById('multiplayerLobby').style.display = 'flex';
-                        this.readyBtn.style.display = 'none'; 
-                        this.startVoteBtn.style.display = 'none'; 
-                        this.enableVotingButtons(true); 
-                        if (this.lobby3DCanvas.style.display !== 'block') {
-                            this.lobby3DCanvas.style.display = 'block';
-                            this.animateLobby3D();
+                        // Controlar la visibilidad del botón de preguntas personalizadas en el lobby
+                        if (this.customQuestionId) {
+                            this.customQuestionsModeBtn.style.display = 'block';
+                            this.customQuestionsModeBtn.dataset.mode = `custom:${this.customQuestionId}`; 
+                            this.customQuestionsModeBtn.textContent = `🌟 Mis Preguntas (${this.customQuestionId})`;
+                        } else {
+                            this.customQuestionsModeBtn.style.display = 'none';
                         }
                         break;
                     case this.STATES.PLAYING:
@@ -1838,18 +2061,12 @@
                         if (this.isProfessor) { 
                             this.skipQuestionBtn.style.display = 'block';
                         }
-                        this.lobby3DCanvas.style.display = 'none'; 
-                        cancelAnimationFrame(this.lobbyAnimationId); 
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
-                        this.lobby3DCanvas.style.display = 'none';
-                        cancelAnimationFrame(this.lobbyAnimationId);
                         break;
                     case this.STATES.RESULTS:
                         document.getElementById('finalResults').style.display = 'flex';
-                        this.lobby3DCanvas.style.display = 'none';
-                        cancelAnimationFrame(this.lobbyAnimationId);
                         break;
                 }
             }
@@ -1871,76 +2088,77 @@
                     });
                 });
                 
-                document.querySelector('.avatar-option').click();
+                document.querySelector('.avatar-option').click(); // Seleccionar el primer avatar por defecto
                 
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
-                document.getElementById('createGame').addEventListener('click', () => this.createGame());
                 
+                // Botón "Crear nueva sala" ahora dirige a la pantalla de creación de preguntas
+                document.getElementById('createGame').addEventListener('click', () => {
+                    this.setState(this.STATES.CREATE_QUESTIONS_SCREEN);
+                });
+                
+                // Eventos para la pantalla de creación de preguntas
+                this.backToJoinScreenFromCreatorBtn.addEventListener('click', () => {
+                    this.setState(this.STATES.JOIN_SCREEN);
+                });
+                this.questionTypeSelect.addEventListener('change', () => this.toggleQuestionTypeFields());
+                this.addQuestionBtn.addEventListener('click', () => this.addCustomQuestion());
+                this.saveCustomQuestionsBtn.addEventListener('click', () => this.saveAndUseCustomQuestions());
+
+
+                // Eventos del juego principal
                 document.querySelectorAll('.key[data-number]').forEach(key => {
-                    key.addEventListener('click', () => {
-                        this.addNumber(key.dataset.number);
-                    });
+                    key.addEventListener('click', () => { this.addNumber(key.dataset.number); });
                 });
-                
-                document.querySelector('.key[data-action="clear"]').addEventListener('click', () => {
-                    this.clearNumber();
-                });
-                
+                document.querySelector('.key[data-action="clear"]').addEventListener('click', () => { this.clearNumber(); });
                 document.getElementById('submitAnswer').addEventListener('click', () => this.submitAnswer());
-                
                 document.getElementById('playerAnswer').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.submitAnswer();
                 });
-                
                 document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
                 document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
-
                 document.querySelectorAll('.abcd-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.submitABCDAnswer(btn.dataset.answer));
                 });
                 
-                // Cuando se hace clic en Reiniciar o Volver al Lobby
+                // Botones de reinicio/volver al lobby
                 document.getElementById('reiniciarBtn').addEventListener('click', () => {
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                        // Notificar al servidor que se reinicia/vuelve al lobby
                         this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
                     }
-                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                    this.reiniciarJuegoLocal(); 
                 });
-
                 document.getElementById('backToLobby').addEventListener('click', () => {
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                        // Notificar al servidor que se reinicia/vuelve al lobby
                         this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
                     }
-                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                    this.reiniciarJuegoLocal(); 
                 });
                 
+                // Botones de modo de juego en el lobby
                 document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
+                    btn.addEventListener('click', (e) => this.castVote(e.currentTarget.dataset.mode));
                 });
                 
                 this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
-
                 this.readyBtn.addEventListener('click', () => this.toggleReady());
-
                 this.startVoteBtn.addEventListener('click', () => this.initiateVoteAsHost());
-
                 this.closeAchievement.addEventListener('click', () => {
                     this.achievementPopup.style.display = 'none';
                 });
 
+                // Atajo de teclado para estadísticas
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 's' && e.ctrlKey) {
                         e.preventDefault(); 
                         this.toggleStats();
                     }
                 });
-
                 this.closeStats.addEventListener('click', () => {
                     this.playerStats.style.display = 'none';
                 });
 
+                // Manejo de reconexión por red
                 window.addEventListener('online', () => {
                     if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
                         this.attemptReconnect();
@@ -2011,7 +2229,6 @@
                 }
 
                 if (this.player.responseTimes.length > 0) { 
-                    // Calcular avgResponseTime solo si hay datos para evitar NaN
                     if (this.player.responseTimes.length > 0) {
                         this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
                     } else {
@@ -2051,13 +2268,13 @@
                 this.playerStats.style.display = 'block';
             }
 
-            sanitizeInput(input) {
-                return input.replace(/[<>]/g, '').substring(0, 20);
+            sanitizeInput(input, maxLength = 50) {
+                return input.replace(/[<>]/g, '').substring(0, maxLength);
             }
 
             joinGame() {
-                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim(), 20);
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim(), 20);
                 const gamePin = document.getElementById('gamePin').value.trim();
 
                 if (!playerName || playerName.length < 3) {
@@ -2070,8 +2287,8 @@
                     return;
                 }
 
-                if (!/^\d{4}$/.test(gamePin)) {
-                    document.getElementById('joinError').textContent = 'PIN debe ser 4 dígitos';
+                if (!gamePin) { // Permitir PIN vacío al crear pero no al unirse
+                    document.getElementById('joinError').textContent = 'El PIN no puede estar vacío.';
                     return;
                 }
                 
@@ -2111,68 +2328,11 @@
                 this.connectToServer();
             }
 
-            createGame() {
-                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
-                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
-                
-                if (!playerName || playerName.length < 3) {
-                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
-                    return;
-                }
-
-                if (!grade) {
-                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
-                    return;
-                }
-                
-                document.getElementById('joinError').textContent = ''; 
-
-                const createBtn = document.getElementById('createGame');
-                createBtn.disabled = true;
-                createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
-
-                let playerId = localStorage.getItem('playerId');
-                if (!playerId) {
-                    playerId = this.generateId();
-                    localStorage.setItem('playerId', playerId);
-                }
-
-                this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
-                document.getElementById('gamePin').value = this.gamePin; 
-                
-                this.player = {
-                    id: playerId,
-                    name: playerName,
-                    grade: grade,
-                    displayName: `${playerName} (Profesor)`,
-                    avatar: this.player.avatar,
-                    points: 0,
-                    hasAnswered: false,
-                    hasVoted: false,
-                    streak: 0,
-                    maxStreak: 0,
-                    avgResponseTime: 0,
-                    responseTimes: [],
-                    history: [],
-                    isProfessor: true, 
-                    isReady: false,
-                    gamesPlayed: this.player.gamesPlayed || 0,
-                    favoriteMode: this.player.favoriteMode || null,
-                    modeStats: this.player.modeStats || {},
-                    achievements: this.player.achievements || [],
-                    lastAnswerCorrect: false
-                };
-                
-                this.isHost = true; 
-                
-                console.log("[Cliente] Intentando conectar al servidor para crear sala...");
-                this.connectToServer(); 
-
-                setTimeout(() => {
-                    createBtn.disabled = false;
-                    createBtn.textContent = 'Crear nueva sala';
-                }, 2000);
-            }
+            // `createGame` original ahora se ha convertido en un botón que te lleva a CREATE_QUESTIONS_SCREEN
+            // La lógica real de creación de sala se ejecuta en `saveAndUseCustomQuestions` si creas un set,
+            // o si simplemente pones un PIN y le das a "Crear nueva sala" en la pantalla de unión.
+            // Para mantener la flexibilidad, mantendremos la opción de crear sala desde la pantalla de unión
+            // para PINs no personalizados, y el flujo de preguntas personalizadas para PINs personalizados.
 
             connectToServer() {
                 try {
@@ -2187,8 +2347,8 @@
                     const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
                     this.socket = new WebSocket(wsUrl);
                     
-                    this.setupHeartbeat();
-                    
+                    this.setupHeartbeat(); 
+
                     this.socket.onerror = (error) => {
                         console.error("[Cliente] Error de conexión WS:", error);
                         this.handleNetworkError(error, "Error de conexión con el servidor");
@@ -2197,14 +2357,14 @@
                     
                     this.socket.onclose = (event) => {
                         console.log("[Cliente] Conexión WS cerrada:", event.code, event.reason);
-                        clearInterval(this.heartbeatInterval);
+                        clearInterval(this.heartbeatInterval); 
                         this.heartbeatInterval = null;
 
                         let message = "Conexión cerrada";
-                        if (event.code === 1000) {
+                        if (event.code === 1000) { 
                             message = "Conexión finalizada (normal)";
                             this.updateConnectionStatus('disconnected', `🔴 ${message}`);
-                        } else {
+                        } else { 
                             if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
                                 this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
                                 this.attemptReconnect();
@@ -2217,14 +2377,21 @@
                     this.socket.onopen = () => {
                         console.log("[Cliente] Conexión WS establecida.");
                         this.reconnectAttempts = 0;
-                        this.lastPongTime = Date.now();
                         this.updateConnectionStatus('connected', '🟢 Conectado');
                         
                         let messageType;
 
-                        if (this.isHost) {
+                        // Si el PIN coincide con un ID de preguntas personalizadas, intenta crear/unir con ese ID
+                        // Esto permite que el PIN de la sala sea el mismo que el ID del set de preguntas
+                        if (this.customQuestionId && document.getElementById('gamePin').value === this.customQuestionId && this.isHost) {
+                            messageType = 'create_room'; // Si es el host y usa su PIN personalizado, crea la sala
+                        } else if (!document.getElementById('gamePin').value.trim() && this.isHost) {
+                             // Si es host y no hay PIN (crear una sala nueva sin custom ID)
                             messageType = 'create_room';
-                        } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
+                            this.gamePin = Math.floor(1000 + Math.random() * 9000).toString(); // Generar un nuevo PIN aleatorio
+                            document.getElementById('gamePin').value = this.gamePin; // Actualizar UI
+                        }
+                         else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
                             messageType = 'rejoin_room';
                         } else {
                             messageType = 'join_room'; 
@@ -2251,9 +2418,11 @@
                             const data = JSON.parse(event.data);
                             console.log("[Cliente] Mensaje WS recibido:", data); 
                             
-                            if (data.type === 'pong') {
-                                this.lastPongTime = Date.now();
-                                return;
+                            if (data.type === 'ping') { 
+                                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                                    this.socket.pong(); // Responde con un PONG nativo de WebSocket
+                                }
+                                return; 
                             }
                             
                             this.handleSocketMessage(data);
@@ -2269,23 +2438,8 @@
 
             setupHeartbeat() {
                 clearInterval(this.heartbeatInterval);
-                
-                this.heartbeatInterval = setInterval(() => {
-                    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                        const now = Date.now();
-                        
-                        if (this.lastPongTime && now - this.lastPongTime > 30000) {
-                            console.warn("[Cliente] No se recibió pong en 30s. Cerrando conexión para intentar reconectar...");
-                            this.socket.close(); 
-                            return;
-                        }
-                        
-                        this.socket.send(JSON.stringify({ type: 'ping' }));
-                    } else if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
-                        clearInterval(this.heartbeatInterval);
-                        this.heartbeatInterval = null;
-                    }
-                }, 15000); 
+                // El cliente ya no envía pings, solo responde a los del servidor.
+                // Esta función solo asegura que no haya un intervalo antiguo.
             }
 
             attemptReconnect() {
@@ -2388,7 +2542,6 @@
                         break;
                         
                     case 'game_start': 
-                        // El servidor ahora enviará la primera pregunta a través de 'question_update'
                         this.startGame(data.mode, data.closestAnswerMode);
                         break;
                         
@@ -2440,6 +2593,24 @@
                     case 'answer_received': 
                         console.log("Servidor: Respuesta recibida.");
                         break;
+                    
+                    case 'custom_questions_created': // Manejo de la confirmación de preguntas personalizadas
+                        this.customQuestionId = data.customQuestionId;
+                        localStorage.setItem('lastCustomQuestionId', this.customQuestionId); // Guardar en localStorage
+                        this.showNotification(`¡Preguntas guardadas! ID: ${this.customQuestionId}`);
+                        // Precargar el PIN con el ID de las preguntas y volver a la pantalla de unión
+                        document.getElementById('gamePin').value = this.customQuestionId; 
+                        document.getElementById('createGame').disabled = false; 
+                        document.getElementById('createGame').textContent = 'Crear nueva sala'; // Restaurar texto
+                        this.setState(this.STATES.JOIN_SCREEN); 
+                        break;
+                    
+                    case 'room_reset': 
+                        console.log("[Cliente] Sala reiniciada por el servidor.");
+                        // Esto podría usarse para forzar el reinicio local si el servidor lo indica
+                        // this.reiniciarJuegoLocal(); 
+                        break;
+
 
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
@@ -2579,11 +2750,10 @@
             }
 
             handleQuestionUpdate(data) {
-                // Almacena la pregunta que viene del servidor (ya viene sin respuesta si es necesario)
                 this.currentQuestionData = data.question; 
-                this.lastAnswerTime = Date.now(); // Marca el tiempo en que la pregunta es recibida/mostrada
+                this.lastAnswerTime = Date.now(); 
                 this.currentQuestionIndex = data.questionIndex; 
-                this.timerDuration = data.timerDuration || 30; // Actualiza la duración del temporizador
+                this.timerDuration = data.timerDuration || 30; 
                 
                 this.displayQuestion(data.question);
                 
@@ -2764,7 +2934,7 @@
                 this.voteCounts = {
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
                     combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
-                    "sumamultiplicacion": 0, "informatica": 0
+                    "sumamultiplicacion": 0, "informatica": 0, "custom:placeholder": 0 // Asegurar que el custom mode esté en voteCounts
                 };
                 document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
                 this.player.hasVoted = false; 
@@ -2778,10 +2948,7 @@
                 this.voteTime = time;
                 document.getElementById('voteTime').textContent = this.voteTime;
                 
-                // Si eres el host, el temporizador de votación lo controla el servidor
-                // Si no eres el host, solo actualizas la UI
                 if (!this.isHost && time > 0) {
-                    // Limpiar cualquier temporizador anterior del cliente
                     if (this._clientVoteCountdownInterval) {
                         clearInterval(this._clientVoteCountdownInterval);
                     }
@@ -2836,7 +3003,7 @@
                     type: 'cast_vote',
                     pin: this.gamePin,
                     playerId: this.player.id,
-                    mode: mode
+                    mode: mode // Este 'mode' puede ser "custom:ID"
                 }));
             }
 
@@ -2876,8 +3043,12 @@
                     "verdadero-falso": '✅❌ Verdadero/Falso',
                     "mas-cercano": '🎯 El más cercano gana',
                     "sumamultiplicacion": '➕✖️ Suma y Multiplicación', 
-                    "informatica": '💻 Informática' 
+                    "informatica": '💻 Informática',
+                    "custom": '🌟 Mis Preguntas Personalizadas' // Nombre para el modo 'custom'
                 };
+                if (mode.startsWith('custom:')) {
+                    return `🌟 Mis Preguntas (${mode.split(':')[1]})`; // Mostrar ID
+                }
                 return names[mode] || mode;
             }
 
@@ -2917,7 +3088,7 @@
 
                 if (mode === 'verdadero-falso') {
                     document.getElementById('trueFalseButtons').style.display = 'flex';
-                } else if (mode === 'informatica') {
+                } else if (mode === 'informatica' || mode === 'custom') { // El modo 'custom' podría ser A/B/C/D
                     this.abcdButtonsContainer.style.display = 'grid'; 
                 } else {
                     document.getElementById('standardInput').style.display = 'block';
@@ -2935,41 +3106,15 @@
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
-            // Esta función `generarPreguntas` ya NO es usada en el flujo multijugador real.
-            // La generación de preguntas es responsabilidad del servidor.
-            // Se mantiene aquí por si tuvieras un modo de un jugador o para referencia.
+            // Esta función generarPreguntas ya NO es usada en el cliente para generar preguntas para el juego multijugador.
+            // La generación de preguntas es responsabilidad exclusiva del servidor.
             generarPreguntas(mode, count) {
-                const preguntas = [];
-                // ... (código de generarOperacion, generarMisterioso, etc. de tu versión anterior)
-                return preguntas;
+                console.error("ERROR: generarPreguntas en el cliente no debería ser llamada en modo multijugador. La genera el servidor.");
+                return []; 
             }
 
             shareQuestionWithPlayers() {
-                // Esta función solo es llamada por el HOST si la generación de preguntas estuviera en el cliente.
-                // Con la generación en el servidor, esta función ya NO debería ser llamada.
-                // Si la ves ejecutarse, indica un error de flujo.
-                console.error("ERROR: shareQuestionWithPlayers no debería ser llamada en el cliente en este flujo multijugador.");
-                
-                // Si por alguna razón un modo híbrido lo necesitara, sería así:
-                // const question = this.questions[this.currentQuestionIndex];
-                // const questionToSend = { ...question };
-                // if (questionToSend.tipo === 'verdadero-falso') {
-                //     delete questionToSend.respuesta; 
-                //     delete questionToSend.explicacion; 
-                // } else if (questionToSend.tipo === 'informatica') {
-                //     // Mantener 'opciones', solo eliminar 'respuesta'
-                //     delete questionToSend.respuesta; 
-                //     delete questionToSend.explicacion; 
-                // }
-                // this.socket.send(JSON.stringify({
-                //     type: 'question_update',
-                //     pin: this.gamePin,
-                //     question: questionToSend,
-                //     questionIndex: this.currentQuestionIndex,
-                //     totalQuestions: this.questions.length
-                // }));
-                // this.displayQuestion(question); 
-                // this.resetTimer();
+                console.error("ERROR: shareQuestionWithPlayers no debería ser llamada en el cliente en este flujo multijugador. El servidor envía la pregunta.");
             }
 
             displayQuestion(questionData = null) {
@@ -3005,21 +3150,22 @@
 
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.classList.remove('selected-answer'));
 
-                    if (this.selectedGameMode === 'verdadero-falso') {
+                    // Controlar qué tipo de interfaz de respuesta mostrar
+                    if (question.tipo === 'verdadero-falso') {
                         document.getElementById('trueFalseButtons').style.display = 'flex';
-                    } else if (this.selectedGameMode === 'informatica') {
-                        this.abcdButtonsContainer.style.display = 'grid'; 
-                        const options = question.opciones; // Las opciones ahora vienen en questionData del servidor
-                        document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
-                        document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
-                        document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
-                        document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D;
-
-                    } else {
+                    } else if (question.tipo === 'abcd' || question.tipo === 'informatica' || this.selectedGameMode === 'custom') { // Mostrar ABCD para modo custom y informática
+                        document.getElementById('abcdButtons').style.display = 'grid'; 
+                        if (question.opciones) { // Asegurarse de que las opciones existan
+                            document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = question.opciones.A || '';
+                            document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = question.opciones.B || '';
+                            document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = question.opciones.C || '';
+                            document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = question.opciones.D || '';
+                        }
+                    } else { // Numérica u otros modos que usen teclado
                         document.getElementById('standardInput').style.display = 'block';
                     }
 
-                    this.resetTimer(); // Reiniciar el temporizador con la nueva duración de la pregunta
+                    this.resetTimer(); 
                 } catch (error) {
                     console.error("Error al mostrar pregunta:", error);
                     this.showError("Error al cargar la pregunta.");
@@ -3053,31 +3199,12 @@
                             responseTime: responseTime
                         }));
                     } else {
-                        // Este bloque DEBERÍA SER INALCANZABLE en un juego multijugador con servidor.
-                        // Solo se ejecutaría si no hay conexión al servidor o si se simula un modo de un jugador.
+                        // Lógica de simulación offline (NO DEBE USARSE EN UN JUEGO MULTIJUGADOR REAL)
                         console.error("Advertencia: Lógica de calificación local ejecutada. ¡Debe ser manejada por el servidor!");
-                        // Para evitar el error de "undefined" en una simulación local sin servidor:
                         let isCorrect = false;
-                        let formattedCorrectAnswer = "Desconocido";
-                        if (this.currentQuestionData && this.currentQuestionData.respuesta !== undefined) {
-                            const correctAnswer = this.currentQuestionData.respuesta;
-                            if (this.selectedGameMode === 'verdadero-falso') {
-                                isCorrect = (userAnswer === 'true') === correctAnswer;
-                                formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
-                            } else if (this.selectedGameMode === 'informatica' && this.currentQuestionData.opciones) {
-                                isCorrect = (userAnswer === correctAnswer);
-                                formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
-                            } else {
-                                isCorrect = parseFloat(userAnswer) === correctAnswer;
-                                formattedCorrectAnswer = correctAnswer;
-                            }
-                        }
-                        
-                        this.player.streak = isCorrect ? (this.player.streak + 1) : 0;
-                        this.player.lastAnswerCorrect = isCorrect;
-                        let streakBonus = 0; // Para simulación, no calcularemos bonus complejo aquí
-                        
-                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, streakBonus, this.currentQuestionData ? this.currentQuestionData.opciones : undefined);
+                        let formattedCorrectAnswer = "N/A";
+                        // Este bloque de simulación es un fallback y no tiene acceso a la respuesta real si el servidor la oculta.
+                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, 0, {}); 
                     }
 
                 } catch (error) {
@@ -3089,7 +3216,6 @@
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
                     this.player.hasAnswered = false;
                 } finally {
-                    // Los botones serán re-habilitados por el mensaje de `question_update` o `game_over` del servidor
                 }
             }
 
@@ -3105,19 +3231,19 @@
                 this.checkAnswer(answer);
             }
 
-            // `options` ahora viene del servidor
             startRevealPhase(correctAnswer, playerCorrect, streakBonus, receivedOptions = undefined) { 
                 this.setState(this.STATES.REVEAL);
                 this.playSound('revealSound');
                 
-                // Determinar qué opciones usar para mostrar la respuesta completa
-                // 'receivedOptions' es lo que el servidor nos envía
                 const displayOptions = receivedOptions || {}; 
 
                 let formattedCorrectAnswer = correctAnswer;
+                // Si el modo es 'custom', necesitamos revisar el tipo original de la pregunta
+                // Si no se envía el tipo de pregunta en 'reveal_phase', deberíamos inferirlo o tenerlo en currentQuestionData
+                // Para simplificar, asumimos que si hay 'opciones' y 'correctAnswer' es una letra, es ABCD
                 if (this.selectedGameMode === 'verdadero-falso') {
                     formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
-                } else if (this.selectedGameMode === 'informatica' && displayOptions && displayOptions[correctAnswer]) { 
+                } else if ((this.selectedGameMode === 'informatica' || this.selectedGameMode === 'custom') && displayOptions && displayOptions[correctAnswer]) { 
                     formattedCorrectAnswer = `${correctAnswer}) ${displayOptions[correctAnswer]}`;
                 }
                 this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
@@ -3145,9 +3271,6 @@
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
-
-                    // El avance a la siguiente pregunta o fin de juego lo maneja el servidor.
-                    // El cliente solo espera el próximo 'question_update' o 'game_over'.
                 }, this.revealPhaseDuration);
             }
 
@@ -3173,8 +3296,8 @@
                 const rankingList = document.getElementById('rankingList');
                 const currentRanking = [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
-                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    const avgA = typeof a.avgResponseTime === 'number' && !isNaN(a.avgResponseTime) ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' && !isNaN(b.avgResponseTime) ? b.avgResponseTime : Infinity;
                     if (avgA !== avgB) return avgA - avgB; 
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
@@ -3307,8 +3430,8 @@
             getFinalRanking() {
                 return [...this.players].sort((a, b) => {
                     if (b.points !== a.points) return b.points - a.points;
-                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
-                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    const avgA = typeof a.avgResponseTime === 'number' && !isNaN(a.avgResponseTime) ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' && !isNaN(b.avgResponseTime) ? b.avgResponseTime : Infinity;
                     if (avgA !== avgB) return avgA - avgB; 
                     return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
@@ -3443,10 +3566,14 @@
                 resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
             }
 
-            showError(message) {
-                const errorElement = document.getElementById("answerResult");
+            showError(message, targetElementId = 'answerResult') { // Añadir targetElementId para errores específicos
+                const errorElement = document.getElementById(targetElementId);
                 errorElement.textContent = message;
                 errorElement.className = "result incorrect";
+                 setTimeout(() => {
+                    errorElement.textContent = '';
+                    errorElement.className = "result waiting"; // o restaurar clase original
+                }, 5000);
             }
 
             showNotification(message) {
@@ -3460,82 +3587,145 @@
                 }, 3000);
             }
 
-            reiniciarJuegoLocal() {
-                try {
-                    this.playSound('clickSound');
-                    clearInterval(this.timerInterval);
-                    if (this.rankingUpdateInterval) {
-                        clearInterval(this.rankingUpdateInterval);
-                        this.rankingUpdateInterval = null;
-                    }
-                    
-                    this.player.points = 0;
-                    this.player.streak = 0;
-                    this.player.responseTimes = [];
-                    this.player.history = [];
-                    this.player.hasAnswered = false;
-                    this.player.hasVoted = false;
-                    this.player.isReady = false; 
-                    this.player.lastAnswerCorrect = false;
+            // Lógica para la creación de preguntas personalizadas
+            toggleQuestionTypeFields() {
+                const questionType = this.questionTypeSelect.value;
+                this.numericTrueFalseAnswerDiv.style.display = 'none';
+                this.abcdOptionsDiv.style.display = 'none';
+                this.questionImageURL.parentElement.style.display = 'block'; // Imagen siempre opcional
 
-                    this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
-
-                    this.currentQuestionIndex = 0;
-                    this.currentQuestionData = null; 
-                    this.selectedGameMode = null; 
-                    this.closestAnswerMode = false;
-                    this.isVotingActive = false; 
-                    this.winnerDancingEmoji.style.display = 'none'; 
-
-                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
-                    document.getElementById("playerAnswer").value = "";
-                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("answerResult").className = "result waiting";
-                    document.getElementById("mensajeVictoria").innerHTML = "";
-                    document.getElementById("progressBar").style.width = "0%";
-                    document.getElementById('submitAnswer').disabled = false;
-                    document.getElementById('questionImage').style.display = 'none';
-                    
-                    document.querySelectorAll('.mode-btn').forEach(btn => {
-                        btn.classList.remove('selected', 'voted');
-                        btn.disabled = false; 
-                    });
-
-                    document.getElementById('standardInput').style.display = 'none';
-                    document.getElementById('trueFalseButtons').style.display = 'none';
-                    this.abcdButtonsContainer.style.display = 'none';
-                    
-                    this.setState(this.STATES.LOBBY); 
-                    if (this.isHost) {
-                        this.startVoteBtn.style.display = 'block';
-                    }
-                } catch (error) {
-                    console.error("Error al reiniciar juego localmente:", error);
-                    this.showError("Error al reiniciar el juego localmente.");
+                if (questionType === 'numerica') {
+                    this.numericTrueFalseAnswerDiv.style.display = 'block';
+                    this.correctAnswerValueInput.type = 'text'; // Puede ser número o cadena para negativo
+                    this.correctAnswerValueInput.placeholder = 'Ej: 8';
+                } else if (questionType === 'verdadero-falso') {
+                    this.numericTrueFalseAnswerDiv.style.display = 'block';
+                    this.correctAnswerValueInput.type = 'text'; 
+                    this.correctAnswerValueInput.placeholder = 'true o false';
+                } else if (questionType === 'abcd') {
+                    this.abcdOptionsDiv.style.display = 'block';
                 }
             }
 
-            addNumber(num) {
-                if (this.currentQuestionData && !this.player.hasAnswered) {
-                    this.playSound('clickSound');
-                    const playerAnswerInput = document.getElementById('playerAnswer');
-                    playerAnswerInput.value += num;
+            addCustomQuestion() {
+                const questionType = this.questionTypeSelect.value;
+                const questionText = this.sanitizeInput(this.questionText.value, 150);
+                const questionImageURL = this.sanitizeInput(this.questionImageURL.value, 250);
+                let newQuestion = { pregunta: questionText, imagen: questionImageURL || undefined, tipo: questionType };
+                let isValid = true;
+                let errorMessage = '';
+
+                if (!questionText) {
+                    errorMessage = 'El texto de la pregunta no puede estar vacío.';
+                    isValid = false;
+                }
+
+                if (questionType === 'numerica') {
+                    const answer = this.correctAnswerValueInput.value.trim();
+                    if (answer === '' || isNaN(Number(answer))) { 
+                        errorMessage = 'La respuesta numérica debe ser un número válido.';
+                        isValid = false;
+                    } else {
+                        newQuestion.respuesta = Number(answer);
+                    }
+                } else if (questionType === 'verdadero-falso') {
+                    const answer = this.correctAnswerValueInput.value.trim().toLowerCase();
+                    if (answer !== 'true' && answer !== 'false') {
+                        errorMessage = 'La respuesta debe ser "true" o "false".';
+                        isValid = false;
+                    } else {
+                        newQuestion.respuesta = (answer === 'true');
+                    }
+                } else if (questionType === 'abcd') {
+                    const optionA = this.sanitizeInput(this.optionAInput.value, 50);
+                    const optionB = this.sanitizeInput(this.optionBInput.value, 50);
+                    const optionC = this.sanitizeInput(this.optionCInput.value, 50);
+                    const optionD = this.sanitizeInput(this.optionDInput.value, 50);
+                    const correctAnswerABCD = this.correctAnswerABCDSelect.value;
+
+                    if (!optionA || !optionB || !optionC || !optionD) {
+                        errorMessage = 'Todas las opciones A/B/C/D deben tener texto.';
+                        isValid = false;
+                    }
+                    if (!correctAnswerABCD) {
+                        errorMessage = 'Debes seleccionar la opción correcta (A, B, C o D).';
+                        isValid = false;
+                    }
+                    newQuestion.opciones = { A: optionA, B: optionB, C: optionC, D: optionD };
+                    newQuestion.respuesta = correctAnswerABCD;
+                }
+
+                if (isValid) {
+                    this.customQuestions.push(newQuestion);
+                    this.renderCustomQuestionsList();
+                    this.questionCreatorError.textContent = '';
+                    
+                    // Limpiar campos del formulario después de añadir
+                    this.questionText.value = '';
+                    this.questionImageURL.value = '';
+                    this.correctAnswerValueInput.value = '';
+                    this.optionAInput.value = '';
+                    this.optionBInput.value = '';
+                    this.optionCInput.value = '';
+                    this.optionDInput.value = '';
+                    this.correctAnswerABCDSelect.value = '';
+                    this.questionTypeSelect.value = 'numerica'; 
+                    this.toggleQuestionTypeFields(); 
+                } else {
+                    this.showError(errorMessage, 'questionCreatorError');
                 }
             }
 
-            clearNumber() {
-                this.playSound('clickSound');
-                document.getElementById('playerAnswer').value = "";
+            renderCustomQuestionsList() {
+                this.questionListContainer.innerHTML = '';
+                if (this.customQuestions.length === 0) {
+                    this.questionListContainer.innerHTML = '<p style="text-align:center; opacity:0.7;">No hay preguntas añadidas aún.</p>';
+                    return;
+                }
+                this.customQuestions.forEach((q, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'created-question-item';
+                    let displayText = `${index + 1}. [${this.getQuestionTypeName(q.tipo)}] ${q.pregunta}`;
+                    if (q.imagen) displayText += ' (con imagen)';
+                    item.innerHTML = `
+                        <span>${displayText}</span>
+                        <button class="remove-btn" data-index="${index}">X</button>
+                    `;
+                    this.questionListContainer.appendChild(item);
+                });
+
+                this.questionListContainer.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.removeCustomQuestion(e.target.dataset.index));
+                });
             }
 
-            submitAnswer() {
-                const respuesta = document.getElementById('playerAnswer').value;
-                this.checkAnswer(respuesta);
+            removeCustomQuestion(indexToRemove) {
+                this.customQuestions.splice(indexToRemove, 1);
+                this.renderCustomQuestionsList();
             }
 
-            handleNetworkError(error, message = "Error de red") {
-                console.error(message, error);
-                this.showNotification(`${message}. Intentando reconectar...`);
+            saveAndUseCustomQuestions() {
+                if (this.customQuestions.length === 0) {
+                    this.showError('Debes añadir al menos una pregunta.', 'questionCreatorError');
+                    return;
+                }
+                if (this.customQuestions.length > 20) { 
+                    this.showError('No puedes añadir más de 20 preguntas por set.', 'questionCreatorError');
+                    return;
+                }
+
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.saveCustomQuestionsBtn.disabled = true;
+                    this.saveCustomQuestionsBtn.innerHTML = '<span class="loader-small"></span> Guardando...';
+
+                    this.socket.send(JSON.stringify({
+                        type: 'create_custom_questions',
+                        playerId: this.player.id,
+                        questions: this.customQuestions
+                    }));
+                } else {
+                    this.showError('No hay conexión con el servidor. Reconecta e inténtalo de nuevo.', 'questionCreatorError');
+                }
             }
 
             generateId() {

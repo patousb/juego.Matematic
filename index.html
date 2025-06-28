@@ -173,7 +173,7 @@
             font-family: 'Comic Neue', cursive;
             transition: all 0.3s;
             background: rgba(255,255,255,0.1);
-            color: var(--texto); /* Asegura que el texto sea legible en dark mode */
+            color: var(--texto); 
         }
 
         .input-group input:focus, .input-group select:focus {
@@ -839,7 +839,7 @@
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
+            0% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
         }
 
@@ -1269,7 +1269,7 @@
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: 15px; /* Ajustado a 15px para consistencia */
+            border-radius: 15px; 
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
@@ -1332,34 +1332,10 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        /* Pantalla de Creación de Preguntas (NUEVO) */
-        .create-questions-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: var(--fondo);
-            z-index: 1000;
-            padding: 20px;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            overflow-y: auto; /* Para permitir scroll si hay muchas preguntas */
-        }
-
-        .create-questions-form {
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            width: 100%;
+        /* Pantalla de Creación de Preguntas */
+        .create-questions-screen .glass-panel {
             max-width: 700px; /* Un poco más ancho para el creador */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--verde); /* Borde diferente para este modo */
+            border-bottom: 2px solid var(--verde); 
         }
 
         .question-builder {
@@ -1371,7 +1347,7 @@
         }
 
         #questionListContainer {
-            max-height: 250px; /* Altura máxima para la lista de preguntas */
+            max-height: 250px; 
             overflow-y: auto;
             border: 1px solid var(--borde);
             border-radius: 8px;
@@ -1389,7 +1365,7 @@
             border-radius: 5px;
             margin-bottom: 8px;
             font-size: 0.9em;
-            word-break: break-word; /* Romper palabras largas */
+            word-break: break-word; 
         }
         .created-question-item:last-child {
             margin-bottom: 0;
@@ -1479,14 +1455,35 @@
                 font-size: 5em;
             }
              .create-questions-form {
-                max-width: 95%; /* Ajuste para pantallas pequeñas */
+                max-width: 95%; 
                 padding: 15px;
             }
             .question-builder {
                 padding: 10px;
             }
             #questionListContainer {
-                max-height: 150px; /* Menos alto en móviles */
+                max-height: 150px; 
+            }
+            /* Home screen responsive */
+            .home-screen {
+                padding-top: 30px;
+            }
+            .main-title {
+                font-size: 2.5em;
+            }
+            .tagline {
+                font-size: 1.2em;
+                margin-bottom: 30px;
+            }
+            .main-btn {
+                padding: 15px 30px;
+                font-size: 1.2em;
+            }
+            .features-section h2 {
+                font-size: 1.8em;
+            }
+            .feature-cards {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1495,6 +1492,37 @@
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
         <h2>Cargando El Juego De Matematicas:3...</h2>
+    </div>
+
+    <div class="screen-container home-screen" id="homeScreen">
+        <h1 class="main-title">🎉 Math Challenge PRO 🎉</h1>
+        <p class="tagline">¡Crea, Juega y Aprende Matemáticas como nunca!</p>
+        
+        <div class="main-actions">
+            <button class="btn main-btn" id="playNowBtn">▶️ Jugar Ahora</button>
+            <button class="btn main-btn btn-secondary" id="createKahootBtn">➕ Crear tu Kahoot</button>
+        </div>
+
+        <div class="features-section">
+            <h2>Descubre el Poder de Math Challenge PRO</h2>
+            <div class="feature-cards">
+                <div class="card glass-panel">
+                    <h3>📚 Modos de Juego Variados</h3>
+                    <p>Desde operaciones rápidas hasta lógica informática, ¡nunca te aburrirás!</p>
+                    <img src="https://placehold.co/150x100/A459FF/FFFFFF?text=Modos" alt="Icono Modos">
+                </div>
+                <div class="card glass-panel">
+                    <h3>✍️ Crea tus Propias Preguntas</h3>
+                    <p>Diseña tus sets de preguntas personalizados: numérica, V/F, A/B/C/D.</p>
+                    <img src="https://placehold.co/150x100/4E8CFF/FFFFFF?text=Crear" alt="Icono Crear">
+                </div>
+                <div class="card glass-panel">
+                    <h3>🏆 Compite en Tiempo Real</h3>
+                    <p>Enfrenta a tus amigos y sube en el ranking en línea.</p>
+                    <img src="https://placehold.co/150x100/6BFF6B/FFFFFF?text=Competir" alt="Icono Competir">
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="screen-container" id="joinScreen">
@@ -1553,7 +1581,7 @@
                     <label for="questionText">Texto de la Pregunta:</label>
                     <input type="text" id="questionText" placeholder="Ej: ¿Cuánto es 5 + 3?" maxlength="150">
                 </div>
-                <div class="input-group" id="questionImageGroup" style="display:none;">
+                <div class="input-group" id="questionImageGroup">
                     <label for="questionImageURL">URL de Imagen (Opcional):</label>
                     <input type="url" id="questionImageURL" placeholder="Ej: https://ejemplo.com/imagen.png">
                 </div>
@@ -1626,7 +1654,7 @@
                     <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
                     <button class="mode-btn" data-mode="sumamultiplicacion">➕✖️ Suma y Multiplicación</button>
                     <button class="mode-btn" data-mode="informatica">💻 Informática</button>
-                    <button class="mode-btn" data-mode="custom:placeholder" id="customQuestionsModeBtn">🌟 Mis Preguntas</button>
+                    <button class="mode-btn" data-mode="custom:placeholder" id="customQuestionsModeBtn" style="display:none;">🌟 Mis Preguntas</button>
                 </div>
                 <div class="vote-results glass-panel">
                     <h4>Resultados:</h4>
@@ -1774,15 +1802,16 @@
             constructor() {
                 this.STATES = {
                     LOADING: 0,
-                    JOIN_SCREEN: 1, // Pantalla principal de unión
-                    CREATE_QUESTIONS_SCREEN: 2, // Nueva pantalla para crear preguntas
-                    LOBBY: 3, // Lobby de espera y votación
-                    VOTING: 4, // Estado durante la votación en el lobby
-                    PLAYING: 5, // Juego en curso
-                    RESULTS: 6, // Pantalla de resultados finales
-                    REVEAL: 7 // Fase de revelación de respuesta
+                    HOME_SCREEN: 1, // Nueva pantalla de inicio
+                    JOIN_SCREEN: 2, 
+                    CREATE_QUESTIONS_SCREEN: 3, 
+                    LOBBY: 4, 
+                    VOTING: 5, 
+                    PLAYING: 6, 
+                    RESULTS: 7, 
+                    REVEAL: 8 
                 };
-                this.state = this.STATES.LOADING;
+                this.state = this.STATES.LOADING; // El juego ahora empieza en LOADING, luego HOME_SCREEN
 
                 this.player = {
                     id: null,
@@ -1807,14 +1836,14 @@
                     lastAnswerCorrect: false
                 };
                 
-                this.questions = []; // Para el host, preguntas que el servidor generaría (no usadas para generar)
+                this.questions = []; 
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
                 this.timeLeft = 30;
-                this.timerDuration = 30; // Duración del temporizador actual, establecida por el servidor
+                this.timerDuration = 30; 
                 this.timerInterval = null;
                 this.soundEnabled = true;
-                this.currentQuestionData = null; // Almacena la pregunta actual recibida del servidor
+                this.currentQuestionData = null; 
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
@@ -1848,8 +1877,7 @@
                     "mas-cercano": 0,
                     "sumamultiplicacion": 0,
                     "informatica": 0,
-                    // Asegúrate de que 'custom' se reinicie también si está en voteCounts del server
-                    "custom:placeholder": 0 // Placeholder para el modo personalizado
+                    "custom:placeholder": 0 
                 };
                 this.isVotingActive = false; 
                 
@@ -1900,8 +1928,8 @@
                 };
 
                 // Propiedades para la creación de preguntas personalizadas
-                this.customQuestions = []; // Array de preguntas que el usuario está creando localmente
-                this.customQuestionId = localStorage.getItem('lastCustomQuestionId'); // ID del último set guardado
+                this.customQuestions = []; 
+                this.customQuestionId = localStorage.getItem('lastCustomQuestionId'); 
                 
                 // Referencias a elementos HTML (para todas las pantallas)
                 this.lobby3DCanvas = document.getElementById('lobby3DCanvas');
@@ -1929,7 +1957,12 @@
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
-                // Referencias a elementos de la nueva pantalla de creación de preguntas
+                // Referencias a elementos de la nueva pantalla de inicio
+                this.homeScreen = document.getElementById('homeScreen');
+                this.playNowBtn = document.getElementById('playNowBtn');
+                this.createKahootBtn = document.getElementById('createKahootBtn');
+
+                // Referencias a elementos de la pantalla de creación de preguntas
                 this.createQuestionsScreen = document.getElementById('createQuestionsScreen');
                 this.questionTypeSelect = document.getElementById('questionType');
                 this.questionText = document.getElementById('questionText');
@@ -1954,11 +1987,10 @@
                 this.loadPlayerStats();
                 this.initLobby3D();
 
-                // Inicio: mostrar la pantalla de unión después de un breve tiempo
+                // Inicio: mostrar la pantalla de inicio después de un breve tiempo
                 setTimeout(() => {
-                    this.setState(this.STATES.JOIN_SCREEN);
+                    this.setState(this.STATES.HOME_SCREEN); // Cambiar a HOME_SCREEN
                     document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('joinScreen').classList.add('active'); 
                 }, 1500);
             }
 
@@ -1976,7 +2008,8 @@
                 document.getElementById('gameContainer').style.display = 'none';
                 document.getElementById('finalResults').style.display = 'none';
                 document.getElementById('liveRanking').style.display = 'none';
-                this.createQuestionsScreen.style.display = 'none'; // Nueva pantalla
+                this.createQuestionsScreen.style.display = 'none'; 
+                this.homeScreen.style.display = 'none'; 
 
                 // Ocultar overlays y elementos de juego específicos
                 this.gameModeIndicator.style.display = 'none';
@@ -1986,10 +2019,11 @@
                 this.lobbyCountdownMessage.style.display = 'none'; 
                 this.lobbyCountdownMessage.classList.remove('active'); 
 
-                // Reiniciar clases de animación para la pantalla de unión si no es la activa
-                if (this.state !== this.STATES.JOIN_SCREEN) {
-                    document.getElementById('joinScreen').classList.remove('active');
-                }
+                // Reiniciar clases de animación para las pantallas que las usan
+                document.getElementById('joinScreen').classList.remove('active');
+                this.createQuestionsScreen.classList.remove('active');
+                document.getElementById('multiplayerLobby').classList.remove('active');
+                this.homeScreen.classList.remove('active');
                 
                 // Asegurarse de que el canvas 3D del lobby esté activo solo en el lobby
                 if (this.state === this.STATES.LOBBY || this.state === this.STATES.VOTING) {
@@ -2005,25 +2039,32 @@
                     case this.STATES.LOADING:
                         document.getElementById('loadingScreen').style.display = 'flex';
                         break;
+                    case this.STATES.HOME_SCREEN: 
+                        this.homeScreen.style.display = 'flex';
+                        this.homeScreen.classList.add('active'); 
+                        break;
                     case this.STATES.JOIN_SCREEN:
                         document.getElementById('joinScreen').style.display = 'flex';
+                        document.getElementById('joinScreen').classList.add('active'); 
                         // Limpiar y preparar la pantalla de unión
                         document.getElementById('joinError').textContent = '';
-                        document.getElementById('playerName').value = this.player.name; // Restaurar nombre
-                        document.getElementById('grade').value = this.player.grade; // Restaurar grado
+                        document.getElementById('playerName').value = this.player.name; 
+                        document.getElementById('grade').value = this.player.grade; 
                         // Mostrar ID de preguntas personalizadas si existe en el campo PIN
                         if (this.customQuestionId) {
                             document.getElementById('gamePin').value = this.customQuestionId;
                         } else {
-                            document.getElementById('gamePin').value = ''; // Limpiar si no hay custom ID
+                            document.getElementById('gamePin').value = ''; 
                         }
                         break;
-                    case this.STATES.CREATE_QUESTIONS_SCREEN: // Nueva pantalla
+                    case this.STATES.CREATE_QUESTIONS_SCREEN: 
                         this.createQuestionsScreen.style.display = 'flex';
-                        this.renderCustomQuestionsList(); // Renderizar lista actual de preguntas creadas
-                        this.toggleQuestionTypeFields(); // Asegurar que los campos correctos estén visibles
-                        this.questionCreatorError.textContent = ''; // Limpiar errores
-                        this.questionText.value = ''; // Limpiar formulario de creación
+                        this.createQuestionsScreen.classList.add('active'); 
+                        // Preparar la pantalla de creación
+                        this.renderCustomQuestionsList(); 
+                        this.toggleQuestionTypeFields(); 
+                        this.questionCreatorError.textContent = ''; 
+                        this.questionText.value = ''; 
                         this.questionImageURL.value = '';
                         this.correctAnswerValueInput.value = '';
                         this.optionAInput.value = '';
@@ -2036,8 +2077,9 @@
                         this.saveCustomQuestionsBtn.innerHTML = '💾 Guardar y Usar Preguntas';
                         break;
                     case this.STATES.LOBBY:
-                    case this.STATES.VOTING: // El estado de votación es una sub-pantalla del lobby
+                    case this.STATES.VOTING: 
                         document.getElementById('multiplayerLobby').style.display = 'flex';
+                        document.getElementById('multiplayerLobby').classList.add('active'); 
                         this.readyBtn.style.display = 'block'; 
                         if (this.isHost) {
                             this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
@@ -2088,25 +2130,34 @@
                     });
                 });
                 
-                document.querySelector('.avatar-option').click(); // Seleccionar el primer avatar por defecto
+                document.querySelector('.avatar-option').click(); 
                 
-                document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
-                
-                // Botón "Crear nueva sala" ahora dirige a la pantalla de creación de preguntas
-                document.getElementById('createGame').addEventListener('click', () => {
-                    this.setState(this.STATES.CREATE_QUESTIONS_SCREEN);
+                // --- Eventos de la nueva Pantalla de Inicio (HOME_SCREEN) ---
+                this.playNowBtn.addEventListener('click', () => {
+                    this.setState(this.STATES.JOIN_SCREEN); // "Jugar Ahora" lleva a la pantalla de unirse
+                });
+                this.createKahootBtn.addEventListener('click', () => {
+                    this.setState(this.STATES.CREATE_QUESTIONS_SCREEN); // "Crear Kahoot" lleva al creador
                 });
                 
-                // Eventos para la pantalla de creación de preguntas
+                // --- Eventos de la Pantalla de Unión (JOIN_SCREEN) ---
+                document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
+                // El botón "Crear nueva sala" en la pantalla de UNIÓN ahora crea la sala directamente.
+                document.getElementById('createGame').addEventListener('click', () => {
+                    this.isHost = true; // El que hace clic en "Crear nueva sala" es el host.
+                    this.connectToServer(); // Conectar y crear la sala.
+                });
+                
+                // --- Eventos de la Pantalla de Creación de Preguntas ---
                 this.backToJoinScreenFromCreatorBtn.addEventListener('click', () => {
-                    this.setState(this.STATES.JOIN_SCREEN);
+                    this.setState(this.STATES.HOME_SCREEN); // Volver a la Home Screen
                 });
                 this.questionTypeSelect.addEventListener('change', () => this.toggleQuestionTypeFields());
                 this.addQuestionBtn.addEventListener('click', () => this.addCustomQuestion());
                 this.saveCustomQuestionsBtn.addEventListener('click', () => this.saveAndUseCustomQuestions());
 
 
-                // Eventos del juego principal
+                // --- Eventos del Juego Principal y Lobby ---
                 document.querySelectorAll('.key[data-number]').forEach(key => {
                     key.addEventListener('click', () => { this.addNumber(key.dataset.number); });
                 });
@@ -2121,7 +2172,6 @@
                     btn.addEventListener('click', () => this.submitABCDAnswer(btn.dataset.answer));
                 });
                 
-                // Botones de reinicio/volver al lobby
                 document.getElementById('reiniciarBtn').addEventListener('click', () => {
                     if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
                         this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
@@ -2135,7 +2185,6 @@
                     this.reiniciarJuegoLocal(); 
                 });
                 
-                // Botones de modo de juego en el lobby
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => this.castVote(e.currentTarget.dataset.mode));
                 });
@@ -2147,7 +2196,6 @@
                     this.achievementPopup.style.display = 'none';
                 });
 
-                // Atajo de teclado para estadísticas
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 's' && e.ctrlKey) {
                         e.preventDefault(); 
@@ -2158,7 +2206,6 @@
                     this.playerStats.style.display = 'none';
                 });
 
-                // Manejo de reconexión por red
                 window.addEventListener('online', () => {
                     if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
                         this.attemptReconnect();
@@ -2287,7 +2334,7 @@
                     return;
                 }
 
-                if (!gamePin) { // Permitir PIN vacío al crear pero no al unirse
+                if (!gamePin) { 
                     document.getElementById('joinError').textContent = 'El PIN no puede estar vacío.';
                     return;
                 }
@@ -2328,11 +2375,8 @@
                 this.connectToServer();
             }
 
-            // `createGame` original ahora se ha convertido en un botón que te lleva a CREATE_QUESTIONS_SCREEN
-            // La lógica real de creación de sala se ejecuta en `saveAndUseCustomQuestions` si creas un set,
-            // o si simplemente pones un PIN y le das a "Crear nueva sala" en la pantalla de unión.
-            // Para mantener la flexibilidad, mantendremos la opción de crear sala desde la pantalla de unión
-            // para PINs no personalizados, y el flujo de preguntas personalizadas para PINs personalizados.
+            // El botón "Crear nueva sala" en la pantalla de unión ahora crea la sala directamente.
+            // El botón "Crear Kahoot" en la Home Screen lleva al creador de preguntas.
 
             connectToServer() {
                 try {
@@ -2380,22 +2424,39 @@
                         this.updateConnectionStatus('connected', '🟢 Conectado');
                         
                         let messageType;
-
-                        // Si el PIN coincide con un ID de preguntas personalizadas, intenta crear/unir con ese ID
-                        // Esto permite que el PIN de la sala sea el mismo que el ID del set de preguntas
-                        if (this.customQuestionId && document.getElementById('gamePin').value === this.customQuestionId && this.isHost) {
-                            messageType = 'create_room'; // Si es el host y usa su PIN personalizado, crea la sala
-                        } else if (!document.getElementById('gamePin').value.trim() && this.isHost) {
-                             // Si es host y no hay PIN (crear una sala nueva sin custom ID)
-                            messageType = 'create_room';
-                            this.gamePin = Math.floor(1000 + Math.random() * 9000).toString(); // Generar un nuevo PIN aleatorio
-                            document.getElementById('gamePin').value = this.gamePin; // Actualizar UI
-                        }
-                         else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
-                            messageType = 'rejoin_room';
+                        let gamePinToUse = this.gamePin; // Usar el PIN ya establecido o del campo de texto
+                        
+                        // Si soy el host y el PIN de la sala es mi ID de preguntas personalizadas,
+                        // o si el PIN del campo es un ID de preguntas personalizadas,
+                        // o si voy a crear una sala nueva sin PIN (y no es un ID custom)
+                        if (this.isHost) {
+                            if (document.getElementById('gamePin').value === this.customQuestionId) {
+                                // Si el usuario es host y el PIN que puso es su ID de custom questions,
+                                // intenta crear una sala con ese PIN.
+                                gamePinToUse = this.customQuestionId;
+                                messageType = 'create_room';
+                            } else if (!document.getElementById('gamePin').value.trim()) {
+                                // Si es host y el PIN está vacío, generar uno nuevo para una sala estándar.
+                                gamePinToUse = Math.floor(1000 + Math.random() * 9000).toString();
+                                document.getElementById('gamePin').value = gamePinToUse; // Actualizar UI
+                                messageType = 'create_room';
+                            } else {
+                                // Si es host y hay un PIN no vacío y no es custom ID, usarlo para crear.
+                                messageType = 'create_room';
+                                gamePinToUse = document.getElementById('gamePin').value.trim();
+                            }
                         } else {
-                            messageType = 'join_room'; 
+                            // Si no soy host, siempre es 'join_room' o 'rejoin_room'.
+                            // El PIN se toma del campo de texto.
+                            gamePinToUse = document.getElementById('gamePin').value.trim();
+                            if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN && this.gamePin === gamePinToUse) {
+                                messageType = 'rejoin_room';
+                            } else {
+                                messageType = 'join_room'; 
+                            }
                         }
+
+                        this.gamePin = gamePinToUse; // Actualizar el PIN del GameManager
 
                         console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
 
@@ -2420,7 +2481,7 @@
                             
                             if (data.type === 'ping') { 
                                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-                                    this.socket.pong(); // Responde con un PONG nativo de WebSocket
+                                    this.socket.pong(); 
                                 }
                                 return; 
                             }
@@ -2438,8 +2499,6 @@
 
             setupHeartbeat() {
                 clearInterval(this.heartbeatInterval);
-                // El cliente ya no envía pings, solo responde a los del servidor.
-                // Esta función solo asegura que no haya un intervalo antiguo.
             }
 
             attemptReconnect() {
@@ -2594,21 +2653,18 @@
                         console.log("Servidor: Respuesta recibida.");
                         break;
                     
-                    case 'custom_questions_created': // Manejo de la confirmación de preguntas personalizadas
+                    case 'custom_questions_created': 
                         this.customQuestionId = data.customQuestionId;
-                        localStorage.setItem('lastCustomQuestionId', this.customQuestionId); // Guardar en localStorage
+                        localStorage.setItem('lastCustomQuestionId', this.customQuestionId); 
                         this.showNotification(`¡Preguntas guardadas! ID: ${this.customQuestionId}`);
-                        // Precargar el PIN con el ID de las preguntas y volver a la pantalla de unión
                         document.getElementById('gamePin').value = this.customQuestionId; 
                         document.getElementById('createGame').disabled = false; 
-                        document.getElementById('createGame').textContent = 'Crear nueva sala'; // Restaurar texto
+                        document.getElementById('createGame').textContent = 'Crear nueva sala'; 
                         this.setState(this.STATES.JOIN_SCREEN); 
                         break;
                     
                     case 'room_reset': 
                         console.log("[Cliente] Sala reiniciada por el servidor.");
-                        // Esto podría usarse para forzar el reinicio local si el servidor lo indica
-                        // this.reiniciarJuegoLocal(); 
                         break;
 
 
@@ -2934,7 +2990,7 @@
                 this.voteCounts = {
                     operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
                     combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
-                    "sumamultiplicacion": 0, "informatica": 0, "custom:placeholder": 0 // Asegurar que el custom mode esté en voteCounts
+                    "sumamultiplicacion": 0, "informatica": 0, "custom:placeholder": 0 
                 };
                 document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
                 this.player.hasVoted = false; 
@@ -3003,7 +3059,7 @@
                     type: 'cast_vote',
                     pin: this.gamePin,
                     playerId: this.player.id,
-                    mode: mode // Este 'mode' puede ser "custom:ID"
+                    mode: mode 
                 }));
             }
 
@@ -3044,10 +3100,10 @@
                     "mas-cercano": '🎯 El más cercano gana',
                     "sumamultiplicacion": '➕✖️ Suma y Multiplicación', 
                     "informatica": '💻 Informática',
-                    "custom": '🌟 Mis Preguntas Personalizadas' // Nombre para el modo 'custom'
+                    "custom": '🌟 Mis Preguntas Personalizadas' 
                 };
                 if (mode.startsWith('custom:')) {
-                    return `🌟 Mis Preguntas (${mode.split(':')[1]})`; // Mostrar ID
+                    return `🌟 Mis Preguntas (${mode.split(':')[1]})`; 
                 }
                 return names[mode] || mode;
             }
@@ -3088,7 +3144,7 @@
 
                 if (mode === 'verdadero-falso') {
                     document.getElementById('trueFalseButtons').style.display = 'flex';
-                } else if (mode === 'informatica' || mode === 'custom') { // El modo 'custom' podría ser A/B/C/D
+                } else if (mode === 'abcd' || mode === 'informatica' || mode === 'custom') { 
                     this.abcdButtonsContainer.style.display = 'grid'; 
                 } else {
                     document.getElementById('standardInput').style.display = 'block';
@@ -3106,8 +3162,6 @@
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
             }
 
-            // Esta función generarPreguntas ya NO es usada en el cliente para generar preguntas para el juego multijugador.
-            // La generación de preguntas es responsabilidad exclusiva del servidor.
             generarPreguntas(mode, count) {
                 console.error("ERROR: generarPreguntas en el cliente no debería ser llamada en modo multijugador. La genera el servidor.");
                 return []; 
@@ -3150,18 +3204,17 @@
 
                     document.querySelectorAll('.abcd-btn').forEach(btn => btn.classList.remove('selected-answer'));
 
-                    // Controlar qué tipo de interfaz de respuesta mostrar
                     if (question.tipo === 'verdadero-falso') {
                         document.getElementById('trueFalseButtons').style.display = 'flex';
-                    } else if (question.tipo === 'abcd' || question.tipo === 'informatica' || this.selectedGameMode === 'custom') { // Mostrar ABCD para modo custom y informática
+                    } else if (question.tipo === 'abcd' || question.tipo === 'informatica') { // Los custom questions vienen con tipo 'abcd', 'numerica', 'verdadero-falso'
                         document.getElementById('abcdButtons').style.display = 'grid'; 
-                        if (question.opciones) { // Asegurarse de que las opciones existan
+                        if (question.opciones) { 
                             document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = question.opciones.A || '';
                             document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = question.opciones.B || '';
                             document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = question.opciones.C || '';
                             document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = question.opciones.D || '';
                         }
-                    } else { // Numérica u otros modos que usen teclado
+                    } else { 
                         document.getElementById('standardInput').style.display = 'block';
                     }
 
@@ -3199,12 +3252,28 @@
                             responseTime: responseTime
                         }));
                     } else {
-                        // Lógica de simulación offline (NO DEBE USARSE EN UN JUEGO MULTIJUGADOR REAL)
                         console.error("Advertencia: Lógica de calificación local ejecutada. ¡Debe ser manejada por el servidor!");
                         let isCorrect = false;
                         let formattedCorrectAnswer = "N/A";
-                        // Este bloque de simulación es un fallback y no tiene acceso a la respuesta real si el servidor la oculta.
-                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, 0, {}); 
+                        if (this.currentQuestionData && this.currentQuestionData.hasOwnProperty('respuesta')) { 
+                            const correctAnswer = this.currentQuestionData.respuesta;
+                            if (this.currentQuestionData.tipo === 'verdadero-falso') {
+                                isCorrect = (userAnswer === 'true') === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
+                            } else if ((this.currentQuestionData.tipo === 'abcd' || this.currentQuestionData.tipo === 'informatica') && this.currentQuestionData.opciones) {
+                                isCorrect = (userAnswer === correctAnswer);
+                                formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
+                            } else {
+                                isCorrect = parseFloat(userAnswer) === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer;
+                            }
+                        }
+                        
+                        this.player.streak = isCorrect ? (this.player.streak + 1) : 0;
+                        this.player.lastAnswerCorrect = isCorrect;
+                        let streakBonus = 0; 
+                        
+                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, streakBonus, this.currentQuestionData ? this.currentQuestionData.opciones : undefined);
                     }
 
                 } catch (error) {
@@ -3238,12 +3307,9 @@
                 const displayOptions = receivedOptions || {}; 
 
                 let formattedCorrectAnswer = correctAnswer;
-                // Si el modo es 'custom', necesitamos revisar el tipo original de la pregunta
-                // Si no se envía el tipo de pregunta en 'reveal_phase', deberíamos inferirlo o tenerlo en currentQuestionData
-                // Para simplificar, asumimos que si hay 'opciones' y 'correctAnswer' es una letra, es ABCD
-                if (this.selectedGameMode === 'verdadero-falso') {
+                if (this.selectedGameMode === 'verdadero-falso' || (this.currentQuestionData && this.currentQuestionData.tipo === 'verdadero-falso')) {
                     formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
-                } else if ((this.selectedGameMode === 'informatica' || this.selectedGameMode === 'custom') && displayOptions && displayOptions[correctAnswer]) { 
+                } else if ((this.selectedGameMode === 'informatica' || this.selectedGameMode === 'custom' || (this.currentQuestionData && this.currentQuestionData.tipo === 'abcd')) && displayOptions && displayOptions[correctAnswer]) { 
                     formattedCorrectAnswer = `${correctAnswer}) ${displayOptions[correctAnswer]}`;
                 }
                 this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
@@ -3566,13 +3632,13 @@
                 resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
             }
 
-            showError(message, targetElementId = 'answerResult') { // Añadir targetElementId para errores específicos
+            showError(message, targetElementId = 'answerResult') { 
                 const errorElement = document.getElementById(targetElementId);
                 errorElement.textContent = message;
                 errorElement.className = "result incorrect";
                  setTimeout(() => {
                     errorElement.textContent = '';
-                    errorElement.className = "result waiting"; // o restaurar clase original
+                    errorElement.className = "result waiting"; 
                 }, 5000);
             }
 
@@ -3587,16 +3653,15 @@
                 }, 3000);
             }
 
-            // Lógica para la creación de preguntas personalizadas
             toggleQuestionTypeFields() {
                 const questionType = this.questionTypeSelect.value;
                 this.numericTrueFalseAnswerDiv.style.display = 'none';
                 this.abcdOptionsDiv.style.display = 'none';
-                this.questionImageURL.parentElement.style.display = 'block'; // Imagen siempre opcional
+                this.questionImageURL.parentElement.style.display = 'block'; 
 
                 if (questionType === 'numerica') {
                     this.numericTrueFalseAnswerDiv.style.display = 'block';
-                    this.correctAnswerValueInput.type = 'text'; // Puede ser número o cadena para negativo
+                    this.correctAnswerValueInput.type = 'text'; 
                     this.correctAnswerValueInput.placeholder = 'Ej: 8';
                 } else if (questionType === 'verdadero-falso') {
                     this.numericTrueFalseAnswerDiv.style.display = 'block';
@@ -3660,7 +3725,6 @@
                     this.renderCustomQuestionsList();
                     this.questionCreatorError.textContent = '';
                     
-                    // Limpiar campos del formulario después de añadir
                     this.questionText.value = '';
                     this.questionImageURL.value = '';
                     this.correctAnswerValueInput.value = '';
@@ -3726,6 +3790,84 @@
                 } else {
                     this.showError('No hay conexión con el servidor. Reconecta e inténtalo de nuevo.', 'questionCreatorError');
                 }
+            }
+
+            reiniciarJuegoLocal() {
+                try {
+                    this.playSound('clickSound');
+                    clearInterval(this.timerInterval);
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
+                    
+                    this.player.points = 0;
+                    this.player.streak = 0;
+                    this.player.responseTimes = [];
+                    this.player.history = [];
+                    this.player.hasAnswered = false;
+                    this.player.hasVoted = false;
+                    this.player.isReady = false; 
+                    this.player.lastAnswerCorrect = false;
+
+                    this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
+
+                    this.currentQuestionIndex = 0;
+                    this.currentQuestionData = null; 
+                    this.selectedGameMode = null; 
+                    this.closestAnswerMode = false;
+                    this.isVotingActive = false; 
+                    this.winnerDancingEmoji.style.display = 'none'; 
+
+                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    document.getElementById("mensajeVictoria").innerHTML = "";
+                    document.getElementById("progressBar").style.width = "0%";
+                    document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('questionImage').style.display = 'none';
+                    
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.remove('selected', 'voted');
+                        btn.disabled = false; 
+                    });
+
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                    this.abcdButtonsContainer.style.display = 'none';
+                    
+                    this.setState(this.STATES.HOME_SCREEN); // Volver a la HOME_SCREEN
+                    // NOTA: Si el usuario desea volver a unirse a una sala específica con un PIN,
+                    // deberá ingresarlo de nuevo o usar el customQuestionId si aplica.
+                    // Para un flujo más "seamless" de reconexión al lobby, se necesitaría más lógica de estado de sala en el cliente.
+                } catch (error) {
+                    console.error("Error al reiniciar juego localmente:", error);
+                    this.showError("Error al reiniciar el juego localmente.");
+                }
+            }
+
+            addNumber(num) {
+                if (this.currentQuestionData && !this.player.hasAnswered) {
+                    this.playSound('clickSound');
+                    const playerAnswerInput = document.getElementById('playerAnswer');
+                    playerAnswerInput.value += num;
+                }
+            }
+
+            clearNumber() {
+                this.playSound('clickSound');
+                document.getElementById('playerAnswer').value = "";
+            }
+
+            submitAnswer() {
+                const respuesta = document.getElementById('playerAnswer').value;
+                this.checkAnswer(respuesta);
+            }
+
+            handleNetworkError(error, message = "Error de red") {
+                console.error(message, error);
+                this.showNotification(`${message}. Intentando reconectar...`);
             }
 
             generateId() {

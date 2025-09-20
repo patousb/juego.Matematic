@@ -2162,97 +2162,98 @@
             }
 
             connectToServer() {
-                try {
-                    this.updateConnectionStatus('connecting', '🟡 Conectando...');
-                    console.log(`[Cliente] Intentando conectar a: ${this.socketUrl}?playerId=${this.player.id}`);
-                    
-                    if (!navigator.onLine) {
-                        this.handleNetworkError(new Error('Sin conexión a internet'));
-                        return;
-                    }
+  try {
+    this.updateConnectionStatus('connecting', '🟡 Conectando...');
+    console.log(`[Cliente] Intentando conectar a: ${this.socketUrl}?playerId=${this.player.id}`);
+    
+    if (!navigator.onLine) {
+      this.handleNetworkError(new Error('Sin conexión a internet'));
+      return;
+    }
 
-                    const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
-                    this.socket = new WebSocket(wsUrl);
-                    
-                    this.setupHeartbeat();
-                    
-                    this.socket.onerror = (error) => {
-                        console.error("[Cliente] Error de conexión WS:", error);
-                        this.handleNetworkError(error, "Error de conexión con el servidor");
-                        this.attemptReconnect();
-                    };
-                    
-                    this.socket.onclose = (event) => {
-                        console.log("[Cliente] Conexión WS cerrada:", event.code, event.reason);
-                        clearInterval(this.heartbeatInterval);
-                        this.heartbeatInterval = null;
+    // Corregir la URL del WebSocket
+    const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
+    this.socket = new WebSocket(wsUrl);
+    
+    this.setupHeartbeat();
+    
+    this.socket.onerror = (error) => {
+      console.error("[Cliente] Error de conexión WS:", error);
+      this.handleNetworkError(error, "Error de conexión con el servidor");
+      this.attemptReconnect();
+    };
+    
+    this.socket.onclose = (event) => {
+      console.log("[Cliente] Conexión WS cerrada:", event.code, event.reason);
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
 
-                        let message = "Conexión cerrada";
-                        if (event.code === 1000) {
-                            message = "Conexión finalizada (normal)";
-                            this.updateConnectionStatus('disconnected', `🔴 ${message}`);
-                        } else {
-                            if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
-                                this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
-                                this.attemptReconnect();
-                            } else {
-                                 this.updateConnectionStatus('disconnected', `🔴 Desconectado`);
-                            }
-                        }
-                    };
-                    
-                    this.socket.onopen = () => {
-                        console.log("[Cliente] Conexión WS establecida.");
-                        this.reconnectAttempts = 0;
-                        this.lastPongTime = Date.now();
-                        this.updateConnectionStatus('connected', '🟢 Conectado');
-                        
-                        let messageType;
+      let message = "Conexión cerrada";
+      if (event.code === 1000) {
+        message = "Conexión finalizada (normal)";
+        this.updateConnectionStatus('disconnected', `🔴 ${message}`);
+      } else {
+        if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
+          this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
+          this.attemptReconnect();
+        } else {
+          this.updateConnectionStatus('disconnected', `🔴 Desconectado`);
+        }
+      }
+    };
+    
+    this.socket.onopen = () => {
+      console.log("[Cliente] Conexión WS establecida.");
+      this.reconnectAttempts = 0;
+      this.lastPongTime = Date.now();
+      this.updateConnectionStatus('connected', '🟢 Conectado');
+      
+      let messageType;
 
-                        if (this.isHost) {
-                            messageType = 'create_room';
-                        } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
-                            messageType = 'rejoin_room';
-                        } else {
-                            messageType = 'join_room'; 
-                        }
+      if (this.isHost) {
+        messageType = 'create_room';
+      } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
+        messageType = 'rejoin_room';
+      } else {
+        messageType = 'join_room'; 
+      }
 
-                        console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
+      console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
 
-                        this.socket.send(JSON.stringify({
-                            type: messageType,
-                            pin: this.gamePin,
-                            player: {
-                                id: this.player.id,
-                                name: this.player.displayName,
-                                avatar: this.player.avatar,
-                                points: this.player.points, 
-                                isProfessor: this.player.isProfessor, 
-                                isReady: this.player.isReady
-                            }
-                        }));
-                    };
-                    
-                    this.socket.onmessage = (event) => {
-                        try {
-                            const data = JSON.parse(event.data);
-                            console.log("[Cliente] Mensaje WS recibido:", data); 
-                            
-                            if (data.type === 'pong') {
-                                this.lastPongTime = Date.now();
-                                return;
-                            }
-                            
-                            this.handleSocketMessage(data);
-                        } catch (error) {
-                            console.error("[Cliente] Error al procesar mensaje WS:", error);
-                        }
-                    };
-                } catch (error) {
-                    this.handleNetworkError(error, "Error al conectar con el servidor (catch general)");
-                    this.attemptReconnect();
-                }
-            }
+      this.socket.send(JSON.stringify({
+        type: messageType,
+        pin: this.gamePin,
+        player: {
+          id: this.player.id,
+          name: this.player.displayName,
+          avatar: this.player.avatar,
+          points: this.player.points, 
+          isProfessor: this.player.isProfessor, 
+          isReady: this.player.isReady
+        }
+      }));
+    };
+    
+    this.socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("[Cliente] Mensaje WS recibido:", data); 
+        
+        if (data.type === 'pong') {
+          this.lastPongTime = Date.now();
+          return;
+        }
+        
+        this.handleSocketMessage(data);
+      } catch (error) {
+        console.error("[Cliente] Error al procesar mensaje WS:", error);
+      }
+    };
+  } catch (error) {
+    this.handleNetworkError(error, "Error al conectar con el servidor (catch general)");
+    this.attemptReconnect();
+  }
+}
 
             setupHeartbeat() {
                 clearInterval(this.heartbeatInterval);

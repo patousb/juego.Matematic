@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
+        /* Estilos CSS (se mantienen iguales) */
         :root {
             --azul: #4e8cff;
             --rojo: #ff6b6b;
@@ -54,7 +55,7 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -1117,273 +1118,34 @@
         .versus-container {
             display: flex;
             align-items: center;
-            gap: 30px;
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            animation: zoomIn 0.5s ease;
+            gap: 50px;
+            animation: scaleIn 0.5s ease;
         }
 
-        @keyframes zoomIn {
+        @keyframes scaleIn {
             from { transform: scale(0.5); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
         .versus-player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .versus-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 5px solid white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         .versus-vs {
             font-size: 3rem;
-            color: var(--amarillo);
-            text-shadow: 0 0 10px var(--amarillo);
-            animation: pulse 1s infinite;
-        }
-
-        /* Panel de respuestas en vivo */
-        .live-answers-panel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 250px;
-            background: var(--panel);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px var(--sombra);
-            padding: 15px;
-            z-index: 50;
-            display: none;
-            border: 3px solid var(--morado);
-            backdrop-filter: blur(5px);
-        }
-
-        .live-answers-panel h3 {
-            margin-bottom: 10px;
-            color: var(--morado);
-            text-align: center;
-            text-shadow: var(--neon-morado);
-        }
-
-        .answer-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .answer-correct {
-            background: rgba(107, 255, 107, 0.2);
-            border-left: 4px solid var(--verde);
-        }
-
-        .answer-incorrect {
-            background: rgba(255, 107, 107, 0.2);
-            border-left: 4px solid var(--rojo);
-        }
-
-        .answer-pending {
-            background: rgba(255, 222, 89, 0.2);
-            border-left: 4px solid var(--amarillo);
-        }
-
-        .answer-avatar {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        /* Modo torneo */
-        .tournament-bracket {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-            overflow-x: auto;
-        }
-
-        .tournament-round {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            margin: 0 20px;
-        }
-
-        .tournament-match {
-            background: var(--panel);
-            border: 2px solid var(--borde);
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            width: 200px;
-            box-shadow: 0 2px 5px var(--sombra);
-        }
-
-        .tournament-player {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px;
-            margin: 3px 0;
-            border-radius: 4px;
-        }
-
-        .tournament-winner {
-            background: rgba(107, 255, 107, 0.2);
             font-weight: bold;
-        }
-
-        /* Modo supervivencia */
-        .survival-count {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--rojo);
-            margin: 10px 0;
-            text-shadow: var(--neon-rojo);
-            animation: pulse 1.5s infinite;
-        }
-
-        /* Modo contrarreloj */
-        .countdown-clock {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--rojo);
-            margin: 10px 0;
-            text-shadow: var(--neon-rojo);
-            animation: pulse 1s infinite;
-        }
-
-        /* Modo equipos */
-        .team-container {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-        }
-
-        .team {
-            padding: 15px;
-            border-radius: 10px;
-            width: 45%;
-            text-align: center;
-            box-shadow: 0 5px 15px var(--sombra);
-        }
-
-        .team-red {
-            background: rgba(255, 107, 107, 0.2);
-            border: 3px solid var(--rojo);
-        }
-
-        .team-blue {
-            background: rgba(78, 140, 255, 0.2);
-            border: 3px solid var(--azul);
-        }
-
-        .team-score {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .team-players {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        /* Historial de partidas */
-        .history-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--fondo);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            overflow-y: auto;
-        }
-
-        .history-container {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            width: 100%;
-            max-width: 800px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--morado);
-        }
-
-        .history-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin: 20px 0;
-        }
-
-        .history-item {
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid var(--morado);
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--sombra);
-        }
-
-        /* Configuración de sala */
-        .room-settings {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--fondo);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-        }
-
-        .settings-container {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
-            width: 100%;
-            max-width: 500px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--morado);
-        }
-
-        .settings-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 0;
-            padding: 10px;
-            border-bottom: 1px solid var(--borde);
+            color: white;
+            text-shadow: 0 0 10px var(--rojo);
         }
 
         /* Responsive */
@@ -1391,418 +1153,237 @@
             .welcome-title {
                 font-size: 2.5rem;
             }
-
+            
             .welcome-logo {
-                font-size: 3.5rem;
+                font-size: 4rem;
             }
-
-            .live-ranking, .live-answers-panel {
-                position: static;
+            
+            .join-form {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .live-ranking {
+                position: relative;
+                top: 0;
+                left: 0;
                 width: 100%;
-                margin: 10px 0;
+                margin-bottom: 20px;
             }
-
+            
             .podium {
-                flex-direction: column;
-                align-items: center;
-                height: auto;
+                height: 200px;
             }
-
-            .podium-place {
-                margin: 10px 0;
-            }
-
+            
             .podium-1, .podium-2, .podium-3 {
                 width: 80px;
             }
-
+            
             .podium-1 {
-                height: 150px;
+                height: 160px;
             }
-
+            
             .podium-2 {
                 height: 120px;
             }
-
+            
             .podium-3 {
+                height: 80px;
+            }
+            
+            .winner-dancing-emoji {
+                bottom: 170px;
+                font-size: 2.5rem;
+            }
+            
+            .versus-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .versus-vs {
+                font-size: 2rem;
+            }
+            
+            .versus-avatar {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .abcd-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .keyboard {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 5px;
+            }
+            
+            .key {
+                padding: 10px;
+                font-size: 1.1rem;
+            }
+            
+            .podium {
+                height: 150px;
+            }
+            
+            .podium-1, .podium-2, .podium-3 {
+                width: 60px;
+            }
+            
+            .podium-1 {
+                height: 120px;
+            }
+            
+            .podium-2 {
                 height: 90px;
             }
-
+            
+            .podium-3 {
+                height: 60px;
+            }
+            
             .winner-dancing-emoji {
+                bottom: 130px;
                 font-size: 2rem;
-                bottom: 160px;
             }
-
-            .theme-toggle {
-                top: 10px;
-                right: 10px;
-            }
-
-            .connection-status {
-                bottom: 5px;
-                right: 5px;
-            }
-
-            .team-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .team {
-                width: 90%;
-                margin: 10px 0;
-            }
-        }
-
-        /* Efectos especiales */
-        .confetti-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1500;
-        }
-
-        .crown {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 2rem;
-            animation: bounce 1s infinite;
-        }
-
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1500;
-        }
-
-        /* Efecto de parpadeo al acabar tiempo */
-        .time-up {
-            animation: flash 0.5s 3;
-        }
-
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* Indicador de respuesta más rápida */
-        .fastest-answer {
-            position: relative;
-        }
-
-        .fastest-answer::after {
-            content: "⚡";
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 1.2rem;
-            animation: pulse 1s infinite;
-        }
-
-        /* Estadísticas avanzadas */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: var(--panel);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px var(--sombra);
-            text-align: center;
-            border-left: 4px solid var(--morado);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--morado);
-            margin: 10px 0;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--texto);
-            opacity: 0.8;
-        }
-
-        /* Panel de errores */
-        .errors-panel {
-            background: var(--panel);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            box-shadow: 0 3px 10px var(--sombra);
-            border-left: 4px solid var(--rojo);
-        }
-
-        .error-question {
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255, 107, 107, 0.1);
-            border-radius: 8px;
-        }
-
-        .error-players {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .error-player {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            background: rgba(255, 107, 107, 0.2);
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-
-        /* Espectadores */
-        .spectator-badge {
-            background: rgba(128, 128, 128, 0.2);
-            color: #666;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-left: 5px;
-        }
-
-        /* Reconexión automática */
-        .reconnect-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            color: white;
-            font-size: 1.5rem;
-            flex-direction: column;
-        }
-
-        /* Bloqueo de sala */
-        .room-locked {
-            position: relative;
-        }
-
-        .room-locked::after {
-            content: "🔒";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.5rem;
-        }
-
-        /* Animación de entrada para elementos */
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .slide-in-left {
-            animation: slideInLeft 0.5s ease;
-        }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .slide-in-right {
-            animation: slideInRight 0.5s ease;
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(100px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .zoom-in {
-            animation: zoomIn 0.5s ease;
-        }
-
-        /* Efectos de partículas */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
         }
     </style>
 </head>
 <body>
+    <!-- Pantalla de bienvenida -->
     <div class="welcome-screen" id="welcomeScreen">
-        <div class="welcome-logo">🧮</div>
+        <div class="welcome-logo">🧠</div>
         <h1 class="welcome-title">Math Challenge PRO</h1>
-        <p>El juego matemático más divertido para todos</p>
-        <button class="btn" id="startButton">¡Comenzar!</button>
+        <p>¡Prepárate para el desafío matemático más emocionante!</p>
+        <button class="btn" id="startButton">Comenzar</button>
     </div>
 
-    <div class="loading-screen" id="loadingScreen" style="display: none;">
+    <!-- Pantalla de carga -->
+    <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <h2>Cargando juego...</h2>
-        <p>Preparando la experiencia matemática más divertida</p>
+        <p>Cargando recursos...</p>
     </div>
 
+    <!-- Pantalla de unión -->
     <div class="join-screen" id="joinScreen">
+        <h2>Unirse a una Sala</h2>
         <div class="join-form">
-            <h2>Unirse a Math Challenge PRO</h2>
             <div class="input-group">
-                <label for="playerName">Tu nombre:</label>
+                <label for="playerName">Tu Nombre:</label>
                 <input type="text" id="playerName" placeholder="Ingresa tu nombre" maxlength="15">
             </div>
+            
             <div class="input-group">
-                <label>Elige tu avatar:</label>
-                <div class="avatar-selector" id="avatarSelector">
-                    </div>
+                <label>Tu Avatar:</label>
+                <div class="avatar-selector">
+                    <div class="avatar-option selected" data-avatar="🧠" style="background-color: #4e8cff;">🧠</div>
+                    <div class="avatar-option" data-avatar="👨‍🎓" style="background-color: #ff6b6b;">👨‍🎓</div>
+                    <div class="avatar-option" data-avatar="👩‍🎓" style="background-color: #6bff6b;">👩‍🎓</div>
+                    <div class="avatar-option" data-avatar="🤖" style="background-color: #ffde59;">🤖</div>
+                    <div class="avatar-option" data-avatar="🦊" style="background-color: #a459ff;">🦊</div>
+                </div>
             </div>
+            
             <div class="input-group">
-                <label for="gameMode">Modo de juego:</label>
+                <label for="roomCode">Código de Sala:</label>
+                <input type="text" id="roomCode" placeholder="Ingresa el código de la sala (opcional)">
+                <small>Si no ingresas un código, se creará una nueva sala</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="gameMode">Modo de Juego:</label>
                 <select id="gameMode">
-                    <option value="solo">Individual</option>
-                    <option value="multiplayer">Multijugador</option>
-                    <option value="1vs1">1 vs 1 (Duelo rápido)</option>
-                    <option value="tournament">Torneo</option>
-                    <option value="lightning">Relámpago (3 segundos)</option>
-                    <option value="teams">Equipos Virtuales</option>
-                    <option value="survival">Supervivencia</option>
-                    <option value="countdown">Contrarreloj</option>
+                    <option value="classic">Clásico (10 preguntas)</option>
+                    <option value="lightning">Relámpago (5 preguntas, 10 segundos)</option>
+                    <option value="survival">Supervivencia (hasta fallar)</option>
                 </select>
             </div>
-            <div class="input-group" id="roomCodeGroup" style="display: none;">
-                <label for="roomCode">Código de sala:</label>
-                <input type="text" id="roomCode" placeholder="Ingresa el código" maxlength="6">
-                <button class="btn btn-secondary" id="generateRoomCode" style="margin-top: 10px; width: 100%;">Generar código aleatorio</button>
+            
+            <div class="input-group">
+                <label for="difficulty">Dificultad:</label>
+                <select id="difficulty">
+                    <option value="easy">Fácil</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="hard">Difícil</option>
+                </select>
             </div>
-            <div class="input-group" id="roomSettingsGroup" style="display: none;">
-                <label for="customRoomCode">Personalizar código (opcional):</label>
-                <input type="text" id="customRoomCode" placeholder="Ej: MATH01" maxlength="6" pattern="[A-Z0-9]{4,6}">
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <input type="checkbox" id="lockRoom">
-                    <label for="lockRoom">Bloquear sala después de unirse</label>
-                </div>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <input type="checkbox" id="allowSpectators" checked>
-                    <label for="allowSpectators">Permitir espectadores</label>
-                </div>
-            </div>
-            <button class="btn" id="joinButton">Unirse al juego</button>
-            <div class="error-message" id="joinError" style="display: none;"></div>
+            
+            <button class="btn" id="joinRoomButton">Unirse a Sala</button>
+            <button class="btn btn-secondary" id="createRoomButton">Crear Nueva Sala</button>
+            
+            <div id="joinError" class="error-message"></div>
         </div>
     </div>
 
+    <!-- Lobby multijugador -->
     <div class="multiplayer-lobby" id="multiplayerLobby">
         <canvas id="lobby3DCanvas"></canvas>
         <div class="lobby-container">
-            <h2>Sala de espera</h2>
-            <div class="connection-status connected" id="lobbyConnectionStatus">
-                <span class="loader-small"></span> Conectado a la sala
-            </div>
-            <div class="room-info">
-                <p>Código de sala: <strong id="displayRoomCode">MATH01</strong></p>
-                <p>Jugadores: <span id="playerCount">1</span>/<span id="maxPlayers">8</span></p>
-                <button class="btn btn-secondary" id="roomSettingsBtn">Configuración de sala</button>
-                <button class="btn btn-secondary" id="invitePlayersBtn">Invitar jugadores</button>
-            </div>
+            <h2>Sala: <span id="roomCodeDisplay"></span></h2>
+            <p>Esperando jugadores... (<span id="playerCount">1</span>/8)</p>
+            
             <div class="player-list" id="playerList">
-                </div>
-            <div class="mode-selection" id="modeSelection">
-                <h3>Selecciona el modo de juego:</h3>
+                <!-- Jugadores aparecerán aquí -->
+            </div>
+            
+            <div class="vote-section" id="voteSection">
+                <h3>Votar por el modo de juego:</h3>
                 <div class="mode-buttons">
                     <div class="mode-btn" data-mode="classic">Clásico</div>
-                    <div class="mode-btn" data-mode="1vs1">1 vs 1</div>
-                    <div class="mode-btn" data-mode="tournament">Torneo</div>
                     <div class="mode-btn" data-mode="lightning">Relámpago</div>
-                    <div class="mode-btn" data-mode="teams">Equipos</div>
                     <div class="mode-btn" data-mode="survival">Supervivencia</div>
-                    <div class="mode-btn" data-mode="countdown">Contrarreloj</div>
+                    <div class="mode-btn" data-mode="team">Por Equipos</div>
                 </div>
-                <div class="vote-section" id="voteSection" style="display: none;">
-                    <h3>Votación en curso...</h3>
-                    <div class="vote-timer" id="voteTimer">10</div>
-                    <p>Esperando a que los demás voten...</p>
-                </div>
-                <div class="vote-results" id="voteResults" style="display: none;">
-                    <h3>Resultados de la votación</h3>
-                    <div id="voteResultsList"></div>
-                </div>
+                <div class="vote-timer">Tiempo restante: <span id="voteTimer">30</span>s</div>
             </div>
-            <div class="lobby-controls">
-                <button class="btn" id="startGameBtn" disabled>Iniciar juego</button>
-                <button class="btn btn-secondary" id="leaveLobbyBtn">Salir de la sala</button>
+            
+            <div class="vote-results" id="voteResults" style="display: none;">
+                <h3>Resultados de la votación:</h3>
+                <div id="voteResultsList"></div>
             </div>
-            <div class="lobby-countdown-message" id="lobbyCountdown"></div>
+            
+            <div class="lobby-countdown-message" id="lobbyCountdown">¡La partida comenzará en <span id="lobbyTimer">5</span> segundos!</div>
+            
+            <button class="btn" id="startGameButton" style="display: none;">Comenzar Partida</button>
         </div>
     </div>
 
+    <!-- Juego principal -->
     <div id="gameContainer">
-        <div class="theme-toggle" id="themeToggle">
-            🌙
-        </div>
-
-        <div class="connection-status connected" id="connectionStatus">
-            <span class="loader-small"></span> Conectado
-        </div>
-
+        <div class="connection-status" id="connectionStatus">Conectando...</div>
+        
         <div class="live-ranking" id="liveRanking">
             <h3>Ranking en Vivo</h3>
-            <div id="rankingList">
-                </div>
+            <div id="rankingList"></div>
         </div>
-
-        <div class="live-answers-panel" id="liveAnswersPanel">
-            <h3>Respuestas</h3>
-            <div id="answersList">
-                </div>
-        </div>
-
-        <div class="game-info">
-            <h1>Math Challenge PRO</h1>
-            <div id="gameModeIndicator"></div>
-            <div id="roundInfo"></div>
-            <div id="teamInfo" style="display: none;"></div>
-            <div class="survival-count" id="survivalCount" style="display: none;">Jugadores restantes: <span id="playersLeft">0</span></div>
-            <div class="countdown-clock" id="countdownClock" style="display: none;">60</div>
-        </div>
-
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-
+        
         <div class="game">
-            <div class="question" id="question">
-                </div>
-            <div id="questionImageContainer" style="display: none;">
-                <img class="question-image" id="questionImage" src="" alt="Imagen de la pregunta">
+            <h2 id="gameTitle">Math Challenge PRO</h2>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
             </div>
-
-            <div class="abcd-buttons" id="abcdButtons" style="display: none;">
-                </div>
-
-            <div class="input-container" id="numericInput" style="display: none;">
-                <input type="number" id="playerAnswer" placeholder="Tu respuesta">
-                <div class="keyboard">
+            
+            <div class="timer-container">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                    <circle class="timer-circle" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="timer-text" id="timerText">30</div>
+            </div>
+            
+            <div class="question" id="question">
+                ¡Preparate para la primera pregunta!
+            </div>
+            
+            <div id="questionImage"></div>
+            
+            <div class="input-container">
+                <input type="text" id="playerAnswer" placeholder="Tu respuesta" autocomplete="off">
+                <div class="keyboard" id="keyboard">
                     <div class="key" data-key="1">1</div>
                     <div class="key" data-key="2">2</div>
                     <div class="key" data-key="3">3</div>
@@ -1816,1988 +1397,909 @@
                     <div class="key" data-key="-">-</div>
                     <div class="key negative" data-key="clear">Borrar</div>
                 </div>
-                <button class="btn" id="submitAnswer">Enviar respuesta</button>
-            </div>
-
-            <div class="result" id="result">
+                
+                <div class="abcd-buttons" id="abcdButtons" style="display: none;">
+                    <div class="abcd-btn" data-answer="A"><span class="letter">A</span> <span class="answer-text">Opción A</span></div>
+                    <div class="abcd-btn" data-answer="B"><span class="letter">B</span> <span class="answer-text">Opción B</span></div>
+                    <div class="abcd-btn" data-answer="C"><span class="letter">C</span> <span class="answer-text">Opción C</span></div>
+                    <div class="abcd-btn" data-answer="D"><span class="letter">D</span> <span class="answer-text">Opción D</span></div>
                 </div>
-
-            <div class="timer-container">
-                <svg class="timer-svg" viewBox="0 0 100 100">
-                    <circle class="timer-circle" cx="50" cy="50" r="45"></circle>
-                </svg>
-                <div class="timer-text" id="timer">10</div>
             </div>
+            
+            <div class="result" id="result"></div>
+            
+            <button class="btn" id="nextButton" style="display: none;">Siguiente Pregunta</button>
         </div>
-
-        <button class="btn skip-btn" id="skipQuestion" style="display: none;">Saltar pregunta</button>
-
-        <div class="tournament-bracket" id="tournamentBracket" style="display: none;">
-            </div>
-
-        <div class="team-container" id="teamContainer" style="display: none;">
-            </div>
     </div>
 
+    <!-- Resultados finales -->
     <div class="final-results" id="finalResults">
-        <h2>¡Partida Terminada!</h2>
+        <h2>¡Ronda Terminada!</h2>
         
-        <div class="podium" id="podium">
-            </div>
-
-        <div class="other-players" id="otherPlayers">
-            </div>
-
-        <div class="stats-container" id="advancedStats">
-            </div>
-
-        <div class="errors-panel" id="errorsPanel" style="display: none;">
-            <h3>Preguntas más difíciles</h3>
-            </div>
-
-        <div class="game-actions">
-            <button class="btn" id="playAgainBtn">Jugar otra vez</button>
-            <button class="btn btn-secondary" id="viewHistoryBtn">Ver historial</button>
-            <button class="btn btn-secondary" id="mainMenuBtn">Menú principal</button>
-        </div>
-    </div>
-
-    <div class="history-screen" id="historyScreen">
-        <div class="history-container">
-            <h2>Historial de Partidas</h2>
-            <div class="history-list" id="historyList">
+        <div class="podium">
+            <div class="podium-place">
+                <div class="podium-2"></div>
+                <div class="podium-name">
+                    <span class="podium-avatar" id="secondAvatar">👨‍🎓</span>
+                    <span id="secondName">Jugador 2</span>
                 </div>
-            <button class="btn" id="backFromHistoryBtn">Volver</button>
-        </div>
-    </div>
-
-    <div class="room-settings" id="roomSettings">
-        <div class="settings-container">
-            <h2>Configuración de Sala</h2>
-            <div class="settings-row">
-                <span>Código de sala:</span>
-                <span id="currentRoomCode">MATH01</span>
+                <div class="podium-points" id="secondPoints">0 puntos</div>
             </div>
-            <div class="settings-row">
-                <span>Jugadores conectados:</span>
-                <span id="connectedPlayersCount">1/8</span>
+            
+            <div class="podium-place">
+                <div class="podium-1"></div>
+                <div class="winner-dancing-emoji">🏆</div>
+                <div class="podium-name">
+                    <span class="podium-avatar" id="firstAvatar">👩‍🎓</span>
+                    <span id="firstName">Jugador 1</span>
+                </div>
+                <div class="podium-points" id="firstPoints">0 puntos</div>
             </div>
-            <div class="settings-row">
-                <span>Estado de la sala:</span>
-                <span id="roomState">Abierta</span>
-            </div>
-            <div class="settings-row">
-                <span>Permitir espectadores:</span>
-                <input type="checkbox" id="toggleSpectators" checked>
-            </div>
-            <div class="settings-row">
-                <button class="btn btn-secondary" id="lockRoomBtn">🔒 Bloquear sala</button>
-                <button class="btn btn-secondary" id="kickAllBtn">Expulsar a todos</button>
-            </div>
-            <div class="settings-row">
-                <button class="btn" id="closeSettingsBtn">Cerrar configuración</button>
+            
+            <div class="podium-place">
+                <div class="podium-3"></div>
+                <div class="podium-name">
+                    <span class="podium-avatar" id="thirdAvatar">🤖</span>
+                    <span id="thirdName">Jugador 3</span>
+                </div>
+                <div class="podium-points" id="thirdPoints">0 puntos</div>
             </div>
         </div>
-    </div>
-
-    <div id="notificationArea"></div>
-
-    <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
-    <div class="fireworks" id="fireworksContainer"></div>
-
-    <div class="versus-animation" id="versusAnimation" style="display: none;">
-        <div class="versus-container">
-            <div class="versus-player" id="versusPlayer1">
-                <div class="player-avatar" id="versusAvatar1"></div>
-                <div class="player-name" id="versusName1">Jugador 1</div>
-            </div>
-            <div class="versus-vs">VS</div>
-            <div class="versus-player" id="versusPlayer2">
-                <div class="player-avatar" id="versusAvatar2"></div>
-                <div class="player-name" id="versusName2">Jugador 2</div>
-            </div>
+        
+        <div class="other-players">
+            <h3>Otros Participantes</h3>
+            <div id="otherPlayersList"></div>
         </div>
+        
+        <button class="btn" id="playAgainButton">Jugar Otra Vez</button>
+        <button class="btn btn-secondary" id="backToLobbyButton">Volver al Lobby</button>
     </div>
 
-    <div class="reconnect-overlay" id="reconnectOverlay" style="display: none;">
-        <div class="loader"></div>
-        <p>Reconectando...</p>
-        <p>No cierres esta página</p>
-    </div>
+    <!-- Botón de tema nocturno -->
+    <div class="theme-toggle" id="themeToggle">🌙</div>
 
-    <div class="particles" id="particlesContainer"></div>
+    <!-- Botón saltar pregunta (modo profesor) -->
+    <button class="btn skip-btn" id="skipButton" style="display: none;">Saltar Pregunta</button>
 
     <script>
-        // =============================================
-        // CONFIGURACIÓN INICIAL Y VARIABLES GLOBALES
-        // =============================================
-
-        // Configuración del juego
-        const gameConfig = {
-            totalQuestions: 10,
-            questionTime: 10, // segundos
-            lightningTime: 3, // segundos para modo relámpago
-            countdownTime: 60, // segundos para modo contrarreloj
-            maxPlayers: 8,
-            avatars: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵'],
-            colors: ['#4e8cff', '#ff6b6b', '#6bff6b', '#ffde59', '#a459ff', '#ff59b3', '#59ffb3', '#b359ff']
-        };
-
-        // Estado del juego
-        let gameState = {
-            currentScreen: 'welcome',
-            player: {
-                id: null,
-                name: '',
-                avatar: '',
-                color: '',
-                isHost: false,
-                isSpectator: false
-            },
-            room: {
-                code: '',
-                players: [],
-                maxPlayers: gameConfig.maxPlayers,
-                isLocked: false,
-                allowSpectators: true,
-                mode: 'classic',
-                votedModes: {}
-            },
-            game: {
-                currentQuestion: 0,
-                questions: [],
-                timer: null,
-                timeLeft: gameConfig.questionTime,
-                isAnswered: false,
-                startTime: null,
-                results: [],
-                tournament: {
-                    rounds: [],
-                    currentRound: 0,
-                    matches: []
-                },
-                teams: {
-                    red: [],
-                    blue: [],
-                    scores: { red: 0, blue: 0 }
-                },
-                survival: {
-                    playersLeft: 0,
-                    eliminated: []
-                },
-                countdown: {
-                    timeLeft: gameConfig.countdownTime,
-                    interval: null
-                }
-            },
-            history: JSON.parse(localStorage.getItem('mathChallengeHistory')) || [],
-            settings: {
-                darkMode: localStorage.getItem('darkMode') === 'true',
-                soundEnabled: true,
-                animationsEnabled: true
-            }
-        };
+        // Variables globales
+        let playerName = "";
+        let playerAvatar = "🧠";
+        let roomCode = "";
+        let gameMode = "classic";
+        let difficulty = "medium";
+        let currentQuestion = 0;
+        let totalQuestions = 10;
+        let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        let questions = [];
+        let correctAnswer;
+        let isMultiplayer = false;
+        let isHost = false;
+        let players = [];
+        let playerVotes = {};
+        let playerRankings = [];
+        let socket = null;
+        let isConnected = false;
+        let isDarkMode = false;
+        let currentPlayerId = null;
+        let gameStarted = false;
+        let selectedAnswer = null;
 
         // Elementos DOM
-        const elements = {
-            // Pantallas
-            welcomeScreen: document.getElementById('welcomeScreen'),
-            loadingScreen: document.getElementById('loadingScreen'),
-            joinScreen: document.getElementById('joinScreen'),
-            multiplayerLobby: document.getElementById('multiplayerLobby'),
-            gameContainer: document.getElementById('gameContainer'),
-            finalResults: document.getElementById('finalResults'),
-            historyScreen: document.getElementById('historyScreen'),
-            roomSettings: document.getElementById('roomSettings'),
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const joinScreen = document.getElementById('joinScreen');
+        const multiplayerLobby = document.getElementById('multiplayerLobby');
+        const gameContainer = document.getElementById('gameContainer');
+        const finalResults = document.getElementById('finalResults');
+        const startButton = document.getElementById('startButton');
+        const joinRoomButton = document.getElementById('joinRoomButton');
+        const createRoomButton = document.getElementById('createRoomButton');
+        const playerNameInput = document.getElementById('playerName');
+        const roomCodeInput = document.getElementById('roomCode');
+        const gameModeSelect = document.getElementById('gameMode');
+        const difficultySelect = document.getElementById('difficulty');
+        const joinError = document.getElementById('joinError');
+        const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+        const playerCount = document.getElementById('playerCount');
+        const playerList = document.getElementById('playerList');
+        const voteSection = document.getElementById('voteSection');
+        const voteTimer = document.getElementById('voteTimer');
+        const voteResults = document.getElementById('voteResults');
+        const voteResultsList = document.getElementById('voteResultsList');
+        const lobbyCountdown = document.getElementById('lobbyCountdown');
+        const lobbyTimer = document.getElementById('lobbyTimer');
+        const startGameButton = document.getElementById('startGameButton');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const liveRanking = document.getElementById('liveRanking');
+        const rankingList = document.getElementById('rankingList');
+        const gameTitle = document.getElementById('gameTitle');
+        const progressBar = document.getElementById('progressBar');
+        const timerText = document.getElementById('timerText');
+        const timerCircle = document.querySelector('.timer-circle');
+        const questionElement = document.getElementById('question');
+        const questionImage = document.getElementById('questionImage');
+        const playerAnswerInput = document.getElementById('playerAnswer');
+        const keyboard = document.getElementById('keyboard');
+        const abcdButtons = document.getElementById('abcdButtons');
+        const resultElement = document.getElementById('result');
+        const nextButton = document.getElementById('nextButton');
+        const firstName = document.getElementById('firstName');
+        const firstAvatar = document.getElementById('firstAvatar');
+        const firstPoints = document.getElementById('firstPoints');
+        const secondName = document.getElementById('secondName');
+        const secondAvatar = document.getElementById('secondAvatar');
+        const secondPoints = document.getElementById('secondPoints');
+        const thirdName = document.getElementById('thirdName');
+        const thirdAvatar = document.getElementById('thirdAvatar');
+        const thirdPoints = document.getElementById('thirdPoints');
+        const otherPlayersList = document.getElementById('otherPlayersList');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const backToLobbyButton = document.getElementById('backToLobbyButton');
+        const themeToggle = document.getElementById('themeToggle');
+        const skipButton = document.getElementById('skipButton');
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        const modeButtons = document.querySelectorAll('.mode-btn');
 
-            // ========== INICIO DE LA CORRECCIÓN ==========
-            // El botón 'startButton' no estaba definido aquí, lo que causaba el error.
-            startButton: document.getElementById('startButton'),
-            // ========== FIN DE LA CORRECCIÓN ==========
-            
-            // Elementos de la pantalla de unión
-            playerName: document.getElementById('playerName'),
-            avatarSelector: document.getElementById('avatarSelector'),
-            gameMode: document.getElementById('gameMode'),
-            roomCodeGroup: document.getElementById('roomCodeGroup'),
-            roomCode: document.getElementById('roomCode'),
-            generateRoomCode: document.getElementById('generateRoomCode'),
-            roomSettingsGroup: document.getElementById('roomSettingsGroup'),
-            customRoomCode: document.getElementById('customRoomCode'),
-            lockRoom: document.getElementById('lockRoom'),
-            allowSpectators: document.getElementById('allowSpectators'),
-            joinButton: document.getElementById('joinButton'),
-            joinError: document.getElementById('joinError'),
-            
-            // Elementos del lobby
-            lobby3DCanvas: document.getElementById('lobby3DCanvas'),
-            displayRoomCode: document.getElementById('displayRoomCode'),
-            playerCount: document.getElementById('playerCount'),
-            maxPlayers: document.getElementById('maxPlayers'),
-            playerList: document.getElementById('playerList'),
-            modeSelection: document.getElementById('modeSelection'),
-            voteSection: document.getElementById('voteSection'),
-            voteTimer: document.getElementById('voteTimer'),
-            voteResults: document.getElementById('voteResults'),
-            voteResultsList: document.getElementById('voteResultsList'),
-            startGameBtn: document.getElementById('startGameBtn'),
-            leaveLobbyBtn: document.getElementById('leaveLobbyBtn'),
-            lobbyCountdown: document.getElementById('lobbyCountdown'),
-            lobbyConnectionStatus: document.getElementById('lobbyConnectionStatus'),
-            roomSettingsBtn: document.getElementById('roomSettingsBtn'),
-            invitePlayersBtn: document.getElementById('invitePlayersBtn'),
-            
-            // Elementos del juego
-            themeToggle: document.getElementById('themeToggle'),
-            connectionStatus: document.getElementById('connectionStatus'),
-            liveRanking: document.getElementById('liveRanking'),
-            rankingList: document.getElementById('rankingList'),
-            liveAnswersPanel: document.getElementById('liveAnswersPanel'),
-            answersList: document.getElementById('answersList'),
-            gameModeIndicator: document.getElementById('gameModeIndicator'),
-            roundInfo: document.getElementById('roundInfo'),
-            teamInfo: document.getElementById('teamInfo'),
-            survivalCount: document.getElementById('survivalCount'),
-            playersLeft: document.getElementById('playersLeft'),
-            countdownClock: document.getElementById('countdownClock'),
-            progressBar: document.getElementById('progressBar'),
-            question: document.getElementById('question'),
-            questionImageContainer: document.getElementById('questionImageContainer'),
-            questionImage: document.getElementById('questionImage'),
-            abcdButtons: document.getElementById('abcdButtons'),
-            numericInput: document.getElementById('numericInput'),
-            playerAnswer: document.getElementById('playerAnswer'),
-            submitAnswer: document.getElementById('submitAnswer'),
-            result: document.getElementById('result'),
-            timer: document.getElementById('timer'),
-            skipQuestion: document.getElementById('skipQuestion'),
-            tournamentBracket: document.getElementById('tournamentBracket'),
-            teamContainer: document.getElementById('teamContainer'),
-            
-            // Elementos de resultados finales
-            podium: document.getElementById('podium'),
-            otherPlayers: document.getElementById('otherPlayers'),
-            advancedStats: document.getElementById('advancedStats'),
-            errorsPanel: document.getElementById('errorsPanel'),
-            playAgainBtn: document.getElementById('playAgainBtn'),
-            viewHistoryBtn: document.getElementById('viewHistoryBtn'),
-            mainMenuBtn: document.getElementById('mainMenuBtn'),
-            
-            // Elementos del historial
-            historyList: document.getElementById('historyList'),
-            backFromHistoryBtn: document.getElementById('backFromHistoryBtn'),
-            
-            // Elementos de configuración de sala
-            currentRoomCode: document.getElementById('currentRoomCode'),
-            connectedPlayersCount: document.getElementById('connectedPlayersCount'),
-            roomState: document.getElementById('roomState'),
-            toggleSpectators: document.getElementById('toggleSpectators'),
-            lockRoomBtn: document.getElementById('lockRoomBtn'),
-            kickAllBtn: document.getElementById('kickAllBtn'),
-            closeSettingsBtn: document.getElementById('closeSettingsBtn'),
-            
-            // Efectos especiales
-            confettiCanvas: document.getElementById('confettiCanvas'),
-            fireworksContainer: document.getElementById('fireworksContainer'),
-            versusAnimation: document.getElementById('versusAnimation'),
-            versusPlayer1: document.getElementById('versusPlayer1'),
-            versusAvatar1: document.getElementById('versusAvatar1'),
-            versusName1: document.getElementById('versusName1'),
-            versusPlayer2: document.getElementById('versusPlayer2'),
-            versusAvatar2: document.getElementById('versusAvatar2'),
-            versusName2: document.getElementById('versusName2'),
-            reconnectOverlay: document.getElementById('reconnectOverlay'),
-            particlesContainer: document.getElementById('particlesContainer'),
-            notificationArea: document.getElementById('notificationArea')
-        };
-
-        // =============================================
-        // INICIALIZACIÓN DEL JUEGO
-        // =============================================
-
+        // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            initializeGame();
-        });
-
-        function initializeGame() {
-            // Aplicar tema guardado
-            applyTheme();
+            // Mostrar pantalla de bienvenida
+            welcomeScreen.style.display = 'flex';
+            loadingScreen.style.display = 'none';
+            joinScreen.style.display = 'none';
+            multiplayerLobby.style.display = 'none';
+            gameContainer.style.display = 'none';
+            finalResults.style.display = 'none';
             
-            // Inicializar avatares
-            initializeAvatars();
-            
-            // Configurar event listeners
+            // Configurar eventos
             setupEventListeners();
             
-            // Inicializar efectos de partículas
-            initializeParticles();
-            
-            // Mostrar pantalla de bienvenida
-            showScreen('welcome');
-        }
+            // Inicializar WebSocket (pero no conectar todavía)
+            initializeWebSocket();
+        });
 
-        function applyTheme() {
-            if (gameState.settings.darkMode) {
-                document.body.classList.add('dark-mode');
-                elements.themeToggle.textContent = '☀️';
-            } else {
-                document.body.classList.remove('dark-mode');
-                elements.themeToggle.textContent = '🌙';
-            }
-        }
-
-        function initializeAvatars() {
-            elements.avatarSelector.innerHTML = '';
-            gameConfig.avatars.forEach(avatar => {
-                const avatarElement = document.createElement('div');
-                avatarElement.className = 'avatar-option';
-                avatarElement.textContent = avatar;
-                avatarElement.addEventListener('click', () => selectAvatar(avatar));
-                elements.avatarSelector.appendChild(avatarElement);
-            });
-            
-            // Seleccionar un avatar por defecto aleatorio
-            const randomAvatar = gameConfig.avatars[Math.floor(Math.random() * gameConfig.avatars.length)];
-            selectAvatar(randomAvatar);
-        }
-
-        function selectAvatar(avatar) {
-            // Quitar selección anterior
-            document.querySelectorAll('.avatar-option').forEach(el => {
-                el.classList.remove('selected');
-            });
-            
-            // Seleccionar nuevo avatar
-            document.querySelectorAll('.avatar-option').forEach(el => {
-                if (el.textContent === avatar) {
-                    el.classList.add('selected');
-                    gameState.player.avatar = avatar;
-                }
-            });
-        }
-
+        // Configurar event listeners
         function setupEventListeners() {
             // Botón de inicio
-            elements.startButton.addEventListener('click', startGame);
+            startButton.addEventListener('click', startGame);
             
-            // Pantalla de unión
-            elements.gameMode.addEventListener('change', toggleRoomCodeVisibility);
-            elements.generateRoomCode.addEventListener('click', generateRoomCode);
-            elements.joinButton.addEventListener('click', joinGame);
+            // Botones de unión/creación de sala
+            joinRoomButton.addEventListener('click', joinRoom);
+            createRoomButton.addEventListener('click', createRoom);
             
-            // Lobby multijugador
-            elements.startGameBtn.addEventListener('click', startMultiplayerGame);
-            elements.leaveLobbyBtn.addEventListener('click', leaveLobby);
-            elements.roomSettingsBtn.addEventListener('click', showRoomSettings);
-            elements.invitePlayersBtn.addEventListener('click', invitePlayers);
+            // Botones de avatar
+            avatarOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    playerAvatar = this.getAttribute('data-avatar');
+                });
+            });
             
-            // Modos de juego en el lobby
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (gameState.player.isHost) {
-                        selectGameMode(this.dataset.mode);
-                    } else {
-                        voteForGameMode(this.dataset.mode);
+            // Botones de modo de juego en el lobby
+            modeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!isHost) return;
+                    
+                    modeButtons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    gameMode = this.getAttribute('data-mode');
+                    
+                    // Enviar voto al servidor
+                    if (socket && isConnected) {
+                        socket.send(JSON.stringify({
+                            type: 'vote',
+                            mode: gameMode
+                        }));
                     }
                 });
             });
+            
+            // Botón para comenzar el juego (solo host)
+            startGameButton.addEventListener('click', startGameFromLobby);
             
             // Teclado virtual
-            document.querySelectorAll('.key').forEach(key => {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
                 key.addEventListener('click', function() {
-                    handleKeyPress(this.dataset.key);
+                    const keyValue = this.getAttribute('data-key');
+                    
+                    if (keyValue === 'clear') {
+                        playerAnswerInput.value = '';
+                    } else {
+                        playerAnswerInput.value += keyValue;
+                    }
+                    
+                    playerAnswerInput.focus();
                 });
             });
             
-            // Envío de respuesta
-            elements.submitAnswer.addEventListener('click', submitAnswer);
-            elements.playerAnswer.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    submitAnswer();
+            // Entrada de respuesta
+            playerAnswerInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    checkAnswer();
                 }
             });
             
-            // Botón saltar pregunta
-            elements.skipQuestion.addEventListener('click', skipQuestion);
+            // Botones A/B/C/D
+            const answerButtons = document.querySelectorAll('.abcd-btn');
+            answerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    answerButtons.forEach(btn => btn.classList.remove('selected-answer'));
+                    this.classList.add('selected-answer');
+                    selectedAnswer = this.getAttribute('data-answer');
+                });
+            });
             
-            // Tema nocturno
-            elements.themeToggle.addEventListener('click', toggleDarkMode);
+            // Botón siguiente pregunta
+            nextButton.addEventListener('click', nextQuestion);
             
-            // Resultados finales
-            elements.playAgainBtn.addEventListener('click', playAgain);
-            elements.viewHistoryBtn.addEventListener('click', showHistory);
-            elements.mainMenuBtn.addEventListener('click', goToMainMenu);
+            // Botones de resultados finales
+            playAgainButton.addEventListener('click', playAgain);
+            backToLobbyButton.addEventListener('click', backToLobby);
             
-            // Historial
-            elements.backFromHistoryBtn.addEventListener('click', hideHistory);
+            // Botón de tema nocturno
+            themeToggle.addEventListener('click', toggleDarkMode);
             
-            // Configuración de sala
-            elements.closeSettingsBtn.addEventListener('click', hideRoomSettings);
-            elements.lockRoomBtn.addEventListener('click', toggleRoomLock);
-            elements.kickAllBtn.addEventListener('click', kickAllPlayers);
-            elements.toggleSpectators.addEventListener('change', toggleSpectators);
+            // Botón saltar pregunta (para modo profesor)
+            skipButton.addEventListener('click', skipQuestion);
         }
 
-        // =============================================
-        // GESTIÓN DE PANTALLAS
-        // =============================================
-
-        function showScreen(screenName) {
-            // Ocultar todas las pantallas
-            elements.welcomeScreen.style.display = 'none';
-            elements.loadingScreen.style.display = 'none';
-            elements.joinScreen.style.display = 'none';
-            elements.multiplayerLobby.style.display = 'none';
-            elements.gameContainer.style.display = 'none';
-            elements.finalResults.style.display = 'none';
-            elements.historyScreen.style.display = 'none';
-            elements.roomSettings.style.display = 'none';
+        // Inicializar WebSocket
+        function initializeWebSocket() {
+            // URL del servidor WebSocket (Render)
+            const wsUrl = 'wss://math-challenge-pro.onrender.com';
             
-            // Mostrar la pantalla solicitada
-            switch(screenName) {
-                case 'welcome':
-                    elements.welcomeScreen.style.display = 'flex';
+            // Crear conexión WebSocket
+            socket = new WebSocket(wsUrl);
+            
+            // Eventos WebSocket
+            socket.onopen = function(event) {
+                console.log('Conectado al servidor WebSocket');
+                isConnected = true;
+                connectionStatus.textContent = 'Conectado';
+                connectionStatus.className = 'connection-status connected';
+                
+                // Mostrar notificación
+                showNotification('Conectado al servidor', 'success');
+            };
+            
+            socket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            socket.onclose = function(event) {
+                console.log('Conexión WebSocket cerrada');
+                isConnected = false;
+                connectionStatus.textContent = 'Desconectado';
+                connectionStatus.className = 'connection-status disconnected';
+                
+                // Intentar reconectar después de 5 segundos
+                setTimeout(initializeWebSocket, 5000);
+            };
+            
+            socket.onerror = function(error) {
+                console.error('Error en WebSocket:', error);
+                connectionStatus.textContent = 'Error de conexión';
+                connectionStatus.className = 'connection-status disconnected';
+            };
+        }
+
+        // Manejar mensajes WebSocket
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'room_created':
+                    roomCode = data.roomCode;
+                    roomCodeDisplay.textContent = roomCode;
+                    currentPlayerId = data.playerId;
+                    isHost = true;
+                    showNotification('Sala creada exitosamente', 'success');
                     break;
-                case 'loading':
-                    elements.loadingScreen.style.display = 'flex';
+                    
+                case 'room_joined':
+                    roomCode = data.roomCode;
+                    roomCodeDisplay.textContent = roomCode;
+                    currentPlayerId = data.playerId;
+                    isHost = data.isHost;
+                    players = data.players;
+                    updatePlayerList();
+                    showNotification('Te has unido a la sala', 'success');
                     break;
-                case 'join':
-                    elements.joinScreen.classList.add('active');
-                    elements.joinScreen.style.display = 'flex';
+                    
+                case 'player_joined':
+                    players = data.players;
+                    updatePlayerList();
+                    showNotification(`${data.playerName} se ha unido a la sala`, 'info');
                     break;
-                case 'lobby':
-                    elements.multiplayerLobby.style.display = 'flex';
-                    initializeLobby3D();
+                    
+                case 'player_left':
+                    players = data.players;
+                    updatePlayerList();
+                    showNotification(`${data.playerName} ha abandonado la sala`, 'warning');
                     break;
-                case 'game':
-                    elements.gameContainer.style.display = 'block';
+                    
+                case 'vote_update':
+                    playerVotes = data.votes;
+                    updateVoteResults();
                     break;
-                case 'results':
-                    elements.finalResults.style.display = 'flex';
-                    showFinalResults();
+                    
+                case 'game_starting':
+                    startLobbyCountdown(data.countdown);
                     break;
-                case 'history':
-                    elements.historyScreen.style.display = 'flex';
-                    showGameHistory();
+                    
+                case 'game_started':
+                    startMultiplayerGame(data.questions, data.mode);
                     break;
-                case 'roomSettings':
-                    elements.roomSettings.style.display = 'flex';
-                    updateRoomSettings();
+                    
+                case 'answer_result':
+                    showAnswerResult(data.correct, data.correctAnswer, data.points);
+                    break;
+                    
+                case 'ranking_update':
+                    playerRankings = data.rankings;
+                    updateLiveRanking();
+                    break;
+                    
+                case 'game_finished':
+                    showFinalResults(data.finalRankings);
+                    break;
+                    
+                case 'error':
+                    showNotification(data.message, 'error');
                     break;
             }
-            
-            gameState.currentScreen = screenName;
         }
 
-        // =============================================
-        // FLUJO PRINCIPAL DEL JUEGO
-        // =============================================
-
+        // Iniciar el juego
         function startGame() {
-            showScreen('loading');
+            // Ocultar pantalla de bienvenida
+            welcomeScreen.style.opacity = '0';
             
-            // Simular carga de recursos
             setTimeout(() => {
-                showScreen('join');
-                toggleRoomCodeVisibility();
-            }, 2000);
-        }
-
-        function toggleRoomCodeVisibility() {
-            const mode = elements.gameMode.value;
-            
-            if (mode === 'multiplayer' || mode === '1vs1' || mode === 'tournament' || 
-                mode === 'lightning' || mode === 'teams' || mode === 'survival' || mode === 'countdown') {
-                elements.roomCodeGroup.style.display = 'block';
-                elements.roomSettingsGroup.style.display = 'block';
+                welcomeScreen.style.display = 'none';
                 
-                // Si es anfitrión, mostrar opciones de configuración
-                if (mode !== 'multiplayer') {
-                    gameState.player.isHost = true;
-                }
-                
-                generateRoomCode();
-            } else {
-                elements.roomCodeGroup.style.display = 'none';
-                elements.roomSettingsGroup.style.display = 'none';
-                gameState.player.isHost = false;
-            }
+                // Mostrar pantalla de unión
+                joinScreen.style.display = 'flex';
+                setTimeout(() => {
+                    joinScreen.classList.add('active');
+                }, 100);
+            }, 800);
         }
 
-        function generateRoomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            elements.roomCode.value = code;
-            elements.customRoomCode.value = code;
-        }
-
-        function joinGame() {
-            const playerName = elements.playerName.value.trim();
-            const gameMode = elements.gameMode.value;
+        // Unirse a una sala existente
+        function joinRoom() {
+            playerName = playerNameInput.value.trim();
             
             if (!playerName) {
-                showError(elements.joinError, 'Por favor, ingresa tu nombre');
+                joinError.textContent = 'Por favor, ingresa tu nombre';
                 return;
             }
             
-            if (playerName.length < 2) {
-                showError(elements.joinError, 'El nombre debe tener al menos 2 caracteres');
+            roomCode = roomCodeInput.value.trim().toUpperCase();
+            
+            if (!roomCode) {
+                joinError.textContent = 'Por favor, ingresa un código de sala';
                 return;
             }
             
-            // Guardar información del jugador
-            gameState.player.name = playerName;
-            gameState.player.id = generatePlayerId();
-            gameState.player.color = gameConfig.colors[Math.floor(Math.random() * gameConfig.colors.length)];
+            gameMode = gameModeSelect.value;
+            difficulty = difficultySelect.value;
             
-            // Asignar modo de juego
-            gameState.room.mode = gameMode;
-            
-            if (gameMode === 'solo') {
-                // Modo individual
-                startSoloGame();
-            } else {
-                // Modo multijugador
-                const roomCode = elements.roomCode.value.toUpperCase();
-                
-                if (!roomCode) {
-                    showError(elements.joinError, 'Por favor, ingresa un código de sala');
-                    return;
-                }
-                
-                gameState.room.code = roomCode;
-                
-                // Configurar sala
-                if (gameState.player.isHost) {
-                    const customCode = elements.customRoomCode.value.toUpperCase();
-                    if (customCode && customCode.length >= 4) {
-                        gameState.room.code = customCode;
-                    }
-                    
-                    gameState.room.isLocked = elements.lockRoom.checked;
-                    gameState.room.allowSpectators = elements.allowSpectators.checked;
-                    
-                    // Añadir al jugador anfitrión a la sala
-                    gameState.room.players = [gameState.player];
-                }
-                
-                // Unirse a la sala (simulación)
-                joinMultiplayerRoom();
+            // Verificar conexión WebSocket
+            if (!isConnected) {
+                joinError.textContent = 'No hay conexión al servidor. Intenta nuevamente.';
+                return;
             }
-        }
-
-        function generatePlayerId() {
-            return 'player_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        function startSoloGame() {
-            showScreen('game');
-            initializeGameSession();
-            loadQuestion();
-        }
-
-        function joinMultiplayerRoom() {
-            showScreen('lobby');
-            updateLobbyUI();
             
-            // Simular conexión a sala multijugador
-            simulateMultiplayerConnection();
+            // Enviar solicitud de unión a sala
+            socket.send(JSON.stringify({
+                type: 'join_room',
+                roomCode: roomCode,
+                playerName: playerName,
+                avatar: playerAvatar,
+                gameMode: gameMode,
+                difficulty: difficulty
+            }));
+            
+            // Mostrar pantalla de carga
+            joinScreen.classList.remove('active');
+            setTimeout(() => {
+                joinScreen.style.display = 'none';
+                multiplayerLobby.style.display = 'flex';
+            }, 500);
         }
 
-        function simulateMultiplayerConnection() {
-            // Simular otros jugadores uniéndose (solo para demostración)
-            if (gameState.player.isHost) {
-                setTimeout(() => {
-                    addDemoPlayers();
-                }, 1000);
+        // Crear una nueva sala
+        function createRoom() {
+            playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                joinError.textContent = 'Por favor, ingresa tu nombre';
+                return;
             }
+            
+            gameMode = gameModeSelect.value;
+            difficulty = difficultySelect.value;
+            
+            // Verificar conexión WebSocket
+            if (!isConnected) {
+                joinError.textContent = 'No hay conexión al servidor. Intenta nuevamente.';
+                return;
+            }
+            
+            // Enviar solicitud de creación de sala
+            socket.send(JSON.stringify({
+                type: 'create_room',
+                playerName: playerName,
+                avatar: playerAvatar,
+                gameMode: gameMode,
+                difficulty: difficulty
+            }));
+            
+            // Mostrar pantalla de carga
+            joinScreen.classList.remove('active');
+            setTimeout(() => {
+                joinScreen.style.display = 'none';
+                multiplayerLobby.style.display = 'flex';
+            }, 500);
         }
 
-        function addDemoPlayers() {
-            const demoPlayers = [
-                { name: 'Ana', avatar: '🐱', color: '#ff6b6b' },
-                { name: 'Carlos', avatar: '🐶', color: '#6bff6b' },
-                { name: 'María', avatar: '🐰', color: '#ffde59' },
-                { name: 'Luis', avatar: '🐻', color: '#a459ff' }
-            ];
+        // Actualizar lista de jugadores en el lobby
+        function updatePlayerList() {
+            playerList.innerHTML = '';
+            playerCount.textContent = players.length;
             
-            demoPlayers.forEach((demo, index) => {
-                setTimeout(() => {
-                    const player = {
-                        id: 'demo_' + index,
-                        name: demo.name,
-                        avatar: demo.avatar,
-                        color: demo.color,
-                        isHost: false,
-                        isSpectator: false
-                    };
-                    
-                    gameState.room.players.push(player);
-                    updateLobbyUI();
-                    
-                    // Notificación de nuevo jugador
-                    showNotification(`${demo.name} se ha unido a la sala`, 'info');
-                }, (index + 1) * 1000);
-            });
-        }
-
-        function updateLobbyUI() {
-            // Actualizar información de la sala
-            elements.displayRoomCode.textContent = gameState.room.code;
-            elements.playerCount.textContent = gameState.room.players.length;
-            elements.maxPlayers.textContent = gameState.room.maxPlayers;
-            
-            // Actualizar lista de jugadores
-            elements.playerList.innerHTML = '';
-            gameState.room.players.forEach(player => {
+            players.forEach(player => {
                 const playerBadge = document.createElement('div');
                 playerBadge.className = 'player-badge';
-                playerBadge.style.background = `linear-gradient(45deg, ${player.color}, ${adjustColor(player.color, 20)})`;
                 playerBadge.innerHTML = `
                     <span class="player-avatar">${player.avatar}</span>
                     <span class="player-name">${player.name}</span>
-                    ${player.isHost ? '<span title="Anfitrión">👑</span>' : ''}
-                    ${player.isSpectator ? '<span class="spectator-badge">Espectador</span>' : ''}
+                    ${player.id === currentPlayerId ? '<span>(Tú)</span>' : ''}
+                    ${player.isHost ? '<span>👑</span>' : ''}
                 `;
-                elements.playerList.appendChild(playerBadge);
+                playerList.appendChild(playerBadge);
             });
             
-            // Habilitar botón de inicio si hay al menos 2 jugadores y es anfitrión
-            elements.startGameBtn.disabled = !(gameState.player.isHost && gameState.room.players.length >= 2);
-            
-            // Actualizar estado de conexión
-            updateConnectionStatus();
+            // Mostrar botón de inicio solo si soy el host
+            startGameButton.style.display = isHost ? 'block' : 'none';
         }
 
-        function adjustColor(color, amount) {
-            // Simplificación para ajustar color (en una implementación real usaría una librería de color)
-            return color;
-        }
-
-        function selectGameMode(mode) {
-            // Seleccionar modo de juego (anfitrión)
-            gameState.room.mode = mode;
-            
-            // Resaltar modo seleccionado
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('selected');
-                if (btn.dataset.mode === mode) {
-                    btn.classList.add('selected');
-                }
-            });
-            
-            // Notificar a los jugadores
-            showNotification(`Modo de juego cambiado a: ${getModeDisplayName(mode)}`, 'success');
-        }
-
-        function voteForGameMode(mode) {
-            // Votar por un modo de juego (jugador no anfitrión)
-            if (!gameState.room.votedModes[gameState.player.id]) {
-                gameState.room.votedModes[gameState.player.id] = mode;
-                
-                // Resaltar voto
-                document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.classList.remove('voted');
-                    if (btn.dataset.mode === mode) {
-                        btn.classList.add('voted');
-                    }
-                });
-                
-                showNotification(`Has votado por: ${getModeDisplayName(mode)}`, 'info');
-                
-                // Simular votación de otros jugadores
-                simulateOtherVotes(mode);
-            }
-        }
-
-        function simulateOtherVotes(mode) {
-            // Simular votos de otros jugadores (solo para demostración)
-            if (gameState.room.players.length > 1) {
-                setTimeout(() => {
-                    const otherPlayers = gameState.room.players.filter(p => p.id !== gameState.player.id);
-                    otherPlayers.forEach((player, index) => {
-                        setTimeout(() => {
-                            const voteMode = ['classic', '1vs1', 'tournament', 'lightning', 'teams', 'survival', 'countdown'][
-                                Math.floor(Math.random() * 7)
-                            ];
-                            gameState.room.votedModes[player.id] = voteMode;
-                            
-                            // Actualizar UI de votación
-                            updateVoteResults();
-                        }, (index + 1) * 500);
-                    });
-                }, 1000);
-            }
-        }
-
+        // Actualizar resultados de votación
         function updateVoteResults() {
-            // Contar votos
+            voteResultsList.innerHTML = '';
+            
             const voteCounts = {};
-            Object.values(gameState.room.votedModes).forEach(mode => {
-                voteCounts[mode] = (voteCounts[mode] || 0) + 1;
+            modeButtons.forEach(button => {
+                const mode = button.getAttribute('data-mode');
+                voteCounts[mode] = 0;
+            });
+            
+            // Contar votos
+            Object.values(playerVotes).forEach(vote => {
+                if (voteCounts.hasOwnProperty(vote)) {
+                    voteCounts[vote]++;
+                }
             });
             
             // Mostrar resultados
-            elements.voteResultsList.innerHTML = '';
             for (const mode in voteCounts) {
                 const count = voteCounts[mode];
                 const resultItem = document.createElement('div');
-                resultItem.className = 'vote-result-item';
+                resultItem.className = 'ranking-item';
                 resultItem.innerHTML = `
-                    <span>${getModeDisplayName(mode)}:</span>
+                    <span>${getModeDisplayName(mode)}</span>
                     <span>${count} voto(s)</span>
                 `;
-                elements.voteResultsList.appendChild(resultItem);
+                voteResultsList.appendChild(resultItem);
             }
             
-            // Mostrar sección de resultados si hay votos
-            if (Object.keys(voteCounts).length > 0) {
-                elements.voteResults.style.display = 'block';
-            }
+            voteResults.style.display = 'block';
         }
 
+        // Obtener nombre de visualización para un modo de juego
         function getModeDisplayName(mode) {
             const modeNames = {
                 'classic': 'Clásico',
-                '1vs1': '1 vs 1',
-                'tournament': 'Torneo',
                 'lightning': 'Relámpago',
-                'teams': 'Equipos',
                 'survival': 'Supervivencia',
-                'countdown': 'Contrarreloj'
+                'team': 'Por Equipos'
             };
+            
             return modeNames[mode] || mode;
         }
 
-        function startMultiplayerGame() {
-            if (gameState.player.isHost && gameState.room.players.length >= 2) {
-                // Iniciar cuenta regresiva en el lobby
-                startLobbyCountdown();
-            }
-        }
-
-        function startLobbyCountdown() {
-            let countdown = 5;
-            elements.lobbyCountdown.textContent = `El juego comenzará en ${countdown}...`;
-            elements.lobbyCountdown.classList.add('active');
+        // Iniciar cuenta regresiva del lobby
+        function startLobbyCountdown(countdown) {
+            let count = countdown;
+            lobbyTimer.textContent = count;
+            lobbyCountdown.classList.add('active');
             
             const countdownInterval = setInterval(() => {
-                countdown--;
-                elements.lobbyCountdown.textContent = `El juego comenzará en ${countdown}...`;
+                count--;
+                lobbyTimer.textContent = count;
                 
-                if (countdown <= 0) {
+                if (count <= 0) {
                     clearInterval(countdownInterval);
-                    elements.lobbyCountdown.classList.remove('active');
-                    
-                    // Iniciar el juego
-                    initializeGameSession();
-                    showScreen('game');
-                    loadQuestion();
+                    lobbyCountdown.classList.remove('active');
                 }
             }, 1000);
         }
 
-        function leaveLobby() {
-            if (confirm('¿Estás seguro de que quieres salir de la sala?')) {
-                // Volver a la pantalla de unión
-                showScreen('join');
-            }
-        }
-
-        function showRoomSettings() {
-            if (gameState.player.isHost) {
-                showScreen('roomSettings');
-            }
-        }
-
-        function hideRoomSettings() {
-            showScreen('lobby');
-        }
-
-        function updateRoomSettings() {
-            elements.currentRoomCode.textContent = gameState.room.code;
-            elements.connectedPlayersCount.textContent = `${gameState.room.players.length}/${gameState.room.maxPlayers}`;
-            elements.roomState.textContent = gameState.room.isLocked ? 'Bloqueada' : 'Abierta';
-            elements.toggleSpectators.checked = gameState.room.allowSpectators;
-            elements.lockRoomBtn.textContent = gameState.room.isLocked ? '🔓 Desbloquear sala' : '🔒 Bloquear sala';
-        }
-
-        function toggleRoomLock() {
-            gameState.room.isLocked = !gameState.room.isLocked;
-            updateRoomSettings();
-            showNotification(`Sala ${gameState.room.isLocked ? 'bloqueada' : 'desbloqueada'}`, 'info');
-        }
-
-        function toggleSpectators() {
-            gameState.room.allowSpectators = elements.toggleSpectators.checked;
-            showNotification(`Espectadores ${gameState.room.allowSpectators ? 'permitidos' : 'no permitidos'}`, 'info');
-        }
-
-        function kickAllPlayers() {
-            if (confirm('¿Estás seguro de que quieres expulsar a todos los jugadores?')) {
-                // Mantener solo al anfitrión
-                gameState.room.players = [gameState.player];
-                updateRoomSettings();
-                showNotification('Todos los jugadores han sido expulsados', 'warning');
-            }
-        }
-
-        function invitePlayers() {
-            // Simular funcionalidad de invitación
-            const inviteText = `¡Únete a mi partida de Math Challenge PRO! Código de sala: ${gameState.room.code}`;
+        // Iniciar juego desde el lobby (solo host)
+        function startGameFromLobby() {
+            if (!isHost) return;
             
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Math Challenge PRO',
-                    text: inviteText,
-                    url: window.location.href
-                });
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(inviteText).then(() => {
-                    showNotification('Enlace de invitación copiado al portapapeles', 'success');
-                });
-            } else {
-                // Fallback: mostrar el código para que lo copien manualmente
-                alert(`Comparte este código con tus amigos: ${gameState.room.code}`);
-            }
+            // Enviar comando para iniciar el juego
+            socket.send(JSON.stringify({
+                type: 'start_game'
+            }));
         }
 
-        // =============================================
-        // LÓGICA PRINCIPAL DEL JUEGO
-        // =============================================
-
-        function initializeGameSession() {
-            // Reiniciar estado del juego
-            gameState.game.currentQuestion = 0;
-            gameState.game.questions = [];
-            gameState.game.timeLeft = getQuestionTime();
-            gameState.game.isAnswered = false;
-            gameState.game.results = [];
-            gameState.game.startTime = Date.now();
+        // Iniciar juego multijugador
+        function startMultiplayerGame(gameQuestions, mode) {
+            multiplayerLobby.style.display = 'none';
+            gameContainer.style.display = 'block';
+            gameStarted = true;
             
-            // Generar preguntas
-            generateQuestions();
+            questions = gameQuestions;
+            gameMode = mode;
+            totalQuestions = questions.length;
+            currentQuestion = 0;
+            score = 0;
             
-            // Configurar UI según el modo de juego
-            setupGameUI();
-            
-            // Mostrar ranking en vivo si es multijugador
-            if (gameState.room.mode !== 'solo') {
-                elements.liveRanking.style.display = 'block';
-                elements.liveAnswersPanel.style.display = 'block';
-                updateLiveRanking();
-            }
-            
-            // Mostrar información del modo de juego
-            updateGameModeIndicator();
-        }
-
-        function getQuestionTime() {
-            switch (gameState.room.mode) {
-                case 'lightning': return gameConfig.lightningTime;
-                case 'countdown': return gameConfig.countdownTime;
-                default: return gameConfig.questionTime;
-            }
-        }
-
-        function generateQuestions() {
-            // Generar preguntas matemáticas aleatorias
-            for (let i = 0; i < gameConfig.totalQuestions; i++) {
-                const question = generateMathQuestion();
-                gameState.game.questions.push(question);
-            }
-        }
-
-        function generateMathQuestion() {
-            const types = ['addition', 'subtraction', 'multiplication', 'division'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            
-            let num1, num2, question, answer, options;
-            
-            switch (type) {
-                case 'addition':
-                    num1 = Math.floor(Math.random() * 50) + 1;
-                    num2 = Math.floor(Math.random() * 50) + 1;
-                    question = `${num1} + ${num2} = ?`;
-                    answer = num1 + num2;
+            // Configurar según el modo de juego
+            switch (gameMode) {
+                case 'lightning':
+                    timeLeft = 10;
+                    gameContainer.classList.add('lightning-mode');
                     break;
-                    
-                case 'subtraction':
-                    num1 = Math.floor(Math.random() * 50) + 20;
-                    num2 = Math.floor(Math.random() * 20) + 1;
-                    question = `${num1} - ${num2} = ?`;
-                    answer = num1 - num2;
-                    break;
-                    
-                case 'multiplication':
-                    num1 = Math.floor(Math.random() * 10) + 1;
-                    num2 = Math.floor(Math.random() * 10) + 1;
-                    question = `${num1} × ${num2} = ?`;
-                    answer = num1 * num2;
-                    break;
-                    
-                case 'division':
-                    num2 = Math.floor(Math.random() * 10) + 1;
-                    answer = Math.floor(Math.random() * 10) + 1;
-                    num1 = num2 * answer;
-                    question = `${num1} ÷ ${num2} = ?`;
-                    break;
-            }
-            
-            // Generar opciones incorrectas
-            options = generateOptions(answer, 4);
-            
-            return {
-                question: question,
-                answer: answer,
-                options: options,
-                type: type,
-                image: null // En una implementación real, podría haber imágenes
-            };
-        }
-
-        function generateOptions(correctAnswer, count) {
-            const options = [correctAnswer];
-            
-            // Generar opciones incorrectas que sean cercanas a la respuesta correcta
-            while (options.length < count) {
-                let option;
-                const variation = Math.floor(Math.random() * 10) + 1;
-                const shouldAdd = Math.random() > 0.5;
-                
-                if (shouldAdd) {
-                    option = correctAnswer + variation;
-                } else {
-                    option = correctAnswer - variation;
-                }
-                
-                // Asegurarse de que la opción no sea negativa y no se repita
-                if (option > 0 && !options.includes(option)) {
-                    options.push(option);
-                }
-            }
-            
-            // Mezclar las opciones
-            return shuffleArray(options);
-        }
-
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function setupGameUI() {
-            // Configurar UI según el modo de juego
-            const mode = gameState.room.mode;
-            
-            // Ocultar todos los elementos específicos de modo primero
-            elements.teamInfo.style.display = 'none';
-            elements.survivalCount.style.display = 'none';
-            elements.countdownClock.style.display = 'none';
-            elements.tournamentBracket.style.display = 'none';
-            elements.teamContainer.style.display = 'none';
-            
-            // Mostrar elementos según el modo
-            switch (mode) {
-                case 'teams':
-                    elements.teamInfo.style.display = 'block';
-                    elements.teamInfo.innerHTML = '<h3>Modo Equipos</h3><p>¡Colabora con tu equipo para ganar!</p>';
-                    elements.teamContainer.style.display = 'flex';
-                    setupTeams();
-                    break;
-                    
                 case 'survival':
-                    elements.survivalCount.style.display = 'block';
-                    gameState.game.survival.playersLeft = gameState.room.players.length;
-                    elements.playersLeft.textContent = gameState.game.survival.playersLeft;
+                    timeLeft = 15;
                     break;
-                    
-                case 'countdown':
-                    elements.countdownClock.style.display = 'block';
-                    startCountdownMode();
-                    break;
-                    
-                case 'tournament':
-                    elements.tournamentBracket.style.display = 'block';
-                    setupTournament();
-                    break;
-                    
-                case '1vs1':
-                    showVersusAnimation();
+                default:
+                    timeLeft = 30;
                     break;
             }
             
-            // Mostrar botón de saltar pregunta si es anfitrión
-            elements.skipQuestion.style.display = gameState.player.isHost ? 'block' : 'none';
+            // Mostrar ranking en vivo
+            liveRanking.style.display = 'block';
+            
+            // Iniciar la primera pregunta
+            showQuestion();
         }
 
-        function setupTeams() {
-            // Dividir jugadores en equipos
-            const players = gameState.room.players;
-            gameState.game.teams.red = [];
-            gameState.game.teams.blue = [];
-            gameState.game.teams.scores = { red: 0, blue: 0 };
-            
-            // Mezclar jugadores y dividirlos en equipos
-            const shuffledPlayers = shuffleArray([...players]);
-            shuffledPlayers.forEach((player, index) => {
-                if (index % 2 === 0) {
-                    gameState.game.teams.red.push(player);
-                } else {
-                    gameState.game.teams.blue.push(player);
-                }
-            });
-            
-            // Actualizar UI de equipos
-            updateTeamsUI();
-        }
-
-        function updateTeamsUI() {
-            elements.teamContainer.innerHTML = '';
-            
-            // Equipo rojo
-            const teamRed = document.createElement('div');
-            teamRed.className = 'team team-red';
-            teamRed.innerHTML = `
-                <h3>Equipo Rojo</h3>
-                <div class="team-score">${gameState.game.teams.scores.red}</div>
-                <div class="team-players">
-                    ${gameState.game.teams.red.map(player => `
-                        <div class="player-badge" style="background: linear-gradient(45deg, ${player.color}, ${adjustColor(player.color, 20)})">
-                            <span class="player-avatar">${player.avatar}</span>
-                            <span class="player-name">${player.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            elements.teamContainer.appendChild(teamRed);
-            
-            // Equipo azul
-            const teamBlue = document.createElement('div');
-            teamBlue.className = 'team team-blue';
-            teamBlue.innerHTML = `
-                <h3>Equipo Azul</h3>
-                <div class="team-score">${gameState.game.teams.scores.blue}</div>
-                <div class="team-players">
-                    ${gameState.game.teams.blue.map(player => `
-                        <div class="player-badge" style="background: linear-gradient(45deg, ${player.color}, ${adjustColor(player.color, 20)})">
-                            <span class="player-avatar">${player.avatar}</span>
-                            <span class="player-name">${player.name}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            elements.teamContainer.appendChild(teamBlue);
-        }
-
-        function setupTournament() {
-            // Configurar estructura del torneo
-            const players = gameState.room.players;
-            gameState.game.tournament.rounds = [];
-            gameState.game.tournament.currentRound = 0;
-            gameState.game.tournament.matches = [];
-            
-            // Crear primera ronda (cuartos de final)
-            const firstRoundMatches = [];
-            for (let i = 0; i < players.length; i += 2) {
-                if (i + 1 < players.length) {
-                    firstRoundMatches.push({
-                        player1: players[i],
-                        player2: players[i + 1],
-                        winner: null
-                    });
-                } else {
-                    // Jugador libre (avanza automáticamente)
-                    firstRoundMatches.push({
-                        player1: players[i],
-                        player2: null,
-                        winner: players[i]
-                    });
-                }
-            }
-            
-            gameState.game.tournament.rounds.push(firstRoundMatches);
-            gameState.game.tournament.matches = firstRoundMatches;
-            
-            // Actualizar UI del torneo
-            updateTournamentBracket();
-        }
-
-        function updateTournamentBracket() {
-            elements.tournamentBracket.innerHTML = '';
-            
-            gameState.game.tournament.rounds.forEach((round, roundIndex) => {
-                const roundElement = document.createElement('div');
-                roundElement.className = 'tournament-round';
-                roundElement.innerHTML = `<h4>${getRoundName(roundIndex)}</h4>`;
-                
-                round.forEach(match => {
-                    const matchElement = document.createElement('div');
-                    matchElement.className = 'tournament-match';
-                    
-                    const player1HTML = match.player1 ? `
-                        <div class="tournament-player ${match.winner === match.player1 ? 'tournament-winner' : ''}">
-                            <span>${match.player1.avatar} ${match.player1.name}</span>
-                        </div>
-                    ` : '';
-                    
-                    const player2HTML = match.player2 ? `
-                        <div class="tournament-player ${match.winner === match.player2 ? 'tournament-winner' : ''}">
-                            <span>${match.player2.avatar} ${match.player2.name}</span>
-                        </div>
-                    ` : '<div class="tournament-player">Bye</div>';
-                    
-                    matchElement.innerHTML = player1HTML + player2HTML;
-                    roundElement.appendChild(matchElement);
-                });
-                
-                elements.tournamentBracket.appendChild(roundElement);
-            });
-        }
-
-        function getRoundName(roundIndex) {
-            const roundNames = ['Cuartos de final', 'Semifinales', 'Final'];
-            return roundNames[roundIndex] || `Ronda ${roundIndex + 1}`;
-        }
-
-        function showVersusAnimation() {
-            if (gameState.room.players.length >= 2) {
-                const player1 = gameState.room.players[0];
-                const player2 = gameState.room.players[1];
-                
-                elements.versusAvatar1.textContent = player1.avatar;
-                elements.versusName1.textContent = player1.name;
-                elements.versusAvatar2.textContent = player2.avatar;
-                elements.versusName2.textContent = player2.name;
-                
-                elements.versusAnimation.style.display = 'flex';
-                
-                // Ocultar después de 3 segundos
-                setTimeout(() => {
-                    elements.versusAnimation.style.display = 'none';
-                }, 3000);
-            }
-        }
-
-        function startCountdownMode() {
-            gameState.game.countdown.timeLeft = gameConfig.countdownTime;
-            elements.countdownClock.textContent = gameState.game.countdown.timeLeft;
-            
-            // Iniciar cuenta regresiva global
-            gameState.game.countdown.interval = setInterval(() => {
-                gameState.game.countdown.timeLeft--;
-                elements.countdownClock.textContent = gameState.game.countdown.timeLeft;
-                
-                if (gameState.game.countdown.timeLeft <= 0) {
-                    clearInterval(gameState.game.countdown.interval);
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        function loadQuestion() {
-            const currentQuestion = gameState.game.questions[gameState.game.currentQuestion];
-            
-            // Reiniciar estado de la pregunta
-            gameState.game.isAnswered = false;
-            gameState.game.timeLeft = getQuestionTime();
-            gameState.game.startTime = Date.now();
-            
-            // Actualizar UI
-            elements.question.textContent = currentQuestion.question;
-            elements.result.textContent = '';
-            elements.result.className = 'result';
-            
-            // Mostrar imagen si existe
-            if (currentQuestion.image) {
-                elements.questionImage.src = currentQuestion.image;
-                elements.questionImageContainer.style.display = 'block';
-            } else {
-                elements.questionImageContainer.style.display = 'none';
-            }
-            
-            // Configurar tipo de respuesta
-            if (currentQuestion.options) {
-                // Pregunta de opción múltiple
-                elements.numericInput.style.display = 'none';
-                elements.abcdButtons.style.display = 'grid';
-                
-                // Generar botones A/B/C/D
-                elements.abcdButtons.innerHTML = '';
-                const letters = ['A', 'B', 'C', 'D'];
-                
-                currentQuestion.options.forEach((option, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'abcd-btn';
-                    button.innerHTML = `
-                        <span class="letter">${letters[index]}</span>
-                        <span class="option-text">${option}</span>
-                    `;
-                    button.addEventListener('click', () => selectAnswer(option));
-                    elements.abcdButtons.appendChild(button);
-                });
-            } else {
-                // Pregunta de entrada numérica
-                elements.abcdButtons.style.display = 'none';
-                elements.numericInput.style.display = 'block';
-                elements.playerAnswer.value = '';
-                elements.playerAnswer.focus();
-            }
-            
-            // Actualizar barra de progreso
-            updateProgressBar();
-            
-            // Actualizar información de ronda
-            elements.roundInfo.textContent = `Pregunta ${gameState.game.currentQuestion + 1} de ${gameConfig.totalQuestions}`;
-            
-            // Iniciar temporizador
-            startTimer();
-            
-            // Limpiar panel de respuestas en vivo
-            if (elements.liveAnswersPanel.style.display !== 'none') {
-                elements.answersList.innerHTML = '';
-            }
-        }
-
-        function updateProgressBar() {
-            const progress = ((gameState.game.currentQuestion) / gameConfig.totalQuestions) * 100;
-            elements.progressBar.style.width = `${progress}%`;
-        }
-
-        function startTimer() {
-            // Reiniciar temporizador visual
-            const timerCircle = document.querySelector('.timer-circle');
-            const circumference = 2 * Math.PI * 45;
-            timerCircle.style.strokeDasharray = circumference;
-            timerCircle.style.strokeDashoffset = 0;
-            
-            // Actualizar tiempo inicial
-            elements.timer.textContent = gameState.game.timeLeft;
-            elements.timer.className = 'timer-text';
-            timerCircle.className = 'timer-circle';
-            
-            // Configurar intervalo del temporizador
-            clearInterval(gameState.game.timer);
-            gameState.game.timer = setInterval(() => {
-                gameState.game.timeLeft--;
-                elements.timer.textContent = gameState.game.timeLeft;
-                
-                // Actualizar círculo del temporizador
-                const offset = circumference - (gameState.game.timeLeft / getQuestionTime()) * circumference;
-                timerCircle.style.strokeDashoffset = offset;
-                
-                // Cambiar color cuando quede poco tiempo
-                if (gameState.game.timeLeft <= 5) {
-                    elements.timer.className = 'timer-text timer-warning';
-                    timerCircle.className = 'timer-circle timer-warning';
-                }
-                
-                // Tiempo agotado
-                if (gameState.game.timeLeft <= 0) {
-                    clearInterval(gameState.game.timer);
-                    timeUp();
-                }
-            }, 1000);
-        }
-
-        function timeUp() {
-            // Efecto de parpadeo
-            elements.question.classList.add('time-up');
-            
-            // Marcar como no respondida
-            if (!gameState.game.isAnswered) {
-                gameState.game.isAnswered = true;
-                elements.result.textContent = '¡Tiempo agotado!';
-                elements.result.className = 'result incorrect';
-                
-                // Registrar resultado
-                recordAnswer(null, false, 0);
-                
-                // Avanzar después de un breve delay
-                setTimeout(nextQuestion, 2000);
-            }
-        }
-
-        function selectAnswer(answer) {
-            if (!gameState.game.isAnswered) {
-                gameState.game.isAnswered = true;
-                
-                // Calcular tiempo de respuesta
-                const responseTime = (Date.now() - gameState.game.startTime) / 1000;
-                
-                // Verificar respuesta
-                const currentQuestion = gameState.game.questions[gameState.game.currentQuestion];
-                const isCorrect = answer === currentQuestion.answer;
-                
-                // Mostrar resultado
-                if (isCorrect) {
-                    elements.result.textContent = '¡Correcto! +10 puntos';
-                    elements.result.className = 'result correct';
-                    
-                    // Efecto de confeti para respuestas correctas
-                    if (gameState.settings.animationsEnabled) {
-                        triggerConfetti();
-                    }
-                } else {
-                    elements.result.textContent = `Incorrecto. La respuesta era: ${currentQuestion.answer}`;
-                    elements.result.className = 'result incorrect';
-                }
-                
-                // Registrar respuesta
-                recordAnswer(answer, isCorrect, responseTime);
-                
-                // Actualizar ranking en vivo
-                updateLiveRanking();
-                
-                // Avanzar después de un breve delay
-                setTimeout(nextQuestion, 2000);
-            }
-        }
-
-        function submitAnswer() {
-            const answer = elements.playerAnswer.value.trim();
-            
-            if (!answer) {
-                showError(elements.result, 'Por favor, ingresa una respuesta');
+        // Mostrar pregunta actual
+        function showQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                endGame();
                 return;
             }
             
-            if (!gameState.game.isAnswered) {
-                gameState.game.isAnswered = true;
-                
-                // Calcular tiempo de respuesta
-                const responseTime = (Date.now() - gameState.game.startTime) / 1000;
-                
-                // Verificar respuesta
-                const currentQuestion = gameState.game.questions[gameState.game.currentQuestion];
-                const isCorrect = parseInt(answer) === currentQuestion.answer;
-                
-                // Mostrar resultado
-                if (isCorrect) {
-                    elements.result.textContent = '¡Correcto! +10 puntos';
-                    elements.result.className = 'result correct';
-                    
-                    // Efecto de confeti para respuestas correctas
-                    if (gameState.settings.animationsEnabled) {
-                        triggerConfetti();
-                    }
-                } else {
-                    elements.result.textContent = `Incorrecto. La respuesta era: ${currentQuestion.answer}`;
-                    elements.result.className = 'result incorrect';
-                }
-                
-                // Registrar respuesta
-                recordAnswer(answer, isCorrect, responseTime);
-                
-                // Actualizar ranking en vivo
-                updateLiveRanking();
-                
-                // Avanzar después de un breve delay
-                setTimeout(nextQuestion, 2000);
-            }
-        }
-
-        function recordAnswer(answer, isCorrect, responseTime) {
-            // Registrar respuesta del jugador actual
-            const result = {
-                player: gameState.player,
-                questionIndex: gameState.game.currentQuestion,
-                answer: answer,
-                isCorrect: isCorrect,
-                responseTime: responseTime,
-                points: isCorrect ? 10 : 0
-            };
+            const question = questions[currentQuestion];
+            questionElement.textContent = question.question;
+            correctAnswer = question.correctAnswer;
             
-            gameState.game.results.push(result);
+            // Limpiar resultado anterior
+            resultElement.textContent = '';
+            resultElement.className = 'result';
             
-            // En modo multijugador, simular respuestas de otros jugadores
-            if (gameState.room.mode !== 'solo') {
-                simulateOtherPlayersAnswers(isCorrect, responseTime);
-            }
+            // Reiniciar temporizador
+            timeLeft = gameMode === 'lightning' ? 10 : 30;
+            timerText.textContent = timeLeft;
+            timerCircle.style.strokeDashoffset = 0;
+            timerCircle.classList.remove('timer-warning');
             
-            // Actualizar panel de respuestas en vivo
-            updateLiveAnswers();
-        }
-
-        function simulateOtherPlayersAnswers(correct, playerResponseTime) {
-            // Simular respuestas de otros jugadores (solo para demostración)
-            const otherPlayers = gameState.room.players.filter(p => p.id !== gameState.player.id);
-            const currentQuestion = gameState.game.questions[gameState.game.currentQuestion];
+            // Actualizar barra de progreso
+            const progress = ((currentQuestion) / totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
             
-            otherPlayers.forEach((player, index) => {
-                setTimeout(() => {
-                    // Determinar si responde correctamente (70% de probabilidad si el jugador real acertó, 30% si no)
-                    const willBeCorrect = correct ? 
-                        Math.random() < 0.7 : 
-                        Math.random() < 0.3;
-                    
-                    // Tiempo de respuesta simulado (ligeramente mayor que el del jugador real)
-                    const simulatedResponseTime = playerResponseTime + (Math.random() * 2) + 0.5;
-                    
-                    const simulatedAnswer = willBeCorrect ? 
-                        currentQuestion.answer : 
-                        generateWrongAnswer(currentQuestion.answer);
-                    
-                    const result = {
-                        player: player,
-                        questionIndex: gameState.game.currentQuestion,
-                        answer: simulatedAnswer,
-                        isCorrect: willBeCorrect,
-                        responseTime: simulatedResponseTime,
-                        points: willBeCorrect ? 10 : 0
-                    };
-                    
-                    gameState.game.results.push(result);
-                    
-                    // Actualizar panel de respuestas en vivo
-                    updateLiveAnswers();
-                    
-                    // Actualizar ranking
-                    updateLiveRanking();
-                }, (index + 1) * 500);
-            });
-        }
-
-        function generateWrongAnswer(correctAnswer) {
-            // Generar una respuesta incorrecta plausible
-            const variation = Math.floor(Math.random() * 10) + 1;
-            const shouldAdd = Math.random() > 0.5;
-            
-            if (shouldAdd) {
-                return correctAnswer + variation;
+            // Configurar interfaz según el tipo de pregunta
+            if (question.type === 'multiple_choice') {
+                playerAnswerInput.style.display = 'none';
+                keyboard.style.display = 'none';
+                abcdButtons.style.display = 'grid';
+                
+                // Establecer opciones de respuesta
+                const answerButtons = document.querySelectorAll('.abcd-btn');
+                answerButtons.forEach((button, index) => {
+                    const answerText = button.querySelector('.answer-text');
+                    answerText.textContent = question.options[index];
+                });
+                
+                // Reiniciar selección
+                selectedAnswer = null;
+                answerButtons.forEach(button => {
+                    button.classList.remove('selected-answer');
+                });
             } else {
-                return Math.max(1, correctAnswer - variation);
+                playerAnswerInput.style.display = 'block';
+                keyboard.style.display = 'grid';
+                abcdButtons.style.display = 'none';
+                
+                // Limpiar campo de respuesta
+                playerAnswerInput.value = '';
+                playerAnswerInput.focus();
             }
+            
+            // Ocultar botón siguiente
+            nextButton.style.display = 'none';
+            
+            // Iniciar temporizador
+            startTimer();
         }
 
-        function updateLiveAnswers() {
-            if (elements.liveAnswersPanel.style.display === 'none') return;
+        // Iniciar temporizador
+        function startTimer() {
+            clearInterval(timerInterval);
             
-            // Obtener respuestas de la pregunta actual
-            const currentQuestionResults = gameState.game.results.filter(
-                r => r.questionIndex === gameState.game.currentQuestion
-            );
+            const circumference = 2 * Math.PI * 45;
+            const totalTime = timeLeft;
             
-            // Ordenar por tiempo de respuesta
-            currentQuestionResults.sort((a, b) => a.responseTime - b.responseTime);
-            
-            // Actualizar UI
-            elements.answersList.innerHTML = '';
-            
-            currentQuestionResults.forEach((result, index) => {
-                const answerItem = document.createElement('div');
-                answerItem.className = `answer-item ${result.isCorrect ? 'answer-correct' : 'answer-incorrect'}`;
-                if (index === 0 && result.isCorrect) {
-                    answerItem.classList.add('fastest-answer');
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerText.textContent = timeLeft;
+                
+                // Actualizar círculo del temporizador
+                const offset = circumference - (timeLeft / totalTime) * circumference;
+                timerCircle.style.strokeDashoffset = offset;
+                
+                // Cambiar color cuando queden 10 segundos
+                if (timeLeft <= 10) {
+                    timerCircle.classList.add('timer-warning');
                 }
                 
-                answerItem.innerHTML = `
-                    <div class="player-info">
-                        <span class="answer-avatar">${result.player.avatar}</span>
-                        <span>${result.player.name}</span>
-                    </div>
-                    <div class="answer-details">
-                        <span>${result.answer}</span>
-                        <span>${result.responseTime.toFixed(1)}s</span>
-                    </div>
-                `;
-                
-                elements.answersList.appendChild(answerItem);
-            });
-            
-            // Si no hay respuestas aún, mostrar estado de espera
-            if (currentQuestionResults.length === 0) {
-                const waitingItem = document.createElement('div');
-                waitingItem.className = 'answer-item answer-pending';
-                waitingItem.textContent = 'Esperando respuestas...';
-                elements.answersList.appendChild(waitingItem);
+                // Tiempo agotado
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        // Manejar tiempo agotado
+        function handleTimeUp() {
+            if (isMultiplayer) {
+                // Enviar respuesta vacía al servidor
+                socket.send(JSON.stringify({
+                    type: 'answer',
+                    answer: '',
+                    questionIndex: currentQuestion
+                }));
+            } else {
+                resultElement.textContent = `¡Tiempo agotado! La respuesta correcta era: ${correctAnswer}`;
+                resultElement.className = 'result incorrect';
+                nextButton.style.display = 'block';
             }
         }
 
+        // Verificar respuesta
+        function checkAnswer() {
+            clearInterval(timerInterval);
+            
+            let playerAnswer = '';
+            
+            if (questions[currentQuestion].type === 'multiple_choice') {
+                playerAnswer = selectedAnswer;
+            } else {
+                playerAnswer = playerAnswerInput.value.trim();
+            }
+            
+            if (!playerAnswer) {
+                resultElement.textContent = 'Por favor, ingresa una respuesta';
+                resultElement.className = 'result waiting';
+                return;
+            }
+            
+            if (isMultiplayer) {
+                // Enviar respuesta al servidor
+                socket.send(JSON.stringify({
+                    type: 'answer',
+                    answer: playerAnswer,
+                    questionIndex: currentQuestion
+                }));
+            } else {
+                // Modo individual - verificar localmente
+                const isCorrect = playerAnswer === correctAnswer.toString();
+                
+                if (isCorrect) {
+                    score += 10;
+                    resultElement.textContent = '¡Correcto! +10 puntos';
+                    resultElement.className = 'result correct';
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                } else {
+                    resultElement.textContent = `Incorrecto. La respuesta correcta era: ${correctAnswer}`;
+                    resultElement.className = 'result incorrect';
+                }
+                
+                nextButton.style.display = 'block';
+            }
+        }
+
+        // Mostrar resultado de respuesta (multijugador)
+        function showAnswerResult(isCorrect, correctAns, pointsEarned) {
+            if (isCorrect) {
+                resultElement.textContent = `¡Correcto! +${pointsEarned} puntos`;
+                resultElement.className = 'result correct';
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                resultElement.textContent = `Incorrecto. La respuesta correcta era: ${correctAns}`;
+                resultElement.className = 'result incorrect';
+            }
+            
+            nextButton.style.display = 'block';
+        }
+
+        // Siguiente pregunta
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+        }
+
+        // Actualizar ranking en vivo
         function updateLiveRanking() {
-            if (elements.liveRanking.style.display === 'none') return;
+            rankingList.innerHTML = '';
             
-            // Calcular puntuaciones
-            const scores = {};
-            gameState.room.players.forEach(player => {
-                scores[player.id] = {
-                    player: player,
-                    points: 0,
-                    correctAnswers: 0,
-                    averageTime: 0,
-                    totalTime: 0
-                };
-            });
-            
-            // Sumar puntos y tiempos
-            gameState.game.results.forEach(result => {
-                if (scores[result.player.id]) {
-                    scores[result.player.id].points += result.points;
-                    if (result.isCorrect) {
-                        scores[result.player.id].correctAnswers++;
-                    }
-                    scores[result.player.id].totalTime += result.responseTime;
-                }
-            });
-            
-            // Calcular promedios
-            Object.keys(scores).forEach(playerId => {
-                if (scores[playerId].correctAnswers > 0) {
-                    scores[playerId].averageTime = scores[playerId].totalTime / scores[playerId].correctAnswers;
-                }
-            });
-            
-            // Convertir a array y ordenar por puntos
-            const ranking = Object.values(scores).sort((a, b) => b.points - a.points);
-            
-            // Actualizar UI
-            elements.rankingList.innerHTML = '';
-            
-            ranking.forEach((score, index) => {
+            playerRankings.forEach((player, index) => {
                 const rankingItem = document.createElement('div');
-                rankingItem.className = `ranking-item ${score.player.id === gameState.player.id ? 'current-player' : ''}`;
+                rankingItem.className = 'ranking-item';
+                if (player.id === currentPlayerId) {
+                    rankingItem.classList.add('current-player');
+                }
                 
                 rankingItem.innerHTML = `
                     <span class="ranking-position">${index + 1}</span>
-                    <span class="ranking-avatar">${score.player.avatar}</span>
-                    <span class="ranking-name">${score.player.name}</span>
-                    <span class="ranking-points">${score.points}</span>
+                    <span class="ranking-avatar">${player.avatar}</span>
+                    <span class="ranking-name">${player.name}</span>
+                    <span class="ranking-points">${player.points} pts</span>
                 `;
                 
-                elements.rankingList.appendChild(rankingItem);
+                rankingList.appendChild(rankingItem);
             });
         }
 
-        function nextQuestion() {
-            gameState.game.currentQuestion++;
+        // Finalizar juego
+        function endGame() {
+            gameContainer.style.display = 'none';
+            finalResults.style.display = 'flex';
             
-            if (gameState.game.currentQuestion < gameConfig.totalQuestions) {
-                loadQuestion();
-            } else {
-                endGame();
+            if (isMultiplayer) {
+                // En multijugador, los resultados vienen del servidor
+                return;
+            }
+            
+            // Modo individual - mostrar resultados locales
+            showIndividualResults();
+        }
+
+        // Mostrar resultados individuales
+        function showIndividualResults() {
+            firstName.textContent = playerName;
+            firstAvatar.textContent = playerAvatar;
+            firstPoints.textContent = `${score} puntos`;
+            
+            // Ocultar segundo y tercer puesto en modo individual
+            document.querySelector('.podium-2').style.visibility = 'hidden';
+            document.querySelector('.podium-3').style.visibility = 'hidden';
+            secondName.parentElement.style.visibility = 'hidden';
+            thirdName.parentElement.style.visibility = 'hidden';
+            
+            // Ocultar lista de otros jugadores
+            otherPlayersList.style.display = 'none';
+        }
+
+        // Mostrar resultados finales (multijugador)
+        function showFinalResults(finalRankings) {
+            gameContainer.style.display = 'none';
+            finalResults.style.display = 'flex';
+            
+            // Mostrar podio
+            if (finalRankings.length > 0) {
+                firstName.textContent = finalRankings[0].name;
+                firstAvatar.textContent = finalRankings[0].avatar;
+                firstPoints.textContent = `${finalRankings[0].points} puntos`;
+            }
+            
+            if (finalRankings.length > 1) {
+                secondName.textContent = finalRankings[1].name;
+                secondAvatar.textContent = finalRankings[1].avatar;
+                secondPoints.textContent = `${finalRankings[1].points} puntos`;
+            }
+            
+            if (finalRankings.length > 2) {
+                thirdName.textContent = finalRankings[2].name;
+                thirdAvatar.textContent = finalRankings[2].avatar;
+                thirdPoints.textContent = `${finalRankings[2].points} puntos`;
+            }
+            
+            // Mostrar otros jugadores
+            otherPlayersList.innerHTML = '';
+            for (let i = 3; i < finalRankings.length; i++) {
+                const player = finalRankings[i];
+                const playerElement = document.createElement('div');
+                playerElement.className = 'other-player';
+                playerElement.innerHTML = `
+                    <div class="player-info">
+                        <span class="other-avatar">${player.avatar}</span>
+                        <span>${player.name}</span>
+                    </div>
+                    <span>${player.points} puntos</span>
+                `;
+                otherPlayersList.appendChild(playerElement);
             }
         }
 
+        // Jugar otra vez
+        function playAgain() {
+            finalResults.style.display = 'none';
+            
+            if (isMultiplayer) {
+                // En multijugador, volver al lobby
+                multiplayerLobby.style.display = 'flex';
+                gameStarted = false;
+            } else {
+                // En individual, reiniciar el juego
+                currentQuestion = 0;
+                score = 0;
+                gameContainer.style.display = 'block';
+                showQuestion();
+            }
+        }
+
+        // Volver al lobby
+        function backToLobby() {
+            finalResults.style.display = 'none';
+            multiplayerLobby.style.display = 'flex';
+            gameStarted = false;
+        }
+
+        // Alternar modo oscuro
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode');
+            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Saltar pregunta (modo profesor)
         function skipQuestion() {
-            if (gameState.player.isHost) {
-                clearInterval(gameState.game.timer);
+            if (isMultiplayer && isHost) {
+                // Enviar comando para saltar pregunta
+                socket.send(JSON.stringify({
+                    type: 'skip_question'
+                }));
+            } else {
+                // En individual, simplemente pasar a la siguiente pregunta
                 nextQuestion();
             }
         }
 
-        function endGame() {
-            // Detener temporizadores
-            clearInterval(gameState.game.timer);
-            clearInterval(gameState.game.countdown.interval);
-            
-            // Calcular resultados finales
-            calculateFinalResults();
-            
-            // Guardar en historial
-            saveGameToHistory();
-            
-            // Mostrar pantalla de resultados
-            showScreen('results');
-        }
-
-        function calculateFinalResults() {
-            // Calcular puntuaciones finales
-            const scores = {};
-            gameState.room.players.forEach(player => {
-                scores[player.id] = {
-                    player: player,
-                    points: 0,
-                    correctAnswers: 0,
-                    averageTime: 0,
-                    totalTime: 0,
-                    streak: 0,
-                    maxStreak: 0
-                };
-            });
-            
-            // Procesar todas las respuestas
-            let currentStreak = 0;
-            let lastPlayerId = null;
-            
-            gameState.game.results.forEach(result => {
-                if (scores[result.player.id]) {
-                    scores[result.player.id].points += result.points;
-                    
-                    if (result.isCorrect) {
-                        scores[result.player.id].correctAnswers++;
-                        scores[result.player.id].totalTime += result.responseTime;
-                        
-                        // Calcular racha
-                        if (result.player.id === lastPlayerId) {
-                            currentStreak++;
-                        } else {
-                            currentStreak = 1;
-                            lastPlayerId = result.player.id;
-                        }
-                        
-                        scores[result.player.id].streak = currentStreak;
-                        scores[result.player.id].maxStreak = Math.max(scores[result.player.id].maxStreak, currentStreak);
-                    } else {
-                        currentStreak = 0;
-                        lastPlayerId = null;
-                    }
-                }
-            });
-            
-            // Calcular promedios
-            Object.keys(scores).forEach(playerId => {
-                if (scores[playerId].correctAnswers > 0) {
-                    scores[playerId].averageTime = scores[playerId].totalTime / scores[playerId].correctAnswers;
-                }
-            });
-            
-            // Convertir a array y ordenar por puntos
-            gameState.game.finalScores = Object.values(scores).sort((a, b) => b.points - a.points);
-        }
-
-        function showFinalResults() {
-            // Mostrar podio
-            showPodium();
-            
-            // Mostrar otros jugadores
-            showOtherPlayers();
-            
-            // Mostrar estadísticas avanzadas
-            showAdvancedStats();
-            
-            // Mostrar preguntas más difíciles
-            showDifficultQuestions();
-            
-            // Efectos de celebración
-            if (gameState.settings.animationsEnabled) {
-                triggerFireworks();
-                triggerConfetti();
-            }
-        }
-
-        function showPodium() {
-            elements.podium.innerHTML = '';
-            
-            // Tomar los primeros 3 jugadores
-            const topPlayers = gameState.game.finalScores.slice(0, 3);
-            
-            // Si hay menos de 3 jugadores, ajustar
-            while (topPlayers.length < 3) {
-                topPlayers.push(null);
-            }
-            
-            // Segundo lugar
-            if (topPlayers[1]) {
-                const secondPlace = createPodiumPlace(topPlayers[1], 2);
-                elements.podium.appendChild(secondPlace);
-            }
-            
-            // Primer lugar
-            if (topPlayers[0]) {
-                const firstPlace = createPodiumPlace(topPlayers[0], 1);
-                elements.podium.appendChild(firstPlace);
-                
-                // Añadir corona y emoji bailarín
-                const crown = document.createElement('div');
-                crown.className = 'crown';
-                crown.textContent = '👑';
-                firstPlace.querySelector('.podium-1').appendChild(crown);
-                
-                const dancer = document.createElement('div');
-                dancer.className = 'winner-dancing-emoji';
-                dancer.textContent = '💃';
-                firstPlace.appendChild(dancer);
-            }
-            
-            // Tercer lugar
-            if (topPlayers[2]) {
-                const thirdPlace = createPodiumPlace(topPlayers[2], 3);
-                elements.podium.appendChild(thirdPlace);
-            }
-        }
-
-        function createPodiumPlace(score, position) {
-            if (!score) return document.createElement('div');
-            
-            const place = document.createElement('div');
-            place.className = 'podium-place';
-            
-            const podiumClass = `podium-${position}`;
-            const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : '🥉';
-            
-            place.innerHTML = `
-                <div class="${podiumClass}"></div>
-                <div class="podium-name">
-                    <span class="podium-avatar">${score.player.avatar}</span>
-                    <span>${score.player.name}</span>
-                </div>
-                <div class="podium-points">${medal} ${score.points} puntos</div>
-            `;
-            
-            return place;
-        }
-
-        function showOtherPlayers() {
-            // Mostrar jugadores que no están en el podio
-            const otherPlayers = gameState.game.finalScores.slice(3);
-            
-            elements.otherPlayers.innerHTML = '';
-            
-            if (otherPlayers.length === 0) {
-                elements.otherPlayers.innerHTML = '<p>No hay más jugadores</p>';
-                return;
-            }
-            
-            otherPlayers.forEach((score, index) => {
-                const playerElement = document.createElement('div');
-                playerElement.className = 'other-player';
-                
-                playerElement.innerHTML = `
-                    <div class="player-info">
-                        <span class="other-avatar">${score.player.avatar}</span>
-                        <span>${index + 4}. ${score.player.name}</span>
-                    </div>
-                    <div class="player-stats">
-                        <span>${score.points} puntos</span>
-                    </div>
-                `;
-                
-                elements.otherPlayers.appendChild(playerElement);
-            });
-        }
-
-        function showAdvancedStats() {
-            elements.advancedStats.innerHTML = '';
-            
-            // Solo mostrar estadísticas si hay al menos un jugador
-            if (gameState.game.finalScores.length === 0) return;
-            
-            const stats = [
-                {
-                    label: 'Preguntas correctas',
-                    value: gameState.game.finalScores[0].correctAnswers + '/' + gameConfig.totalQuestions
-                },
-                {
-                    label: 'Tiempo promedio',
-                    value: gameState.game.finalScores[0].averageTime.toFixed(2) + 's'
-                },
-                {
-                    label: 'Máxima racha',
-                    value: gameState.game.finalScores[0].maxStreak
-                },
-                {
-                    label: 'Puntuación total',
-                    value: gameState.game.finalScores[0].points
-                }
-            ];
-            
-            stats.forEach(stat => {
-                const statCard = document.createElement('div');
-                statCard.className = 'stat-card';
-                statCard.innerHTML = `
-                    <div class="stat-value">${stat.value}</div>
-                    <div class="stat-label">${stat.label}</div>
-                `;
-                elements.advancedStats.appendChild(statCard);
-            });
-        }
-
-        function showDifficultQuestions() {
-            // Identificar preguntas más falladas
-            const questionStats = {};
-            
-            gameState.game.questions.forEach((question, index) => {
-                questionStats[index] = {
-                    question: question.question,
-                    correctAnswers: 0,
-                    totalAnswers: 0
-                };
-            });
-            
-            gameState.game.results.forEach(result => {
-                if (questionStats[result.questionIndex]) {
-                    questionStats[result.questionIndex].totalAnswers++;
-                    if (result.isCorrect) {
-                        questionStats[result.questionIndex].correctAnswers++;
-                    }
-                }
-            });
-            
-            // Convertir a array y ordenar por tasa de error
-            const difficultQuestions = Object.values(questionStats)
-                .filter(q => q.totalAnswers > 0)
-                .map(q => ({
-                    ...q,
-                    errorRate: (q.totalAnswers - q.correctAnswers) / q.totalAnswers
-                }))
-                .sort((a, b) => b.errorRate - a.errorRate)
-                .slice(0, 3); // Top 3 preguntas más difíciles
-            
-            // Mostrar solo si hay preguntas difíciles
-            if (difficultQuestions.length > 0 && difficultQuestions[0].errorRate > 0) {
-                elements.errorsPanel.style.display = 'block';
-                elements.errorsPanel.innerHTML = '<h3>Preguntas más difíciles</h3>';
-                
-                difficultQuestions.forEach((q, index) => {
-                    const errorQuestion = document.createElement('div');
-                    errorQuestion.className = 'error-question';
-                    errorQuestion.innerHTML = `
-                        <p><strong>${index + 1}. ${q.question}</strong></p>
-                        <p>Tasa de error: ${(q.errorRate * 100).toFixed(1)}%</p>
-                    `;
-                    elements.errorsPanel.appendChild(errorQuestion);
-                });
-            }
-        }
-
-        function saveGameToHistory() {
-            const gameRecord = {
-                date: new Date().toISOString(),
-                mode: gameState.room.mode,
-                players: gameState.room.players.map(p => p.name),
-                scores: gameState.game.finalScores.map(s => ({
-                    player: s.player.name,
-                    points: s.points,
-                    correctAnswers: s.correctAnswers
-                })),
-                duration: (Date.now() - gameState.game.startTime) / 1000
-            };
-            
-            gameState.history.unshift(gameRecord);
-            
-            // Mantener solo las últimas 50 partidas
-            if (gameState.history.length > 50) {
-                gameState.history = gameState.history.slice(0, 50);
-            }
-            
-            // Guardar en localStorage
-            localStorage.setItem('mathChallengeHistory', JSON.stringify(gameState.history));
-        }
-
-        function showGameHistory() {
-            elements.historyList.innerHTML = '';
-            
-            if (gameState.history.length === 0) {
-                elements.historyList.innerHTML = '<p>No hay partidas anteriores</p>';
-                return;
-            }
-            
-            gameState.history.forEach((record, index) => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                
-                const date = new Date(record.date).toLocaleDateString();
-                const winner = record.scores.length > 0 ? record.scores[0].player : 'N/A';
-                
-                historyItem.innerHTML = `
-                    <h4>Partida ${index + 1} - ${date}</h4>
-                    <p>Modo: ${getModeDisplayName(record.mode)}</p>
-                    <p>Jugadores: ${record.players.join(', ')}</p>
-                    <p>Ganador: ${winner} (${record.scores[0]?.points || 0} puntos)</p>
-                    <p>Duración: ${Math.floor(record.duration / 60)}m ${Math.floor(record.duration % 60)}s</p>
-                `;
-                
-                elements.historyList.appendChild(historyItem);
-            });
-        }
-
-        function playAgain() {
-            if (gameState.room.mode === 'solo') {
-                // Reiniciar juego individual
-                initializeGameSession();
-                showScreen('game');
-                loadQuestion();
-            } else {
-                // Volver al lobby multijugador
-                showScreen('lobby');
-                updateLobbyUI();
-            }
-        }
-
-        function showHistory() {
-            showScreen('history');
-        }
-
-        function hideHistory() {
-            showScreen('results');
-        }
-
-        function goToMainMenu() {
-            if (confirm('¿Volver al menú principal? Se perderá el progreso actual.')) {
-                showScreen('join');
-            }
-        }
-
-        // =============================================
-        // FUNCIONALIDADES ADICIONALES
-        // =============================================
-
-        function toggleDarkMode() {
-            gameState.settings.darkMode = !gameState.settings.darkMode;
-            localStorage.setItem('darkMode', gameState.settings.darkMode);
-            applyTheme();
-        }
-
-        function handleKeyPress(key) {
-            if (key === 'clear') {
-                elements.playerAnswer.value = '';
-            } else {
-                elements.playerAnswer.value += key;
-            }
-        }
-
-        function updateGameModeIndicator() {
-            const mode = gameState.room.mode;
-            elements.gameModeIndicator.innerHTML = `
-                <h3>Modo: ${getModeDisplayName(mode)}</h3>
-                ${mode === 'survival' ? '<p>¡Responde correctamente para sobrevivir!</p>' : ''}
-                ${mode === 'countdown' ? '<p>¡Responde tantas preguntas como puedas en 60 segundos!</p>' : ''}
-                ${mode === 'teams' ? '<p>¡Colabora con tu equipo para ganar!</p>' : ''}
-            `;
-        }
-
-        function updateConnectionStatus() {
-            // Simular cambios de estado de conexión
-            const statuses = ['connected', 'connecting', 'disconnected'];
-            const messages = {
-                connected: 'Conectado',
-                connecting: 'Conectando...',
-                disconnected: 'Desconectado'
-            };
-            
-            // Cambiar estado aleatoriamente (solo para demostración)
-            if (Math.random() < 0.01) { // 1% de probabilidad
-                const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-                elements.connectionStatus.className = `connection-status ${randomStatus}`;
-                elements.connectionStatus.innerHTML = `<span class="loader-small"></span> ${messages[randomStatus]}`;
-                
-                elements.lobbyConnectionStatus.className = `connection-status ${randomStatus}`;
-                elements.lobbyConnectionStatus.innerHTML = `<span class="loader-small"></span> ${messages[randomStatus]}`;
-                
-                if (randomStatus === 'disconnected') {
-                    elements.reconnectOverlay.style.display = 'flex';
-                    
-                    // Reconectar después de 3 segundos
-                    setTimeout(() => {
-                        elements.reconnectOverlay.style.display = 'none';
-                        updateConnectionStatus(); // Volver a conectado
-                    }, 3000);
-                }
-            }
-        }
-
-        function showNotification(message, type = 'info') {
+        // Mostrar notificación
+        function showNotification(message, type) {
             const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
+            notification.className = 'notification';
             notification.textContent = message;
             
-            elements.notificationArea.appendChild(notification);
+            // Estilo según el tipo
+            if (type === 'error') {
+                notification.style.borderColor = 'var(--rojo)';
+            } else if (type === 'success') {
+                notification.style.borderColor = 'var(--verde)';
+            } else if (type === 'warning') {
+                notification.style.borderColor = 'var(--amarillo)';
+            }
+            
+            document.body.appendChild(notification);
             
             // Eliminar después de 3 segundos
             setTimeout(() => {
@@ -3805,189 +2307,79 @@
             }, 3000);
         }
 
-        function showError(element, message) {
-            element.textContent = message;
-            element.style.display = 'block';
+        // Inicializar escena 3D para el lobby (Three.js)
+        function init3DLobby() {
+            const canvas = document.getElementById('lobby3DCanvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
             
-            // Ocultar después de 3 segundos
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
-        }
-
-        function triggerConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
-        }
-
-        function triggerFireworks() {
-            // Implementación simplificada de fuegos artificiales
-            const container = elements.fireworksContainer;
-            container.innerHTML = '';
+            renderer.setSize(window.innerWidth, window.innerHeight);
             
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    const firework = document.createElement('div');
-                    firework.style.position = 'absolute';
-                    firework.style.left = Math.random() * 100 + '%';
-                    firework.style.top = Math.random() * 50 + '%';
-                    firework.style.width = '4px';
-                    firework.style.height = '4px';
-                    firework.style.backgroundColor = gameConfig.colors[Math.floor(Math.random() * gameConfig.colors.length)];
-                    firework.style.borderRadius = '50%';
-                    firework.style.boxShadow = '0 0 10px currentColor';
-                    firework.style.animation = 'firework 1s ease-out forwards';
-                    
-                    // Añadir estilo de animación
-                    if (!document.querySelector('#fireworkStyle')) {
-                        const style = document.createElement('style');
-                        style.id = 'fireworkStyle';
-                        style.textContent = `
-                            @keyframes firework {
-                                0% { transform: scale(1); opacity: 1; }
-                                100% { transform: scale(20); opacity: 0; }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
-                    
-                    container.appendChild(firework);
-                    
-                    // Eliminar después de la animación
-                    setTimeout(() => {
-                        firework.remove();
-                    }, 1000);
-                }, i * 200);
-            }
-        }
-
-        function initializeParticles() {
-            // Implementación simplificada de partículas de fondo
-            const container = elements.particlesContainer;
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.style.position = 'absolute';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.width = Math.random() * 3 + 1 + 'px';
-                particle.style.height = particle.style.width;
-                particle.style.backgroundColor = gameConfig.colors[Math.floor(Math.random() * gameConfig.colors.length)];
-                particle.style.borderRadius = '50%';
-                particle.style.opacity = Math.random() * 0.5 + 0.1;
-                particle.style.animation = `float ${Math.random() * 10 + 10}s linear infinite`;
-                
-                // Añadir estilo de animación
-                if (!document.querySelector('#particleStyle')) {
-                    const style = document.createElement('style');
-                    style.id = 'particleStyle';
-                    style.textContent = `
-                        @keyframes float {
-                            0% { transform: translate(0, 0); }
-                            25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
-                            50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
-                            75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); }
-                            100% { transform: translate(0, 0); }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-                
-                container.appendChild(particle);
-            }
-        }
-
-        function initializeLobby3D() {
-            // Implementación simplificada de escena 3D para el lobby
-            // En una implementación real, se usaría Three.js para crear una escena 3D interactiva
-            const canvas = elements.lobby3DCanvas;
-            const ctx = canvas.getContext('2d');
+            // Añadir luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
             
-            // Ajustar tamaño del canvas
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Añadir objetos flotantes (cubos, esferas, etc.)
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0x4e8cff,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            const cubes = [];
+            for (let i = 0; i < 10; i++) {
+                const cube = new THREE.Mesh(geometry, material);
+                cube.position.x = Math.random() * 20 - 10;
+                cube.position.y = Math.random() * 20 - 10;
+                cube.position.z = Math.random() * 20 - 10;
+                cube.rotation.x = Math.random() * Math.PI;
+                cube.rotation.y = Math.random() * Math.PI;
+                scene.add(cube);
+                cubes.push(cube);
             }
             
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            camera.position.z = 15;
             
-            // Dibujar fondo animado
+            // Animación
             function animate() {
-                ctx.fillStyle = gameState.settings.darkMode ? 'rgba(26, 26, 46, 0.1)' : 'rgba(245, 247, 250, 0.1)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Dibujar partículas flotantes
-                for (let i = 0; i < 10; i++) {
-                    const x = (Date.now() / 50 + i * 100) % canvas.width;
-                    const y = Math.sin(Date.now() / 1000 + i) * 50 + canvas.height / 2;
-                    const size = Math.sin(Date.now() / 500 + i) * 5 + 10;
-                    
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fillStyle = gameConfig.colors[i % gameConfig.colors.length] + '20';
-                    ctx.fill();
-                }
-                
                 requestAnimationFrame(animate);
+                
+                cubes.forEach(cube => {
+                    cube.rotation.x += 0.01;
+                    cube.rotation.y += 0.01;
+                });
+                
+                renderer.render(scene, camera);
             }
             
             animate();
+            
+            // Ajustar en redimensionamiento
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
 
-        // =============================================
-        // INICIALIZACIÓN FINAL
-        // =============================================
-
-        // Asegurarse de que el juego se inicialice correctamente
-        window.addEventListener('load', function() {
-            // Pequeño delay para que se carguen todos los recursos
-            setTimeout(() => {
-                elements.welcomeScreen.style.opacity = '1';
-            }, 100);
+        // Inicializar escena 3D cuando el lobby esté activo
+        const lobbyObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    if (multiplayerLobby.style.display === 'flex') {
+                        init3DLobby();
+                    }
+                }
+            });
         });
+        
+        lobbyObserver.observe(multiplayerLobby, { attributes: true, attributeFilter: ['style'] });
     </script>
-    <script>
-  // 👉 Conecta al servidor WebSocket de forma segura y exponible
-  (function() {
-    const socketUrl = "wss://juego-matematic.onrender.com";
-
-    if (!('WebSocket' in window)) {
-      console.warn("WebSocket no es compatible con este navegador.");
-      return;
-    }
-
-    let socket;
-    try {
-      socket = new WebSocket(socketUrl);
-    } catch (err) {
-      console.error("❌ No se pudo crear WebSocket:", err);
-      return;
-    }
-
-    socket.addEventListener('open', () => {
-      console.log("✅ Conectado al servidor WebSocket");
-    });
-
-    socket.addEventListener('error', (err) => {
-      console.error("❌ Error de conexión WS:", err);
-    });
-
-    socket.addEventListener('close', () => {
-      console.warn("⚠️ Conexión WS cerrada");
-    });
-
-    socket.addEventListener('message', (event) => {
-      console.log("📩 Mensaje recibido:", event.data);
-    });
-
-    // Exponer el socket para uso posterior si es necesario
-    window.gameSocket = socket;
-  })();
-</script>
 </body>
 </html>

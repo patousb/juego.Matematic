@@ -6,9 +6,7 @@
     <title>Math Challenge PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        /* Estilos CSS (se mantienen iguales) */
         :root {
             --azul: #4e8cff;
             --rojo: #ff6b6b;
@@ -27,8 +25,6 @@
             --neon-verde: 0 0 10px rgba(107, 255, 107, 0.8);
             --neon-rojo: 0 0 10px rgba(255, 107, 107, 0.8);
             --neon-amarillo: 0 0 10px rgba(255, 222, 89, 0.8);
-            --equipo-rojo: #ff6b6b;
-            --equipo-azul: #4e8cff;
         }
 
         .dark-mode {
@@ -55,7 +51,7 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow-x: hidden;
+            overflow: hidden; /* Evita barras de desplazamiento innecesarias */
         }
 
         @keyframes gradientBG {
@@ -69,44 +65,6 @@
             color: var(--texto);
             margin-bottom: 20px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        /* Pantalla de inicio personalizada */
-        .welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: var(--fondo);
-            z-index: 3000;
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            transition: opacity 0.8s ease-out;
-        }
-
-        .welcome-logo {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .welcome-title {
-            font-size: 3.5rem;
-            background: linear-gradient(45deg, var(--azul), var(--morado));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         /* Pantalla de carga */
@@ -169,11 +127,11 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            opacity: 0; /* Inicialmente oculto para animación */
+            transform: translateY(20px) scale(0.95); /* Inicialmente movido y escalado */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Transición para animación */
         }
-        .join-screen.active {
+        .join-screen.active { /* Clase para activar la animación */
             opacity: 1;
             transform: translateY(0) scale(1);
         }
@@ -324,22 +282,22 @@
             background: var(--fondo);
             z-index: 1000;
             display: none;
-            flex-direction: column;
+            flex-direction: column; /* Cambiado de flex a column */
             justify-content: center;
             align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow: hidden;
+            overflow: hidden; /* Asegura que el canvas no cause scroll */
         }
-
+        /* Canvas de Three.js */
         #lobby3DCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -1; /* Detrás del contenido del lobby */
         }
 
         .lobby-container {
@@ -352,8 +310,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             border-bottom: 2px solid var(--morado);
-            position: relative;
-            z-index: 1;
+            position: relative; /* Para que el contenido esté por encima del canvas */
+            z-index: 1; /* Asegura que el contenido del lobby esté encima del canvas 3D */
         }
 
         .player-list {
@@ -414,6 +372,7 @@
             opacity: 1;
             transform: scale(1) translateY(0);
         }
+
 
         .mode-buttons {
             display: grid;
@@ -593,7 +552,7 @@
         /* Botones de opción A/B/C/D */
         .abcd-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr; /* Dos columnas */
             gap: 15px;
             margin: 20px auto;
             max-width: 600px;
@@ -609,7 +568,7 @@
             color: var(--texto);
             font-weight: bold;
             transition: all 0.3s ease;
-            text-align: left;
+            text-align: left; /* Alinea el texto a la izquierda */
             display: flex;
             align-items: center;
             gap: 10px;
@@ -626,7 +585,7 @@
             text-align: center;
             font-family: 'Fredoka One', cursive;
             font-size: 1.2rem;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Evita que la letra se encoja */
         }
 
         .abcd-btn:hover {
@@ -635,7 +594,7 @@
             border-color: var(--morado);
         }
 
-        .abcd-btn.selected-answer {
+        .abcd-btn.selected-answer { /* Estilo cuando el jugador elige una respuesta */
             background: var(--azul);
             color: white;
             border-color: var(--azul);
@@ -856,7 +815,7 @@
             align-items: flex-end;
             margin: 30px 0;
             height: 250px;
-            position: relative;
+            position: relative; /* Para posicionar el muñequito bailarín */
         }
 
         .podium-place {
@@ -908,7 +867,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 2;
+            z-index: 2; /* Para que el nombre y avatar estén encima del podio */
         }
 
         .podium-points {
@@ -925,10 +884,10 @@
         .winner-dancing-emoji {
             font-size: 3rem;
             position: absolute;
-            bottom: 210px;
+            bottom: 210px; /* Ajusta según la altura del podio-1 + un poco más */
             animation: dance 0.8s infinite alternate;
-            z-index: 3;
-            pointer-events: none;
+            z-index: 3; /* Asegura que esté por encima de todo */
+            pointer-events: none; /* Para que no interfiera con clics */
         }
 
         @keyframes dance {
@@ -1085,28 +1044,201 @@
             font-size: 1.5rem;
         }
 
-        .lightning-mode .question {
+        /* Modo verdadero/falso */
+        .true-false-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .true-false-btn {
+            padding: 15px 30px;
             font-size: 1.2rem;
-            min-height: 60px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        .lightning-mode .abcd-btn {
-            padding: 10px 15px;
-            font-size: 1rem;
+        .true-false-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
         }
 
-        /* Modo 1vs1 */
-        .versus-animation {
+        .true-false-btn:hover::before {
+            left: 100%;
+        }
+
+        .true-btn {
+            background-color: var(--verde);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .true-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .true-btn:active {
+            transform: translateY(1px);
+        }
+
+        .false-btn {
+            background-color: var(--rojo);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .false-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .false-btn:active {
+            transform: translateY(1px);
+        }
+
+        /* Animación de nueva pregunta */
+        .question-animation {
+            animation: pulseQuestion 0.5s ease;
+        }
+
+        @keyframes pulseQuestion {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Indicador de modo actual */
+        .game-mode-indicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel);
+            padding: 8px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px var(--sombra);
+            z-index: 100;
+            font-weight: bold;
+            display: none;
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--morado);
+        }
+
+        /* Botón listo en lobby */
+        .ready-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        /* Logros y medallas */
+        .achievement-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffde59"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>');
+            background-size: contain;
+            margin-left: 5px;
+            vertical-align: middle;
+            filter: drop-shadow(0 0 3px rgba(255, 222, 89, 0.7));
+        }
+
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            z-index: 1000;
+            text-align: center;
+            display: none;
+            animation: achievementUnlock 1s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--amarillo);
+        }
+
+        @keyframes achievementUnlock {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+        }
+
+        /* Estadísticas del jugador */
+        .player-stats {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px var(--sombra);
+            z-index: 100;
+            display: none;
+            max-width: 250px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--morado);
+        }
+
+        .player-stats h3 {
+            margin-bottom: 10px;
+            color: var(--morado);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: var(--azul);
+        }
+
+        /* Fase de Revelación */
+        .reveal-phase {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0,0,0,0.7);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 1500;
+            color: white;
+            font-size: 2rem;
+            text-align: center;
+            backdrop-filter: blur(5px);
             animation: fadeIn 0.5s ease;
         }
 
@@ -1115,1271 +1247,2377 @@
             to { opacity: 1; }
         }
 
-        .versus-container {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            animation: scaleIn 0.5s ease;
+        .reveal-content {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 80%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        @keyframes scaleIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .versus-player {
-            text-align: center;
-            color: white;
-        }
-
-        .versus-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 15px;
-            border: 5px solid white;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        .versus-vs {
-            font-size: 3rem;
+        .reveal-correct {
+            color: var(--verde);
             font-weight: bold;
-            color: white;
-            text-shadow: 0 0 10px var(--rojo);
+            margin: 20px 0;
+            text-shadow: var(--neon-verde);
         }
 
+        .reveal-correct-answer {
+            color: var(--verde);
+            text-shadow: var(--neon-verde);
+        }
+
+        .reveal-player-result {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 1.5rem;
+        }
+
+        .reveal-streak-bonus {
+            color: var(--amarillo);
+            margin-top: 10px;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
+        }
+
+        /* Efecto de vidrio esmerilado */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        /* Efecto neón para bordes */
+        .neon-border {
+            position: relative;
+        }
+
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(45deg, var(--azul), var(--morado));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            animation: neonGlow 2s infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from {
+                opacity: 0.7;
+                box-shadow: 0 0 5px var(--azul), 0 0 10px var(--morado);
+            }
+            to {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--azul), 0 0 20px var(--morado), 0 0 30px var(--morado);
+            }
+        }
+
+        /* Animación para el 3-2-1 de los resultados */
+        .results-countdown {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+            color: white;
+            font-size: 8em;
+            font-family: 'Fredoka One', cursive;
+            animation: scaleInAndFade 1s forwards;
+            text-shadow: 0 0 20px var(--amarillo);
+        }
+
+        @keyframes scaleInAndFade {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
         /* Responsive */
         @media (max-width: 768px) {
-            .welcome-title {
-                font-size: 2.5rem;
-            }
-            
-            .welcome-logo {
-                font-size: 4rem;
-            }
-            
-            .join-form {
-                padding: 20px;
-                margin: 10px;
-            }
-            
-            .live-ranking {
-                position: relative;
-                top: 0;
-                left: 0;
-                width: 100%;
-                margin-bottom: 20px;
-            }
-            
-            .podium {
-                height: 200px;
-            }
-            
-            .podium-1, .podium-2, .podium-3 {
-                width: 80px;
-            }
-            
-            .podium-1 {
-                height: 160px;
-            }
-            
-            .podium-2 {
-                height: 120px;
-            }
-            
-            .podium-3 {
-                height: 80px;
-            }
-            
-            .winner-dancing-emoji {
-                bottom: 170px;
-                font-size: 2.5rem;
-            }
-            
-            .versus-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .versus-vs {
-                font-size: 2rem;
-            }
-            
-            .versus-avatar {
-                width: 80px;
-                height: 80px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .abcd-buttons {
+            .mode-buttons {
                 grid-template-columns: 1fr;
             }
             
             .keyboard {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 5px;
+                grid-template-columns: repeat(3, 70px);
             }
-            
-            .key {
-                padding: 10px;
-                font-size: 1.1rem;
+
+            .abcd-buttons {
+                grid-template-columns: 1fr; /* Una columna en móviles */
             }
-            
-            .podium {
-                height: 150px;
+
+            .live-ranking {
+                width: 200px;
+                left: 10px;
+                top: 10px;
             }
-            
+
+            .podium-place {
+                margin: 0 5px;
+            }
+
             .podium-1, .podium-2, .podium-3 {
-                width: 60px;
+                width: 80px;
             }
-            
-            .podium-1 {
-                height: 120px;
-            }
-            
-            .podium-2 {
-                height: 90px;
-            }
-            
-            .podium-3 {
-                height: 60px;
-            }
-            
+
             .winner-dancing-emoji {
-                bottom: 130px;
-                font-size: 2rem;
+                bottom: 160px; /* Ajuste para móviles */
+                font-size: 2.5rem;
+            }
+
+            .true-false-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .true-false-btn {
+                width: 100%;
+            }
+
+            .player-stats {
+                bottom: 70px;
+                right: 10px;
+                max-width: 200px;
+            }
+
+            .results-countdown {
+                font-size: 5em;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de bienvenida -->
-    <div class="welcome-screen" id="welcomeScreen">
-        <div class="welcome-logo">🧠</div>
-        <h1 class="welcome-title">Math Challenge PRO</h1>
-        <p>¡Prepárate para el desafío matemático más emocionante!</p>
-        <button class="btn" id="startButton">Comenzar</button>
-    </div>
-
-    <!-- Pantalla de carga -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loader"></div>
-        <p>Cargando recursos...</p>
+        <h2>Cargando El Juego De Matematicas Por favor Espera:3...</h2>
     </div>
 
-    <!-- Pantalla de unión -->
     <div class="join-screen" id="joinScreen">
-        <h2>Unirse a una Sala</h2>
-        <div class="join-form">
+        <h1>✨ Juego De Matematicas Pro ✨</h1>
+        <div class="join-form glass-panel">
+            <h2>¡Únete al juego!</h2>
             <div class="input-group">
-                <label for="playerName">Tu Nombre:</label>
-                <input type="text" id="playerName" placeholder="Ingresa tu nombre" maxlength="15">
+                <label for="playerName">Tu nombre:</label>
+                <input type="text" id="playerName" placeholder="Ej: Juan" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="grade">Tu grado:</label>
+                <input type="text" id="grade" placeholder="Ej: 5° Primaria" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="gamePin">Código PIN:</label>
+                <input type="text" id="gamePin" placeholder="Ej: 1234" maxlength="4">
             </div>
             
             <div class="input-group">
-                <label>Tu Avatar:</label>
-                <div class="avatar-selector">
-                    <div class="avatar-option selected" data-avatar="🧠" style="background-color: #4e8cff;">🧠</div>
-                    <div class="avatar-option" data-avatar="👨‍🎓" style="background-color: #ff6b6b;">👨‍🎓</div>
-                    <div class="avatar-option" data-avatar="👩‍🎓" style="background-color: #6bff6b;">👩‍🎓</div>
-                    <div class="avatar-option" data-avatar="🤖" style="background-color: #ffde59;">🤖</div>
-                    <div class="avatar-option" data-avatar="🦊" style="background-color: #a459ff;">🦊</div>
+                <label>Elige tu avatar:</label>
+                <div class="avatar-selector" id="avatarSelector">
+                    <img src="https://i.pravatar.cc/150?img=1" class="avatar-option" data-avatar="1">
+                    <img src="https://i.pravatar.cc/150?img=2" class="avatar-option" data-avatar="2">
+                    <img src="https://i.pravatar.cc/150?img=3" class="avatar-option" data-avatar="3">
+                    <img src="https://i.pravatar.cc/150?img=4" class="avatar-option" data-avatar="4">
+                    <img src="https://i.pravatar.cc/150?img=5" class="avatar-option" data-avatar="5">
+                    <img src="https://i.pravatar.cc/150?img=6" class="avatar-option" data-avatar="6">
                 </div>
             </div>
             
-            <div class="input-group">
-                <label for="roomCode">Código de Sala:</label>
-                <input type="text" id="roomCode" placeholder="Ingresa el código de la sala (opcional)">
-                <small>Si no ingresas un código, se creará una nueva sala</small>
-            </div>
-            
-            <div class="input-group">
-                <label for="gameMode">Modo de Juego:</label>
-                <select id="gameMode">
-                    <option value="classic">Clásico (10 preguntas)</option>
-                    <option value="lightning">Relámpago (5 preguntas, 10 segundos)</option>
-                    <option value="survival">Supervivencia (hasta fallar)</option>
-                </select>
-            </div>
-            
-            <div class="input-group">
-                <label for="difficulty">Dificultad:</label>
-                <select id="difficulty">
-                    <option value="easy">Fácil</option>
-                    <option value="medium" selected>Medio</option>
-                    <option value="hard">Difícil</option>
-                </select>
-            </div>
-            
-            <button class="btn" id="joinRoomButton">Unirse a Sala</button>
-            <button class="btn btn-secondary" id="createRoomButton">Crear Nueva Sala</button>
-            
-            <div id="joinError" class="error-message"></div>
+            <button class="btn" id="joinGame">Unirse</button>
+            <button class="btn btn-secondary" id="createGame">Crear nueva sala</button>
+            <p id="joinError" class="error-message"></p>
         </div>
     </div>
 
-    <!-- Lobby multijugador -->
     <div class="multiplayer-lobby" id="multiplayerLobby">
         <canvas id="lobby3DCanvas"></canvas>
-        <div class="lobby-container">
-            <h2>Sala: <span id="roomCodeDisplay"></span></h2>
-            <p>Esperando jugadores... (<span id="playerCount">1</span>/8)</p>
+        <div class="lobby-container glass-panel">
+            <h2>Sala: <span id="lobbyPin">----</span></h2>
+            <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
             
-            <div class="player-list" id="playerList">
-                <!-- Jugadores aparecerán aquí -->
-            </div>
-            
-            <div class="vote-section" id="voteSection">
-                <h3>Votar por el modo de juego:</h3>
-                <div class="mode-buttons">
-                    <div class="mode-btn" data-mode="classic">Clásico</div>
-                    <div class="mode-btn" data-mode="lightning">Relámpago</div>
-                    <div class="mode-btn" data-mode="survival">Supervivencia</div>
-                    <div class="mode-btn" data-mode="team">Por Equipos</div>
+            <div class="vote-section">
+                <h3>Votar modo de juego:</h3>
+                <div class="vote-timer">Tiempo: <span id="voteTime">30</span>s</div>
+                <div class="lobby-countdown-message" id="lobbyCountdownMessage"></div>
+                <div class="mode-buttons" id="modeButtons">
+                    <button class="mode-btn" data-mode="operaciones">🔢 Operación Rápida</button>
+                    <button class="mode-btn" data-mode="misterioso">❓ Número Misterioso</button>
+                    <button class="mode-btn" data-mode="secuencia">📈 Secuencia Numérica</button>
+                    <button class="mode-btn" data-mode="potenciacion">💪 Potenciación</button>
+                    <button class="mode-btn" data-mode="combinadas">🧩 Operaciones Combinadas</button>
+                    <button class="mode-btn" data-mode="relampago">⚡ Modo Relámpago</button>
+                    <button class="mode-btn" data-mode="verdadero-falso">✅❌ Verdadero/Falso</button>
+                    <button class="mode-btn" data-mode="mas-cercano">🎯 El más cercano gana</button>
+                    <button class="mode-btn" data-mode="sumamultiplicacion">➕✖️ Suma y Multiplicación</button>
+                    <button class="mode-btn" data-mode="informatica">💻 Informática</button>
                 </div>
-                <div class="vote-timer">Tiempo restante: <span id="voteTimer">30</span>s</div>
+                <div class="vote-results glass-panel">
+                    <h4>Resultados:</h4>
+                    <div id="voteResults"></div>
+                </div>
             </div>
             
-            <div class="vote-results" id="voteResults" style="display: none;">
-                <h3>Resultados de la votación:</h3>
-                <div id="voteResultsList"></div>
-            </div>
-            
-            <div class="lobby-countdown-message" id="lobbyCountdown">¡La partida comenzará en <span id="lobbyTimer">5</span> segundos!</div>
-            
-            <button class="btn" id="startGameButton" style="display: none;">Comenzar Partida</button>
+            <div class="player-list" id="multiplayerPlayerList"></div>
+            <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
+            <button class="btn" id="startVoteBtn" style="display:none;">Iniciar Votación</button> 
         </div>
     </div>
 
-    <!-- Juego principal -->
+    <div class="live-ranking glass-panel" id="liveRanking">
+        <h3>🏆 Ranking en Vivo</h3>
+        <div id="rankingList"></div>
+    </div>
+
     <div id="gameContainer">
-        <div class="connection-status" id="connectionStatus">Conectando...</div>
-        
-        <div class="live-ranking" id="liveRanking">
-            <h3>Ranking en Vivo</h3>
-            <div id="rankingList"></div>
+        <h1>✨ Juego Matematica Pro ✨</h1>
+        <div class="game-mode-indicator glass-panel" id="gameModeIndicator"></div>
+
+        <div class="timer-container">
+            <svg class="timer-svg" viewBox="0 0 100 100">
+                <circle class="timer-circle" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div class="timer-text" id="timerText">30</div>
         </div>
-        
-        <div class="game">
-            <h2 id="gameTitle">Math Challenge PRO</h2>
+
+        <div class="game glass-panel">
+            <p class="score">Puntos: <span id="playerScore">0</span> 💎</p>
+            <p id="currentQuestion" class="question">Haz clic en un juego para comenzar</p>
+            <img id="questionImage" class="question-image" style="display: none;">
             
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            
-            <div class="timer-container">
-                <svg class="timer-svg" viewBox="0 0 100 100">
-                    <circle class="timer-circle" cx="50" cy="50" r="45"></circle>
-                </svg>
-                <div class="timer-text" id="timerText">30</div>
-            </div>
-            
-            <div class="question" id="question">
-                ¡Preparate para la primera pregunta!
-            </div>
-            
-            <div id="questionImage"></div>
-            
-            <div class="input-container">
-                <input type="text" id="playerAnswer" placeholder="Tu respuesta" autocomplete="off">
-                <div class="keyboard" id="keyboard">
-                    <div class="key" data-key="1">1</div>
-                    <div class="key" data-key="2">2</div>
-                    <div class="key" data-key="3">3</div>
-                    <div class="key" data-key="4">4</div>
-                    <div class="key" data-key="5">5</div>
-                    <div class="key" data-key="6">6</div>
-                    <div class="key" data-key="7">7</div>
-                    <div class="key" data-key="8">8</div>
-                    <div class="key" data-key="9">9</div>
-                    <div class="key" data-key="0">0</div>
-                    <div class="key" data-key="-">-</div>
-                    <div class="key negative" data-key="clear">Borrar</div>
+            <div class="input-container" id="standardInput">
+                <input type="text" id="playerAnswer" readonly>
+                <div class="keyboard">
+                    <div class="key" data-number="1">1</div>
+                    <div class="key" data-number="2">2</div>
+                    <div class="key" data-number="3">3</div>
+                    <div class="key" data-number="4">4</div>
+                    <div class="key" data-number="5">5</div>
+                    <div class="key" data-number="6">6</div>
+                    <div class="key" data-number="7">7</div>
+                    <div class="key" data-number="8">8</div>
+                    <div class="key" data-number="9">9</div>
+                    <div class="key" data-action="clear">⌫</div>
+                    <div class="key" data-number="0">0</div>
+                    <div class="key negative" data-number="-">-</div>
                 </div>
-                
-                <div class="abcd-buttons" id="abcdButtons" style="display: none;">
-                    <div class="abcd-btn" data-answer="A"><span class="letter">A</span> <span class="answer-text">Opción A</span></div>
-                    <div class="abcd-btn" data-answer="B"><span class="letter">B</span> <span class="answer-text">Opción B</span></div>
-                    <div class="abcd-btn" data-answer="C"><span class="letter">C</span> <span class="answer-text">Opción C</span></div>
-                    <div class="abcd-btn" data-answer="D"><span class="letter">D</span> <span class="answer-text">Opción D</span></div>
-                </div>
+                <button class="btn" id="submitAnswer">Responder 🚀</button>
+                <p id="answerResult" class="result waiting">Esperando respuesta... 🤔</p>
             </div>
             
-            <div class="result" id="result"></div>
-            
-            <button class="btn" id="nextButton" style="display: none;">Siguiente Pregunta</button>
+            <div class="true-false-buttons" id="trueFalseButtons" style="display: none;">
+                <button class="true-false-btn true-btn" id="trueBtn">✅ Verdadero</button>
+                <button class="true-false-btn false-btn" id="falseBtn">❌ Falso</button>
+            </div>
+
+            <div class="abcd-buttons" id="abcdButtons" style="display: none;">
+                <button class="abcd-btn" data-answer="A"><span class="letter">A</span> <span class="answer-text">Opción A</span></button>
+                <button class="abcd-btn" data-answer="B"><span class="letter">B</span> <span class="answer-text">Opción B</span></button>
+                <button class="abcd-btn" data-answer="C"><span class="letter">C</span> <span class="answer-text">Opción C</span></button>
+                <button class="abcd-btn" data-answer="D"><span class="letter">D</span> <span class="answer-text">Opción D</span></button>
+            </div>
         </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button class="btn" id="reiniciarBtn">🔄 Reiniciar Juego</button>
+        <p id="mensajeVictoria" class="result"></p>
     </div>
 
-    <!-- Resultados finales -->
     <div class="final-results" id="finalResults">
-        <h2>¡Ronda Terminada!</h2>
-        
+        <h1>🏆 ¡Juego Terminado! 🏆</h1>
         <div class="podium">
-            <div class="podium-place">
+            <div class="podium-place" id="secondPlace">
                 <div class="podium-2"></div>
                 <div class="podium-name">
-                    <span class="podium-avatar" id="secondAvatar">👨‍🎓</span>
-                    <span id="secondName">Jugador 2</span>
+                    <img class="podium-avatar" id="secondAvatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                    <span id="secondName">-</span>
                 </div>
-                <div class="podium-points" id="secondPoints">0 puntos</div>
+                <div class="podium-points">0 pts</div>
             </div>
-            
-            <div class="podium-place">
+            <div class="podium-place" id="firstPlace">
                 <div class="podium-1"></div>
-                <div class="winner-dancing-emoji">🏆</div>
                 <div class="podium-name">
-                    <span class="podium-avatar" id="firstAvatar">👩‍🎓</span>
-                    <span id="firstName">Jugador 1</span>
+                    <img class="podium-avatar" id="firstAvatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                    <span id="firstName">-</span>
                 </div>
-                <div class="podium-points" id="firstPoints">0 puntos</div>
+                <div class="podium-points">0 pts</div>
+                <div class="winner-dancing-emoji" id="winnerDancingEmoji" style="display:none;">🎉</div>
             </div>
-            
-            <div class="podium-place">
+            <div class="podium-place" id="thirdPlace">
                 <div class="podium-3"></div>
                 <div class="podium-name">
-                    <span class="podium-avatar" id="thirdAvatar">🤖</span>
-                    <span id="thirdName">Jugador 3</span>
+                    <img class="podium-avatar" id="thirdAvatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                    <span id="thirdName">-</span>
                 </div>
-                <div class="podium-points" id="thirdPoints">0 puntos</div>
+                <div class="podium-points">0 pts</div>
             </div>
         </div>
-        
-        <div class="other-players">
-            <h3>Otros Participantes</h3>
-            <div id="otherPlayersList"></div>
-        </div>
-        
-        <button class="btn" id="playAgainButton">Jugar Otra Vez</button>
-        <button class="btn btn-secondary" id="backToLobbyButton">Volver al Lobby</button>
+        <div class="other-players glass-panel" id="otherPlayers"></div>
+        <button class="btn" id="backToLobby">Volver al Lobby</button>
     </div>
 
-    <!-- Botón de tema nocturno -->
     <div class="theme-toggle" id="themeToggle">🌙</div>
+    
+    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
 
-    <!-- Botón saltar pregunta (modo profesor) -->
-    <button class="btn skip-btn" id="skipButton" style="display: none;">Saltar Pregunta</button>
+    <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
+
+    <div class="achievement-popup glass-panel" id="achievementPopup">
+        <div class="achievement-icon">🏆</div>
+        <h3 id="achievementTitle">Logro Desbloqueado</h3>
+        <p id="achievementDescription">Descripción del logro</p>
+        <button class="btn" id="closeAchievement">¡Genial!</button>
+    </div>
+
+    <div class="player-stats glass-panel" id="playerStats">
+        <h3>📊 Mis Estadísticas</h3>
+        <div id="statsContent"></div>
+        <button class="btn" id="closeStats">Cerrar</button>
+    </div>
+
+    <div id="revealPhase" class="reveal-phase" style="display: none;">
+        <div class="reveal-content glass-panel">
+            <h2>¡Respuesta Correcta!</h2>
+            <div id="revealCorrectAnswer" class="reveal-correct"></div>
+            <div id="revealPlayerResult" class="reveal-player-result"></div>
+            <div id="revealStreakBonus" class="reveal-streak-bonus"></div>
+        </div>
+    </div>
+
+    <div id="resultsCountdownOverlay" class="results-countdown" style="display: none;"></div>
+
+
+    <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
+    <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
+    <audio id="clickSound" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto"></audio>
+    <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
+    <audio id="achievementSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
+    <audio id="revealSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
 
     <script>
-        // Variables globales
-        let playerName = "";
-        let playerAvatar = "🧠";
-        let roomCode = "";
-        let gameMode = "classic";
-        let difficulty = "medium";
-        let currentQuestion = 0;
-        let totalQuestions = 10;
-        let score = 0;
-        let timeLeft = 30;
-        let timerInterval;
-        let questions = [];
-        let correctAnswer;
-        let isMultiplayer = false;
-        let isHost = false;
-        let players = [];
-        let playerVotes = {};
-        let playerRankings = [];
-        let socket = null;
-        let isConnected = false;
-        let isDarkMode = false;
-        let currentPlayerId = null;
-        let gameStarted = false;
-        let selectedAnswer = null;
+        class GameManager {
+            constructor() {
+                this.STATES = {
+                    LOADING: 0,
+                    JOIN_SCREEN: 1,
+                    LOBBY: 2,
+                    VOTING: 3,
+                    PLAYING: 4,
+                    RESULTS: 5,
+                    REVEAL: 6
+                };
+                this.state = this.STATES.LOADING;
 
-        // Elementos DOM
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        const loadingScreen = document.getElementById('loadingScreen');
-        const joinScreen = document.getElementById('joinScreen');
-        const multiplayerLobby = document.getElementById('multiplayerLobby');
-        const gameContainer = document.getElementById('gameContainer');
-        const finalResults = document.getElementById('finalResults');
-        const startButton = document.getElementById('startButton');
-        const joinRoomButton = document.getElementById('joinRoomButton');
-        const createRoomButton = document.getElementById('createRoomButton');
-        const playerNameInput = document.getElementById('playerName');
-        const roomCodeInput = document.getElementById('roomCode');
-        const gameModeSelect = document.getElementById('gameMode');
-        const difficultySelect = document.getElementById('difficulty');
-        const joinError = document.getElementById('joinError');
-        const roomCodeDisplay = document.getElementById('roomCodeDisplay');
-        const playerCount = document.getElementById('playerCount');
-        const playerList = document.getElementById('playerList');
-        const voteSection = document.getElementById('voteSection');
-        const voteTimer = document.getElementById('voteTimer');
-        const voteResults = document.getElementById('voteResults');
-        const voteResultsList = document.getElementById('voteResultsList');
-        const lobbyCountdown = document.getElementById('lobbyCountdown');
-        const lobbyTimer = document.getElementById('lobbyTimer');
-        const startGameButton = document.getElementById('startGameButton');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const liveRanking = document.getElementById('liveRanking');
-        const rankingList = document.getElementById('rankingList');
-        const gameTitle = document.getElementById('gameTitle');
-        const progressBar = document.getElementById('progressBar');
-        const timerText = document.getElementById('timerText');
-        const timerCircle = document.querySelector('.timer-circle');
-        const questionElement = document.getElementById('question');
-        const questionImage = document.getElementById('questionImage');
-        const playerAnswerInput = document.getElementById('playerAnswer');
-        const keyboard = document.getElementById('keyboard');
-        const abcdButtons = document.getElementById('abcdButtons');
-        const resultElement = document.getElementById('result');
-        const nextButton = document.getElementById('nextButton');
-        const firstName = document.getElementById('firstName');
-        const firstAvatar = document.getElementById('firstAvatar');
-        const firstPoints = document.getElementById('firstPoints');
-        const secondName = document.getElementById('secondName');
-        const secondAvatar = document.getElementById('secondAvatar');
-        const secondPoints = document.getElementById('secondPoints');
-        const thirdName = document.getElementById('thirdName');
-        const thirdAvatar = document.getElementById('thirdAvatar');
-        const thirdPoints = document.getElementById('thirdPoints');
-        const otherPlayersList = document.getElementById('otherPlayersList');
-        const playAgainButton = document.getElementById('playAgainButton');
-        const backToLobbyButton = document.getElementById('backToLobbyButton');
-        const themeToggle = document.getElementById('themeToggle');
-        const skipButton = document.getElementById('skipButton');
-        const avatarOptions = document.querySelectorAll('.avatar-option');
-        const modeButtons = document.querySelectorAll('.mode-btn');
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mostrar pantalla de bienvenida
-            welcomeScreen.style.display = 'flex';
-            loadingScreen.style.display = 'none';
-            joinScreen.style.display = 'none';
-            multiplayerLobby.style.display = 'none';
-            gameContainer.style.display = 'none';
-            finalResults.style.display = 'none';
-            
-            // Configurar eventos
-            setupEventListeners();
-            
-            // Inicializar WebSocket (pero no conectar todavía)
-            initializeWebSocket();
-        });
-
-        // Configurar event listeners
-        function setupEventListeners() {
-            // Botón de inicio
-            startButton.addEventListener('click', startGame);
-            
-            // Botones de unión/creación de sala
-            joinRoomButton.addEventListener('click', joinRoom);
-            createRoomButton.addEventListener('click', createRoom);
-            
-            // Botones de avatar
-            avatarOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    playerAvatar = this.getAttribute('data-avatar');
-                });
-            });
-            
-            // Botones de modo de juego en el lobby
-            modeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (!isHost) return;
-                    
-                    modeButtons.forEach(btn => btn.classList.remove('selected'));
-                    this.classList.add('selected');
-                    gameMode = this.getAttribute('data-mode');
-                    
-                    // Enviar voto al servidor
-                    if (socket && isConnected) {
-                        socket.send(JSON.stringify({
-                            type: 'vote',
-                            mode: gameMode
-                        }));
+                this.player = {
+                    id: null,
+                    name: "",
+                    grade: "",
+                    displayName: "",
+                    avatar: "1",
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    gamesPlayed: 0,
+                    favoriteMode: null,
+                    modeStats: {},
+                    achievements: [],
+                    lastAnswerCorrect: false
+                };
+                
+                this.questions = []; // Ya no se usan para generar, solo para el host en simulación de un jugador
+                this.currentQuestionIndex = 0;
+                this.gameMode = null; 
+                this.timeLeft = 30;
+                this.timerDuration = 30; // Duración del temporizador actual, establecida por el servidor
+                this.timerInterval = null;
+                this.soundEnabled = true;
+                this.currentQuestionData = null; // Almacena la pregunta recibida del servidor
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                this.reconnectDelay = 3000;
+                this.closestAnswerMode = false;
+                this.lastAnswerTime = null; // Hora en que la pregunta actual fue mostrada
+                this.revealPhaseActive = false;
+                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
+                
+                this.isMultiplayer = false;
+                this.isHost = false; 
+                this.gamePin = '';
+                this.players = [];
+                this.playerVotes = {}; 
+                this.selectedGameMode = null; 
+                this.playerRanking = [];
+                this.maxPlayers = 15;
+                this.socket = null;
+                this.socketUrl = 'wss://pollen-fortunate-kangaroo.glitch.me'; 
+                this.heartbeatInterval = null;
+                this.lastPongTime = null;
+                
+                this.voteTime = 30;
+                this.voteInterval = null;
+                this.voteCounts = { 
+                    operaciones: 0,
+                    misterioso: 0,
+                    secuencia: 0,
+                    potenciacion: 0,
+                    combinadas: 0,
+                    relampago: 0,
+                    "verdadero-falso": 0,
+                    "mas-cercano": 0,
+                    "sumamultiplicacion": 0,
+                    "informatica": 0
+                };
+                this.isVotingActive = false; 
+                
+                this.lastRanking = []; 
+                this.rankingUpdateInterval = null;
+                this.animationPending = false; 
+                
+                this.achievementsList = {
+                    perfectStreak: {
+                        id: "perfectStreak",
+                        title: "Racha Perfecta",
+                        description: "Responde correctamente todas las preguntas en una partida",
+                        icon: "🏅",
+                        condition: (player) => player.streak >= 10
+                    },
+                    lightningFast: {
+                        id: "lightningFast",
+                        title: "Relámpago",
+                        description: "Responde correctamente en menos de 3 segundos",
+                        icon: "⚡",
+                        condition: (player) => player.responseTimes.some(t => t > 0 && t < 3)
+                    },
+                    strategist: {
+                        id: "strategist",
+                        title: "Estratega",
+                        description: "Gana más de 10 puntos por tiempo en una respuesta",
+                        icon: "🧠",
+                        condition: (player) => player.history.some(h => h.points > 10) 
+                    },
+                    veteran: {
+                        id: "veteran",
+                        title: "Veterano",
+                        description: "Juega 5 partidas completas",
+                        icon: "🎖️",
+                        condition: (player) => player.gamesPlayed >= 5
+                    },
+                    master: {
+                        id: "master",
+                        title: "Maestro de las Matemáticas",
+                        description: "Gana una partida en cada modo de juego",
+                        icon: "👑",
+                        condition: (player) => {
+                            const modes = Object.keys(player.modeStats || {});
+                            const gameModes = ["operaciones", "misterioso", "secuencia", "potenciacion", "combinadas", "relampago", "verdadero-falso", "mas-cercano", "sumamultiplicacion", "informatica"];
+                            return gameModes.every(mode => player.modeStats[mode] && player.modeStats[mode].wins > 0);
+                        }
                     }
-                });
-            });
-            
-            // Botón para comenzar el juego (solo host)
-            startGameButton.addEventListener('click', startGameFromLobby);
-            
-            // Teclado virtual
-            const keys = document.querySelectorAll('.key');
-            keys.forEach(key => {
-                key.addEventListener('click', function() {
-                    const keyValue = this.getAttribute('data-key');
-                    
-                    if (keyValue === 'clear') {
-                        playerAnswerInput.value = '';
-                    } else {
-                        playerAnswerInput.value += keyValue;
-                    }
-                    
-                    playerAnswerInput.focus();
-                });
-            });
-            
-            // Entrada de respuesta
-            playerAnswerInput.addEventListener('keyup', function(event) {
-                if (event.key === 'Enter') {
-                    checkAnswer();
-                }
-            });
-            
-            // Botones A/B/C/D
-            const answerButtons = document.querySelectorAll('.abcd-btn');
-            answerButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    answerButtons.forEach(btn => btn.classList.remove('selected-answer'));
-                    this.classList.add('selected-answer');
-                    selectedAnswer = this.getAttribute('data-answer');
-                });
-            });
-            
-            // Botón siguiente pregunta
-            nextButton.addEventListener('click', nextQuestion);
-            
-            // Botones de resultados finales
-            playAgainButton.addEventListener('click', playAgain);
-            backToLobbyButton.addEventListener('click', backToLobby);
-            
-            // Botón de tema nocturno
-            themeToggle.addEventListener('click', toggleDarkMode);
-            
-            // Botón saltar pregunta (para modo profesor)
-            skipButton.addEventListener('click', skipQuestion);
-        }
+                };
 
-        // Inicializar WebSocket
-        function initializeWebSocket() {
-            // URL del servidor WebSocket (Render)
-            const socketUrl = "wss://juego-matematic.onrender.com";
-            
-            // Crear conexión WebSocket
-            socket = new WebSocket(wsUrl);
-            
-            // Eventos WebSocket
-            socket.onopen = function(event) {
-                console.log('Conectado al servidor WebSocket');
-                isConnected = true;
-                connectionStatus.textContent = 'Conectado';
-                connectionStatus.className = 'connection-status connected';
+                // Referencias a elementos HTML
+                this.lobby3DCanvas = document.getElementById('lobby3DCanvas');
+                this.lobbyCountdownMessage = document.getElementById('lobbyCountdownMessage');
+                this.abcdButtonsContainer = document.getElementById('abcdButtons');
+                this.winnerDancingEmoji = document.getElementById('winnerDancingEmoji');
+                this.resultsCountdownOverlay = document.getElementById('resultsCountdownOverlay');
                 
-                // Mostrar notificación
-                showNotification('Conectado al servidor', 'success');
-            };
-            
-            socket.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                handleWebSocketMessage(data);
-            };
-            
-            socket.onclose = function(event) {
-                console.log('Conexión WebSocket cerrada');
-                isConnected = false;
-                connectionStatus.textContent = 'Desconectado';
-                connectionStatus.className = 'connection-status disconnected';
-                
-                // Intentar reconectar después de 5 segundos
-                setTimeout(initializeWebSocket, 5000);
-            };
-            
-            socket.onerror = function(error) {
-                console.error('Error en WebSocket:', error);
-                connectionStatus.textContent = 'Error de conexión';
-                connectionStatus.className = 'connection-status disconnected';
-            };
-        }
+                this.themeToggle = document.getElementById('themeToggle');
+                this.timerCircle = document.querySelector('.timer-circle');
+                this.timerText = document.getElementById('timerText');
+                this.connectionStatus = document.getElementById('connectionStatus');
+                this.skipQuestionBtn = document.getElementById('skipQuestion');
+                this.readyBtn = document.getElementById('readyBtn');
+                this.startVoteBtn = document.getElementById('startVoteBtn'); 
+                this.gameModeIndicator = document.getElementById('gameModeIndicator');
+                this.achievementPopup = document.getElementById('achievementPopup');
+                this.closeAchievement = document.getElementById('closeAchievement');
+                this.playerStats = document.getElementById('playerStats');
+                this.closeStats = document.getElementById('closeStats');
+                this.statsContent = document.getElementById('statsContent');
+                this.modeButtons = document.getElementById('modeButtons'); 
+                this.revealPhase = document.getElementById('revealPhase');
+                this.revealCorrectAnswer = document.getElementById('revealCorrectAnswer');
+                this.revealPlayerResult = document.getElementById('revealPlayerResult');
+                this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
-        // Manejar mensajes WebSocket
-        function handleWebSocketMessage(data) {
-            switch (data.type) {
-                case 'room_created':
-                    roomCode = data.roomCode;
-                    roomCodeDisplay.textContent = roomCode;
-                    currentPlayerId = data.playerId;
-                    isHost = true;
-                    showNotification('Sala creada exitosamente', 'success');
-                    break;
-                    
-                case 'room_joined':
-                    roomCode = data.roomCode;
-                    roomCodeDisplay.textContent = roomCode;
-                    currentPlayerId = data.playerId;
-                    isHost = data.isHost;
-                    players = data.players;
-                    updatePlayerList();
-                    showNotification('Te has unido a la sala', 'success');
-                    break;
-                    
-                case 'player_joined':
-                    players = data.players;
-                    updatePlayerList();
-                    showNotification(`${data.playerName} se ha unido a la sala`, 'info');
-                    break;
-                    
-                case 'player_left':
-                    players = data.players;
-                    updatePlayerList();
-                    showNotification(`${data.playerName} ha abandonado la sala`, 'warning');
-                    break;
-                    
-                case 'vote_update':
-                    playerVotes = data.votes;
-                    updateVoteResults();
-                    break;
-                    
-                case 'game_starting':
-                    startLobbyCountdown(data.countdown);
-                    break;
-                    
-                case 'game_started':
-                    startMultiplayerGame(data.questions, data.mode);
-                    break;
-                    
-                case 'answer_result':
-                    showAnswerResult(data.correct, data.correctAnswer, data.points);
-                    break;
-                    
-                case 'ranking_update':
-                    playerRankings = data.rankings;
-                    updateLiveRanking();
-                    break;
-                    
-                case 'game_finished':
-                    showFinalResults(data.finalRankings);
-                    break;
-                    
-                case 'error':
-                    showNotification(data.message, 'error');
-                    break;
-            }
-        }
+                this.setupEventListeners();
+                this.checkDarkModePreference();
+                this.loadPlayerStats();
+                this.initLobby3D();
 
-        // Iniciar el juego
-        function startGame() {
-            // Ocultar pantalla de bienvenida
-            welcomeScreen.style.opacity = '0';
-            
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-                
-                // Mostrar pantalla de unión
-                joinScreen.style.display = 'flex';
                 setTimeout(() => {
-                    joinScreen.classList.add('active');
-                }, 100);
-            }, 800);
-        }
+                    this.setState(this.STATES.JOIN_SCREEN);
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('joinScreen').classList.add('active'); 
+                }, 1500);
+            }
 
-        // Unirse a una sala existente
-        function joinRoom() {
-            playerName = playerNameInput.value.trim();
-            
-            if (!playerName) {
-                joinError.textContent = 'Por favor, ingresa tu nombre';
-                return;
+            setState(newState) {
+                this.state = newState;
+                this.updateUIForState();
             }
-            
-            roomCode = roomCodeInput.value.trim().toUpperCase();
-            
-            if (!roomCode) {
-                joinError.textContent = 'Por favor, ingresa un código de sala';
-                return;
-            }
-            
-            gameMode = gameModeSelect.value;
-            difficulty = difficultySelect.value;
-            
-            // Verificar conexión WebSocket
-            if (!isConnected) {
-                joinError.textContent = 'No hay conexión al servidor. Intenta nuevamente.';
-                return;
-            }
-            
-            // Enviar solicitud de unión a sala
-            socket.send(JSON.stringify({
-                type: 'join_room',
-                roomCode: roomCode,
-                playerName: playerName,
-                avatar: playerAvatar,
-                gameMode: gameMode,
-                difficulty: difficulty
-            }));
-            
-            // Mostrar pantalla de carga
-            joinScreen.classList.remove('active');
-            setTimeout(() => {
-                joinScreen.style.display = 'none';
-                multiplayerLobby.style.display = 'flex';
-            }, 500);
-        }
 
-        // Crear una nueva sala
-        function createRoom() {
-            playerName = playerNameInput.value.trim();
-            
-            if (!playerName) {
-                joinError.textContent = 'Por favor, ingresa tu nombre';
-                return;
-            }
-            
-            gameMode = gameModeSelect.value;
-            difficulty = difficultySelect.value;
-            
-            // Verificar conexión WebSocket
-            if (!isConnected) {
-                joinError.textContent = 'No hay conexión al servidor. Intenta nuevamente.';
-                return;
-            }
-            
-            // Enviar solicitud de creación de sala
-            socket.send(JSON.stringify({
-                type: 'create_room',
-                playerName: playerName,
-                avatar: playerAvatar,
-                gameMode: gameMode,
-                difficulty: difficulty
-            }));
-            
-            // Mostrar pantalla de carga
-            joinScreen.classList.remove('active');
-            setTimeout(() => {
-                joinScreen.style.display = 'none';
-                multiplayerLobby.style.display = 'flex';
-            }, 500);
-        }
+            updateUIForState() {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('joinScreen').style.display = 'none';
+                document.getElementById('multiplayerLobby').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'none';
+                document.getElementById('finalResults').style.display = 'none';
+                document.getElementById('liveRanking').style.display = 'none';
+                this.gameModeIndicator.style.display = 'none';
+                this.skipQuestionBtn.style.display = 'none'; 
+                this.startVoteBtn.style.display = 'none'; 
+                this.revealPhase.style.display = 'none';
+                this.lobbyCountdownMessage.style.display = 'none'; 
+                this.lobbyCountdownMessage.classList.remove('active'); 
 
-        // Actualizar lista de jugadores en el lobby
-        function updatePlayerList() {
-            playerList.innerHTML = '';
-            playerCount.textContent = players.length;
-            
-            players.forEach(player => {
-                const playerBadge = document.createElement('div');
-                playerBadge.className = 'player-badge';
-                playerBadge.innerHTML = `
-                    <span class="player-avatar">${player.avatar}</span>
-                    <span class="player-name">${player.name}</span>
-                    ${player.id === currentPlayerId ? '<span>(Tú)</span>' : ''}
-                    ${player.isHost ? '<span>👑</span>' : ''}
-                `;
-                playerList.appendChild(playerBadge);
-            });
-            
-            // Mostrar botón de inicio solo si soy el host
-            startGameButton.style.display = isHost ? 'block' : 'none';
-        }
-
-        // Actualizar resultados de votación
-        function updateVoteResults() {
-            voteResultsList.innerHTML = '';
-            
-            const voteCounts = {};
-            modeButtons.forEach(button => {
-                const mode = button.getAttribute('data-mode');
-                voteCounts[mode] = 0;
-            });
-            
-            // Contar votos
-            Object.values(playerVotes).forEach(vote => {
-                if (voteCounts.hasOwnProperty(vote)) {
-                    voteCounts[vote]++;
+                if (this.state !== this.STATES.JOIN_SCREEN) {
+                    document.getElementById('joinScreen').classList.remove('active');
                 }
-            });
-            
-            // Mostrar resultados
-            for (const mode in voteCounts) {
-                const count = voteCounts[mode];
-                const resultItem = document.createElement('div');
-                resultItem.className = 'ranking-item';
-                resultItem.innerHTML = `
-                    <span>${getModeDisplayName(mode)}</span>
-                    <span>${count} voto(s)</span>
-                `;
-                voteResultsList.appendChild(resultItem);
-            }
-            
-            voteResults.style.display = 'block';
-        }
 
-        // Obtener nombre de visualización para un modo de juego
-        function getModeDisplayName(mode) {
-            const modeNames = {
-                'classic': 'Clásico',
-                'lightning': 'Relámpago',
-                'survival': 'Supervivencia',
-                'team': 'Por Equipos'
-            };
-            
-            return modeNames[mode] || mode;
-        }
-
-        // Iniciar cuenta regresiva del lobby
-        function startLobbyCountdown(countdown) {
-            let count = countdown;
-            lobbyTimer.textContent = count;
-            lobbyCountdown.classList.add('active');
-            
-            const countdownInterval = setInterval(() => {
-                count--;
-                lobbyTimer.textContent = count;
-                
-                if (count <= 0) {
-                    clearInterval(countdownInterval);
-                    lobbyCountdown.classList.remove('active');
+                switch(this.state) {
+                    case this.STATES.LOADING:
+                        document.getElementById('loadingScreen').style.display = 'flex';
+                        break;
+                    case this.STATES.JOIN_SCREEN:
+                        document.getElementById('joinScreen').style.display = 'flex';
+                        break;
+                    case this.STATES.LOBBY:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        this.readyBtn.style.display = 'block'; 
+                        if (this.isHost) {
+                            this.startVoteBtn.style.display = this.isVotingActive ? 'none' : 'block';
+                        }
+                        this.enableVotingButtons(true); 
+                        if (this.lobby3DCanvas.style.display !== 'block') { 
+                             this.lobby3DCanvas.style.display = 'block';
+                             this.animateLobby3D(); 
+                        }
+                        break;
+                    case this.STATES.VOTING:
+                        document.getElementById('multiplayerLobby').style.display = 'flex';
+                        this.readyBtn.style.display = 'none'; 
+                        this.startVoteBtn.style.display = 'none'; 
+                        this.enableVotingButtons(true); 
+                        if (this.lobby3DCanvas.style.display !== 'block') {
+                            this.lobby3DCanvas.style.display = 'block';
+                            this.animateLobby3D();
+                        }
+                        break;
+                    case this.STATES.PLAYING:
+                        document.getElementById('gameContainer').style.display = 'block';
+                        document.getElementById('liveRanking').style.display = 'block';
+                        this.gameModeIndicator.style.display = 'block';
+                        this.readyBtn.style.display = 'none';
+                        this.startVoteBtn.style.display = 'none';
+                        if (this.isProfessor) { 
+                            this.skipQuestionBtn.style.display = 'block';
+                        }
+                        this.lobby3DCanvas.style.display = 'none'; 
+                        cancelAnimationFrame(this.lobbyAnimationId); 
+                        break;
+                    case this.STATES.REVEAL:
+                        this.revealPhase.style.display = 'flex';
+                        this.lobby3DCanvas.style.display = 'none';
+                        cancelAnimationFrame(this.lobbyAnimationId);
+                        break;
+                    case this.STATES.RESULTS:
+                        document.getElementById('finalResults').style.display = 'flex';
+                        this.lobby3DCanvas.style.display = 'none';
+                        cancelAnimationFrame(this.lobbyAnimationId);
+                        break;
                 }
-            }, 1000);
-        }
-
-        // Iniciar juego desde el lobby (solo host)
-        function startGameFromLobby() {
-            if (!isHost) return;
-            
-            // Enviar comando para iniciar el juego
-            socket.send(JSON.stringify({
-                type: 'start_game'
-            }));
-        }
-
-        // Iniciar juego multijugador
-        function startMultiplayerGame(gameQuestions, mode) {
-            multiplayerLobby.style.display = 'none';
-            gameContainer.style.display = 'block';
-            gameStarted = true;
-            
-            questions = gameQuestions;
-            gameMode = mode;
-            totalQuestions = questions.length;
-            currentQuestion = 0;
-            score = 0;
-            
-            // Configurar según el modo de juego
-            switch (gameMode) {
-                case 'lightning':
-                    timeLeft = 10;
-                    gameContainer.classList.add('lightning-mode');
-                    break;
-                case 'survival':
-                    timeLeft = 15;
-                    break;
-                default:
-                    timeLeft = 30;
-                    break;
             }
-            
-            // Mostrar ranking en vivo
-            liveRanking.style.display = 'block';
-            
-            // Iniciar la primera pregunta
-            showQuestion();
-        }
 
-        // Mostrar pregunta actual
-        function showQuestion() {
-            if (currentQuestion >= totalQuestions) {
-                endGame();
-                return;
-            }
-            
-            const question = questions[currentQuestion];
-            questionElement.textContent = question.question;
-            correctAnswer = question.correctAnswer;
-            
-            // Limpiar resultado anterior
-            resultElement.textContent = '';
-            resultElement.className = 'result';
-            
-            // Reiniciar temporizador
-            timeLeft = gameMode === 'lightning' ? 10 : 30;
-            timerText.textContent = timeLeft;
-            timerCircle.style.strokeDashoffset = 0;
-            timerCircle.classList.remove('timer-warning');
-            
-            // Actualizar barra de progreso
-            const progress = ((currentQuestion) / totalQuestions) * 100;
-            progressBar.style.width = `${progress}%`;
-            
-            // Configurar interfaz según el tipo de pregunta
-            if (question.type === 'multiple_choice') {
-                playerAnswerInput.style.display = 'none';
-                keyboard.style.display = 'none';
-                abcdButtons.style.display = 'grid';
-                
-                // Establecer opciones de respuesta
-                const answerButtons = document.querySelectorAll('.abcd-btn');
-                answerButtons.forEach((button, index) => {
-                    const answerText = button.querySelector('.answer-text');
-                    answerText.textContent = question.options[index];
+            setupEventListeners() {
+                this.themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark-mode');
+                    this.themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+                    this.playSound('clickSound');
+                    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
                 });
                 
-                // Reiniciar selección
-                selectedAnswer = null;
-                answerButtons.forEach(button => {
-                    button.classList.remove('selected-answer');
+                document.querySelectorAll('.avatar-option').forEach(avatar => {
+                    avatar.addEventListener('click', () => {
+                        document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+                        avatar.classList.add('selected');
+                        this.player.avatar = avatar.dataset.avatar;
+                        this.playSound('clickSound');
+                    });
                 });
-            } else {
-                playerAnswerInput.style.display = 'block';
-                keyboard.style.display = 'grid';
-                abcdButtons.style.display = 'none';
                 
-                // Limpiar campo de respuesta
-                playerAnswerInput.value = '';
-                playerAnswerInput.focus();
-            }
-            
-            // Ocultar botón siguiente
-            nextButton.style.display = 'none';
-            
-            // Iniciar temporizador
-            startTimer();
-        }
+                document.querySelector('.avatar-option').click();
+                
+                document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
+                document.getElementById('createGame').addEventListener('click', () => this.createGame());
+                
+                document.querySelectorAll('.key[data-number]').forEach(key => {
+                    key.addEventListener('click', () => {
+                        this.addNumber(key.dataset.number);
+                    });
+                });
+                
+                document.querySelector('.key[data-action="clear"]').addEventListener('click', () => {
+                    this.clearNumber();
+                });
+                
+                document.getElementById('submitAnswer').addEventListener('click', () => this.submitAnswer());
+                
+                document.getElementById('playerAnswer').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.submitAnswer();
+                });
+                
+                document.getElementById('trueBtn').addEventListener('click', () => this.checkAnswer('true'));
+                document.getElementById('falseBtn').addEventListener('click', () => this.checkAnswer('false'));
 
-        // Iniciar temporizador
-        function startTimer() {
-            clearInterval(timerInterval);
-            
-            const circumference = 2 * Math.PI * 45;
-            const totalTime = timeLeft;
-            
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                timerText.textContent = timeLeft;
+                document.querySelectorAll('.abcd-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.submitABCDAnswer(btn.dataset.answer));
+                });
                 
-                // Actualizar círculo del temporizador
-                const offset = circumference - (timeLeft / totalTime) * circumference;
-                timerCircle.style.strokeDashoffset = offset;
+                // Cuando se hace clic en Reiniciar o Volver al Lobby
+                document.getElementById('reiniciarBtn').addEventListener('click', () => {
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        // Notificar al servidor que se reinicia/vuelve al lobby
+                        this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
+                    }
+                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                });
+
+                document.getElementById('backToLobby').addEventListener('click', () => {
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        // Notificar al servidor que se reinicia/vuelve al lobby
+                        this.socket.send(JSON.stringify({ type: 'game_over', pin: this.gamePin }));
+                    }
+                    this.reiniciarJuegoLocal(); // Reiniciar el estado local del cliente
+                });
                 
-                // Cambiar color cuando queden 10 segundos
-                if (timeLeft <= 10) {
-                    timerCircle.classList.add('timer-warning');
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
+                });
+                
+                this.skipQuestionBtn.addEventListener('click', () => this.skipQuestionAsProfessor());
+
+                this.readyBtn.addEventListener('click', () => this.toggleReady());
+
+                this.startVoteBtn.addEventListener('click', () => this.initiateVoteAsHost());
+
+                this.closeAchievement.addEventListener('click', () => {
+                    this.achievementPopup.style.display = 'none';
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 's' && e.ctrlKey) {
+                        e.preventDefault(); 
+                        this.toggleStats();
+                    }
+                });
+
+                this.closeStats.addEventListener('click', () => {
+                    this.playerStats.style.display = 'none';
+                });
+
+                window.addEventListener('online', () => {
+                    if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
+                        this.attemptReconnect();
+                    }
+                });
+            }
+
+            checkDarkModePreference() {
+                const darkMode = localStorage.getItem('darkMode') === 'true';
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                    this.themeToggle.textContent = '☀️';
+                }
+            }
+
+            loadPlayerStats() {
+                const savedStats = localStorage.getItem('playerStats');
+                if (savedStats) {
+                    try {
+                        const stats = JSON.parse(savedStats);
+                        if (!this.player.id || stats.id === this.player.id) {
+                            this.player.gamesPlayed = stats.gamesPlayed || 0;
+                            this.player.modeStats = stats.modeStats || {};
+                            this.player.achievements = stats.achievements || [];
+                            this.player.favoriteMode = stats.favoriteMode || null;
+                        }
+                    } catch (e) {
+                        console.error("Error al cargar estadísticas:", e);
+                    }
+                }
+            }
+
+            savePlayerStats() {
+                try {
+                    const statsToSave = {
+                        id: this.player.id, 
+                        gamesPlayed: this.player.gamesPlayed,
+                        modeStats: this.player.modeStats,
+                        achievements: this.player.achievements,
+                        favoriteMode: this.player.favoriteMode
+                    };
+                    localStorage.setItem('playerStats', JSON.stringify(statsToSave));
+                } catch (e) {
+                    console.error("Error al guardar estadísticas:", e);
+                }
+            }
+
+            toggleStats() {
+                if (this.playerStats.style.display === 'block') {
+                    this.playerStats.style.display = 'none';
+                    return;
+                }
+
+                let statsHTML = `
+                    <div class="stat-item">
+                        <span class="stat-label">Partidas jugadas:</span>
+                        <span class="stat-value">${this.player.gamesPlayed}</span>
+                    </div>
+                `;
+
+                if (this.player.favoriteMode) {
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Modo favorito:</span>
+                            <span class="stat-value">${this.getModeName(this.player.favoriteMode)}</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.responseTimes.length > 0) { 
+                    // Calcular avgResponseTime solo si hay datos para evitar NaN
+                    if (this.player.responseTimes.length > 0) {
+                        this.player.avgResponseTime = this.player.responseTimes.reduce((a, b) => a + b, 0) / this.player.responseTimes.length;
+                    } else {
+                        this.player.avgResponseTime = 0;
+                    }
+
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Tiempo promedio:</span>
+                            <span class="stat-value">${this.player.avgResponseTime.toFixed(2)}s</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.maxStreak > 0) {
+                    statsHTML += `
+                        <div class="stat-item">
+                            <span class="stat-label">Racha máxima:</span>
+                            <span class="stat-value">${this.player.maxStreak}</span>
+                        </div>
+                    `;
+                }
+
+                if (this.player.achievements.length > 0) {
+                    statsHTML += `<h4>Logros:</h4>`;
+                    this.player.achievements.forEach(achievement => {
+                        statsHTML += `
+                            <div class="stat-item">
+                                <span class="stat-label">${achievement.title}</span>
+                                <span class="achievement-icon">${achievement.icon}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                this.statsContent.innerHTML = statsHTML;
+                this.playerStats.style.display = 'block';
+            }
+
+            sanitizeInput(input) {
+                return input.replace(/[<>]/g, '').substring(0, 20);
+            }
+
+            joinGame() {
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
+                const gamePin = document.getElementById('gamePin').value.trim();
+
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
+
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
+                    return;
+                }
+
+                if (!/^\d{4}$/.test(gamePin)) {
+                    document.getElementById('joinError').textContent = 'PIN debe ser 4 dígitos';
+                    return;
                 }
                 
-                // Tiempo agotado
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    handleTimeUp();
+                document.getElementById('joinError').textContent = ''; 
+
+                let playerId = localStorage.getItem('playerId');
+                if (!playerId) {
+                    playerId = this.generateId();
+                    localStorage.setItem('playerId', playerId);
                 }
-            }, 1000);
-        }
 
-        // Manejar tiempo agotado
-        function handleTimeUp() {
-            if (isMultiplayer) {
-                // Enviar respuesta vacía al servidor
-                socket.send(JSON.stringify({
-                    type: 'answer',
-                    answer: '',
-                    questionIndex: currentQuestion
-                }));
-            } else {
-                resultElement.textContent = `¡Tiempo agotado! La respuesta correcta era: ${correctAnswer}`;
-                resultElement.className = 'result incorrect';
-                nextButton.style.display = 'block';
-            }
-        }
+                this.player = {
+                    id: playerId,
+                    name: playerName,
+                    grade: grade,
+                    displayName: `${playerName} (${grade})`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: false,
+                    isReady: false,
+                    gamesPlayed: this.player.gamesPlayed || 0,
+                    favoriteMode: this.player.favoriteMode || null,
+                    modeStats: this.player.modeStats || {},
+                    achievements: this.player.achievements || [],
+                    lastAnswerCorrect: false
+                };
 
-        // Verificar respuesta
-        function checkAnswer() {
-            clearInterval(timerInterval);
-            
-            let playerAnswer = '';
-            
-            if (questions[currentQuestion].type === 'multiple_choice') {
-                playerAnswer = selectedAnswer;
-            } else {
-                playerAnswer = playerAnswerInput.value.trim();
+                this.gamePin = gamePin;
+                this.isHost = false; 
+                this.connectToServer();
             }
-            
-            if (!playerAnswer) {
-                resultElement.textContent = 'Por favor, ingresa una respuesta';
-                resultElement.className = 'result waiting';
-                return;
-            }
-            
-            if (isMultiplayer) {
-                // Enviar respuesta al servidor
-                socket.send(JSON.stringify({
-                    type: 'answer',
-                    answer: playerAnswer,
-                    questionIndex: currentQuestion
-                }));
-            } else {
-                // Modo individual - verificar localmente
-                const isCorrect = playerAnswer === correctAnswer.toString();
+
+            createGame() {
+                const playerName = this.sanitizeInput(document.getElementById('playerName').value.trim());
+                const grade = this.sanitizeInput(document.getElementById('grade').value.trim());
                 
-                if (isCorrect) {
-                    score += 10;
-                    resultElement.textContent = '¡Correcto! +10 puntos';
-                    resultElement.className = 'result correct';
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
+                if (!playerName || playerName.length < 3) {
+                    document.getElementById('joinError').textContent = 'El nombre debe tener al menos 3 caracteres';
+                    return;
+                }
+
+                if (!grade) {
+                    document.getElementById('joinError').textContent = 'Ingresa tu grado';
+                    return;
+                }
+                
+                document.getElementById('joinError').textContent = ''; 
+
+                const createBtn = document.getElementById('createGame');
+                createBtn.disabled = true;
+                createBtn.innerHTML = '<span class="loader-small"></span> Creando sala...';
+
+                let playerId = localStorage.getItem('playerId');
+                if (!playerId) {
+                    playerId = this.generateId();
+                    localStorage.setItem('playerId', playerId);
+                }
+
+                this.gamePin = Math.floor(1000 + Math.random() * 9000).toString();
+                document.getElementById('gamePin').value = this.gamePin; 
+                
+                this.player = {
+                    id: playerId,
+                    name: playerName,
+                    grade: grade,
+                    displayName: `${playerName} (Profesor)`,
+                    avatar: this.player.avatar,
+                    points: 0,
+                    hasAnswered: false,
+                    hasVoted: false,
+                    streak: 0,
+                    maxStreak: 0,
+                    avgResponseTime: 0,
+                    responseTimes: [],
+                    history: [],
+                    isProfessor: true, 
+                    isReady: false,
+                    gamesPlayed: this.player.gamesPlayed || 0,
+                    favoriteMode: this.player.favoriteMode || null,
+                    modeStats: this.player.modeStats || {},
+                    achievements: this.player.achievements || [],
+                    lastAnswerCorrect: false
+                };
+                
+                this.isHost = true; 
+                
+                console.log("[Cliente] Intentando conectar al servidor para crear sala...");
+                this.connectToServer(); 
+
+                setTimeout(() => {
+                    createBtn.disabled = false;
+                    createBtn.textContent = 'Crear nueva sala';
+                }, 2000);
+            }
+
+            connectToServer() {
+                try {
+                    this.updateConnectionStatus('connecting', '🟡 Conectando...');
+                    console.log(`[Cliente] Intentando conectar a: ${this.socketUrl}?playerId=${this.player.id}`);
+                    
+                    if (!navigator.onLine) {
+                        this.handleNetworkError(new Error('Sin conexión a internet'));
+                        return;
+                    }
+
+                    const wsUrl = `${this.socketUrl}?playerId=${this.player.id}`;
+                    this.socket = new WebSocket(wsUrl);
+                    
+                    this.setupHeartbeat();
+                    
+                    this.socket.onerror = (error) => {
+                        console.error("[Cliente] Error de conexión WS:", error);
+                        this.handleNetworkError(error, "Error de conexión con el servidor");
+                        this.attemptReconnect();
+                    };
+                    
+                    this.socket.onclose = (event) => {
+                        console.log("[Cliente] Conexión WS cerrada:", event.code, event.reason);
+                        clearInterval(this.heartbeatInterval);
+                        this.heartbeatInterval = null;
+
+                        let message = "Conexión cerrada";
+                        if (event.code === 1000) {
+                            message = "Conexión finalizada (normal)";
+                            this.updateConnectionStatus('disconnected', `🔴 ${message}`);
+                        } else {
+                            if (this.isMultiplayer || this.state === this.STATES.JOIN_SCREEN) { 
+                                this.handleNetworkError(new Error("Conexión cerrada inesperadamente"), "Se perdió la conexión con el servidor");
+                                this.attemptReconnect();
+                            } else {
+                                 this.updateConnectionStatus('disconnected', `🔴 Desconectado`);
+                            }
+                        }
+                    };
+                    
+                    this.socket.onopen = () => {
+                        console.log("[Cliente] Conexión WS establecida.");
+                        this.reconnectAttempts = 0;
+                        this.lastPongTime = Date.now();
+                        this.updateConnectionStatus('connected', '🟢 Conectado');
+                        
+                        let messageType;
+
+                        if (this.isHost) {
+                            messageType = 'create_room';
+                        } else if (this.gamePin && this.state !== this.STATES.JOIN_SCREEN) {
+                            messageType = 'rejoin_room';
+                        } else {
+                            messageType = 'join_room'; 
+                        }
+
+                        console.log(`[Cliente] Decidiendo tipo de mensaje: ${messageType} para PIN: ${this.gamePin}`);
+
+                        this.socket.send(JSON.stringify({
+                            type: messageType,
+                            pin: this.gamePin,
+                            player: {
+                                id: this.player.id,
+                                name: this.player.displayName,
+                                avatar: this.player.avatar,
+                                points: this.player.points, 
+                                isProfessor: this.player.isProfessor, 
+                                isReady: this.player.isReady
+                            }
+                        }));
+                    };
+                    
+                    this.socket.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            console.log("[Cliente] Mensaje WS recibido:", data); 
+                            
+                            if (data.type === 'pong') {
+                                this.lastPongTime = Date.now();
+                                return;
+                            }
+                            
+                            this.handleSocketMessage(data);
+                        } catch (error) {
+                            console.error("[Cliente] Error al procesar mensaje WS:", error);
+                        }
+                    };
+                } catch (error) {
+                    this.handleNetworkError(error, "Error al conectar con el servidor (catch general)");
+                    this.attemptReconnect();
+                }
+            }
+
+            setupHeartbeat() {
+                clearInterval(this.heartbeatInterval);
+                
+                this.heartbeatInterval = setInterval(() => {
+                    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        const now = Date.now();
+                        
+                        if (this.lastPongTime && now - this.lastPongTime > 30000) {
+                            console.warn("[Cliente] No se recibió pong en 30s. Cerrando conexión para intentar reconectar...");
+                            this.socket.close(); 
+                            return;
+                        }
+                        
+                        this.socket.send(JSON.stringify({ type: 'ping' }));
+                    } else if (this.socket && this.socket.readyState === WebSocket.CLOSED) {
+                        clearInterval(this.heartbeatInterval);
+                        this.heartbeatInterval = null;
+                    }
+                }, 15000); 
+            }
+
+            attemptReconnect() {
+                if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                    console.log("[Cliente] Máximo de intentos de reconexión alcanzado");
+                    this.showNotification("No se pudo reconectar. Intenta manualmente.");
+                    this.showReconnectButton(); 
+                    return;
+                }
+                
+                this.reconnectAttempts++;
+                const delay = Math.min(30000, this.reconnectAttempts * this.reconnectDelay); 
+                
+                console.log(`[Cliente] Intentando reconectar en ${delay/1000} segundos... (Intento ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                
+                this.showNotification(`Reconectando... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                this.updateConnectionStatus('connecting', '🟡 Reconectando...');
+                
+                clearInterval(this.heartbeatInterval);
+                this.heartbeatInterval = null;
+
+                setTimeout(() => {
+                    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+                        this.connectToServer();
+                    }
+                }, delay);
+            }
+
+            showReconnectButton() {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.innerHTML = '🔴 Desconectado <button class="btn btn-secondary" id="reconnectBtn">Reconectar</button>';
+                const existingBtn = document.getElementById('reconnectBtn');
+                if (existingBtn) {
+                     existingBtn.onclick = () => {
+                        this.reconnectAttempts = 0; 
+                        this.connectToServer();
+                        statusElement.textContent = '🟡 Conectando...'; 
+                    };
+                }
+            }
+
+            updateConnectionStatus(status, message = null) {
+                const statusElement = document.getElementById('connectionStatus');
+                statusElement.className = `connection-status ${status}`;
+                
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    switch(status) {
+                        case 'connected':
+                            statusElement.textContent = '🟢 Conectado';
+                            break;
+                        case 'disconnected':
+                            statusElement.textContent = '🔴 Desconectado';
+                            break;
+                        case 'connecting':
+                            statusElement.textContent = '🟡 Conectando...';
+                            break;
+                    }
+                }
+            }
+
+            handleSocketMessage(data) {
+                console.log("[Cliente] Mensaje WS recibido:", data.type);
+                
+                switch(data.type) {
+                    case 'room_created': 
+                    case 'room_joined':
+                        this.handleRoomJoined(data);
+                        break;
+                        
+                    case 'player_joined':
+                        this.handlePlayerJoined(data);
+                        break;
+                        
+                    case 'player_left':
+                        this.handlePlayerLeft(data);
+                        break;
+                        
+                    case 'player_ready_update':
+                        this.handlePlayerReadyUpdate(data);
+                        break;
+                        
+                    case 'start_voting':
+                        this.isVotingActive = true;
+                        this.startVoteCountdown(data.time);
+                        break;
+                        
+                    case 'update_vote_timer':
+                        this.updateVoteTimer(data.time);
+                        break;
+                        
+                    case 'vote_update':
+                        this.updateVoteResults(data.votes);
+                        break;
+                        
+                    case 'game_starting': 
+                        this.showNotification(`¡El juego comenzará! Modo: ${this.getModeName(data.mode)}`);
+                        this.animateLobbyCountdown(data.mode);
+                        break;
+                        
+                    case 'game_start': 
+                        // El servidor ahora enviará la primera pregunta a través de 'question_update'
+                        this.startGame(data.mode, data.closestAnswerMode);
+                        break;
+                        
+                    case 'question_update':
+                        this.handleQuestionUpdate(data);
+                        break;
+                        
+                    case 'game_over':
+                        this.handleGameOver(data);
+                        break;
+                        
+                    case 'player_score_update': 
+                        this.updatePlayerScore(data.playerId, data.points, data.streak, data.maxStreak, data.avgResponseTime);
+                        break;
+                    
+                    case 'host_skipped_question': 
+                        if (!this.isHost) { 
+                            this.showNotification("El profesor ha saltado la pregunta.");
+                        }
+                        break;
+
+                    case 'error':
+                        this.handleError(data);
+                        break;
+                    
+                    case 'new_host': 
+                        if (data.newHostId === this.player.id) {
+                            this.isHost = true;
+                            this.player.isProfessor = true;
+                            this.showNotification("¡Ahora eres el nuevo profesor y anfitrión!");
+                        } else {
+                            this.showNotification(`${this.extractName(data.newHostName)} es ahora el nuevo profesor.`);
+                        }
+                        break;
+                        
+                    case 'reveal_phase':
+                        this.startRevealPhase(data.correctAnswer, data.playerCorrect, data.streakBonus, data.options); 
+                        break;
+                    
+                    case 'ranking_update':
+                        this.players = data.players;
+                        this.updateLiveRanking(); 
+                        const myData = this.players.find(p => p.id === this.player.id);
+                        if (myData) {
+                            this.updatePlayerScore(myData.id, myData.points, myData.streak, myData.maxStreak, myData.avgResponseTime);
+                        }
+                        break;
+                    
+                    case 'answer_received': 
+                        console.log("Servidor: Respuesta recibida.");
+                        break;
+
+                    default:
+                        console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
+                }
+            }
+
+            handleRoomJoined(data) {
+                console.log("[Cliente] handleRoomJoined activado. Data:", data);
+                this.isMultiplayer = true; 
+                this.players = data.players || [];
+                this.isHost = data.isHost; 
+                
+                this.gamePin = data.pin; 
+                document.getElementById('lobbyPin').textContent = this.gamePin; 
+
+                const currentPlayerFromServer = this.players.find(p => p.id === this.player.id);
+                if (currentPlayerFromServer) {
+                    this.player.isProfessor = currentPlayerFromServer.isProfessor;
+                    this.player.isReady = currentPlayerFromServer.isReady; 
+                }
+
+                this.updatePlayerList();
+                
+                this.isVotingActive = data.isVotingActive || false; 
+                if (this.isVotingActive) {
+                    this.setState(this.STATES.VOTING);
+                    this.startVoteCountdown(data.voteTimeRemaining); 
+                    this.updateVoteResults(data.currentVotes); 
+                    this.selectedGameMode = data.selectedGameMode; 
+                } else if (data.selectedGameMode) {
+                    this.selectedGameMode = data.selectedGameMode;
+                    this.showNotification(`Modo de juego pre-seleccionado: ${this.getModeName(this.selectedGameMode)}`);
+                    this.setState(this.STATES.LOBBY); 
+                } else {
+                    this.setState(this.STATES.LOBBY);
+                }
+                
+                if (data.isGameRunning && data.question) { 
+                    this.startGame(data.gameMode, data.closestAnswerMode); 
+                    this.currentQuestionIndex = data.questionIndex;
+                    this.handleQuestionUpdate(data); 
+                }
+            }
+
+            handlePlayerJoined(data) {
+                const existingPlayer = this.players.find(p => p.id === data.player.id);
+                if (!existingPlayer) {
+                    this.players.push(data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`Jugador ${this.extractName(data.player.name)} se ha unido :3`); 
+                } else {
+                    Object.assign(existingPlayer, data.player);
+                    this.updatePlayerList();
+                    this.showNotification(`${this.extractName(data.player.name)} se ha reconectado`);
+                }
+            }
+
+            handlePlayerLeft(data) {
+                const playerIndex = this.players.findIndex(p => p.id === data.playerId);
+                if (playerIndex !== -1) {
+                    const playerName = this.players[playerIndex].name; 
+                    this.players.splice(playerIndex, 1);
+                    this.updatePlayerList();
+                    this.showNotification(`${this.extractName(playerName)} se ha desconectado`);
+                }
+            }
+
+            handlePlayerReadyUpdate(data) { 
+                const player = this.players.find(p => p.id === data.playerId);
+                if (player) {
+                    player.isReady = data.isReady;
+                    this.updatePlayerList();
+                    
+                    if (data.playerId === this.player.id) {
+                        this.player.isReady = data.isReady; 
+                        this.readyBtn.textContent = data.isReady ? "❌ No listo" : "👍 Listo";
+                        this.readyBtn.disabled = data.isReady; 
+                    }
+                    
+                    if (this.isHost && !this.isVotingActive && this.state === this.STATES.LOBBY) { 
+                        const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                        const playersReadyForVote = nonProfessorPlayers.filter(p => p.isReady).length + (this.players.some(p => p.isProfessor) ? 1 : 0);
+                        const minPlayersForVote = 2; 
+
+                        const allNeededPlayersReady = playersReadyForVote >= minPlayersForVote;
+                        
+                        this.startVoteBtn.style.display = allNeededPlayersReady ? 'block' : 'none';
+                        if (!allNeededPlayersReady) {
+                            this.showNotification(`Anfitrión: Esperando ${minPlayersForVote - playersReadyForVote} jugadores listos más para iniciar votación.`);
+                        } else {
+                            this.showNotification("Anfitrión: ¡Todos listos para iniciar la votación!");
+                        }
+                    }
+                    else if (data.playerId !== this.player.id) {
+                        const action = data.isReady ? "está listo" : "ya no está listo";
+                        this.showNotification(`${this.extractName(player.name)} ${action}`);
+                    }
+                }
+            }
+
+            toggleReady() {
+                this.readyBtn.disabled = true; 
+                this.player.isReady = !this.player.isReady;
+                
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'player_ready', 
+                        pin: this.gamePin,
+                        playerId: this.player.id,
+                        isReady: this.player.isReady
+                    }));
+                }
+            }
+
+            initiateVoteAsHost() {
+                if (!this.isHost || this.isVotingActive || this.state !== this.STATES.LOBBY) return; 
+
+                const nonProfessorPlayers = this.players.filter(p => !p.isProfessor);
+                const playersInLobby = nonProfessorPlayers.length + (this.players.some(p => p.isProfessor) ? 1 : 0);
+                const minPlayersForVote = 2; 
+
+                if (playersInLobby < minPlayersForVote) {
+                    this.showNotification(`Necesitas al menos ${minPlayersForVote} jugadores en la sala (incluyéndote) para iniciar la votación.`);
+                    return;
+                }
+                
+                this.playSound('clickSound');
+                this.showNotification("El anfitrión ha iniciado la votación!");
+                
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'initiate_vote', 
+                        pin: this.gamePin,
+                        hostId: this.player.id
+                    }));
+                }
+            }
+
+            handleQuestionUpdate(data) {
+                // Almacena la pregunta que viene del servidor (ya viene sin respuesta si es necesario)
+                this.currentQuestionData = data.question; 
+                this.lastAnswerTime = Date.now(); // Marca el tiempo en que la pregunta es recibida/mostrada
+                this.currentQuestionIndex = data.questionIndex; 
+                this.timerDuration = data.timerDuration || 30; // Actualiza la duración del temporizador
+                
+                this.displayQuestion(data.question);
+                
+                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
+                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                }
+            }
+
+            handleGameOver(data) {
+                clearInterval(this.timerInterval);
+                clearInterval(this.rankingUpdateInterval);
+                this.rankingUpdateInterval = null; 
+                
+                const finalRanking = Array.isArray(data.finalRanking) ? 
+                    data.finalRanking.map(p => ({
+                        id: p.id,
+                        name: p.name || p.displayName,
+                        avatar: p.avatar || '1',
+                        points: p.points || 0,
+                        streak: p.streak || 0,
+                        maxStreak: p.maxStreak || 0,
+                        achievements: p.achievements || [] 
+                    })) : [];
+                
+                this.updatePlayerStatistics(finalRanking);
+                
+                this.showMultiplayerResults(finalRanking);
+            }
+
+            updatePlayerStatistics(finalRanking) {
+                this.player.gamesPlayed = (this.player.gamesPlayed || 0) + 1;
+                
+                if (this.selectedGameMode) {
+                    if (!this.player.modeStats) {
+                        this.player.modeStats = {};
+                    }
+                    
+                    if (!this.player.modeStats[this.selectedGameMode]) {
+                        this.player.modeStats[this.selectedGameMode] = {
+                            games: 0,
+                            wins: 0,
+                            points: 0,
+                            maxStreak: 0
+                        };
+                    }
+                    
+                    const modeStats = this.player.modeStats[this.selectedGameMode];
+                    modeStats.games += 1;
+                    modeStats.points += this.player.points; 
+                    
+                    if (this.player.maxStreak > (modeStats.maxStreak || 0)) {
+                        modeStats.maxStreak = this.player.maxStreak;
+                    }
+                    
+                    const playerPosition = finalRanking.findIndex(p => p.id === this.player.id);
+                    if (playerPosition >= 0 && playerPosition < 3) {
+                        modeStats.wins += 1;
+                    }
+                    
+                    let maxGames = 0;
+                    let favoriteMode = null;
+                    
+                    for (const mode in this.player.modeStats) {
+                        if (this.player.modeStats[mode].games > maxGames) {
+                            maxGames = this.player.modeStats[mode].games;
+                            favoriteMode = mode;
+                        }
+                    }
+                    
+                    this.player.favoriteMode = favoriteMode;
+                }
+                
+                if (this.player.streak > this.player.maxStreak) {
+                    this.player.maxStreak = this.player.streak;
+                }
+
+                this.checkAchievements();
+                
+                this.savePlayerStats();
+            }
+
+            checkAchievements() {
+                for (const achievementId in this.achievementsList) {
+                    const achievement = this.achievementsList[achievementId];
+                    
+                    if (!this.player.achievements.some(a => a.id === achievementId)) {
+                        if (achievement.condition(this.player)) {
+                            this.unlockAchievement(achievementId, achievement);
+                        }
+                    }
+                }
+            }
+
+            unlockAchievement(achievementId, achievement) {
+                this.player.achievements.push({
+                    id: achievementId,
+                    title: achievement.title,
+                    description: achievement.description,
+                    icon: achievement.icon,
+                    date: new Date().toISOString()
+                });
+                
+                this.showAchievementPopup(achievement);
+                
+                this.savePlayerStats();
+            }
+
+            showAchievementPopup(achievement) {
+                document.getElementById('achievementTitle').textContent = achievement.title;
+                document.getElementById('achievementDescription').textContent = achievement.description;
+                document.getElementById('achievementPopup').querySelector('.achievement-icon').textContent = achievement.icon;
+                
+                this.achievementPopup.style.display = 'block';
+                this.playSound('achievementSound');
+                
+                setTimeout(() => {
+                    if (this.achievementPopup.style.display === 'block') {
+                        this.achievementPopup.style.display = 'none';
+                    }
+                }, 5000);
+            }
+
+            handleError(data) {
+                document.getElementById('joinError').textContent = data.message;
+                this.showNotification(`Error: ${data.message}`); 
+                if (this.state === this.STATES.LOADING || this.state === this.STATES.JOIN_SCREEN) {
+                    this.setState(this.STATES.JOIN_SCREEN);
+                }
+            }
+
+            updatePlayerList() {
+                const playerList = document.getElementById('multiplayerPlayerList');
+                playerList.innerHTML = '';
+                
+                const sortedPlayers = [...this.players].sort((a, b) => a.name.localeCompare(b.name));
+
+                sortedPlayers.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'player-badge';
+                    playerElement.innerHTML = `
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span>${this.extractName(player.name)}</span>
+                    `;
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.style.border = '2px solid var(--amarillo)';
+                    }
+                    
+                    if (player.isProfessor) {
+                        playerElement.innerHTML += ' 👨‍🏫';
+                    }
+                    
+                    if (player.isReady) {
+                        playerElement.innerHTML += ' ✓';
+                    }
+                    
+                    playerList.appendChild(playerElement);
+                });
+                
+                document.getElementById('playerCount').textContent = this.players.length;
+                
+                if (this.players.some(p => p.id === this.player.id)) { 
+                    this.readyBtn.disabled = this.player.isReady;
+                    this.readyBtn.textContent = this.player.isReady ? "❌ No listo" : "👍 Listo";
+                }
+            }
+
+            startVoteCountdown(time) {
+                if (this.voteInterval) {
+                    clearInterval(this.voteInterval);
+                    this.voteInterval = null;
+                }
+                
+                this.isVotingActive = true; 
+                this.setState(this.STATES.VOTING); 
+
+                this.voteCounts = {
+                    operaciones: 0, misterioso: 0, secuencia: 0, potenciacion: 0,
+                    combinadas: 0, relampago: 0, "verdadero-falso": 0, "mas-cercano": 0,
+                    "sumamultiplicacion": 0, "informatica": 0
+                };
+                document.getElementById('voteResults').innerHTML = '<p>Esperando votos...</p>';
+                this.player.hasVoted = false; 
+
+                this.players.forEach(p => p.hasVoted = false); 
+                this.enableVotingButtons(true); 
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('selected', 'voted'); 
+                });
+                
+                this.voteTime = time;
+                document.getElementById('voteTime').textContent = this.voteTime;
+                
+                // Si eres el host, el temporizador de votación lo controla el servidor
+                // Si no eres el host, solo actualizas la UI
+                if (!this.isHost && time > 0) {
+                    // Limpiar cualquier temporizador anterior del cliente
+                    if (this._clientVoteCountdownInterval) {
+                        clearInterval(this._clientVoteCountdownInterval);
+                    }
+                    this._clientVoteCountdownInterval = setInterval(() => {
+                        this.voteTime--;
+                        document.getElementById('voteTime').textContent = this.voteTime;
+                        if (this.voteTime <= 0) {
+                            clearInterval(this._clientVoteCountdownInterval);
+                            this._clientVoteCountdownInterval = null;
+                            this.isVotingActive = false;
+                            this.enableVotingButtons(false);
+                        }
+                    }, 1000);
+                } else if (time <= 0) {
+                    if (this._clientVoteCountdownInterval) {
+                        clearInterval(this._clientVoteCountdownInterval);
+                        this._clientVoteCountdownInterval = null;
+                    }
+                    this.isVotingActive = false;
+                    this.enableVotingButtons(false);
+                }
+            }
+
+            updateVoteTimer(time) {
+                document.getElementById('voteTime').textContent = time;
+                this.voteTime = time;
+                if (time <= 0) {
+                    this.isVotingActive = false; 
+                    this.enableVotingButtons(false); 
+                }
+            }
+
+            castVote(mode) {
+                if (!this.isVotingActive || this.player.hasVoted) return; 
+                
+                this.player.hasVoted = true;
+                this.showNotification(`Has votado por: ${this.getModeName(mode)}`);
+                
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.remove('selected'); 
+                    if (btn.dataset.mode === mode) {
+                        btn.classList.add('selected', 'voted'); 
+                    } else {
+                        btn.classList.remove('voted'); 
+                    }
+                });
+                this.enableVotingButtons(false); 
+                
+                this.playSound('clickSound');
+                
+                this.socket.send(JSON.stringify({
+                    type: 'cast_vote',
+                    pin: this.gamePin,
+                    playerId: this.player.id,
+                    mode: mode
+                }));
+            }
+
+            enableVotingButtons(enable) {
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.disabled = !enable;
+                });
+            }
+
+            updateVoteResults(votes) {
+                this.voteCounts = votes;
+                let resultsHTML = '';
+                
+                const sortedModes = Object.entries(this.voteCounts)
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .filter(([, count]) => count > 0); 
+
+                if (sortedModes.length > 0) {
+                    sortedModes.forEach(([mode, count]) => {
+                        resultsHTML += `<p>${this.getModeName(mode)}: <strong>${count}</strong> ${count === 1 ? 'voto' : 'votos'}</p>`;
                     });
                 } else {
-                    resultElement.textContent = `Incorrecto. La respuesta correcta era: ${correctAnswer}`;
-                    resultElement.className = 'result incorrect';
+                    resultsHTML = '<p>Esperando votos...</p>';
                 }
                 
-                nextButton.style.display = 'block';
+                document.getElementById('voteResults').innerHTML = resultsHTML;
             }
-        }
 
-        // Mostrar resultado de respuesta (multijugador)
-        function showAnswerResult(isCorrect, correctAns, pointsEarned) {
-            if (isCorrect) {
-                resultElement.textContent = `¡Correcto! +${pointsEarned} puntos`;
-                resultElement.className = 'result correct';
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            } else {
-                resultElement.textContent = `Incorrecto. La respuesta correcta era: ${correctAns}`;
-                resultElement.className = 'result incorrect';
+            getModeName(mode) {
+                const names = {
+                    operaciones: '🔢 Operación Rápida',
+                    misterioso: '❓ Número Misterioso',
+                    secuencia: '📈 Secuencia Numérica',
+                    potenciacion: '💪 Potenciación',
+                    combinadas: '🧩 Operaciones Combinadas',
+                    relampago: '⚡ Modo Relámpago',
+                    "verdadero-falso": '✅❌ Verdadero/Falso',
+                    "mas-cercano": '🎯 El más cercano gana',
+                    "sumamultiplicacion": '➕✖️ Suma y Multiplicación', 
+                    "informatica": '💻 Informática' 
+                };
+                return names[mode] || mode;
             }
-            
-            nextButton.style.display = 'block';
-        }
 
-        // Siguiente pregunta
-        function nextQuestion() {
-            currentQuestion++;
-            showQuestion();
-        }
+            animateLobbyCountdown(mode) {
+                this.lobbyCountdownMessage.textContent = `¡El modo ${this.getModeName(mode)} comenzará pronto!`;
+                this.lobbyCountdownMessage.style.display = 'block';
+                this.lobbyCountdownMessage.classList.add('active'); 
 
-        // Actualizar ranking en vivo
-        function updateLiveRanking() {
-            rankingList.innerHTML = '';
-            
-            playerRankings.forEach((player, index) => {
-                const rankingItem = document.createElement('div');
-                rankingItem.className = 'ranking-item';
-                if (player.id === currentPlayerId) {
-                    rankingItem.classList.add('current-player');
+                setTimeout(() => {
+                    this.lobbyCountdownMessage.classList.remove('active');
+                    this.lobbyCountdownMessage.style.display = 'none';
+                }, 3000); 
+            }
+
+            startGame(mode, closestAnswerMode = false) {
+                this.selectedGameMode = mode;
+                this.closestAnswerMode = closestAnswerMode;
+                this.isVotingActive = false; 
+                clearInterval(this.voteInterval); 
+                this.voteInterval = null;
+
+                this.gameModeIndicator.textContent = `Modo: ${this.getModeName(mode)}`;
+                if (closestAnswerMode) {
+                    this.gameModeIndicator.textContent += " 🎯";
                 }
                 
-                rankingItem.innerHTML = `
-                    <span class="ranking-position">${index + 1}</span>
-                    <span class="ranking-avatar">${player.avatar}</span>
-                    <span class="ranking-name">${player.name}</span>
-                    <span class="ranking-points">${player.points} pts</span>
-                `;
+                document.getElementById('gameContainer').classList.remove('lightning-mode'); 
+                if (mode === 'relampago') {
+                    document.getElementById('gameContainer').classList.add('lightning-mode');
+                }
                 
-                rankingList.appendChild(rankingItem);
-            });
-        }
-
-        // Finalizar juego
-        function endGame() {
-            gameContainer.style.display = 'none';
-            finalResults.style.display = 'flex';
-            
-            if (isMultiplayer) {
-                // En multijugador, los resultados vienen del servidor
-                return;
-            }
-            
-            // Modo individual - mostrar resultados locales
-            showIndividualResults();
-        }
-
-        // Mostrar resultados individuales
-        function showIndividualResults() {
-            firstName.textContent = playerName;
-            firstAvatar.textContent = playerAvatar;
-            firstPoints.textContent = `${score} puntos`;
-            
-            // Ocultar segundo y tercer puesto en modo individual
-            document.querySelector('.podium-2').style.visibility = 'hidden';
-            document.querySelector('.podium-3').style.visibility = 'hidden';
-            secondName.parentElement.style.visibility = 'hidden';
-            thirdName.parentElement.style.visibility = 'hidden';
-            
-            // Ocultar lista de otros jugadores
-            otherPlayersList.style.display = 'none';
-        }
-
-        // Mostrar resultados finales (multijugador)
-        function showFinalResults(finalRankings) {
-            gameContainer.style.display = 'none';
-            finalResults.style.display = 'flex';
-            
-            // Mostrar podio
-            if (finalRankings.length > 0) {
-                firstName.textContent = finalRankings[0].name;
-                firstAvatar.textContent = finalRankings[0].avatar;
-                firstPoints.textContent = `${finalRankings[0].points} puntos`;
-            }
-            
-            if (finalRankings.length > 1) {
-                secondName.textContent = finalRankings[1].name;
-                secondAvatar.textContent = finalRankings[1].avatar;
-                secondPoints.textContent = `${finalRankings[1].points} puntos`;
-            }
-            
-            if (finalRankings.length > 2) {
-                thirdName.textContent = finalRankings[2].name;
-                thirdAvatar.textContent = finalRankings[2].avatar;
-                thirdPoints.textContent = `${finalRankings[2].points} puntos`;
-            }
-            
-            // Mostrar otros jugadores
-            otherPlayersList.innerHTML = '';
-            for (let i = 3; i < finalRankings.length; i++) {
-                const player = finalRankings[i];
-                const playerElement = document.createElement('div');
-                playerElement.className = 'other-player';
-                playerElement.innerHTML = `
-                    <div class="player-info">
-                        <span class="other-avatar">${player.avatar}</span>
-                        <span>${player.name}</span>
-                    </div>
-                    <span>${player.points} puntos</span>
-                `;
-                otherPlayersList.appendChild(playerElement);
-            }
-        }
-
-        // Jugar otra vez
-        function playAgain() {
-            finalResults.style.display = 'none';
-            
-            if (isMultiplayer) {
-                // En multijugador, volver al lobby
-                multiplayerLobby.style.display = 'flex';
-                gameStarted = false;
-            } else {
-                // En individual, reiniciar el juego
-                currentQuestion = 0;
-                score = 0;
-                gameContainer.style.display = 'block';
-                showQuestion();
-            }
-        }
-
-        // Volver al lobby
-        function backToLobby() {
-            finalResults.style.display = 'none';
-            multiplayerLobby.style.display = 'flex';
-            gameStarted = false;
-        }
-
-        // Alternar modo oscuro
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('dark-mode');
-            themeToggle.textContent = isDarkMode ? '☀️' : '🌙';
-        }
-
-        // Saltar pregunta (modo profesor)
-        function skipQuestion() {
-            if (isMultiplayer && isHost) {
-                // Enviar comando para saltar pregunta
-                socket.send(JSON.stringify({
-                    type: 'skip_question'
-                }));
-            } else {
-                // En individual, simplemente pasar a la siguiente pregunta
-                nextQuestion();
-            }
-        }
-
-        // Mostrar notificación
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.textContent = message;
-            
-            // Estilo según el tipo
-            if (type === 'error') {
-                notification.style.borderColor = 'var(--rojo)';
-            } else if (type === 'success') {
-                notification.style.borderColor = 'var(--verde)';
-            } else if (type === 'warning') {
-                notification.style.borderColor = 'var(--amarillo)';
-            }
-            
-            document.body.appendChild(notification);
-            
-            // Eliminar después de 3 segundos
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Inicializar escena 3D para el lobby (Three.js)
-        function init3DLobby() {
-            const canvas = document.getElementById('lobby3DCanvas');
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
-            
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            
-            // Añadir luces
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            directionalLight.position.set(1, 1, 1);
-            scene.add(directionalLight);
-            
-            // Añadir objetos flotantes (cubos, esferas, etc.)
-            const geometry = new THREE.BoxGeometry(1, 1, 1);
-            const material = new THREE.MeshPhongMaterial({ 
-                color: 0x4e8cff,
-                transparent: true,
-                opacity: 0.7
-            });
-            
-            const cubes = [];
-            for (let i = 0; i < 10; i++) {
-                const cube = new THREE.Mesh(geometry, material);
-                cube.position.x = Math.random() * 20 - 10;
-                cube.position.y = Math.random() * 20 - 10;
-                cube.position.z = Math.random() * 20 - 10;
-                cube.rotation.x = Math.random() * Math.PI;
-                cube.rotation.y = Math.random() * Math.PI;
-                scene.add(cube);
-                cubes.push(cube);
-            }
-            
-            camera.position.z = 15;
-            
-            // Animación
-            function animate() {
-                requestAnimationFrame(animate);
+                this.setState(this.STATES.PLAYING);
                 
-                cubes.forEach(cube => {
-                    cube.rotation.x += 0.01;
-                    cube.rotation.y += 0.01;
+                document.getElementById('standardInput').style.display = 'none';
+                document.getElementById('trueFalseButtons').style.display = 'none';
+                this.abcdButtonsContainer.style.display = 'none';
+
+                if (mode === 'verdadero-falso') {
+                    document.getElementById('trueFalseButtons').style.display = 'flex';
+                } else if (mode === 'informatica') {
+                    this.abcdButtonsContainer.style.display = 'grid'; 
+                } else {
+                    document.getElementById('standardInput').style.display = 'block';
+                }
+                
+                this.player.points = 0;
+                this.player.streak = 0;
+                this.player.responseTimes = [];
+                this.player.history = []; 
+                this.player.lastAnswerCorrect = false; 
+                this.updatePlayerScore(this.player.id, 0, 0); 
+                
+                this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
+                this.updateLiveRanking();
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
+            }
+
+            // Esta función `generarPreguntas` ya NO es usada en el flujo multijugador real.
+            // La generación de preguntas es responsabilidad del servidor.
+            // Se mantiene aquí por si tuvieras un modo de un jugador o para referencia.
+            generarPreguntas(mode, count) {
+                const preguntas = [];
+                // ... (código de generarOperacion, generarMisterioso, etc. de tu versión anterior)
+                return preguntas;
+            }
+
+            shareQuestionWithPlayers() {
+                // Esta función solo es llamada por el HOST si la generación de preguntas estuviera en el cliente.
+                // Con la generación en el servidor, esta función ya NO debería ser llamada.
+                // Si la ves ejecutarse, indica un error de flujo.
+                console.error("ERROR: shareQuestionWithPlayers no debería ser llamada en el cliente en este flujo multijugador.");
+                
+                // Si por alguna razón un modo híbrido lo necesitara, sería así:
+                // const question = this.questions[this.currentQuestionIndex];
+                // const questionToSend = { ...question };
+                // if (questionToSend.tipo === 'verdadero-falso') {
+                //     delete questionToSend.respuesta; 
+                //     delete questionToSend.explicacion; 
+                // } else if (questionToSend.tipo === 'informatica') {
+                //     // Mantener 'opciones', solo eliminar 'respuesta'
+                //     delete questionToSend.respuesta; 
+                //     delete questionToSend.explicacion; 
+                // }
+                // this.socket.send(JSON.stringify({
+                //     type: 'question_update',
+                //     pin: this.gamePin,
+                //     question: questionToSend,
+                //     questionIndex: this.currentQuestionIndex,
+                //     totalQuestions: this.questions.length
+                // }));
+                // this.displayQuestion(question); 
+                // this.resetTimer();
+            }
+
+            displayQuestion(questionData = null) {
+                try {
+                    const question = questionData || this.currentQuestionData;
+                    if (!question) return;
+                    
+                    const questionElement = document.getElementById("currentQuestion");
+                    questionElement.innerHTML = question.pregunta;
+                    
+                    questionElement.classList.remove('question-animation');
+                    void questionElement.offsetWidth; 
+                    questionElement.classList.add('question-animation');
+                    
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    this.player.hasAnswered = false; 
+                    document.getElementById('submitAnswer').disabled = false; 
+                    this.lastAnswerTime = Date.now();
+                    
+                    const questionImage = document.getElementById('questionImage');
+                    if (question.imagen) {
+                        questionImage.src = question.imagen;
+                        questionImage.style.display = 'block';
+                    } else {
+                        questionImage.style.display = 'none';
+                    }
+                    
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                    this.abcdButtonsContainer.style.display = 'none';
+
+                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.classList.remove('selected-answer'));
+
+                    if (this.selectedGameMode === 'verdadero-falso') {
+                        document.getElementById('trueFalseButtons').style.display = 'flex';
+                    } else if (this.selectedGameMode === 'informatica') {
+                        this.abcdButtonsContainer.style.display = 'grid'; 
+                        const options = question.opciones; // Las opciones ahora vienen en questionData del servidor
+                        document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
+                        document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
+                        document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
+                        document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D;
+
+                    } else {
+                        document.getElementById('standardInput').style.display = 'block';
+                    }
+
+                    this.resetTimer(); // Reiniciar el temporizador con la nueva duración de la pregunta
+                } catch (error) {
+                    console.error("Error al mostrar pregunta:", error);
+                    this.showError("Error al cargar la pregunta.");
+                }
+            }
+            
+            checkAnswer(userAnswer) {
+                try {
+                    if (this.player.hasAnswered) {
+                        console.log("Ya respondiste esta pregunta");
+                        return;
+                    }
+
+                    document.getElementById('submitAnswer').disabled = true;
+                    document.getElementById('trueBtn').disabled = true;
+                    document.getElementById('falseBtn').disabled = true;
+                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = true);
+
+                    this.player.hasAnswered = true;
+                    document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
+                    document.getElementById("answerResult").className = "result waiting";
+
+                    const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
+                    
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        this.socket.send(JSON.stringify({
+                            type: 'submit_answer',
+                            pin: this.gamePin,
+                            playerId: this.player.id,
+                            answer: userAnswer,
+                            responseTime: responseTime
+                        }));
+                    } else {
+                        // Este bloque DEBERÍA SER INALCANZABLE en un juego multijugador con servidor.
+                        // Solo se ejecutaría si no hay conexión al servidor o si se simula un modo de un jugador.
+                        console.error("Advertencia: Lógica de calificación local ejecutada. ¡Debe ser manejada por el servidor!");
+                        // Para evitar el error de "undefined" en una simulación local sin servidor:
+                        let isCorrect = false;
+                        let formattedCorrectAnswer = "Desconocido";
+                        if (this.currentQuestionData && this.currentQuestionData.respuesta !== undefined) {
+                            const correctAnswer = this.currentQuestionData.respuesta;
+                            if (this.selectedGameMode === 'verdadero-falso') {
+                                isCorrect = (userAnswer === 'true') === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
+                            } else if (this.selectedGameMode === 'informatica' && this.currentQuestionData.opciones) {
+                                isCorrect = (userAnswer === correctAnswer);
+                                formattedCorrectAnswer = `${correctAnswer}) ${this.currentQuestionData.opciones[correctAnswer]}`;
+                            } else {
+                                isCorrect = parseFloat(userAnswer) === correctAnswer;
+                                formattedCorrectAnswer = correctAnswer;
+                            }
+                        }
+                        
+                        this.player.streak = isCorrect ? (this.player.streak + 1) : 0;
+                        this.player.lastAnswerCorrect = isCorrect;
+                        let streakBonus = 0; // Para simulación, no calcularemos bonus complejo aquí
+                        
+                        this.startRevealPhase(formattedCorrectAnswer, isCorrect, streakBonus, this.currentQuestionData ? this.currentQuestionData.opciones : undefined);
+                    }
+
+                } catch (error) {
+                    console.error("Error al enviar respuesta:", error);
+                    this.showError("Error al enviar la respuesta.");
+                    document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
+                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
+                    this.player.hasAnswered = false;
+                } finally {
+                    // Los botones serán re-habilitados por el mensaje de `question_update` o `game_over` del servidor
+                }
+            }
+
+            submitABCDAnswer(answer) {
+                if (this.player.hasAnswered) return;
+
+                document.querySelectorAll('.abcd-btn').forEach(btn => {
+                    btn.classList.remove('selected-answer');
+                    btn.disabled = true; 
+                });
+                document.querySelector(`.abcd-btn[data-answer="${answer}"]`).classList.add('selected-answer');
+
+                this.checkAnswer(answer);
+            }
+
+            // `options` ahora viene del servidor
+            startRevealPhase(correctAnswer, playerCorrect, streakBonus, receivedOptions = undefined) { 
+                this.setState(this.STATES.REVEAL);
+                this.playSound('revealSound');
+                
+                // Determinar qué opciones usar para mostrar la respuesta completa
+                // 'receivedOptions' es lo que el servidor nos envía
+                const displayOptions = receivedOptions || {}; 
+
+                let formattedCorrectAnswer = correctAnswer;
+                if (this.selectedGameMode === 'verdadero-falso') {
+                    formattedCorrectAnswer = correctAnswer ? '✅ Verdadero' : '❌ Falso';
+                } else if (this.selectedGameMode === 'informatica' && displayOptions && displayOptions[correctAnswer]) { 
+                    formattedCorrectAnswer = `${correctAnswer}) ${displayOptions[correctAnswer]}`;
+                }
+                this.revealCorrectAnswer.innerHTML = `Respuesta correcta: <span class="reveal-correct-answer">${formattedCorrectAnswer}</span>`;
+                
+                if (playerCorrect) {
+                    this.revealPlayerResult.innerHTML = `✅ <strong>¡Correcto!</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--verde)';
+                    this.playSound('correctSound');
+                } else {
+                    this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
+                    this.revealPlayerResult.style.color = 'var(--rojo)';
+                    this.playSound('wrongSound');
+                }
+                
+                if (streakBonus > 0) {
+                    this.revealStreakBonus.innerHTML = `🔥 ¡Racha +${streakBonus} puntos!`;
+                } else {
+                    this.revealStreakBonus.innerHTML = '';
+                }
+                
+                setTimeout(() => {
+                    this.setState(this.STATES.PLAYING); 
+                    
+                    document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
+                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
+
+                    // El avance a la siguiente pregunta o fin de juego lo maneja el servidor.
+                    // El cliente solo espera el próximo 'question_update' o 'game_over'.
+                }, this.revealPhaseDuration);
+            }
+
+            updatePlayerScore(playerId, points, streak, maxStreak, avgResponseTime) {
+                const player = this.players.find(p => p.id === playerId);
+                if (player) {
+                    player.points = points;
+                    player.streak = streak;
+                    player.maxStreak = maxStreak;
+                    player.avgResponseTime = avgResponseTime;
+                }
+                
+                if (playerId === this.player.id) {
+                    this.player.points = points;
+                    this.player.streak = streak;
+                    this.player.maxStreak = maxStreak;
+                    this.player.avgResponseTime = avgResponseTime;
+                    document.getElementById('playerScore').textContent = this.player.points;
+                }
+            }
+
+            updateLiveRanking() {
+                const rankingList = document.getElementById('rankingList');
+                const currentRanking = [...this.players].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    if (avgA !== avgB) return avgA - avgB; 
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
                 });
                 
-                renderer.render(scene, camera);
-            }
-            
-            animate();
-            
-            // Ajustar en redimensionamiento
-            window.addEventListener('resize', function() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        }
+                rankingList.innerHTML = ''; 
+                
+                currentRanking.forEach((player, index) => {
+                    const playerElement = document.createElement('div');
+                    playerElement.className = 'ranking-item';
+                    
+                    if (player.id === this.player.id) {
+                        playerElement.classList.add('current-player');
+                    }
+                    
+                    const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
+                    
+                    playerElement.innerHTML = `
+                        <span class="ranking-position">${index + 1}°</span>
+                        <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                        <span class="ranking-name">${this.extractName(player.name)}</span>
+                        <span class="ranking-points">${player.points || 0}${streakBadge}</span>
+                    `;
+                    
+                    rankingList.appendChild(playerElement);
 
-        // Inicializar escena 3D cuando el lobby esté activo
-        const lobbyObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    if (multiplayerLobby.style.display === 'flex') {
-                        init3DLobby();
+                    const lastPlayerRank = this.lastRanking.findIndex(p => p.id === player.id);
+                    if (lastPlayerRank !== -1 && lastPlayerRank > index) { 
+                        this.showNotification(`¡${this.extractName(player.name)} ha subido de puesto, qué pro!`);
+                    }
+                });
+                
+                this.lastRanking = currentRanking; 
+            }
+
+            extractName(fullName) {
+                const match = fullName.match(/^(.*?)\s*(\(.*\))?$/);
+                if (match && match[1]) {
+                    return match[1].trim();
+                }
+                return fullName.trim();
+            }
+
+            startTimer() {
+                try {
+                    this.timeLeft = this.timerDuration; 
+                    this.updateTimerUI();
+                    
+                    clearInterval(this.timerInterval); 
+                    this.timerInterval = setInterval(() => {
+                        this.timeLeft--;
+                        this.updateTimerUI();
+                        
+                        if (this.timeLeft <= 5 && this.timeLeft > 0 && this.soundEnabled) {
+                            this.playSound('countdownSound');
+                        }
+                        
+                        if (this.timeLeft <= 0) {
+                            clearInterval(this.timerInterval);
+                            if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN && !this.player.hasAnswered) {
+                                this.player.hasAnswered = true; 
+                                this.player.streak = 0; 
+                                document.getElementById("answerResult").textContent = "¡Tiempo agotado! ⏳";
+                                document.getElementById("answerResult").className = "result incorrect";
+                                
+                                this.socket.send(JSON.stringify({
+                                    type: 'submit_answer',
+                                    pin: this.gamePin,
+                                    playerId: this.player.id,
+                                    answer: null, 
+                                    responseTime: this.timerDuration 
+                                }));
+                            } else if (!this.isMultiplayer) {
+                                this.showResult("¡Tiempo agotado! ⏳", false);
+                                this.startRevealPhase("N/A", false, 0, {}); 
+                            }
+                        }
+                    }, 1000);
+                } catch (error) {
+                    console.error("Error en el temporizador:", error);
+                    this.showError("Error en el temporizador.");
+                }
+            }
+
+            updateTimerUI() {
+                this.timerText.textContent = this.timeLeft;
+                
+                const circumference = 283;
+                const offset = circumference - (this.timeLeft / this.timerDuration) * circumference;
+                this.timerCircle.style.strokeDashoffset = offset;
+                
+                if (this.timeLeft <= 5) {
+                    this.timerCircle.classList.add('timer-warning');
+                    this.timerText.classList.add('timer-warning');
+                } else {
+                    this.timerCircle.classList.remove('timer-warning');
+                    this.timerText.classList.remove('timer-warning');
+                }
+            }
+
+            resetTimer() {
+                clearInterval(this.timerInterval);
+                this.startTimer();
+            }
+
+            skipQuestionAsProfessor() {
+                if (!this.isProfessor || !this.isHost) {
+                    this.showNotification("Solo el profesor puede saltar preguntas.");
+                    return;
+                }
+                
+                this.playSound('clickSound');
+                if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        type: 'skip_question',
+                        pin: this.gamePin,
+                        hostId: this.player.id 
+                    }));
+                }
+            }
+
+            endGameServerDriven() {
+                clearInterval(this.timerInterval);
+                if (this.rankingUpdateInterval) {
+                    clearInterval(this.rankingUpdateInterval);
+                    this.rankingUpdateInterval = null;
+                }
+                this.showNotification("Juego terminado. Esperando resultados finales del servidor...");
+            }
+
+            getFinalRanking() {
+                return [...this.players].sort((a, b) => {
+                    if (b.points !== a.points) return b.points - a.points;
+                    const avgA = typeof a.avgResponseTime === 'number' ? a.avgResponseTime : Infinity;
+                    const avgB = typeof b.avgResponseTime === 'number' ? b.avgResponseTime : Infinity;
+                    if (avgA !== avgB) return avgA - avgB; 
+                    return (b.maxStreak || 0) - (a.maxStreak || 0); 
+                });
+            }
+
+            showWinner() {
+                let mensaje = "";
+                if (this.isMultiplayer) {
+                    mensaje = "Resultados enviados por el servidor.";
+                } else {
+                    mensaje = `¡Juego terminado! Puntos: ${this.player.points}`;
+                    if (this.player.points > 0) {
+                        this.playSound('winSound');
                     }
                 }
-            });
+                document.getElementById("mensajeVictoria").innerHTML = mensaje;
+            }
+
+            showMultiplayerResults(finalRanking) {
+                try {
+                    console.log("Mostrando resultados finales:", finalRanking);
+                    this.setState(this.STATES.RESULTS);
+                    
+                    const firstPlace = document.getElementById('firstPlace');
+                    const secondPlace = document.getElementById('secondPlace');
+                    const thirdPlace = document.getElementById('thirdPlace');
+                    const otherPlayers = document.getElementById('otherPlayers');
+                    
+                    otherPlayers.innerHTML = '';
+                    this.winnerDancingEmoji.style.display = 'none'; 
+
+                    document.getElementById('firstName').textContent = '-';
+                    document.getElementById('firstAvatar').src = 'https://i.pravatar.cc/150?img=1';
+                    firstPlace.querySelector('.podium-points').textContent = '0 pts';
+                    document.getElementById('secondName').textContent = '-';
+                    document.getElementById('secondAvatar').src = 'https://i.pravatar.cc/150?img=1';
+                    secondPlace.querySelector('.podium-points').textContent = '0 pts';
+                    document.getElementById('thirdName').textContent = '-';
+                    document.getElementById('thirdAvatar').src = 'https://i.pravatar.cc/150?img=1';
+                    thirdPlace.querySelector('.podium-points').textContent = '0 pts';
+
+                    this.showResultsCountdown(3, () => {
+                        this.playSound('winSound'); 
+                        
+                        if (finalRanking.length > 0) {
+                            const first = finalRanking[0];
+                            document.getElementById('firstName').textContent = this.extractName(first.name);
+                            document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
+                            firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
+                            this.winnerDancingEmoji.style.display = 'block'; 
+                            
+                            if (finalRanking.length > 1) {
+                                const second = finalRanking[1];
+                                document.getElementById('secondName').textContent = this.extractName(second.name);
+                                document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
+                                secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
+                            }
+                            
+                            if (finalRanking.length > 2) {
+                                const third = finalRanking[2];
+                                document.getElementById('thirdName').textContent = this.extractName(third.name);
+                                document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
+                                thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
+                            }
+                        }
+                        
+                        for (let i = 3; i < finalRanking.length; i++) {
+                            const player = finalRanking[i];
+                            const playerPoints = player.points || 0;
+                            
+                            const playerElement = document.createElement('div');
+                            playerElement.className = 'other-player';
+                            
+                            let playerInfoHtml = `
+                                <div class="player-info">
+                                    <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="other-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
+                                    <span>${i + 1}. ${this.extractName(player.name)}</span>
+                                </div>
+                                <span>${playerPoints} pts</span>
+                            `;
+                            
+                            if (player.maxStreak >= 5) {
+                                playerInfoHtml += `<span style="margin-left: 8px;">🔥${player.maxStreak}</span>`;
+                            }
+                            
+                            if (player.achievements && player.achievements.length > 0) {
+                                playerInfoHtml += `<span class="achievement-badge" title="${player.achievements.length} logros" style="margin-left: 8px;"></span>`;
+                            }
+
+                            playerElement.innerHTML = playerInfoHtml;
+                            
+                            if (player.id === this.player.id) {
+                                playerElement.style.fontWeight = 'bold';
+                                playerElement.style.color = 'var(--amarillo)';
+                                playerElement.style.background = 'rgba(255, 222, 89, 0.2)';
+                            }
+                            
+                            otherPlayers.appendChild(playerElement);
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("Error al mostrar resultados:", error);
+                    alert("Ocurrió un error al mostrar los resultados finales");
+                }
+            }
+
+            showResultsCountdown(count, callback) {
+                this.resultsCountdownOverlay.style.display = 'flex';
+                this.resultsCountdownOverlay.textContent = ''; 
+
+                let currentCount = count;
+                const countdownInterval = setInterval(() => {
+                    if (currentCount > 0) {
+                        this.resultsCountdownOverlay.textContent = currentCount;
+                        this.resultsCountdownOverlay.style.animation = 'none'; 
+                        void this.resultsCountdownOverlay.offsetWidth; 
+                        this.resultsCountdownOverlay.style.animation = 'scaleInAndFade 1s forwards';
+                        this.playSound('countdownSound'); 
+                        currentCount--;
+                    } else {
+                        clearInterval(countdownInterval);
+                        this.resultsCountdownOverlay.style.display = 'none';
+                        if (callback) callback();
+                    }
+                }, 1000);
+            }
+
+            showResult(message, isCorrect) {
+                const resultElement = document.getElementById("answerResult");
+                resultElement.innerHTML = message;
+                resultElement.className = `result ${isCorrect ? 'correct' : 'incorrect'}`;
+            }
+
+            showError(message) {
+                const errorElement = document.getElementById("answerResult");
+                errorElement.textContent = message;
+                errorElement.className = "result incorrect";
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            reiniciarJuegoLocal() {
+                try {
+                    this.playSound('clickSound');
+                    clearInterval(this.timerInterval);
+                    if (this.rankingUpdateInterval) {
+                        clearInterval(this.rankingUpdateInterval);
+                        this.rankingUpdateInterval = null;
+                    }
+                    
+                    this.player.points = 0;
+                    this.player.streak = 0;
+                    this.player.responseTimes = [];
+                    this.player.history = [];
+                    this.player.hasAnswered = false;
+                    this.player.hasVoted = false;
+                    this.player.isReady = false; 
+                    this.player.lastAnswerCorrect = false;
+
+                    this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
+
+                    this.currentQuestionIndex = 0;
+                    this.currentQuestionData = null; 
+                    this.selectedGameMode = null; 
+                    this.closestAnswerMode = false;
+                    this.isVotingActive = false; 
+                    this.winnerDancingEmoji.style.display = 'none'; 
+
+                    document.getElementById("currentQuestion").textContent = "Haz clic en un juego para comenzar";
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    document.getElementById("mensajeVictoria").innerHTML = "";
+                    document.getElementById("progressBar").style.width = "0%";
+                    document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('questionImage').style.display = 'none';
+                    
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.remove('selected', 'voted');
+                        btn.disabled = false; 
+                    });
+
+                    document.getElementById('standardInput').style.display = 'none';
+                    document.getElementById('trueFalseButtons').style.display = 'none';
+                    this.abcdButtonsContainer.style.display = 'none';
+                    
+                    this.setState(this.STATES.LOBBY); 
+                    if (this.isHost) {
+                        this.startVoteBtn.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error("Error al reiniciar juego localmente:", error);
+                    this.showError("Error al reiniciar el juego localmente.");
+                }
+            }
+
+            addNumber(num) {
+                if (this.currentQuestionData && !this.player.hasAnswered) {
+                    this.playSound('clickSound');
+                    const playerAnswerInput = document.getElementById('playerAnswer');
+                    playerAnswerInput.value += num;
+                }
+            }
+
+            clearNumber() {
+                this.playSound('clickSound');
+                document.getElementById('playerAnswer').value = "";
+            }
+
+            submitAnswer() {
+                const respuesta = document.getElementById('playerAnswer').value;
+                this.checkAnswer(respuesta);
+            }
+
+            handleNetworkError(error, message = "Error de red") {
+                console.error(message, error);
+                this.showNotification(`${message}. Intentando reconectar...`);
+            }
+
+            generateId() {
+                return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+            }
+
+            playSound(soundId) {
+                if (!this.soundEnabled) return;
+                try {
+                    const sound = document.getElementById(soundId);
+                    if (sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(e => console.log("Error al reproducir sonido (posiblemente autoprotección del navegador):", e));
+                    }
+                } catch (error) {
+                    console.error("Error con el sonido:", error);
+                }
+            }
+
+            initLobby3D() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.renderer = new THREE.WebGLRenderer({ canvas: this.lobby3DCanvas, alpha: true }); 
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio); 
+
+                const ambientLight = new THREE.AmbientLight(0x404040); 
+                this.scene.add(ambientLight);
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5); 
+                directionalLight.position.set(0, 1, 0);
+                this.scene.add(directionalLight);
+
+                const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                this.particles = [];
+                for (let i = 0; i < 500; i++) {
+                    const material = new THREE.MeshBasicMaterial({ color: 0x8888ff, transparent: true, opacity: 0.7 });
+                    const particle = new THREE.Mesh(geometry, material);
+                    particle.position.x = (Math.random() - 0.5) * 20;
+                    particle.position.y = (Math.random() - 0.5) * 20;
+                    particle.position.z = (Math.random() - 0.5) * 20;
+                    this.scene.add(particle);
+                    this.particles.push(particle);
+                }
+
+                this.camera.position.z = 5;
+
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            animateLobby3D = () => {
+                this.particles.forEach(particle => {
+                    particle.rotation.x += 0.01;
+                    particle.rotation.y += 0.005;
+                    particle.position.z += 0.01;
+                    if (particle.position.z > this.camera.position.z + 5) {
+                        particle.position.z = this.camera.position.z - 15;
+                    }
+                });
+
+                this.scene.rotation.y += 0.001;
+                this.scene.rotation.x += 0.0005;
+
+                this.renderer.render(this.scene, this.camera);
+                this.lobbyAnimationId = requestAnimationFrame(this.animateLobby3D);
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const game = new GameManager();
+            } catch (error) {
+                console.error("Error al iniciar el juego:", error);
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'notification';
+                errorMessage.textContent = "Ocurrió un error al cargar el juego. Por favor recarga la página.";
+                document.body.appendChild(errorMessage);
+            }
         });
-        
-        lobbyObserver.observe(multiplayerLobby, { attributes: true, attributeFilter: ['style'] });
     </script>
 </body>
 </html>

@@ -51,7 +51,7 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow: hidden; /* Evita barras de desplazamiento innecesarias */
+            overflow: hidden;
         }
 
         @keyframes gradientBG {
@@ -67,7 +67,6 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Pantalla de carga */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -111,7 +110,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Pantalla de unión */
         .join-screen {
             position: fixed;
             top: 0;
@@ -127,11 +125,11 @@
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            opacity: 0; /* Inicialmente oculto para animación */
-            transform: translateY(20px) scale(0.95); /* Inicialmente movido y escalado */
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Transición para animación */
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
-        .join-screen.active { /* Clase para activar la animación */
+        .join-screen.active {
             opacity: 1;
             transform: translateY(0) scale(1);
         }
@@ -272,7 +270,6 @@
             text-shadow: var(--neon-rojo);
         }
 
-        /* Lobby multijugador */
         .multiplayer-lobby {
             position: fixed;
             top: 0;
@@ -282,22 +279,22 @@
             background: var(--fondo);
             z-index: 1000;
             display: none;
-            flex-direction: column; /* Cambiado de flex a column */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 20px;
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            overflow: hidden; /* Asegura que el canvas no cause scroll */
+            overflow: hidden;
         }
-        /* Canvas de Three.js */
+
         #lobby3DCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* Detrás del contenido del lobby */
+            z-index: -1;
         }
 
         .lobby-container {
@@ -310,8 +307,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             border-bottom: 2px solid var(--morado);
-            position: relative; /* Para que el contenido esté por encima del canvas */
-            z-index: 1; /* Asegura que el contenido del lobby esté encima del canvas 3D */
+            position: relative;
+            z-index: 1;
         }
 
         .player-list {
@@ -372,7 +369,6 @@
             opacity: 1;
             transform: scale(1) translateY(0);
         }
-
 
         .mode-buttons {
             display: grid;
@@ -451,7 +447,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Juego principal */
         #gameContainer {
             display: none;
             max-width: 800px;
@@ -549,10 +544,9 @@
             grid-column: span 3;
         }
 
-        /* Botones de opción A/B/C/D */
         .abcd-buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Dos columnas */
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin: 20px auto;
             max-width: 600px;
@@ -568,7 +562,7 @@
             color: var(--texto);
             font-weight: bold;
             transition: all 0.3s ease;
-            text-align: left; /* Alinea el texto a la izquierda */
+            text-align: left;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -585,7 +579,7 @@
             text-align: center;
             font-family: 'Fredoka One', cursive;
             font-size: 1.2rem;
-            flex-shrink: 0; /* Evita que la letra se encoja */
+            flex-shrink: 0;
         }
 
         .abcd-btn:hover {
@@ -594,7 +588,7 @@
             border-color: var(--morado);
         }
 
-        .abcd-btn.selected-answer { /* Estilo cuando el jugador elige una respuesta */
+        .abcd-btn.selected-answer {
             background: var(--azul);
             color: white;
             border-color: var(--azul);
@@ -642,7 +636,6 @@
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
-        /* Temporizador */
         .timer-container {
             width: 100px;
             height: 100px;
@@ -683,7 +676,6 @@
             filter: drop-shadow(0 0 5px var(--rojo));
         }
 
-        /* Barra de progreso */
         .progress-container {
             width: 80%;
             height: 10px;
@@ -702,7 +694,6 @@
             box-shadow: 0 0 10px var(--morado);
         }
 
-        /* Ranking en vivo */
         .live-ranking {
             position: fixed;
             top: 20px;
@@ -791,7 +782,6 @@
             margin-right: 8px;
         }
 
-        /* Resultados finales */
         .final-results {
             position: fixed;
             top: 0;
@@ -815,7 +805,7 @@
             align-items: flex-end;
             margin: 30px 0;
             height: 250px;
-            position: relative; /* Para posicionar el muñequito bailarín */
+            position: relative;
         }
 
         .podium-place {
@@ -867,7 +857,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 2; /* Para que el nombre y avatar estén encima del podio */
+            z-index: 2;
         }
 
         .podium-points {
@@ -884,10 +874,10 @@
         .winner-dancing-emoji {
             font-size: 3rem;
             position: absolute;
-            bottom: 210px; /* Ajusta según la altura del podio-1 + un poco más */
+            bottom: 210px;
             animation: dance 0.8s infinite alternate;
-            z-index: 3; /* Asegura que esté por encima de todo */
-            pointer-events: none; /* Para que no interfiera con clics */
+            z-index: 3;
+            pointer-events: none;
         }
 
         @keyframes dance {
@@ -938,7 +928,6 @@
             border-radius: 50%;
         }
 
-        /* Notificaciones */
         .notification {
             position: fixed;
             top: 20px;
@@ -963,7 +952,6 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
         }
 
-        /* Estado de conexión */
         .connection-status {
             position: fixed;
             bottom: 10px;
@@ -999,7 +987,6 @@
             text-shadow: var(--neon-amarillo);
         }
 
-        /* Botón tema nocturno */
         .theme-toggle {
             position: fixed;
             top: 20px;
@@ -1023,7 +1010,6 @@
             transform: rotate(30deg);
         }
 
-        /* Botón saltar pregunta (modo profesor) */
         .skip-btn {
             position: fixed;
             bottom: 20px;
@@ -1034,7 +1020,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Modo relámpago */
         .lightning-mode .timer-container {
             width: 70px;
             height: 70px;
@@ -1044,7 +1029,6 @@
             font-size: 1.5rem;
         }
 
-        /* Modo verdadero/falso */
         .true-false-buttons {
             display: flex;
             justify-content: center;
@@ -1109,7 +1093,6 @@
             transform: translateY(1px);
         }
 
-        /* Animación de nueva pregunta */
         .question-animation {
             animation: pulseQuestion 0.5s ease;
         }
@@ -1120,7 +1103,6 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Indicador de modo actual */
         .game-mode-indicator {
             position: fixed;
             top: 20px;
@@ -1137,7 +1119,6 @@
             border: 1px solid var(--morado);
         }
 
-        /* Botón listo en lobby */
         .ready-btn {
             position: fixed;
             bottom: 20px;
@@ -1146,7 +1127,6 @@
             z-index: 100;
         }
 
-        /* Logros y medallas */
         .achievement-badge {
             display: inline-block;
             width: 24px;
@@ -1187,7 +1167,6 @@
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
-        /* Estadísticas del jugador */
         .player-stats {
             position: fixed;
             bottom: 50px;
@@ -1222,7 +1201,6 @@
             color: var(--azul);
         }
 
-        /* Fase de Revelación */
         .reveal-phase {
             position: fixed;
             top: 0;
@@ -1281,7 +1259,6 @@
             text-shadow: 0 0 5px rgba(255, 222, 89, 0.7);
         }
 
-        /* Efecto de vidrio esmerilado */
         .glass-panel {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -1291,7 +1268,6 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
 
-        /* Efecto neón para bordes */
         .neon-border {
             position: relative;
         }
@@ -1323,7 +1299,6 @@
             }
         }
 
-        /* Animación para el 3-2-1 de los resultados */
         .results-countdown {
             position: fixed;
             top: 0;
@@ -1348,7 +1323,6 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        /* === INICIO DE NUEVOS ESTILOS PARA MEJORAS === */
         .join-form.neon-border::after {
             animation: neonGlow 2s infinite alternate;
         }
@@ -1375,7 +1349,6 @@
             transform: scale(1.2);
         }
 
-        /* Pantalla de Anuncio de Finalistas */
         .finalist-announcement-screen {
             position: fixed;
             top: 0;
@@ -1419,7 +1392,6 @@
         .finalist-player-card:nth-child(3) { animation-delay: 0.4s; }
         .finalist-player-card:nth-child(4) { animation-delay: 0.6s; }
 
-        /* Pantalla de Espectador */
         .spectator-screen {
             position: fixed;
             top: 0;
@@ -1475,7 +1447,6 @@
             100% { transform: translateY(-300px) scale(0.5); opacity: 0; }
         }
 
-        /* Pantalla del Ganador Absoluto */
         .ultimate-winner-screen {
             position: fixed;
             top: 0;
@@ -1515,9 +1486,7 @@
         #ultimateWinnerAvatar {
             border: 5px solid white;
         }
-        /* === FIN DE NUEVOS ESTILOS PARA MEJORAS === */
 
-        /* Responsive */
         @media (max-width: 768px) {
             .mode-buttons {
                 grid-template-columns: 1fr;
@@ -1528,7 +1497,7 @@
             }
 
             .abcd-buttons {
-                grid-template-columns: 1fr; /* Una columna en móviles */
+                grid-template-columns: 1fr;
             }
 
             .live-ranking {
@@ -1546,7 +1515,7 @@
             }
 
             .winner-dancing-emoji {
-                bottom: 160px; /* Ajuste para móviles */
+                bottom: 160px;
                 font-size: 2.5rem;
             }
 
@@ -1845,7 +1814,6 @@
                     PLAYING: 4,
                     RESULTS: 5,
                     REVEAL: 6,
-                    // === NUEVOS ESTADOS PARA EL TORNEO ===
                     ANNOUNCING_SEMIFINALISTS: 7,
                     SEMIFINAL_COUNTDOWN: 8,
                     SEMIFINAL_PLAY: 9,
@@ -1880,21 +1848,21 @@
                     lastAnswerCorrect: false
                 };
                 
-                this.questions = []; // Ya no se usan para generar, solo para el host en simulación de un jugador
+                this.questions = [];
                 this.currentQuestionIndex = 0;
                 this.gameMode = null; 
                 this.timeLeft = 30;
-                this.timerDuration = 30; // Duración del temporizador actual, establecida por el servidor
+                this.timerDuration = 30;
                 this.timerInterval = null;
                 this.soundEnabled = true;
-                this.currentQuestionData = null; // Almacena la pregunta recibida del servidor
+                this.currentQuestionData = null;
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.reconnectDelay = 3000;
                 this.closestAnswerMode = false;
-                this.lastAnswerTime = null; // Hora en que la pregunta actual fue mostrada
+                this.lastAnswerTime = null;
                 this.revealPhaseActive = false;
-                this.revealPhaseDuration = 3000; // 3 segundos para la fase de revelación
+                this.revealPhaseDuration = 3000;
                 
                 this.isMultiplayer = false;
                 this.isHost = false; 
@@ -1905,13 +1873,12 @@
                 this.playerRanking = [];
                 this.maxPlayers = 15;
                 this.socket = null;
-                this.socketUrl = "wss://juego-matematic.onrender.com";; 
+                this.socketUrl = "wss://juego-matematic.onrender.com";
                 this.heartbeatInterval = null;
                 this.lastPongTime = null;
                 
-                // === NUEVAS PROPIEDADES PARA EL TORNEO ===
                 this.isFinalistTournament = false;
-                this.currentTournamentRound = null; // 'semifinal' o 'final'
+                this.currentTournamentRound = null;
 
                 this.voteTime = 30;
                 this.voteInterval = null;
@@ -2013,6 +1980,41 @@
                 }, 1500);
             }
 
+            // MÉTODO CORREGIDO: showNotification
+            showNotification(message, duration = 3000) {
+                // Crear elemento de notificación si no existe
+                let notification = document.querySelector('.notification');
+                if (!notification) {
+                    notification = document.createElement('div');
+                    notification.className = 'notification';
+                    document.body.appendChild(notification);
+                }
+                
+                // Configurar el mensaje y mostrar
+                notification.textContent = message;
+                notification.style.display = 'flex';
+                
+                // Animación de entrada
+                notification.style.animation = 'none';
+                void notification.offsetWidth; // Forzar reflow
+                notification.style.animation = `fadeInOut ${duration}ms ease forwards`;
+                
+                // Ocultar después de la duración
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, duration);
+            }
+
+            showError(message) {
+                this.showNotification(`❌ ${message}`, 5000);
+            }
+
+            extractName(fullName) {
+                if (!fullName) return 'Jugador';
+                const match = fullName.match(/^(.*?)\s*(\(.*\))?$/);
+                return match && match[1] ? match[1].trim() : fullName.trim();
+            }
+
             setState(newState) {
                 this.state = newState;
                 this.updateUIForState();
@@ -2032,7 +2034,6 @@
                 this.lobbyCountdownMessage.style.display = 'none'; 
                 this.lobbyCountdownMessage.classList.remove('active'); 
                 
-                // === NUEVOS PANELES A OCULTAR ===
                 document.getElementById('finalistAnnouncementScreen').style.display = 'none';
                 document.getElementById('spectatorScreen').style.display = 'none';
                 document.getElementById('ultimateWinnerScreen').style.display = 'none';
@@ -2071,8 +2072,8 @@
                         }
                         break;
                     case this.STATES.PLAYING:
-                    case this.STATES.SEMIFINAL_PLAY: // Reutilizamos la misma vista
-                    case this.STATES.FINAL_PLAY:     // Reutilizamos la misma vista
+                    case this.STATES.SEMIFINAL_PLAY:
+                    case this.STATES.FINAL_PLAY:
                         document.getElementById('gameContainer').style.display = 'block';
                         document.getElementById('liveRanking').style.display = 'block';
                         this.gameModeIndicator.style.display = 'block';
@@ -2094,7 +2095,6 @@
                         this.lobby3DCanvas.style.display = 'none';
                         cancelAnimationFrame(this.lobbyAnimationId);
                         break;
-                    // === NUEVOS CASOS PARA EL TORNEO ===
                     case this.STATES.ANNOUNCING_SEMIFINALISTS:
                     case this.STATES.ANNOUNCING_FINALISTS:
                         document.getElementById('finalistAnnouncementScreen').style.display = 'flex';
@@ -2167,7 +2167,6 @@
                     this.reiniciarJuegoLocal();
                 });
                 
-                // === MODIFICADO PARA SOPORTAR EL NUEVO HTML ===
                 document.querySelectorAll('.mode-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.castVote(btn.dataset.mode));
                 });
@@ -2193,7 +2192,6 @@
                     this.playerStats.style.display = 'none';
                 });
 
-                // === NUEVOS EVENT LISTENERS ===
                 document.querySelectorAll('.emoji-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         this.playSound('clickSound');
@@ -2713,7 +2711,6 @@
                         console.log("Servidor: Respuesta recibida.");
                         break;
 
-                    // === NUEVOS CASOS PARA EL TORNEO ===
                     case 'start_semifinals':
                         this.handleStartTournamentRound('semifinal', data.finalists);
                         break;
@@ -2723,7 +2720,7 @@
                         break;
                         
                     case 'tournament_question_update':
-                        this.handleQuestionUpdate(data); // Reutilizamos el manejador de preguntas
+                        this.handleQuestionUpdate(data);
                         break;
                         
                     case 'enter_spectator_mode':
@@ -2900,7 +2897,6 @@
                 
                 if (this.isFinalistTournament) {
                     console.log("Juego normal terminado. Esperando inicio de semifinales del servidor.");
-                    // El cliente espera el mensaje 'start_semifinals'
                 } else {
                     const finalRanking = Array.isArray(data.finalRanking) ? 
                         data.finalRanking.map(p => ({
@@ -3381,7 +3377,6 @@
                 
                 setTimeout(() => {
                     const currentState = this.state;
-                    // Vuelve al estado de juego apropiado (normal, semifinal, o final)
                     if (this.currentTournamentRound === 'semifinal') {
                          this.setState(this.STATES.SEMIFINAL_PLAY);
                     } else if (this.currentTournamentRound === 'final') {
@@ -3453,14 +3448,6 @@
                 });
                 
                 this.lastRanking = currentRanking; 
-            }
-
-            extractName(fullName) {
-                const match = fullName.match(/^(.*?)\s*(\(.*\))?$/);
-                if (match && match[1]) {
-                    return match[1].trim();
-                }
-                return fullName.trim();
             }
 
             startTimer() {
@@ -3749,8 +3736,7 @@
                     console.error("Error con el sonido:", error);
                 }
             }
-            
-            // === INICIO DE NUEVAS FUNCIONES PARA EL TORNEO ===
+
             handleStartTournamentRound(round, finalists) {
                 this.currentTournamentRound = round;
                 const isPlayerFinalist = finalists.some(f => f.id === this.player.id);
@@ -3838,8 +3824,6 @@
                 document.getElementById('ultimateWinnerAvatar').src = `https://i.pravatar.cc/150?img=${winner.avatar || '1'}`;
                 document.getElementById('ultimateWinnerName').textContent = this.extractName(winner.name);
             }
-
-            // === FIN DE NUEVAS FUNCIONES PARA EL TORNEO ===
 
             initLobby3D() {
                 this.scene = new THREE.Scene();

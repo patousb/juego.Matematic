@@ -1487,6 +1487,58 @@
             border: 5px solid white;
         }
 
+        /* Nuevos estilos para el sistema de torneo */
+        .tournament-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #ff6b6b, #ffde59);
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 100;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        .round-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--morado);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        .finalist-highlight {
+            border: 3px solid gold !important;
+            box-shadow: 0 0 10px gold !important;
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 5px gold; }
+            to { box-shadow: 0 0 20px gold; }
+        }
+        
+        .tournament-countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 20px var(--amarillo);
+            animation: zoomInOut 1s infinite alternate;
+        }
+        
+        @keyframes zoomInOut {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
+        }
+
         @media (max-width: 768px) {
             .mode-buttons {
                 grid-template-columns: 1fr;
@@ -1536,6 +1588,11 @@
 
             .results-countdown {
                 font-size: 5em;
+            }
+            
+            .tournament-indicator {
+                top: 60px;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -1630,6 +1687,11 @@
             <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
             <button class="btn" id="startVoteBtn" style="display:none;">Iniciar Votación</button> 
         </div>
+    </div>
+
+    <div class="tournament-indicator" id="tournamentIndicator" style="display: none;">
+        <span id="tournamentText">¡Torneo Activo!</span>
+        <span class="round-badge" id="roundBadge">Ronda</span>
     </div>
 
     <div class="live-ranking glass-panel" id="liveRanking">
@@ -1877,8 +1939,16 @@
                 this.heartbeatInterval = null;
                 this.lastPongTime = null;
                 
+                // NUEVAS PROPIEDADES PARA EL SISTEMA DE TORNEO
                 this.isFinalistTournament = false;
                 this.currentTournamentRound = null;
+                this.tournamentFinalists = [];
+                this.spectatorMode = false;
+                this.tournamentRounds = {
+                    normal: 'Juego Normal',
+                    semifinal: 'Semifinales',
+                    final: 'Final'
+                };
 
                 this.voteTime = 30;
                 this.voteInterval = null;
@@ -1968,6 +2038,11 @@
                 this.revealPlayerResult = document.getElementById('revealPlayerResult');
                 this.revealStreakBonus = document.getElementById('revealStreakBonus');
 
+                // NUEVAS REFERENCIAS PARA EL TORNEO
+                this.tournamentIndicator = document.getElementById('tournamentIndicator');
+                this.tournamentText = document.getElementById('tournamentText');
+                this.roundBadge = document.getElementById('roundBadge');
+
                 this.setupEventListeners();
                 this.checkDarkModePreference();
                 this.loadPlayerStats();
@@ -2034,6 +2109,9 @@
                 this.lobbyCountdownMessage.style.display = 'none'; 
                 this.lobbyCountdownMessage.classList.remove('active'); 
                 
+                // Ocultar elementos del torneo
+                this.tournamentIndicator.style.display = 'none';
+                
                 document.getElementById('finalistAnnouncementScreen').style.display = 'none';
                 document.getElementById('spectatorScreen').style.display = 'none';
                 document.getElementById('ultimateWinnerScreen').style.display = 'none';
@@ -2084,6 +2162,11 @@
                         }
                         this.lobby3DCanvas.style.display = 'none'; 
                         cancelAnimationFrame(this.lobbyAnimationId); 
+                        
+                        // Mostrar indicador de torneo si está activo
+                        if (this.currentTournamentRound) {
+                            this.updateTournamentIndicator(this.currentTournamentRound);
+                        }
                         break;
                     case this.STATES.REVEAL:
                         this.revealPhase.style.display = 'flex';
@@ -2621,6 +2704,12 @@
             handleSocketMessage(data) {
                 console.log("[Cliente] Mensaje WS recibido:", data.type);
                 
+                // Manejar mensajes del torneo
+                if (data.type.startsWith('tournament_')) {
+                    this.handleTournamentUpdate(data);
+                    return;
+                }
+                
                 switch(data.type) {
                     case 'room_created': 
                     case 'room_joined':
@@ -2711,6 +2800,7 @@
                         console.log("Servidor: Respuesta recibida.");
                         break;
 
+                    // NUEVOS CASOS PARA EL TORNEO
                     case 'start_semifinals':
                         this.handleStartTournamentRound('semifinal', data.finalists);
                         break;
@@ -2741,6 +2831,47 @@
 
                     default:
                         console.warn('[Cliente] Tipo de mensaje no reconocido:', data.type);
+                }
+            }
+
+            // MÉTODO NUEVO: Para manejar actualizaciones del torneo
+            handleTournamentUpdate(data) {
+                console.log("Actualización del torneo:", data.type);
+                
+                if (data.type === 'tournament_question') {
+                    if (this.spectatorMode) {
+                        this.updateSpectatorView({
+                            finalists: this.tournamentFinalists,
+                            question: data.question
+                        });
+                    } else {
+                        this.handleQuestionUpdate(data);
+                    }
+                } else if (data.type === 'tournament_ranking_update') {
+                    this.tournamentFinalists = data.finalists;
+                    this.updateLiveRanking();
+                    this.highlightFinalists();
+                    
+                    if (this.spectatorMode) {
+                        this.updateSpectatorView({
+                            finalists: data.finalists,
+                            question: null
+                        });
+                    }
+                } else if (data.type === 'tournament_round_end') {
+                    this.showNotification(`¡${data.round === 'semifinal' ? 'Semifinales' : 'Final'} terminada!`);
+                    
+                    if (data.round === 'semifinal' && data.winners) {
+                        // Transición a la final
+                        setTimeout(() => {
+                            this.handleStartTournamentRound('final', data.winners);
+                        }, 3000);
+                    } else if (data.round === 'final' && data.winner) {
+                        // Mostrar al ganador absoluto
+                        setTimeout(() => {
+                            this.showUltimateWinner(data.winner);
+                        }, 3000);
+                    }
                 }
             }
 
@@ -3430,6 +3561,11 @@
                         playerElement.classList.add('current-player');
                     }
                     
+                    // Destacar finalistas en el torneo
+                    if (this.tournamentFinalists.some(f => f.id === player.id)) {
+                        playerElement.classList.add('finalist-highlight');
+                    }
+                    
                     const streakBadge = player.streak > 3 ? ` 🔥${player.streak}` : '';
                     
                     playerElement.innerHTML = `
@@ -3448,6 +3584,23 @@
                 });
                 
                 this.lastRanking = currentRanking; 
+            }
+
+            // MÉTODO NUEVO: Para destacar finalistas
+            highlightFinalists() {
+                const rankingItems = document.querySelectorAll('.ranking-item');
+                rankingItems.forEach(item => {
+                    const playerName = item.querySelector('.ranking-name').textContent;
+                    const isFinalist = this.tournamentFinalists.some(f => 
+                        this.extractName(f.name) === playerName
+                    );
+                    
+                    if (isFinalist) {
+                        item.classList.add('finalist-highlight');
+                    } else {
+                        item.classList.remove('finalist-highlight');
+                    }
+                });
             }
 
             startTimer() {
@@ -3653,8 +3806,12 @@
                     this.player.isReady = false; 
                     this.player.lastAnswerCorrect = false;
 
+                    // Reiniciar propiedades del torneo
                     this.isFinalistTournament = false;
                     this.currentTournamentRound = null;
+                    this.tournamentFinalists = [];
+                    this.spectatorMode = false;
+                    this.tournamentIndicator.style.display = 'none';
 
                     this.updatePlayerScore(this.player.id, 0, 0, 0, 0); 
 
@@ -3737,69 +3894,183 @@
                 }
             }
 
-            handleStartTournamentRound(round, finalists) {
-                this.currentTournamentRound = round;
-                const isPlayerFinalist = finalists.some(f => f.id === this.player.id);
+            // MÉTODOS NUEVOS PARA EL SISTEMA DE TORNEO
 
+            handleStartTournamentRound(round, finalists) {
+                console.log(`Iniciando ronda de torneo: ${round}`, finalists);
+                
+                this.currentTournamentRound = round;
+                this.tournamentFinalists = finalists;
+                
+                const isPlayerFinalist = finalists.some(f => f.id === this.player.id);
+                this.spectatorMode = !isPlayerFinalist;
+
+                // Actualizar la lista de jugadores para mostrar solo a los finalistas
                 this.players = finalists;
                 this.updateLiveRanking();
 
                 const title = round === 'semifinal' ? '¡Comienzan las Semifinales!' : '¡La Gran Final!';
                 document.getElementById('announcementTitle').textContent = title;
                 
+                // Actualizar la lista de finalistas en la pantalla de anuncio
                 const finalistList = document.getElementById('finalistList');
                 finalistList.innerHTML = '';
-                finalists.forEach(player => {
+                
+                finalists.forEach((player, index) => {
                     const card = document.createElement('div');
                     card.className = 'finalist-player-card';
+                    card.style.animationDelay = `${index * 0.2}s`;
                     card.innerHTML = `
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
                         <span>${this.extractName(player.name)}</span>
+                        <span style="margin-left: auto; font-weight: bold;">${player.points || 0} pts</span>
                     `;
                     finalistList.appendChild(card);
                 });
 
                 if (isPlayerFinalist) {
-                    this.setState(round === 'semifinal' ? this.STATES.ANNOUNCING_SEMIFINALISTS : this.STATES.ANNOUNCING_FINALISTS);
+                    // El jugador es finalista - mostrar anuncio y continuar a la ronda
+                    const announcementState = round === 'semifinal' ? 
+                        this.STATES.ANNOUNCING_SEMIFINALISTS : 
+                        this.STATES.ANNOUNCING_FINALISTS;
+                    
+                    this.setState(announcementState);
 
+                    // Configurar el temporizador para la transición
                     setTimeout(() => {
-                        this.showResultsCountdown(3, () => {
-                            const stateToSet = round === 'semifinal' ? this.STATES.SEMIFINAL_PLAY : this.STATES.FINAL_PLAY;
-                            this.setState(stateToSet);
-                            this.gameModeIndicator.textContent = `Ronda: ${title}`;
+                        this.showTournamentCountdown(3, () => {
+                            const playState = round === 'semifinal' ? 
+                                this.STATES.SEMIFINAL_PLAY : 
+                                this.STATES.FINAL_PLAY;
+                            
+                            this.setState(playState);
+                            this.updateTournamentIndicator(round);
+                            
+                            // Reiniciar estadísticas para la nueva ronda
                             this.player.points = 0;
                             this.player.streak = 0;
+                            this.player.responseTimes = [];
                             this.updatePlayerScore(this.player.id, 0, 0);
+                            
+                            // Solicitar la primera pregunta del torneo
+                            if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+                                this.socket.send(JSON.stringify({
+                                    type: 'request_tournament_question',
+                                    pin: this.gamePin,
+                                    round: round
+                                }));
+                            }
                         });
                     }, 4000);
                 } else {
+                    // El jugador no es finalista - modo espectador
                     this.enterSpectatorMode(finalists);
                 }
             }
 
+            showTournamentCountdown(count, callback) {
+                const countdownOverlay = document.createElement('div');
+                countdownOverlay.className = 'reveal-phase';
+                countdownOverlay.style.background = 'rgba(0,0,0,0.9)';
+                countdownOverlay.innerHTML = `
+                    <div class="tournament-countdown">${count}</div>
+                `;
+                document.body.appendChild(countdownOverlay);
+
+                let currentCount = count;
+                const countdownInterval = setInterval(() => {
+                    if (currentCount > 1) {
+                        currentCount--;
+                        countdownOverlay.innerHTML = `<div class="tournament-countdown">${currentCount}</div>`;
+                        this.playSound('countdownSound');
+                    } else {
+                        clearInterval(countdownInterval);
+                        countdownOverlay.remove();
+                        if (callback) callback();
+                    }
+                }, 1000);
+            }
+
+            updateTournamentIndicator(round) {
+                if (round === 'normal') {
+                    this.tournamentIndicator.style.display = 'none';
+                    return;
+                }
+                
+                this.tournamentIndicator.style.display = 'block';
+                this.tournamentText.textContent = round === 'semifinal' ? 
+                    'Semifinales' : 'Final del Torneo';
+                this.roundBadge.textContent = round === 'semifinal' ? 'Semifinal' : 'Final';
+                
+                // Destacar a los jugadores finalistas en el ranking
+                this.highlightFinalists();
+            }
+
             enterSpectatorMode(finalists) {
+                console.log("Entrando en modo espectador");
+                this.spectatorMode = true;
                 this.setState(this.STATES.SPECTATING);
-                this.updateSpectatorView({ finalists: finalists, question: null });
+                
+                // Actualizar la vista del espectador
+                this.updateSpectatorView({ 
+                    finalists: finalists, 
+                    question: null,
+                    message: "Esperando a que comience la ronda..."
+                });
+                
+                // Mostrar mensaje apropiado
+                const spectatorQuestion = document.getElementById('spectatorQuestion');
+                if (this.currentTournamentRound === 'semifinal') {
+                    spectatorQuestion.innerHTML = "🏆 <strong>Semifinales en curso</strong> - ¡Anima a los finalistas!";
+                } else if (this.currentTournamentRound === 'final') {
+                    spectatorQuestion.innerHTML = "👑 <strong>Final del Torneo</strong> - ¡Esto es épico!";
+                }
             }
 
             updateSpectatorView(data) {
                 if (data.finalists) {
                     const rankingList = document.getElementById('spectatorRankingList');
                     rankingList.innerHTML = '';
-                    data.finalists.sort((a,b) => (b.points || 0) - (a.points || 0)).forEach((player, index) => {
-                        const item = document.createElement('div');
-                        item.className = 'ranking-item';
-                        item.innerHTML = `
-                            <span class="ranking-position">${index + 1}°</span>
-                            <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
-                            <span class="ranking-name">${this.extractName(player.name)}</span>
-                            <span class="ranking-points">${player.points || 0}</span>
-                        `;
-                        rankingList.appendChild(item);
-                    });
+                    
+                    // Ordenar por puntos y mostrar
+                    data.finalists.sort((a, b) => (b.points || 0) - (a.points || 0))
+                        .forEach((player, index) => {
+                            const item = document.createElement('div');
+                            item.className = 'ranking-item';
+                            
+                            // Destacar al jugador actual si está en la lista
+                            if (player.id === this.player.id) {
+                                item.classList.add('current-player');
+                            }
+                            
+                            item.innerHTML = `
+                                <span class="ranking-position">${index + 1}°</span>
+                                <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="ranking-avatar">
+                                <span class="ranking-name">${this.extractName(player.name)}</span>
+                                <span class="ranking-points">${player.points || 0}</span>
+                            `;
+                            rankingList.appendChild(item);
+                        });
                 }
+                
                 if (data.question) {
-                    document.getElementById('spectatorQuestion').innerHTML = data.question.pregunta;
+                    const spectatorQuestion = document.getElementById('spectatorQuestion');
+                    spectatorQuestion.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <strong>Pregunta actual:</strong>
+                        </div>
+                        <div>${data.question.pregunta}</div>
+                    `;
+                    
+                    if (data.question.imagen) {
+                        spectatorQuestion.innerHTML += `
+                            <img src="${data.question.imagen}" style="max-width: 100%; max-height: 200px; margin-top: 10px; border-radius: 8px;">
+                        `;
+                    }
+                }
+                
+                if (data.message) {
+                    document.getElementById('spectatorQuestion').innerHTML = data.message;
                 }
             }
 
@@ -3818,11 +4089,44 @@
             }
 
             showUltimateWinner(winner) {
+                console.log("Mostrando ganador absoluto:", winner);
                 this.setState(this.STATES.ULTIMATE_WINNER);
                 this.playSound('winSound');
-
+                
+                // Efectos visuales especiales
+                document.body.style.background = 'radial-gradient(circle, rgba(255,223,0,1) 0%, rgba(255,165,0,1) 100%)';
+                
                 document.getElementById('ultimateWinnerAvatar').src = `https://i.pravatar.cc/150?img=${winner.avatar || '1'}`;
                 document.getElementById('ultimateWinnerName').textContent = this.extractName(winner.name);
+                
+                // Mostrar puntos del ganador
+                const winnerInfo = document.querySelector('.winner-info');
+                winnerInfo.innerHTML += `<div style="margin-top: 10px; font-size: 1.5rem;">Puntuación: ${winner.points || 0} puntos</div>`;
+                
+                // Efecto de confeti (simulado con emojis)
+                this.createConfettiEffect();
+            }
+
+            createConfettiEffect() {
+                const container = document.getElementById('emoji-animation-container');
+                const emojis = ['🎉', '🎊', '🏆', '👑', '⭐', '✨'];
+                
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const emoji = document.createElement('div');
+                        emoji.className = 'flying-emoji';
+                        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        emoji.style.left = `${Math.random() * 100}%`;
+                        emoji.style.fontSize = `${Math.random() * 2 + 2}rem`;
+                        emoji.style.animationDuration = `${Math.random() * 2 + 3}s`;
+                        
+                        container.appendChild(emoji);
+                        
+                        setTimeout(() => {
+                            emoji.remove();
+                        }, 5000);
+                    }, i * 200);
+                }
             }
 
             initLobby3D() {

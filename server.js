@@ -201,9 +201,9 @@ function generarPreguntas(mode, count) {
         { pregunta: "¿Qué es un 'hashtag'?", opciones: { A: "Un tipo de comida", B: "Una forma de categorizar temas en redes sociales", C: "Un programa de dibujo", D: "Un juego de mesa" }, respuesta: "B", tipo: "informatica" }
     ];
 
-    // Preguntas especiales para torneos (más difíciles)
+    // Preguntas especiales para torneos (más difíciles) - CORREGIDO
     const generarPreguntaTorneo = (modoBase) => {
-        // Para torneos, aumentar la dificultad
+        // Para todos los modos, usar sus generadores específicos pero con mayor dificultad
         switch(modoBase) {
             case 'verdadero-falso':
                 const num1 = Math.floor(Math.random() * 15) + 5;
@@ -235,10 +235,9 @@ function generarPreguntas(mode, count) {
                         break;
                 }
                 
-                const esCorrecta = Math.random() < 0.6; // 60% de ser correcta en torneo
+                const esCorrecta = Math.random() < 0.6;
                 let resultadoMostrado = resultadoReal;
                 if (!esCorrecta) {
-                    // Hacer el error más sutil en torneo
                     resultadoMostrado += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 2) + 1);
                 }
                 const pregunta = `¿Es correcta esta operación?<br>${operacionTexto} = ${resultadoMostrado}`;
@@ -285,13 +284,113 @@ function generarPreguntas(mode, count) {
                 }
                 return { pregunta: pre, respuesta: res, tipo: 'misterioso', dificultad: 'torneo' };
 
+            case 'secuencia':
+                // Secuencias más complejas para torneo
+                const tipo = Math.floor(Math.random() * 3);
+                let preguntaSeq, respuestaSeq;
+                
+                if (tipo === 0) {
+                    // Secuencia aritmética más compleja
+                    const inicio = Math.floor(Math.random() * 15) + 5;
+                    const diferencia = Math.floor(Math.random() * 8) + 3;
+                    const posicion = Math.floor(Math.random() * 6) + 5;
+                    preguntaSeq = `¿Cuál es el ${posicion}° número en la secuencia: ${inicio}, ${inicio + diferencia}, ${inicio + 2*diferencia}, ...?`;
+                    respuestaSeq = inicio + (posicion - 1) * diferencia;
+                } else if (tipo === 1) {
+                    // Secuencia geométrica más compleja
+                    const inicio = Math.floor(Math.random() * 8) + 2;
+                    const razon = Math.floor(Math.random() * 4) + 2;
+                    const posicion = Math.floor(Math.random() * 5) + 4;
+                    preguntaSeq = `¿Cuál es el ${posicion}° número en la secuencia: ${inicio}, ${inicio * razon}, ${inicio * razon * razon}, ...?`;
+                    respuestaSeq = inicio * Math.pow(razon, posicion - 1);
+                } else {
+                    // Patrón mixto más complejo
+                    const num1 = Math.floor(Math.random() * 15) + 5;
+                    const num2 = Math.floor(Math.random() * 15) + 5;
+                    const num3 = num1 + num2;
+                    const num4 = num2 + num3;
+                    const num5 = num3 + num4;
+                    preguntaSeq = `Completa la secuencia: ${num1}, ${num2}, ${num3}, ${num4}, ${num5}, ?`;
+                    respuestaSeq = num4 + num5;
+                }
+                return { pregunta: preguntaSeq, respuesta: respuestaSeq, tipo: 'secuencia', dificultad: 'torneo' };
+
+            case 'potenciacion':
+                // Potenciación más difícil
+                const base = Math.floor(Math.random() * 10) + 3;
+                const exponente = Math.floor(Math.random() * 5) + 3;
+                const preguntaPot = `¿Cuánto es ${base}^${exponente}?`;
+                const respuestaPot = Math.pow(base, exponente);
+                return { pregunta: preguntaPot, respuesta: respuestaPot, tipo: 'potenciacion', dificultad: 'torneo' };
+
+            case 'combinadas':
+                // Operaciones combinadas más complejas
+                const n1c = Math.floor(Math.random() * 12) + 3;
+                const n2c = Math.floor(Math.random() * 12) + 3;
+                const n3c = Math.floor(Math.random() * 8) + 2;
+                const n4c = Math.floor(Math.random() * 6) + 2;
+                
+                const tipoC = Math.floor(Math.random() * 3);
+                let preguntaC, respuestaC;
+                
+                if (tipoC === 0) {
+                    preguntaC = `(${n1c} + ${n2c}) × (${n3c} + ${n4c}) = ?`;
+                    respuestaC = (n1c + n2c) * (n3c + n4c);
+                } else if (tipoC === 1) {
+                    preguntaC = `${n1c} × ${n2c} + ${n3c} × ${n4c} = ?`;
+                    respuestaC = n1c * n2c + n3c * n4c;
+                } else {
+                    preguntaC = `(${n1c} × ${n2c}) - (${n3c} × ${n4c}) = ?`;
+                    respuestaC = n1c * n2c - n3c * n4c;
+                }
+                return { pregunta: preguntaC, respuesta: respuestaC, tipo: 'combinadas', dificultad: 'torneo' };
+
+            case 'sumamultiplicacion':
+                // Suma y multiplicación más compleja
+                const n1sm = Math.floor(Math.random() * 10) + 3;
+                const n2sm = Math.floor(Math.random() * 10) + 3;
+                const n3sm = Math.floor(Math.random() * 8) + 2;
+                const n4sm = Math.floor(Math.random() * 6) + 2;
+                
+                const tipoSM = Math.floor(Math.random() * 2);
+                let preguntaSM, respuestaSM;
+                
+                if (tipoSM === 0) {
+                    preguntaSM = `Suma y multiplica: (${n1sm} + ${n2sm}) × (${n3sm} + ${n4sm})`;
+                    respuestaSM = (n1sm + n2sm) * (n3sm + n4sm);
+                } else {
+                    preguntaSM = `Multiplica y suma: ${n1sm} × ${n2sm} + ${n3sm} × ${n4sm}`;
+                    respuestaSM = n1sm * n2sm + n3sm * n4sm;
+                }
+                return { pregunta: preguntaSM, respuesta: respuestaSM, tipo: 'sumamultiplicacion', dificultad: 'torneo' };
+
+            case 'informatica':
+                // Usar preguntas de informática existentes
+                const shuffled = [...informaticaQuestions].sort(() => 0.5 - Math.random());
+                return shuffled[0];
+
+            case 'relampago':
+                // Para relámpago, usar operaciones pero más rápidas/difíciles
+                const opRelampago = generarOperacion();
+                opRelampago.tipo = 'relampago';
+                opRelampago.dificultad = 'torneo';
+                return opRelampago;
+
+            case 'mas-cercano':
+                // Para modo más cercano, usar operaciones normales pero marcarlas
+                const opCercano = generarOperacion();
+                opCercano.tipo = 'mas-cercano';
+                opCercano.dificultad = 'torneo';
+                return opCercano;
+
             default:
-                // Para otros modos, usar el generador normal pero con números más grandes
+                // Por defecto, usar el generador normal del modo
+                console.warn(`Modo no reconocido en torneo: ${modoBase}, usando operación por defecto`);
                 return generarOperacion();
         }
     };
 
-    // Seleccionar generator según modo
+    // Seleccionar generator según modo - CORREGIDO
     if (mode.includes('torneo-')) {
         // Modo torneo: extraer el modo base y generar pregunta especial
         const modoBase = mode.replace('torneo-', '');
@@ -299,6 +398,13 @@ function generarPreguntas(mode, count) {
             preguntas.push(generarPreguntaTorneo(modoBase));
         }
         return preguntas;
+    }
+
+    // Para modos normales (no torneo)
+    if (mode === 'informatica') {
+        // Barajar y retornar hasta 'count' preguntas
+        const shuffled = [...informaticaQuestions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, Math.min(count, shuffled.length));
     }
 
     let generador;
@@ -324,10 +430,6 @@ function generarPreguntas(mode, count) {
                 return op;
             };
             break;
-        case 'informatica':
-            // Barajar y retornar hasta 'count' preguntas
-            const shuffled = [...informaticaQuestions].sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, Math.min(count, shuffled.length));
         default:
             generador = generarOperacion;
     }
@@ -578,7 +680,7 @@ function startSemifinals(pin) {
     const tournamentMode = room.gameMode;
     console.log(`[Torneo] Iniciando semifinales con modo: ${tournamentMode}`);
     
-    // Generar preguntas especiales para torneo (más difíciles)
+    // Generar preguntas especiales para torneo (más difíciles) - CORREGIDO
     room.tournamentQuestions = generarPreguntas(`torneo-${tournamentMode}`, 5); // 5 preguntas para semifinal
     
     room.tournamentQuestionIndex = 0;

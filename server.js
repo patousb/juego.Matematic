@@ -1,5 +1,4 @@
-// server.js - VERSIÓN COMPLETA CORREGIDA
-// Servidor WebSocket para Math Challenge PRO con sistema de dificultad progresiva
+// server.js - SERVIDOR COMPLETO MATH CHALLENGE PRO
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -13,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const rooms = {};
 
 /* ======================
-   SISTEMA DE PREGUNTAS POR DIFICULTAD
+   SISTEMA COMPLETO DE PREGUNTAS POR DIFICULTAD
    ====================== */
 
 // PREGUNTAS FÁCILES (Partida normal)
@@ -25,7 +24,10 @@ const preguntasFaciles = {
         { pregunta: "¿Qué icono es el de 'guardar' en muchos programas?", opciones: { A: "Una carpeta", B: "Un disquete (💾)", C: "Una nube", D: "Una lupa" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
         { pregunta: "¿Qué puedes hacer con un 'USB'?", opciones: { A: "Guardar fotos o documentos", B: "Hacer llamadas", C: "Navegar en internet", D: "Jugar videojuegos" }, respuesta: "A", tipo: "informatica", dificultad: "facil" },
         { pregunta: "¿Qué app te permite hacer videollamadas gratis?", opciones: { A: "Netflix", B: "Zoom", C: "Spotify", D: "Minecraft" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
-        { pregunta: "¿Cuál es la red social con más usuarios activos?", opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" }, respuesta: "C", tipo: "informatica", dificultad: "facil" }
+        { pregunta: "¿Cuál es la red social con más usuarios activos?", opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" }, respuesta: "C", tipo: "informatica", dificultad: "facil" },
+        { pregunta: "¿Qué significa 'PDF'?", opciones: { A: "Portable Document Format", B: "Personal Data File", C: "Printable Document Form", D: "Public Digital File" }, respuesta: "A", tipo: "informatica", dificultad: "facil" },
+        { pregunta: "¿Qué tecla se usa para escribir en mayúsculas?", opciones: { A: "Ctrl", B: "Alt", C: "Shift", D: "Tab" }, respuesta: "C", tipo: "informatica", dificultad: "facil" },
+        { pregunta: "¿Qué es un 'password'?", opciones: { A: "Un tipo de programa", B: "Una contraseña secreta", C: "Un dispositivo USB", D: "Una red social" }, respuesta: "B", tipo: "informatica", dificultad: "facil" }
     ],
     operaciones: [
         { pregunta: "5 + 3 = ?", respuesta: 8, tipo: "operacion", dificultad: "facil" },
@@ -35,13 +37,23 @@ const preguntasFaciles = {
         { pregunta: "7 + 8 = ?", respuesta: 15, tipo: "operacion", dificultad: "facil" },
         { pregunta: "12 - 5 = ?", respuesta: 7, tipo: "operacion", dificultad: "facil" },
         { pregunta: "3 × 4 = ?", respuesta: 12, tipo: "operacion", dificultad: "facil" },
-        { pregunta: "20 ÷ 5 = ?", respuesta: 4, tipo: "operacion", dificultad: "facil" }
+        { pregunta: "20 ÷ 5 = ?", respuesta: 4, tipo: "operacion", dificultad: "facil" },
+        { pregunta: "9 + 6 = ?", respuesta: 15, tipo: "operacion", dificultad: "facil" },
+        { pregunta: "18 - 9 = ?", respuesta: 9, tipo: "operacion", dificultad: "facil" }
     ],
     "verdadero-falso": [
         { pregunta: "¿Es correcto que 5 + 3 = 8?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "5 + 3 sí es igual a 8." },
         { pregunta: "¿Es correcto que 10 - 4 = 5?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "10 - 4 es 6, no 5." },
         { pregunta: "¿Es correcto que 2 × 6 = 12?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "2 × 6 sí es igual a 12." },
-        { pregunta: "¿Es correcto que 15 ÷ 3 = 6?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "15 ÷ 3 es 5, no 6." }
+        { pregunta: "¿Es correcto que 15 ÷ 3 = 6?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "15 ÷ 3 es 5, no 6." },
+        { pregunta: "¿Es correcto que 7 × 3 = 21?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "7 × 3 sí es igual a 21." },
+        { pregunta: "¿Es correcto que 25 ÷ 5 = 4?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "25 ÷ 5 es 5, no 4." }
+    ],
+    misterioso: [
+        { pregunta: "? + 5 = 12", respuesta: 7, tipo: "misterioso", dificultad: "facil" },
+        { pregunta: "? - 3 = 8", respuesta: 11, tipo: "misterioso", dificultad: "facil" },
+        { pregunta: "? × 4 = 20", respuesta: 5, tipo: "misterioso", dificultad: "facil" },
+        { pregunta: "? ÷ 2 = 6", respuesta: 12, tipo: "misterioso", dificultad: "facil" }
     ]
 };
 
@@ -53,7 +65,11 @@ const preguntasIntermedias = {
         { pregunta: "¿Qué lenguaje de programación se usa principalmente para páginas web?", opciones: { A: "Python", B: "Java", C: "JavaScript", D: "C++" }, respuesta: "C", tipo: "informatica", dificultad: "intermedia" },
         { pregunta: "¿Qué significa 'HTML'?", opciones: { A: "HyperText Markup Language", B: "High Tech Modern Language", C: "Home Tool Management Language", D: "Hyper Transfer Media Link" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
         { pregunta: "¿Qué es un 'router'?", opciones: { A: "Un dispositivo para conectar redes", B: "Un tipo de teclado", C: "Un programa de música", D: "Una aplicación de mensajería" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
-        { pregunta: "¿Qué significa 'Wi-Fi'?", opciones: { A: "Wireless Fidelity", B: "Wired Fiber", C: "Windows Firewall", D: "Web Interface" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" }
+        { pregunta: "¿Qué significa 'Wi-Fi'?", opciones: { A: "Wireless Fidelity", B: "Wired Fiber", C: "Windows Firewall", D: "Web Interface" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+        { pregunta: "¿Qué es un 'sistema operativo'?", opciones: { A: "Un programa de diseño", B: "Software que gestiona el hardware", C: "Un tipo de computadora", D: "Una aplicación de oficina" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+        { pregunta: "¿Qué significa 'URL'?", opciones: { A: "Uniform Resource Locator", B: "Universal Reference Link", C: "User Resource Location", D: "Uniform Reference Locator" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+        { pregunta: "¿Qué es la 'memoria RAM'?", opciones: { A: "Almacenamiento permanente", B: "Memoria de acceso aleatorio", C: "Un tipo de disco duro", D: "Memoria de solo lectura" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+        { pregunta: "¿Qué es un 'blog'?", opciones: { A: "Un tipo de videojuego", B: "Un sitio web personal con publicaciones", C: "Una aplicación de mensajería", D: "Un programa de edición" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" }
     ],
     operaciones: [
         { pregunta: "25 × 4 = ?", respuesta: 100, tipo: "operacion", dificultad: "intermedia" },
@@ -63,13 +79,23 @@ const preguntasIntermedias = {
         { pregunta: "8 × 7 + 5 = ?", respuesta: 61, tipo: "operacion", dificultad: "intermedia" },
         { pregunta: "100 ÷ 4 × 3 = ?", respuesta: 75, tipo: "operacion", dificultad: "intermedia" },
         { pregunta: "17 + 25 - 8 = ?", respuesta: 34, tipo: "operacion", dificultad: "intermedia" },
-        { pregunta: "9 × 6 ÷ 3 = ?", respuesta: 18, tipo: "operacion", dificultad: "intermedia" }
+        { pregunta: "9 × 6 ÷ 3 = ?", respuesta: 18, tipo: "operacion", dificultad: "intermedia" },
+        { pregunta: "45 + 27 - 15 = ?", respuesta: 57, tipo: "operacion", dificultad: "intermedia" },
+        { pregunta: "12 × 3 + 18 ÷ 2 = ?", respuesta: 45, tipo: "operacion", dificultad: "intermedia" }
     ],
     "verdadero-falso": [
         { pregunta: "¿Es correcto que (5 + 3) × 2 = 16?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "(5+3)=8, 8×2=16. Correcto." },
         { pregunta: "¿Es correcto que 15 × 3 = 40?", respuesta: false, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "15 × 3 = 45, no 40." },
         { pregunta: "¿Es correcto que 125 ÷ 5 = 25?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "125 ÷ 5 sí es igual a 25." },
-        { pregunta: "¿Es correcto que 7² = 49?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "7 × 7 = 49. Correcto." }
+        { pregunta: "¿Es correcto que 7² = 49?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "7 × 7 = 49. Correcto." },
+        { pregunta: "¿Es correcto que √81 = 8?", respuesta: false, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "√81 = 9, no 8." },
+        { pregunta: "¿Es correcto que (10 - 3) × 4 = 28?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "10-3=7, 7×4=28. Correcto." }
+    ],
+    misterioso: [
+        { pregunta: "? × 6 = 54", respuesta: 9, tipo: "misterioso", dificultad: "intermedia" },
+        { pregunta: "? ÷ 7 = 8", respuesta: 56, tipo: "misterioso", dificultad: "intermedia" },
+        { pregunta: "? + 15 = 42", respuesta: 27, tipo: "misterioso", dificultad: "intermedia" },
+        { pregunta: "? - 23 = 19", respuesta: 42, tipo: "misterioso", dificultad: "intermedia" }
     ]
 };
 
@@ -78,10 +104,14 @@ const preguntasDificiles = {
     informatica: [
         { pregunta: "¿Qué protocolo se utiliza para enviar correos electrónicos?", opciones: { A: "HTTP", B: "FTP", C: "SMTP", D: "TCP" }, respuesta: "C", tipo: "informatica", dificultad: "dificil" },
         { pregunta: "¿Qué es la 'inteligencia artificial'?", opciones: { A: "Robots que parecen humanos", B: "Sistemas que imitan la inteligencia humana", C: "Computadoras muy rápidas", D: "Programas de videojuegos" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
-        { pregunta: "¿Qué significa 'URL'?", opciones: { A: "Uniform Resource Locator", B: "Universal Reference Link", C: "User Resource Location", D: "Uniform Reference Locator" }, respuesta: "A", tipo: "informatica", dificultad: "dificil" },
         { pregunta: "¿Qué es un 'algoritmo'?", opciones: { A: "Un tipo de computadora", B: "Un conjunto de pasos para resolver un problema", C: "Un lenguaje de programación", D: "Un dispositivo de almacenamiento" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
         { pregunta: "¿Qué hace un 'compilador'?", opciones: { A: "Ejecuta programas", B: "Convierte código fuente a código máquina", C: "Diseña interfaces", D: "Administra bases de datos" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
-        { pregunta: "¿Qué es la 'nube' en informática?", opciones: { A: "Un tipo de clima", B: "Servidores remotos que almacenan datos", C: "Un programa antivirus", D: "Un dispositivo de red" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" }
+        { pregunta: "¿Qué es la 'nube' en informática?", opciones: { A: "Un tipo de clima", B: "Servidores remotos que almacenan datos", C: "Un programa antivirus", D: "Un dispositivo de red" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+        { pregunta: "¿Qué es el 'machine learning'?", opciones: { A: "Aprender a usar máquinas", B: "Algoritmos que aprenden de datos", C: "Programar computadoras", D: "Reparar hardware" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+        { pregunta: "¿Qué significa 'IoT'?", opciones: { A: "Internet of Things", B: "International Online Technology", C: "Internet Operation Tool", D: "Integrated Online Terminal" }, respuesta: "A", tipo: "informatica", dificultad: "dificil" },
+        { pregunta: "¿Qué es la 'realidad virtual'?", opciones: { A: "Películas en 3D", B: "Entornos simulados por computadora", C: "Videojuegos realistas", D: "Pantallas táctiles" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+        { pregunta: "¿Qué es un 'blockchain'?", opciones: { A: "Un tipo de juego", B: "Cadena de bloques de datos segura", C: "Un programa de edición", D: "Un dispositivo de almacenamiento" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+        { pregunta: "¿Qué es la 'ciberseguridad'?", opciones: { A: "Navegar seguro en internet", B: "Protección de sistemas informáticos", C: "Comprar en línea seguro", D: "Usar contraseñas fuertes" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" }
     ],
     operaciones: [
         { pregunta: "125 ÷ 5 × 4 = ?", respuesta: 100, tipo: "operacion", dificultad: "dificil" },
@@ -91,13 +121,23 @@ const preguntasDificiles = {
         { pregunta: "100 ÷ (5 × 2) + 15 = ?", respuesta: 25, tipo: "operacion", dificultad: "dificil" },
         { pregunta: "(8 × 3) + (12 ÷ 4) × 5 = ?", respuesta: 39, tipo: "operacion", dificultad: "dificil" },
         { pregunta: "7² - 3³ + 10 ÷ 2 = ?", respuesta: 29, tipo: "operacion", dificultad: "dificil" },
-        { pregunta: "(20 - 8) × 3 + 15 ÷ 3 = ?", respuesta: 41, tipo: "operacion", dificultad: "dificil" }
+        { pregunta: "(20 - 8) × 3 + 15 ÷ 3 = ?", respuesta: 41, tipo: "operacion", dificultad: "dificil" },
+        { pregunta: "√169 × 2 + 3³ = ?", respuesta: 53, tipo: "operacion", dificultad: "dificil" },
+        { pregunta: "(25 ÷ 5)² + 4³ - 10 = ?", respuesta: 79, tipo: "operacion", dificultad: "dificil" }
     ],
     "verdadero-falso": [
         { pregunta: "¿Es correcto que (3³ - 2⁴) × 2 = 10?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "3³=27, 2⁴=16, 27-16=11, 11×2=22, no 10." },
         { pregunta: "¿Es correcto que √64 + 3² = 17?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "√64=8, 3²=9, 8+9=17. Correcto." },
-        { pregunta: "¿Es correcto que (5 × 4)² ÷ 10 = 10?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "5×4=20, 20²=400, 400÷10=40, no 10." },
-        { pregunta: "¿Es correcto que 2⁵ - 3³ = 5?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "2⁵=32, 3³=27, 32-27=5. Correcto." }
+        { pregunta: "¿Es correcto que (5 × 4)² ÷ 10 = 10?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "5×4=20, 20²=400, 400÷10=40, no 10." },
+        { pregunta: "¿Es correcto que 2⁵ - 3³ = 5?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "2⁵=32, 3³=27, 32-27=5. Correcto." },
+        { pregunta: "¿Es correcto que √121 × 2 + 4² = 38?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "√121=11, 11×2=22, 4²=16, 22+16=38. Correcto." },
+        { pregunta: "¿Es correcto que (8 + 5)² ÷ 13 = 12?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "8+5=13, 13²=169, 169÷13=13, no 12." }
+    ],
+    misterioso: [
+        { pregunta: "?² = 169", respuesta: 13, tipo: "misterioso", dificultad: "dificil" },
+        { pregunta: "?³ = 64", respuesta: 4, tipo: "misterioso", dificultad: "dificil" },
+        { pregunta: "√? = 9", respuesta: 81, tipo: "misterioso", dificultad: "dificil" },
+        { pregunta: "? × 12 = 144", respuesta: 12, tipo: "misterioso", dificultad: "dificil" }
     ]
 };
 
@@ -125,67 +165,6 @@ function generarPreguntas(mode, count, dificultad = 'facil') {
     
     const shuffled = [...bancoPreguntas].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(count, shuffled.length));
-}
-
-// Generadores para modos específicos (compatibilidad)
-function generarOperacion() {
-    const num1 = Math.floor(Math.random() * 20) + 1;
-    const num2 = Math.floor(Math.random() * 20) + 1;
-    const operadores = ['+', '-', '*', '/'];
-    const op = operadores[Math.floor(Math.random() * operadores.length)];
-    let pregunta, respuesta;
-
-    if (op === '/') {
-        const divisor = Math.floor(Math.random() * 10) + 2;
-        const cociente = Math.floor(Math.random() * 10) + 1;
-        const dividendo = divisor * cociente;
-        pregunta = `${dividendo} ÷ ${divisor} = ?`;
-        respuesta = cociente;
-    } else {
-        switch(op) {
-            case '+': pregunta = `${num1} + ${num2} = ?`; respuesta = num1 + num2; break;
-            case '-': 
-                if (num1 < num2) [num1, num2] = [num2, num1];
-                pregunta = `${num1} - ${num2} = ?`; respuesta = num1 - num2; break;
-            case '*': pregunta = `${num1} × ${num2} = ?`; respuesta = num1 * num2; break;
-        }
-    }
-    return { pregunta, respuesta, tipo: 'operacion', dificultad: 'facil' };
-}
-
-function generarVerdaderoFalso() {
-    const num1 = Math.floor(Math.random() * 15) + 1;
-    const num2 = Math.floor(Math.random() * 15) + 1;
-    const operadores = ['+', '-', '*', '/'];
-    const operador = operadores[Math.floor(Math.random() * operadores.length)];
-    let operacionTexto, resultadoReal;
-    
-    switch(operador) {
-        case '+': resultadoReal = num1 + num2; operacionTexto = `${num1} + ${num2}`; break;
-        case '-': resultadoReal = num1 - num2; operacionTexto = `${num1} - ${num2}`; break;
-        case '*': resultadoReal = num1 * num2; operacionTexto = `${num1} × ${num2}`; break;
-        case '/': 
-            const divisor = Math.floor(Math.random() * 8) + 2;
-            const cociente = Math.floor(Math.random() * 10) + 1;
-            const dividendo = divisor * cociente;
-            resultadoReal = cociente;
-            operacionTexto = `${dividendo} ÷ ${divisor}`;
-            break;
-    }
-    
-    const esCorrecta = Math.random() < 0.6;
-    let resultadoMostrado = resultadoReal;
-    if (!esCorrecta) {
-        resultadoMostrado += (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 4) + 1);
-    }
-    
-    return { 
-        pregunta: `¿Es correcta esta operación?<br>${operacionTexto} = ${resultadoMostrado}`, 
-        respuesta: esCorrecta, 
-        tipo: 'verdadero-falso',
-        explicacion: esCorrecta ? "La operación es correcta." : `La operación es incorrecta. La respuesta correcta era ${resultadoReal}.`,
-        dificultad: 'facil'
-    };
 }
 
 /* ======================
@@ -231,7 +210,7 @@ function broadcastToSpectators(pin, data) {
 }
 
 /* ======================
-   LÓGICA DEL JUEGO
+   LÓGICA PRINCIPAL DEL JUEGO
    ====================== */
 
 function computeFinalRanking(room) {
@@ -390,6 +369,7 @@ function startNextQuestion(room) {
     if (room.gameMode === 'relampago') timerDuration = 8;
     else if (room.gameMode === 'verdadero-falso') timerDuration = 15;
     else if (room.gameMode === 'informatica') timerDuration = 20;
+    else if (room.gameMode === 'misterioso') timerDuration = 25;
     room.timerDuration = timerDuration;
 
     const questionForClients = { ...room.currentQuestion };
@@ -414,7 +394,7 @@ function startNextQuestion(room) {
 }
 
 /* ======================
-   SISTEMA DE TORNEO CORREGIDO
+   SISTEMA DE TORNEO COMPLETO
    ====================== */
 
 function startSemifinals(pin) {
@@ -435,7 +415,7 @@ function startSemifinals(pin) {
     room.tournamentAnswersThisRound = {};
     room.tournamentTimerDuration = 25;
 
-    console.log(`[Torneo ${pin}] Semifinales iniciadas con 4 finalistas y preguntas INTERMEDIAS`);
+    console.log(`[Torneo ${pin}] Semifinales iniciadas con 4 finalistas`);
 
     // Notificar a todos
     broadcast(pin, { 
@@ -480,7 +460,7 @@ function startNextTournamentQuestion(room) {
     delete qForClients.respuesta;
     delete qForClients.explicacion;
 
-    console.log(`[Torneo ${room.pin}] Enviando pregunta ${room.tournamentQuestionIndex + 1}/5 (${room.tournamentStage})`);
+    console.log(`[Torneo ${room.pin}] Enviando pregunta ${room.tournamentQuestionIndex + 1}/5`);
 
     // Para finalistas
     broadcastToFinalists(room.pin, {
@@ -507,7 +487,7 @@ function startNextTournamentQuestion(room) {
 
     clearTimeout(room.tournamentRoundTimer);
     room.tournamentRoundTimer = setTimeout(() => {
-        console.log(`[Torneo ${room.pin}] Tiempo agotado para pregunta ${room.tournamentQuestionIndex + 1}`);
+        console.log(`[Torneo ${room.pin}] Tiempo agotado`);
         sendRevealPhase(room, true);
     }, room.tournamentTimerDuration * 1000);
 }
@@ -535,7 +515,7 @@ function concludeSemifinals(pin) {
     room.tournamentAnswersThisRound = {};
     room.tournamentTimerDuration = 20;
 
-    console.log(`[Torneo ${pin}] Final iniciada con 2 finalistas y preguntas DIFÍCILES`);
+    console.log(`[Torneo ${pin}] Final iniciada con 2 finalistas`);
 
     broadcast(pin, { 
         type: 'start_final', 
@@ -581,7 +561,7 @@ function concludeFinal(pin) {
         finalPoints: winner.finalPoints || 0
     };
 
-    console.log(`[Torneo ${pin}] ¡Campeón absoluto: ${winner.name} con ${winner.finalPoints} puntos en la final!`);
+    console.log(`[Torneo ${pin}] ¡Campeón: ${winner.name} con ${winner.finalPoints} puntos!`);
 
     broadcast(pin, { type: 'ultimate_winner', winner: room.ultimateWinner });
 
@@ -608,7 +588,7 @@ function endGame(pin) {
 
     // Iniciar torneo si está activado
     if (room.isFinalistTournament && !room.tournamentStarted) {
-        console.log(`[Sala ${pin}] Iniciando torneo después de partida normal`);
+        console.log(`[Sala ${pin}] Iniciando torneo`);
         startSemifinals(pin);
         return;
     }
@@ -619,7 +599,7 @@ function endGame(pin) {
 }
 
 /* ======================
-   WEBSOCKET HANDLING
+   WEBSOCKET HANDLING COMPLETO
    ====================== */
 
 wss.on('connection', (ws, req) => {
@@ -1088,6 +1068,10 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => {
     console.log(`🎮 Servidor Math Challenge PRO ejecutándose en puerto ${PORT}`);
     console.log(`🏆 Sistema de dificultad: FÁCIL → INTERMEDIO → DIFÍCIL`);
-    console.log(`⚡ Modos disponibles: operaciones, informatica, verdadero-falso`);
+    console.log(`⚡ Modos disponibles: operaciones, informatica, verdadero-falso, misterioso`);
     console.log(`🏅 Torneo: 4 semifinalistas → 2 finalistas → Campeón`);
+    console.log(`📚 Preguntas por dificultad:`);
+    console.log(`   - Fácil: ${Object.values(preguntasFaciles).flat().length} preguntas`);
+    console.log(`   - Intermedio: ${Object.values(preguntasIntermedias).flat().length} preguntas`);
+    console.log(`   - Difícil: ${Object.values(preguntasDificiles).flat().length} preguntas`);
 });

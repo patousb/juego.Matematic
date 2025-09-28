@@ -202,7 +202,15 @@ function computeFinalRanking(room) {
         const avgB = typeof b.avgResponseTime === 'number' && !isNaN(b.avgResponseTime) ? b.avgResponseTime : Infinity;
         if (avgA !== avgB) return avgA - avgB;
         return (b.maxStreak||0) - (a.maxStreak||0);
-    }).map(p => ({ id:p.id, name:p.name, avatar:p.avatar, points:p.points, streak:p.streak, maxStreak:p.maxStreak }));
+    }).map(p => ({ 
+        id:p.id, 
+        name:p.name, 
+        avatar:p.avatar, 
+        points:p.points, 
+        streak:p.streak, 
+        maxStreak:p.maxStreak,
+        avgResponseTime: p.avgResponseTime || 0
+    }));
     return sorted;
 }
 
@@ -254,6 +262,13 @@ function sendRevealPhase(room, isTournament=false) {
 
                 pointsEarned = basePoints + timeBonus + streakBonus;
                 player.points = (player.points || 0) + pointsEarned;
+                
+                // Actualizar tiempo promedio de respuesta
+                if (timeTaken > 0) {
+                    if (!player.responseTimes) player.responseTimes = [];
+                    player.responseTimes.push(timeTaken);
+                    player.avgResponseTime = player.responseTimes.reduce((a, b) => a + b, 0) / player.responseTimes.length;
+                }
             } else {
                 player.streak = 0;
             }
@@ -357,7 +372,7 @@ function startNextQuestion(room) {
 }
 
 /* -----------------------
-   TORNEO: Semifinales y Final
+   TORNEO: Semifinales y Final - CORREGIDO
    ----------------------- */
 
 function startSemifinals(pin) {
@@ -366,110 +381,276 @@ function startSemifinals(pin) {
     room.tournamentStarted = true;
     room.tournamentStage = 'semifinal';
 
-    // elegir N finalistas (3 o 4). Preferencia de sala si está set (room.finalistCount), fallback 3.
-    const finalistCount = room.finalistCount || 3;
+    // CORRECCIÓN: Elegir 4 finalistas para semifinales
+    const finalistCount = 4; // Siempre 4 para semifinales
     const finalRanking = computeFinalRanking(room);
     const finalists = finalRanking.slice(0, Math.min(finalistCount, finalRanking.length));
 
     // Map finalists a objetos completos (para incluir socket y demás)
     room.finalists = room.players.filter(p => finalists.some(f => f.id === p.id));
-    // resetear puntos/racha de los finalistas para la ronda de semifinal (opcional)
-    room.finalists.forEach(f => { f.points = f.points || 0; f.streak = 0; });
+    
+    // CORRECCIÓN: Reiniciar puntos y racha para semifinales
+    room.finalists.forEach(f => { 
+        f.semifinalPoints = 0; // Puntos específicos para semifinales
+        f.streak = 0; 
+    });
 
     // Preguntas de torneo (usamos 'informatica' u otra categoría especial)
-    room.tournamentQuestions = generarPreguntas('informatica', 3); // 3 preguntas para semifinal
+    room.tournamentQuestions = generarPreguntas('informatica', 5); // 5 preguntas para semifinal
     room.tournamentQuestionIndex = 0;
     room.tournamentAnswersThisRound = {};
-    room.tournamentTimerDuration = 20;
+    room.tournamentTimerDuration = 25; // 25 segundos para semifinales
 
-    // Notificar a TODOS que las semifinales van a comenzar y cuáles son los finalistas
-    broadcast(pin, { type: 'start_semifinals', finalists: room.finalists.map(f => ({ id: f.id, name: f.name, points: f.points, avatar: f.avatar })) });
+    console.log(`[Torneo ${pin}] Iniciando semifinales con ${room.finalists.length} finalistas`);
 
-    // Para LOS FINALISTAS: enviar la primera pregunta del torneo directamente y configurar timers
+    // CORRECCIÓN: Notificar a todos los jugadores sobre las semifinales
+    broadcast(pin, { 
+        type: 'start_semifinals', 
+        finalists: room.finalists.map(f => ({ 
+            id: f.id, 
+            name: f.name, 
+            points: f.semifinalPoints || 0, 
+            avatar: f.avatar 
+        })) 
+    });
+
+    // Para los NO finalistas, enviarlos al modo espectador
+    const spectatorIds = room.players.filter(p => !room.finalists.some(f => f.id === p.id)).map(p => p.id);
+    broadcastToIds(pin, spectatorIds, { 
+        type: 'enter_spectator_mode', 
+        finalists: room.finalists.map(f => ({ 
+            id: f.id, 
+            name: f.name, 
+            points: f.semifinalPoints || 0, 
+            avatar: f.avatar 
+        })) 
+    });
+
+    // Esperar 4 segundos para el anuncio, luego comenzar la primera pregunta
     setTimeout(() => {
-        // Anunciar la ronda y enviar la pregunta inicial a finalistas
         startNextTournamentQuestion(room);
-        // Espectadores reciben actualización de finalistas (sin preguntas con respuestas)
-        broadcastToSpectators(pin, { type: 'spectator_update', finalists: room.finalists.map(f => ({ id: f.id, name: f.name, points: f.points })) });
-    }, 1500);
+    }, 4000);
 }
 
 function startNextTournamentQuestion(room) {
     if (!room || !room.finalists || room.finalists.length === 0) return;
+    
     room.tournamentAnswersThisRound = {};
     const q = room.tournamentQuestions[room.tournamentQuestionIndex];
+    if (!q) {
+        console.error(`[Torneo ${room.pin}] No hay pregunta en índice ${room.tournamentQuestionIndex}`);
+        return;
+    }
+    
     const qForClients = { ...q };
     delete qForClients.respuesta;
     delete qForClients.explicacion;
 
-    // enviar solo a finalistas la pregunta
+    console.log(`[Torneo ${room.pin}] Enviando pregunta ${room.tournamentQuestionIndex + 1} de ${room.tournamentQuestions.length} a finalistas`);
+
+    // CORRECCIÓN: Enviar a finalistas usando el tipo correcto
     broadcastToFinalists(room.pin, {
-        type: 'tournament_question',
+        type: 'tournament_question_update', // Tipo corregido
         question: qForClients,
         questionIndex: room.tournamentQuestionIndex,
         totalQuestions: room.tournamentQuestions.length,
         timerDuration: room.tournamentTimerDuration
     });
 
-    // a espectadores se les envía una versión pasiva (texto e índice)
+    // CORRECCIÓN: Enviar a espectadores información actualizada
     broadcastToSpectators(room.pin, {
-        type: 'spectator_question_update',
+        type: 'spectator_update',
+        finalists: room.finalists.map(f => ({ 
+            id: f.id, 
+            name: f.name, 
+            points: f.semifinalPoints || 0 
+        })),
         question: { pregunta: qForClients.pregunta, tipo: qForClients.tipo },
         questionIndex: room.tournamentQuestionIndex,
-        totalQuestions: room.tournamentQuestions.length
+        totalQuestions: room.tournamentQuestions.length,
+        round: room.tournamentStage
     });
 
     // temporizador servidor
     clearTimeout(room.tournamentRoundTimer);
     room.tournamentRoundTimer = setTimeout(() => {
-        // tiempo agotado -> revelar (para finalistas)
+        console.log(`[Torneo ${room.pin}] Tiempo agotado para pregunta ${room.tournamentQuestionIndex + 1}`);
         sendRevealPhase(room, true);
     }, room.tournamentTimerDuration * 1000);
+}
+
+// CORRECCIÓN: Función específica para manejar reveal de torneo
+function sendTournamentRevealPhase(room) {
+    if (!room || !room.tournamentStage) return;
+    
+    const questionObj = room.tournamentQuestions[room.tournamentQuestionIndex];
+    if (!questionObj) return;
+
+    const correctAnswer = questionObj.respuesta;
+    const basePoints = 10; // Más puntos en torneo
+
+    room.finalists.forEach(player => {
+        const ansData = room.tournamentAnswersThisRound[player.id];
+        let pointsEarned = 0;
+        let streakBonus = 0;
+        let isCorrect = false;
+
+        if (ansData && ansData.answer !== null && ansData.answer !== undefined) {
+            const timeTaken = ansData.responseTime || 0;
+            const timeLeft = Math.max(0, room.tournamentTimerDuration - timeTaken);
+            const timeBonus = Math.floor(timeLeft / 2); // Bonus más generoso
+
+            let userAnswerProcessed = ansData.answer;
+            if (questionObj.tipo === 'verdadero-falso') {
+                isCorrect = (userAnswerProcessed === 'true') === correctAnswer;
+            } else if (questionObj.tipo === 'informatica') {
+                isCorrect = (String(userAnswerProcessed).toUpperCase() === String(correctAnswer).toUpperCase());
+            } else {
+                isCorrect = parseFloat(userAnswerProcessed) === correctAnswer;
+            }
+
+            if (isCorrect) {
+                player.streak = (player.streak || 0) + 1;
+                if (player.streak >= 3) streakBonus = player.streak * 2;
+
+                pointsEarned = basePoints + timeBonus + streakBonus;
+                // Usar puntos específicos de torneo
+                player.semifinalPoints = (player.semifinalPoints || 0) + pointsEarned;
+            } else {
+                player.streak = 0;
+            }
+        }
+
+        // Enviar reveal a cada finalista
+        if (player.socket && player.socket.readyState === WebSocket.OPEN) {
+            player.socket.send(JSON.stringify({
+                type: 'reveal_phase',
+                correctAnswer: correctAnswer,
+                playerId: player.id,
+                playerCorrect: isCorrect,
+                streakBonus,
+                pointsEarned,
+                options: questionObj.tipo === 'informatica' ? questionObj.opciones : undefined
+            }));
+        }
+    });
+
+    // Actualizar ranking y continuar
+    setTimeout(() => {
+        // Enviar ranking actualizado de semifinales
+        const semifinalRanking = [...room.finalists].sort((a, b) => (b.semifinalPoints || 0) - (a.semifinalPoints || 0));
+        broadcast(room.pin, { 
+            type: 'ranking_update', 
+            players: semifinalRanking.map(f => ({
+                id: f.id,
+                name: f.name,
+                avatar: f.avatar,
+                points: f.semifinalPoints || 0,
+                streak: f.streak || 0,
+                maxStreak: f.maxStreak || 0,
+                avgResponseTime: f.avgResponseTime || 0
+            }))
+        });
+
+        // Decidir siguiente paso
+        setTimeout(() => {
+            if (room.tournamentQuestionIndex < room.tournamentQuestions.length - 1) {
+                room.tournamentQuestionIndex++;
+                startNextTournamentQuestion(room);
+            } else {
+                if (room.tournamentStage === 'semifinal') {
+                    concludeSemifinals(room.pin);
+                } else if (room.tournamentStage === 'final') {
+                    concludeFinal(room.pin);
+                }
+            }
+        }, 3000);
+    }, 800);
 }
 
 function concludeSemifinals(pin) {
     const room = rooms[pin];
     if (!room) return;
-    // ordenar finalistas por puntos (los cambios de puntos ocurrieron durante semifinales)
-    const sortedFinalists = [...room.finalists].sort((a,b) => (b.points||0) - (a.points||0));
-    // seleccionar top 2 para la final
+    
+    // Ordenar finalistas por puntos de semifinales
+    const sortedFinalists = [...room.finalists].sort((a, b) => (b.semifinalPoints || 0) - (a.semifinalPoints || 0));
+    
+    // CORRECCIÓN: Seleccionar top 2 para la final
     const top2 = sortedFinalists.slice(0, 2);
-    room.finalists = top2; // solo quedan 2
-    // preparar preguntas de la final
+    room.finalists = top2;
+    
+    // Reiniciar puntos para la final
+    room.finalists.forEach(f => { 
+        f.finalPoints = 0;
+        f.streak = 0;
+    });
+
     room.tournamentStage = 'final';
-    room.tournamentQuestions = generarPreguntas('informatica', 3); // 3 preguntas para la final
+    room.tournamentQuestions = generarPreguntas('informatica', 5); // 5 preguntas para la final
     room.tournamentQuestionIndex = 0;
     room.tournamentAnswersThisRound = {};
-    room.tournamentTimerDuration = 15; // final más rápido
+    room.tournamentTimerDuration = 20; // 20 segundos para final
 
-    // notificar a todos
-    broadcast(pin, { type: 'start_final', finalists: room.finalists.map(f => ({ id: f.id, name: f.name, points: f.points, avatar: f.avatar })) });
+    console.log(`[Torneo ${pin}] Semifinales concluidas. Top 2: ${room.finalists.map(f => f.name).join(', ')}`);
+
+    // Notificar a todos sobre la final
+    broadcast(pin, { 
+        type: 'start_final', 
+        finalists: room.finalists.map(f => ({ 
+            id: f.id, 
+            name: f.name, 
+            points: f.finalPoints || 0, 
+            avatar: f.avatar 
+        })) 
+    });
+
+    // Actualizar espectadores
+    broadcastToSpectators(pin, { 
+        type: 'spectator_update', 
+        finalists: room.finalists.map(f => ({ 
+            id: f.id, 
+            name: f.name, 
+            points: f.finalPoints || 0 
+        })),
+        round: 'final'
+    });
 
     setTimeout(() => {
         startNextTournamentQuestion(room);
-        broadcastToSpectators(pin, { type: 'spectator_update', finalists: room.finalists.map(f => ({ id: f.id, name: f.name, points: f.points })) });
-    }, 1500);
+    }, 4000);
 }
 
 function concludeFinal(pin) {
     const room = rooms[pin];
     if (!room) return;
-    // determinar ganador final segun points (o desempate por avgResponseTime si quieren)
-    const sorted = [...room.finalists].sort((a,b) => (b.points||0) - (a.points||0));
+    
+    // Determinar ganador final según puntos de la final
+    const sorted = [...room.finalists].sort((a, b) => (b.finalPoints || 0) - (a.finalPoints || 0));
     const winner = sorted[0];
-    room.ultimateWinner = { id: winner.id, name: winner.name, avatar: winner.avatar, points: winner.points };
+    
+    // Transferir puntos del torneo a los puntos generales del ganador
+    winner.points = (winner.points || 0) + 50; // Bonus por ganar el torneo
+    
+    room.ultimateWinner = { 
+        id: winner.id, 
+        name: winner.name, 
+        avatar: winner.avatar, 
+        points: winner.points,
+        finalPoints: winner.finalPoints || 0
+    };
 
-    // enviar mensaje ultimate_winner a todos (para mostrar la corona)
+    console.log(`[Torneo ${pin}] ¡Campeón absoluto: ${winner.name}!`);
+
+    // Enviar mensaje ultimate_winner a todos
     broadcast(pin, { type: 'ultimate_winner', winner: room.ultimateWinner });
 
-    // marcar fin torneo y limpiar estado
+    // Limpiar estado del torneo
     room.tournamentStage = null;
     room.tournamentStarted = false;
     room.isFinalistTournament = false;
-    // opcional: mantener ranking final
     room.finalRanking = computeFinalRanking(room);
 
-    // limpiar timers
+    // Limpiar timers
     clearTimeout(room.tournamentRoundTimer);
     room.tournamentRoundTimer = null;
 }
@@ -483,11 +664,13 @@ function endGame(pin) {
 
     if (room.roundTimer) { clearTimeout(room.roundTimer); room.roundTimer = null; }
     if (room.voteTimer) { clearInterval(room.voteTimer); room.voteTimer = null; }
+    if (room.tournamentRoundTimer) { clearTimeout(room.tournamentRoundTimer); room.tournamentRoundTimer = null; }
 
     room.isGameRunning = false;
 
-    // si el torneo fue activado pero no se inició, iniciarlo (protección doble)
+    // si el torneo fue activado pero no se inició, iniciarlo
     if (room.isFinalistTournament && !room.tournamentStarted) {
+        console.log(`[Sala ${pin}] Iniciando torneo después de partida normal`);
         startSemifinals(pin);
         return;
     }
@@ -498,7 +681,7 @@ function endGame(pin) {
 }
 
 /* -----------------------
-   Mensaje: manejo WS (create/join/vote/submit/emoji/etc)
+   Mensaje: manejo WS (create/join/vote/submit/emoji/etc) - CORREGIDO
    ----------------------- */
 
 wss.on('connection', (ws, req) => {
@@ -513,7 +696,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', (message) => {
         let data;
         try { data = JSON.parse(message); } catch(e) { console.error('JSON parse error', e); return; }
-        // console.log(`[WS ${ws.id}] msg:`, data.type, data.pin);
+        console.log(`[WS ${ws.id}] msg:`, data.type, data.pin);
 
         switch(data.type) {
             case 'create_room':
@@ -534,12 +717,16 @@ wss.on('connection', (ws, req) => {
                     streak: player.streak || 0,
                     maxStreak: player.maxStreak || 0,
                     avgResponseTime: player.avgResponseTime || 0,
+                    responseTimes: player.responseTimes || [],
                     hasVoted: false,
                     socket: ws
                 };
 
                 if (data.type === 'create_room') {
-                    if (rooms[pin]) { ws.send(JSON.stringify({ type: 'error', message: 'Sala ya existe.' })); return; }
+                    if (rooms[pin]) { 
+                        ws.send(JSON.stringify({ type: 'error', message: 'Sala ya existe.' })); 
+                        return; 
+                    }
                     rooms[pin] = {
                         pin,
                         players: [],
@@ -562,7 +749,7 @@ wss.on('connection', (ws, req) => {
                         revealPhaseDuration: 3000,
                         // propiedades nuevas para torneo
                         isFinalistTournament: false,
-                        finalistCount: 3,
+                        finalistCount: 4, // 4 para semifinales
                         finalistVotes: {}, // conteo de votos con checkbox
                         tournamentStarted: false,
                         tournamentStage: null,
@@ -571,31 +758,45 @@ wss.on('connection', (ws, req) => {
                         tournamentQuestionIndex: 0,
                         tournamentAnswersThisRound: {},
                         tournamentRoundTimer: null,
-                        tournamentTimerDuration: 20,
+                        tournamentTimerDuration: 25,
                         ultimateWinner: null
                     };
                     console.log(`[Sala ${pin}] creada por ${player.name}`);
                 }
 
                 const room = rooms[pin];
-                if (!room) { ws.send(JSON.stringify({ type:'error', message:'Sala no existe.' })); return; }
+                if (!room) { 
+                    ws.send(JSON.stringify({ type:'error', message:'Sala no existe.' })); 
+                    return; 
+                }
 
                 // si el jugador ya existía (reconexión) actualizar socket
-                const existing = room.players.findIndex(p => p.id === player.id);
-                if (existing !== -1) {
-                    room.players[existing].socket = ws;
-                    Object.assign(room.players[existing], currentPlayerData);
+                const existingIndex = room.players.findIndex(p => p.id === player.id);
+                if (existingIndex !== -1) {
+                    room.players[existingIndex].socket = ws;
+                    // Mantener datos existentes pero actualizar socket y estado listo
+                    room.players[existingIndex].isReady = currentPlayerData.isReady;
                 } else {
                     room.players.push(currentPlayerData);
                 }
 
                 const isCurrentWsHost = room.hostId === player.id;
 
-                // enviar estado de sala al cliente que se unió
+                // CORRECCIÓN: Enviar estado completo de la sala
                 ws.send(JSON.stringify({
                     type: 'room_joined',
                     pin: room.pin,
-                    players: room.players.map(p => ({ id:p.id, name:p.name, avatar:p.avatar, isProfessor:p.isProfessor, isReady:p.isReady, points:p.points, streak:p.streak, maxStreak:p.maxStreak })),
+                    players: room.players.map(p => ({ 
+                        id:p.id, 
+                        name:p.name, 
+                        avatar:p.avatar, 
+                        isProfessor:p.isProfessor, 
+                        isReady:p.isReady, 
+                        points:p.points, 
+                        streak:p.streak, 
+                        maxStreak:p.maxStreak,
+                        avgResponseTime: p.avgResponseTime || 0
+                    })),
                     isHost: isCurrentWsHost,
                     gameMode: room.gameMode,
                     closestAnswerMode: room.closestAnswerMode,
@@ -605,14 +806,37 @@ wss.on('connection', (ws, req) => {
                     currentVotes: room.votes,
                     questionIndex: room.questionIndex,
                     totalQuestions: room.totalQuestions,
-                    question: room.isGameRunning && room.currentQuestion ? { pregunta: room.currentQuestion.pregunta, imagen: room.currentQuestion.imagen, tipo: room.currentQuestion.tipo, opciones: room.currentQuestion.opciones } : undefined,
-                    timerDuration: room.isGameRunning ? room.timerDuration : undefined
+                    question: room.isGameRunning && room.currentQuestion ? { 
+                        pregunta: room.currentQuestion.pregunta, 
+                        imagen: room.currentQuestion.imagen, 
+                        tipo: room.currentQuestion.tipo, 
+                        opciones: room.currentQuestion.opciones 
+                    } : undefined,
+                    timerDuration: room.isGameRunning ? room.timerDuration : undefined,
+                    // Información del torneo si está activo
+                    tournamentStage: room.tournamentStage,
+                    finalists: room.finalists ? room.finalists.map(f => ({
+                        id: f.id,
+                        name: f.name,
+                        avatar: f.avatar,
+                        points: room.tournamentStage === 'semifinal' ? (f.semifinalPoints || 0) : 
+                               room.tournamentStage === 'final' ? (f.finalPoints || 0) : (f.points || 0)
+                    })) : undefined
                 }));
 
                 // notificar a los demás jugadores
                 room.players.forEach(p => {
                     if (p.socket !== ws && p.socket.readyState === WebSocket.OPEN) {
-                        p.socket.send(JSON.stringify({ type: 'player_joined', player: { id: currentPlayerData.id, name: currentPlayerData.name, avatar: currentPlayerData.avatar, isProfessor: currentPlayerData.isProfessor, isReady: currentPlayerData.isReady } }));
+                        p.socket.send(JSON.stringify({ 
+                            type: 'player_joined', 
+                            player: { 
+                                id: currentPlayerData.id, 
+                                name: currentPlayerData.name, 
+                                avatar: currentPlayerData.avatar, 
+                                isProfessor: currentPlayerData.isProfessor, 
+                                isReady: currentPlayerData.isReady 
+                            } 
+                        }));
                     }
                 });
 
@@ -642,34 +866,52 @@ wss.on('connection', (ws, req) => {
                         room.isVotingActive = false;
 
                         // elegir modo ganador
-                        let maxVotes = 0; let selectedMode = 'operaciones';
+                        let maxVotes = 0; 
+                        let selectedMode = 'operaciones';
                         const modesWithVotes = Object.entries(room.votes).filter(([,c]) => c>0);
                         if (modesWithVotes.length>0) {
-                            modesWithVotes.forEach(([m,v]) => { if (v>maxVotes) { maxVotes=v; selectedMode=m; } });
+                            modesWithVotes.forEach(([m,v]) => { 
+                                if (v>maxVotes) { 
+                                    maxVotes=v; 
+                                    selectedMode=m; 
+                                } 
+                            });
                             const tied = modesWithVotes.filter(([,v])=>v===maxVotes).map(([m])=>m);
                             selectedMode = tied[Math.floor(Math.random()*tied.length)];
                         }
                         room.gameMode = selectedMode;
                         room.closestAnswerMode = (selectedMode === 'mas-cercano');
 
-                        // decidir si se activa la fase de finalistas según votos con checkbox
-                        const totalPlayers = room.players.length || 1;
-                        let totalFinalistChecks = 0;
-                        Object.values(room.finalistVotes || {}).forEach(v=> totalFinalistChecks += v);
-                        // criterio: al menos la mitad de jugadores marcaron la casilla -> activar torneo
-                        room.isFinalistTournament = totalFinalistChecks >= Math.ceil(totalPlayers/2);
+                        // CORRECCIÓN: Mejor criterio para activar torneo
+                        const totalVotes = Object.values(room.votes).reduce((a, b) => a + b, 0);
+                        const totalFinalistChecks = Object.values(room.finalistVotes || {}).reduce((a, b) => a + b, 0);
+                        
+                        // Activar torneo si al menos 1/3 de los votos fueron con checkbox
+                        room.isFinalistTournament = totalVotes > 0 && 
+                                                  totalFinalistChecks >= Math.ceil(totalVotes / 3);
+
+                        console.log(`[Sala ${data.pin}] Modo: ${selectedMode}, Torneo: ${room.isFinalistTournament}`);
 
                         // generar preguntas para la partida normal
                         room.questions = generarPreguntas(room.gameMode, room.totalQuestions);
                         room.questionIndex = 0;
 
-                        broadcast(data.pin, { type: 'game_starting', mode: room.gameMode, finalistMode: room.isFinalistTournament });
+                        broadcast(data.pin, { 
+                            type: 'game_starting', 
+                            mode: room.gameMode, 
+                            isFinalistTournament: room.isFinalistTournament 
+                        });
 
                         setTimeout(() => {
                             room.isGameRunning = true;
-                            broadcast(data.pin, { type: 'game_start', mode: room.gameMode, closestAnswerMode: room.closestAnswerMode, finalistMode: room.isFinalistTournament });
+                            broadcast(data.pin, { 
+                                type: 'game_start', 
+                                mode: room.gameMode, 
+                                closestAnswerMode: room.closestAnswerMode, 
+                                isFinalistTournament: room.isFinalistTournament 
+                            });
                             startNextQuestion(room);
-                        }, 1500);
+                        }, 3000);
                     }
                 }, 1000);
 
@@ -688,49 +930,108 @@ wss.on('connection', (ws, req) => {
                         room.finalistVotes[data.mode] = (room.finalistVotes[data.mode] || 0) + 1;
                     }
                     voter.hasVoted = true;
-                    broadcast(data.pin, { type: 'vote_update', votes: room.votes, finalistVotes: room.finalistVotes });
+                    broadcast(data.pin, { 
+                        type: 'vote_update', 
+                        votes: room.votes, 
+                        finalistVotes: room.finalistVotes 
+                    });
                 }
                 break;
             }
 
             case 'submit_answer': {
                 const room = rooms[data.pin];
-                if (!room) { if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'error', message:'Sala no existe' })); return; }
+                if (!room) { 
+                    if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'error', message:'Sala no existe' })); 
+                    return; 
+                }
 
-                // si torneo en curso y jugador es finalista -> guardar en tournamentAnswersThisRound
+                // CORRECCIÓN: Lógica mejorada para respuestas de torneo
                 const isTournamentActive = room.tournamentStarted && room.tournamentStage;
-                const isPlayerFinalist = room.finalists && room.finalists.some(f=>f.id===data.playerId);
+                const isPlayerFinalist = room.finalists && room.finalists.some(f => f.id === data.playerId);
 
-                if (isTournamentActive && isPlayerFinalist) {
-                    if (!room.tournamentAnswersThisRound) room.tournamentAnswersThisRound = {};
-                    // evitar respuestas dobles
-                    if (room.tournamentAnswersThisRound[data.playerId]) {
-                        if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'error', message:'Ya respondiste esta pregunta (torneo).' }));
+                if (isTournamentActive) {
+                    if (!isPlayerFinalist) {
+                        // Espectador intentando responder - ignorar
                         return;
                     }
-                    room.tournamentAnswersThisRound[data.playerId] = { answer: data.answer, responseTime: data.responseTime || 0 };
-                    // check si todos los finalistas respondieron -> revelar
-                    const allAnswered = room.finalists.every(f => room.tournamentAnswersThisRound[f.id] !== undefined);
-                    if (allAnswered) {
-                        clearTimeout(room.tournamentRoundTimer);
-                        sendRevealPhase(room, true);
-                    } else {
-                        // opcional: notificar cuantos han respondido (para UI)
-                        const answeredCount = Object.keys(room.tournamentAnswersThisRound).length;
-                        broadcastToFinalists(data.pin, { type: 'tournament_progress', answered: answeredCount, total: room.finalists.length });
-                        broadcastToSpectators(data.pin, { type: 'spectator_tournament_progress', answered: answeredCount, total: room.finalists.length });
+
+                    if (!room.tournamentAnswersThisRound) room.tournamentAnswersThisRound = {};
+                    
+                    // Evitar respuestas dobles
+                    if (room.tournamentAnswersThisRound[data.playerId]) {
+                        if (ws.readyState===WebSocket.OPEN) {
+                            ws.send(JSON.stringify({ type:'error', message:'Ya respondiste esta pregunta del torneo.' }));
+                        }
+                        return;
                     }
+
+                    room.tournamentAnswersThisRound[data.playerId] = { 
+                        answer: data.answer, 
+                        responseTime: data.responseTime || 0 
+                    };
+
+                    // Notificar progreso
+                    const answeredCount = Object.keys(room.tournamentAnswersThisRound).length;
+                    const totalFinalists = room.finalists.length;
+                    
+                    broadcastToFinalists(data.pin, { 
+                        type: 'tournament_progress', 
+                        answered: answeredCount, 
+                        total: totalFinalists 
+                    });
+                    
+                    broadcastToSpectators(data.pin, { 
+                        type: 'spectator_update',
+                        finalists: room.finalists.map(f => ({
+                            id: f.id,
+                            name: f.name,
+                            points: room.tournamentStage === 'semifinal' ? (f.semifinalPoints || 0) : 
+                                   room.tournamentStage === 'final' ? (f.finalPoints || 0) : (f.points || 0)
+                        })),
+                        progress: { answered: answeredCount, total: totalFinalists }
+                    });
+
+                    // Si todos respondieron, revelar inmediatamente
+                    if (answeredCount === totalFinalists) {
+                        console.log(`[Torneo ${data.pin}] Todos los finalistas respondieron, revelando...`);
+                        clearTimeout(room.tournamentRoundTimer);
+                        sendTournamentRevealPhase(room);
+                    }
+
                 } else {
                     // Ronda normal
-                    if (!room.isGameRunning) { if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'error', message:'Juego no activo' })); return; }
+                    if (!room.isGameRunning) { 
+                        if (ws.readyState===WebSocket.OPEN) {
+                            ws.send(JSON.stringify({ type:'error', message:'Juego no activo' }));
+                        }
+                        return; 
+                    }
+
                     if (!room.answersThisRound) room.answersThisRound = {};
-                    if (room.answersThisRound[data.playerId]) { if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'error', message:'Ya respondiste esta pregunta.' })); return; }
-                    room.answersThisRound[data.playerId] = { answer: data.answer, responseTime: data.responseTime || 0 };
-                    if (ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({ type:'answer_received', message:'Respuesta recibida!' }));
+                    
+                    if (room.answersThisRound[data.playerId]) { 
+                        if (ws.readyState===WebSocket.OPEN) {
+                            ws.send(JSON.stringify({ type:'error', message:'Ya respondiste esta pregunta.' }));
+                        }
+                        return; 
+                    }
+
+                    room.answersThisRound[data.playerId] = { 
+                        answer: data.answer, 
+                        responseTime: data.responseTime || 0 
+                    };
+
+                    if (ws.readyState===WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ type:'answer_received', message:'Respuesta recibida!' }));
+                    }
+
                     // verificar si todos (no profesores) respondieron
                     const activePlayers = room.players.filter(p => !p.isProfessor);
                     const allActiveAnswered = activePlayers.every(p => room.answersThisRound[p.id] !== undefined);
+                    
                     if (allActiveAnswered) {
+                        console.log(`[Sala ${data.pin}] Todos respondieron, revelando...`);
                         clearTimeout(room.roundTimer);
                         sendRevealPhase(room, false);
                     }
@@ -738,21 +1039,70 @@ wss.on('connection', (ws, req) => {
                 break;
             }
 
-            case 'send_emoji': {
+            case 'emoji_reaction': {
                 const room = rooms[data.pin];
                 if (!room) return;
-                // reenviar emoji a todos (incluye espectador y jugadores)
-                broadcast(data.pin, { type: 'emoji_relay', from: data.from || 'anon', emoji: data.emoji });
+                // reenviar emoji a todos
+                broadcast(data.pin, { 
+                    type: 'emoji_broadcast', 
+                    emoji: data.emoji,
+                    from: data.playerId 
+                });
                 break;
             }
 
-            case 'player_ready_update': {
+            case 'player_ready': {
                 const room = rooms[data.pin];
                 if (!room) return;
                 const player = room.players.find(p => p.id === data.playerId);
                 if (player) {
                     player.isReady = data.isReady;
-                    broadcast(data.pin, { type: 'player_ready_update', playerId: data.playerId, isReady: data.isReady });
+                    broadcast(data.pin, { 
+                        type: 'player_ready_update', 
+                        playerId: data.playerId, 
+                        isReady: data.isReady 
+                    });
+                }
+                break;
+            }
+
+            case 'request_tournament_question': {
+                const room = rooms[data.pin];
+                if (!room || !room.tournamentStage) return;
+                
+                // Reenviar la pregunta actual del torneo
+                if (room.tournamentQuestions[room.tournamentQuestionIndex]) {
+                    const q = room.tournamentQuestions[room.tournamentQuestionIndex];
+                    const qForClients = { ...q };
+                    delete qForClients.respuesta;
+                    delete qForClients.explicacion;
+
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({
+                            type: 'tournament_question_update',
+                            question: qForClients,
+                            questionIndex: room.tournamentQuestionIndex,
+                            totalQuestions: room.tournamentQuestions.length,
+                            timerDuration: room.tournamentTimerDuration
+                        }));
+                    }
+                }
+                break;
+            }
+
+            case 'skip_question': {
+                const room = rooms[data.pin];
+                if (!room || room.hostId !== data.hostId) return;
+                
+                // Notificar a todos que se saltó la pregunta
+                broadcast(data.pin, { type: 'host_skipped_question' });
+                
+                if (room.tournamentStage) {
+                    // En torneo, avanzar a la siguiente pregunta
+                    sendTournamentRevealPhase(room);
+                } else {
+                    // En juego normal, avanzar
+                    sendRevealPhase(room, false);
                 }
                 break;
             }
@@ -773,20 +1123,29 @@ wss.on('connection', (ws, req) => {
             const room = rooms[currentRoomPin];
             const leaving = room.players.find(p => p.socket === ws);
             if (leaving) {
+                console.log(`[Sala ${currentRoomPin}] Jugador ${leaving.name} desconectado`);
                 room.players = room.players.filter(p => p.id !== leaving.id);
                 broadcast(currentRoomPin, { type: 'player_left', playerId: leaving.id });
+                
                 if (room.players.length === 0) {
+                    // Limpiar todos los timers
                     clearTimeout(room.roundTimer);
                     clearInterval(room.voteTimer);
+                    clearTimeout(room.tournamentRoundTimer);
                     delete rooms[currentRoomPin];
                     console.log(`[Sala ${currentRoomPin}] eliminada (vacía)`);
                 } else {
+                    // Reasignar host si era el host quien se fue
                     if (room.hostId === leaving.id) {
                         const newHost = room.players[0];
                         if (newHost) {
                             room.hostId = newHost.id;
                             newHost.isProfessor = true;
-                            broadcast(currentRoomPin, { type:'new_host', newHostId: room.hostId, newHostName: newHost.name });
+                            broadcast(currentRoomPin, { 
+                                type:'new_host', 
+                                newHostId: room.hostId, 
+                                newHostName: newHost.name 
+                            });
                         }
                     }
                 }
@@ -796,8 +1155,15 @@ wss.on('connection', (ws, req) => {
 
     // heartbeat
     ws.pingInterval = setInterval(() => {
-        if (ws.readyState === WebSocket.CLOSED) { clearInterval(ws.pingInterval); return; }
-        if (!isAlive) { console.warn(`[WS ${ws.id}] no pong, terminate`); ws.terminate(); return; }
+        if (ws.readyState === WebSocket.CLOSED) { 
+            clearInterval(ws.pingInterval); 
+            return; 
+        }
+        if (!isAlive) { 
+            console.warn(`[WS ${ws.id}] no pong, terminate`); 
+            ws.terminate(); 
+            return; 
+        }
         isAlive = false;
         ws.ping();
     }, 30000);
@@ -806,11 +1172,13 @@ wss.on('connection', (ws, req) => {
 /* -----------------------
    Servir archivo estático y arrancar servidor
    ----------------------- */
+app.use(express.static('.')); // Servir archivos estáticos desde el directorio actual
+
 app.get('/', (req, res) => {
-    // si tu HTML se llama distinto, ajusta aquí
     res.sendFile(__dirname + '/index.html');
 });
 
 server.listen(PORT, () => {
-    console.log(`Servidor WebSocket corriendo en puerto ${PORT}`);
+    console.log(`🎮 Servidor Math Challenge PRO corriendo en puerto ${PORT}`);
+    console.log(`🏆 Sistema de torneos activado: Semifinales -> Final -> Campeón`);
 });

@@ -1,4 +1,4 @@
-// server.js - SERVIDOR COMPLETO MATH CHALLENGE PRO - CORREGIDO
+// server.js - SERVIDOR COMPLETO MATH CHALLENGE PRO - CORREGIDO DEFINITIVO
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -145,7 +145,6 @@ const preguntasDificiles = {
    FUNCIONES AUXILIARES CORREGIDAS
    ====================== */
 
-// FUNCIÓN NUEVA: Mapear modos no soportados a modos base soportados
 function mapToSupportedMode(mode) {
     const modeMap = {
         'secuencia': 'operaciones',
@@ -154,7 +153,6 @@ function mapToSupportedMode(mode) {
         'relampago': 'operaciones',
         'mas-cercano': 'operaciones',
         'sumamultiplicacion': 'operaciones',
-        // Los modos que sí existen se mantienen
         'operaciones': 'operaciones',
         'misterioso': 'misterioso',
         'verdadero-falso': 'verdadero-falso',
@@ -163,13 +161,10 @@ function mapToSupportedMode(mode) {
     return modeMap[mode] || 'operaciones';
 }
 
-// GENERADOR DINÁMICO DE PREGUNTAS - MEJORADO
 function generarPreguntas(mode, count, dificultad = 'facil') {
-    // Mapear el modo a uno soportado
     const supportedMode = mapToSupportedMode(mode);
     
     let bancoPreguntas;
-    
     switch(dificultad) {
         case 'intermedia':
             bancoPreguntas = preguntasIntermedias[supportedMode] || preguntasIntermedias['operaciones'];
@@ -182,15 +177,12 @@ function generarPreguntas(mode, count, dificultad = 'facil') {
     }
     
     if (!bancoPreguntas || bancoPreguntas.length === 0) {
-        console.warn(`No hay preguntas para modo: ${mode} (mapeado a: ${supportedMode}), dificultad: ${dificultad}. Usando operaciones.`);
         bancoPreguntas = dificultad === 'dificil' ? preguntasDificiles['operaciones'] : 
                         dificultad === 'intermedia' ? preguntasIntermedias['operaciones'] : 
                         preguntasFaciles['operaciones'];
     }
     
-    // Asegurar que tenemos suficientes preguntas
     if (bancoPreguntas.length < count) {
-        console.warn(`Solo hay ${bancoPreguntas.length} preguntas para ${supportedMode}, solicitadas: ${count}`);
         count = bancoPreguntas.length;
     }
     
@@ -236,12 +228,13 @@ function broadcastToFinalists(pin, data) {
 function broadcastToSpectators(pin, data) {
     const room = rooms[pin];
     if (!room) return;
-    const spectatorIds = room.players.filter(p => !room.finalists?.some(f=>f.id===p.id)).map(p=>p.id);
+    const finalistIds = room.finalists ? room.finalists.map(f => f.id) : [];
+    const spectatorIds = room.players.filter(p => !finalistIds.includes(p.id)).map(p => p.id);
     broadcastToIds(pin, spectatorIds, data);
 }
 
 /* ======================
-   LÓGICA PRINCIPAL DEL JUEGO - CORREGIDA
+   LÓGICA PRINCIPAL DEL JUEGO - COMPLETAMENTE CORREGIDA
    ====================== */
 
 function computeFinalRanking(room) {
@@ -279,8 +272,10 @@ function sendRevealPhase(room, isTournament = false) {
     const correctAnswer = questionObj.respuesta;
     const basePoints = isTournament ? 10 : 5;
     const answersMap = isTournament ? room.tournamentAnswersThisRound : room.answersThisRound;
-    const participants = isTournament ? room.finalists : room.players;
+    const participants = isTournament ? (room.finalists || []) : room.players;
     const roundDuration = isTournament ? (room.tournamentTimerDuration || 20) : (room.timerDuration || 30);
+
+    console.log(`[Revelación ${room.pin}] Procesando respuestas para ${participants.length} participantes`);
 
     participants.forEach(player => {
         const ansData = answersMap[player.id];
@@ -299,7 +294,6 @@ function sendRevealPhase(room, isTournament = false) {
             } else if (questionObj.tipo === 'informatica') {
                 isCorrect = (String(userAnswerProcessed).toUpperCase() === String(correctAnswer).toUpperCase());
             } else {
-                // Para operaciones y misterioso, comparar números
                 const userNum = parseFloat(userAnswerProcessed);
                 const correctNum = parseFloat(correctAnswer);
                 isCorrect = !isNaN(userNum) && !isNaN(correctNum) && userNum === correctNum;
@@ -311,25 +305,23 @@ function sendRevealPhase(room, isTournament = false) {
                     player.maxStreak = player.streak;
                 }
 
-                // Bonus por racha más generoso en torneo
                 if (player.streak >= 7) streakBonus = isTournament ? 12 : 8;
                 else if (player.streak >= 5) streakBonus = isTournament ? 8 : 5;
                 else if (player.streak >= 3) streakBonus = isTournament ? 4 : 2;
 
                 pointsEarned = basePoints + timeBonus + streakBonus;
                 
-                // Usar puntos específicos del torneo o generales
                 if (isTournament) {
                     if (room.tournamentStage === 'semifinal') {
                         player.semifinalPoints = (player.semifinalPoints || 0) + pointsEarned;
                     } else if (room.tournamentStage === 'final') {
                         player.finalPoints = (player.finalPoints || 0) + pointsEarned;
                     }
+                    player.points = (player.points || 0) + pointsEarned;
                 } else {
                     player.points = (player.points || 0) + pointsEarned;
                 }
                 
-                // Actualizar tiempo promedio
                 if (timeTaken > 0) {
                     if (!player.responseTimes) player.responseTimes = [];
                     player.responseTimes.push(timeTaken);
@@ -350,7 +342,7 @@ function sendRevealPhase(room, isTournament = false) {
             streakBonus,
             pointsEarned,
             options: questionObj.tipo === 'informatica' ? questionObj.opciones : undefined,
-            questionType: questionObj.tipo // NUEVO: Enviar tipo de pregunta
+            questionType: questionObj.tipo
         };
 
         if (player.socket && player.socket.readyState === WebSocket.OPEN) {
@@ -379,6 +371,7 @@ function sendRevealPhase(room, isTournament = false) {
                     room.tournamentQuestionIndex++;
                     startNextTournamentQuestion(room);
                 } else {
+                    console.log(`[Torneo ${room.pin}] Fin de ronda ${room.tournamentStage}`);
                     if (room.tournamentStage === 'semifinal') {
                         concludeSemifinals(room.pin);
                     } else if (room.tournamentStage === 'final') {
@@ -387,7 +380,7 @@ function sendRevealPhase(room, isTournament = false) {
                 }
             }
         }, room.revealPhaseDuration || 3000);
-    }, 800);
+    }, 1000);
 }
 
 function startNextQuestion(room) {
@@ -429,26 +422,31 @@ function startNextQuestion(room) {
 }
 
 /* ======================
-   SISTEMA DE TORNEO COMPLETO - CORREGIDO
+   SISTEMA DE TORNEO COMPLETAMENTE CORREGIDO
    ====================== */
 
 function startSemifinals(pin) {
     const room = rooms[pin];
     if (!room) return;
     
+    console.log(`[Torneo ${pin}] 🏆 INICIANDO SEMIFINALES 🏆`);
+    
     room.tournamentStarted = true;
     room.tournamentStage = 'semifinal';
 
-    // Seleccionar 4 finalistas
     const finalRanking = computeFinalRanking(room);
-    const finalists = finalRanking.slice(0, 4);
-    room.finalists = room.players.filter(p => finalists.some(f => f.id === p.id));
+    const top4Ids = finalRanking.slice(0, 4).map(p => p.id);
+    room.finalists = room.players.filter(p => top4Ids.includes(p.id));
     
-    // CORREGIDO: Mapear modo a uno soportado para preguntas
+    room.finalists.forEach(f => {
+        f.semifinalPoints = 0;
+        f.streak = 0;
+        f.responseTimes = [];
+    });
+
     const baseMode = mapToSupportedMode(room.gameMode);
     room.tournamentQuestions = generarPreguntas(baseMode, 5, 'intermedia');
     
-    // VALIDACIÓN CRÍTICA: Si no hay preguntas, generar de emergencia
     if (!room.tournamentQuestions || room.tournamentQuestions.length === 0) {
         console.error(`[Torneo ${pin}] No se pudieron generar preguntas para semifinales. Usando operaciones.`);
         room.tournamentQuestions = generarPreguntas('operaciones', 5, 'intermedia');
@@ -458,9 +456,8 @@ function startSemifinals(pin) {
     room.tournamentAnswersThisRound = {};
     room.tournamentTimerDuration = 25;
 
-    console.log(`[Torneo ${pin}] Semifinales iniciadas con ${room.finalists.length} finalistas. Modo base: ${baseMode}, Preguntas: ${room.tournamentQuestions.length}`);
+    console.log(`[Torneo ${pin}] Semifinalistas: ${room.finalists.map(f => f.name).join(', ')}`);
 
-    // Notificar a todos
     broadcast(pin, { 
         type: 'start_semifinals', 
         finalists: room.finalists.map(f => ({ 
@@ -469,10 +466,9 @@ function startSemifinals(pin) {
             points: f.semifinalPoints || 0, 
             avatar: f.avatar 
         })),
-        baseMode: baseMode // NUEVO: Informar al cliente del modo base usado
+        baseMode: baseMode
     });
 
-    // Enviar espectadores al modo espectador
     const spectatorIds = room.players.filter(p => !room.finalists.some(f => f.id === p.id)).map(p => p.id);
     if (spectatorIds.length > 0) {
         broadcastToIds(pin, spectatorIds, { 
@@ -486,29 +482,31 @@ function startSemifinals(pin) {
         });
     }
 
+    console.log(`[Torneo ${pin}] Iniciando primera pregunta en 3 segundos...`);
     setTimeout(() => {
         startNextTournamentQuestion(room);
-    }, 4000);
+    }, 3000);
 }
 
 function startNextTournamentQuestion(room) {
-    if (!room || !room.finalists || room.finalists.length === 0) return;
+    if (!room || !room.finalists || room.finalists.length === 0) {
+        console.error(`[Torneo ${room?.pin}] No hay finalistas válidos`);
+        if (room?.tournamentStage === 'semifinal') {
+            concludeSemifinals(room.pin);
+        } else if (room?.tournamentStage === 'final') {
+            concludeFinal(room.pin);
+        }
+        return;
+    }
     
-    room.tournamentAnswersThisRound = {};
-    const q = room.tournamentQuestions[room.tournamentQuestionIndex];
-    
-    // VALIDACIÓN CRÍTICA MEJORADA: Si no hay pregunta, generar una de emergencia
-    if (!q) {
-        console.error(`[Torneo ${room.pin}] No hay pregunta en índice ${room.tournamentQuestionIndex}. Regenerando preguntas.`);
+    if (!room.tournamentQuestions || room.tournamentQuestions.length === 0) {
+        console.error(`[Torneo ${room.pin}] No hay preguntas, generando de emergencia`);
         const baseMode = mapToSupportedMode(room.gameMode);
         const difficulty = room.tournamentStage === 'semifinal' ? 'intermedia' : 'dificil';
         room.tournamentQuestions = generarPreguntas(baseMode, 5, difficulty);
         
-        if (room.tournamentQuestions.length > 0) {
-            room.tournamentQuestionIndex = 0;
-            return startNextTournamentQuestion(room); // Reintentar con nuevas preguntas
-        } else {
-            console.error(`[Torneo ${room.pin}] No se pudieron generar preguntas de emergencia. Finalizando torneo.`);
+        if (!room.tournamentQuestions || room.tournamentQuestions.length === 0) {
+            console.error(`[Torneo ${room.pin}] No se pudieron generar preguntas. Finalizando ronda.`);
             if (room.tournamentStage === 'semifinal') {
                 concludeSemifinals(room.pin);
             } else {
@@ -516,25 +514,43 @@ function startNextTournamentQuestion(room) {
             }
             return;
         }
+        room.tournamentQuestionIndex = 0;
+    }
+    
+    room.tournamentAnswersThisRound = {};
+    
+    if (room.tournamentQuestionIndex >= room.tournamentQuestions.length) {
+        console.log(`[Torneo ${room.pin}] Fin de preguntas de ${room.tournamentStage}`);
+        if (room.tournamentStage === 'semifinal') {
+            concludeSemifinals(room.pin);
+        } else {
+            concludeFinal(room.pin);
+        }
+        return;
+    }
+    
+    const q = room.tournamentQuestions[room.tournamentQuestionIndex];
+    if (!q) {
+        console.error(`[Torneo ${room.pin}] Pregunta ${room.tournamentQuestionIndex} no existe`);
+        room.tournamentQuestionIndex++;
+        return startNextTournamentQuestion(room);
     }
     
     const qForClients = { ...q };
     delete qForClients.respuesta;
     delete qForClients.explicacion;
 
-    console.log(`[Torneo ${room.pin}] Enviando pregunta ${room.tournamentQuestionIndex + 1}/5 - Tipo: ${q.tipo}`);
+    console.log(`[Torneo ${room.pin}] Pregunta ${room.tournamentQuestionIndex + 1}/${room.tournamentQuestions.length} - ${room.tournamentStage}`);
 
-    // Para finalistas
     broadcastToFinalists(room.pin, {
         type: 'tournament_question_update',
         question: qForClients,
         questionIndex: room.tournamentQuestionIndex,
         totalQuestions: room.tournamentQuestions.length,
         timerDuration: room.tournamentTimerDuration,
-        round: room.tournamentStage // NUEVO: Informar la ronda actual
+        round: room.tournamentStage
     });
 
-    // Para espectadores
     broadcastToSpectators(room.pin, {
         type: 'spectator_update',
         finalists: room.finalists.map(f => ({ 
@@ -554,22 +570,29 @@ function startNextTournamentQuestion(room) {
 
     clearTimeout(room.tournamentRoundTimer);
     room.tournamentRoundTimer = setTimeout(() => {
-        console.log(`[Torneo ${room.pin}] Tiempo agotado para pregunta ${room.tournamentQuestionIndex + 1}`);
+        console.log(`[Torneo ${room.pin}] Tiempo agotado para pregunta`);
         sendRevealPhase(room, true);
     }, room.tournamentTimerDuration * 1000);
 }
 
 function concludeSemifinals(pin) {
     const room = rooms[pin];
-    if (!room) return;
+    if (!room || !room.finalists) return;
     
-    // Ordenar por puntos de semifinales y tomar top 2
-    const sortedFinalists = [...room.finalists].sort((a, b) => (b.semifinalPoints || 0) - (a.semifinalPoints || 0));
-    const top2 = sortedFinalists.slice(0, 2);
-    room.finalists = top2;
+    console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO SEMIFINALES 🏆`);
     
-    // Reiniciar para la final
-    room.finalists.forEach(f => { 
+    const sortedBySemifinalPoints = [...room.finalists].sort((a, b) => 
+        (b.semifinalPoints || 0) - (a.semifinalPoints || 0)
+    );
+    
+    const top2Ids = sortedBySemifinalPoints.slice(0, 2).map(f => f.id);
+    
+    console.log(`[Torneo ${pin}] Finalistas: ${sortedBySemifinalPoints.map(f => `${f.name} (${f.semifinalPoints || 0} pts)`).join(', ')}`);
+    console.log(`[Torneo ${pin}] Top 2: ${top2Ids.join(', ')}`);
+    
+    room.finalists = room.finalists.filter(f => top2Ids.includes(f.id));
+    
+    room.finalists.forEach(f => {
         f.finalPoints = 0;
         f.streak = 0;
         f.responseTimes = [];
@@ -577,13 +600,10 @@ function concludeSemifinals(pin) {
 
     room.tournamentStage = 'final';
     
-    // CORREGIDO: Mapear modo a uno soportado para preguntas
     const baseMode = mapToSupportedMode(room.gameMode);
     room.tournamentQuestions = generarPreguntas(baseMode, 5, 'dificil');
     
-    // VALIDACIÓN: Asegurar que hay preguntas
     if (!room.tournamentQuestions || room.tournamentQuestions.length === 0) {
-        console.error(`[Torneo ${pin}] No se pudieron generar preguntas para la final. Usando operaciones.`);
         room.tournamentQuestions = generarPreguntas('operaciones', 5, 'dificil');
     }
     
@@ -591,45 +611,58 @@ function concludeSemifinals(pin) {
     room.tournamentAnswersThisRound = {};
     room.tournamentTimerDuration = 20;
 
-    console.log(`[Torneo ${pin}] Final iniciada con ${room.finalists.length} finalistas. Modo base: ${baseMode}`);
+    console.log(`[Torneo ${pin}] 🎯 INICIANDO FINAL con ${room.finalists.length} finalistas`);
 
     broadcast(pin, { 
-        type: 'start_final', 
-        finalists: room.finalists.map(f => ({ 
+        type: 'tournament_round_end', 
+        round: 'semifinal',
+        winners: room.finalists.map(f => ({ 
             id: f.id, 
             name: f.name, 
             points: f.finalPoints || 0, 
             avatar: f.avatar 
-        })),
-        baseMode: baseMode
-    });
-
-    broadcastToSpectators(pin, { 
-        type: 'spectator_update', 
-        finalists: room.finalists.map(f => ({ 
-            id: f.id, 
-            name: f.name, 
-            points: f.finalPoints || 0 
-        })),
-        round: 'final',
-        baseMode: baseMode
+        }))
     });
 
     setTimeout(() => {
-        startNextTournamentQuestion(room);
-    }, 4000);
+        broadcast(pin, { 
+            type: 'start_final', 
+            finalists: room.finalists.map(f => ({ 
+                id: f.id, 
+                name: f.name, 
+                points: f.finalPoints || 0, 
+                avatar: f.avatar 
+            })),
+            baseMode: baseMode
+        });
+
+        broadcastToSpectators(pin, { 
+            type: 'spectator_update', 
+            finalists: room.finalists.map(f => ({ 
+                id: f.id, 
+                name: f.name, 
+                points: f.finalPoints || 0 
+            })),
+            round: 'final',
+            message: '¡Gran Final!'
+        });
+
+        setTimeout(() => {
+            startNextTournamentQuestion(room);
+        }, 3000);
+    }, 2000);
 }
 
 function concludeFinal(pin) {
     const room = rooms[pin];
     if (!room) return;
     
-    // Determinar campeón
-    const sorted = [...room.finalists].sort((a, b) => (b.finalPoints || 0) - (a.finalPoints || 0));
-    const winner = sorted[0];
+    console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO FINAL 🏆`);
+    
+    const sortedByFinalPoints = [...room.finalists].sort((a, b) => (b.finalPoints || 0) - (a.finalPoints || 0));
+    const winner = sortedByFinalPoints[0];
     
     if (winner) {
-        // Bonus por ganar el torneo
         winner.points = (winner.points || 0) + 100;
         
         room.ultimateWinner = { 
@@ -640,46 +673,51 @@ function concludeFinal(pin) {
             finalPoints: winner.finalPoints || 0
         };
 
-        console.log(`[Torneo ${pin}] ¡Campeón: ${winner.name} con ${winner.finalPoints} puntos en la final!`);
-    } else {
-        console.warn(`[Torneo ${pin}] No se pudo determinar un ganador`);
-        room.ultimateWinner = null;
+        console.log(`[Torneo ${pin}] 👑 CAMPEÓN: ${winner.name} con ${winner.finalPoints} puntos en la final!`);
     }
 
     broadcast(pin, { 
-        type: 'ultimate_winner', 
-        winner: room.ultimateWinner 
+        type: 'tournament_round_end', 
+        round: 'final',
+        winner: room.ultimateWinner
     });
 
-    // Limpiar estado del torneo
-    room.tournamentStage = null;
-    room.tournamentStarted = false;
-    room.isFinalistTournament = false;
-    room.finalRanking = computeFinalRanking(room);
+    setTimeout(() => {
+        broadcast(pin, { 
+            type: 'ultimate_winner', 
+            winner: room.ultimateWinner 
+        });
 
-    clearTimeout(room.tournamentRoundTimer);
-    room.tournamentRoundTimer = null;
+        setTimeout(() => {
+            room.tournamentStage = null;
+            room.tournamentStarted = false;
+            room.isFinalistTournament = false;
+            room.finalRanking = computeFinalRanking(room);
+            
+            clearTimeout(room.tournamentRoundTimer);
+            room.tournamentRoundTimer = null;
+            
+            console.log(`[Torneo ${pin}] 🎊 TORNEO COMPLETADO`);
+        }, 5000);
+    }, 2000);
 }
 
 function endGame(pin) {
     const room = rooms[pin];
     if (!room) return;
 
-    // Limpiar todos los timers
     clearTimeout(room.roundTimer);
     clearInterval(room.voteTimer);
     clearTimeout(room.tournamentRoundTimer);
 
     room.isGameRunning = false;
 
-    // Iniciar torneo si está activado
     if (room.isFinalistTournament && !room.tournamentStarted) {
-        console.log(`[Sala ${pin}] Iniciando torneo`);
+        console.log(`[Sala ${pin}] Iniciando torneo desde fin del juego normal`);
         startSemifinals(pin);
         return;
     }
 
-    // Enviar resultados finales
     room.finalRanking = computeFinalRanking(room);
     broadcast(pin, { type: 'game_over', finalRanking: room.finalRanking });
 }
@@ -758,7 +796,6 @@ wss.on('connection', (ws, req) => {
                         currentQuestion: null,
                         timerDuration: 30,
                         revealPhaseDuration: 3000,
-                        // Torneo
                         isFinalistTournament: false,
                         finalistCount: 4,
                         finalistVotes: {},
@@ -781,7 +818,6 @@ wss.on('connection', (ws, req) => {
                     return; 
                 }
 
-                // Manejar reconexión
                 const existingIndex = room.players.findIndex(p => p.id === player.id);
                 if (existingIndex !== -1) {
                     room.players[existingIndex].socket = ws;
@@ -793,7 +829,6 @@ wss.on('connection', (ws, req) => {
 
                 const isCurrentWsHost = room.hostId === player.id;
 
-                // Enviar estado completo de la sala
                 ws.send(JSON.stringify({
                     type: 'room_joined',
                     pin: room.pin,
@@ -834,7 +869,6 @@ wss.on('connection', (ws, req) => {
                     })) : undefined
                 }));
 
-                // Notificar a otros jugadores
                 room.players.forEach(p => {
                     if (p.socket !== ws && p.socket.readyState === WebSocket.OPEN) {
                         p.socket.send(JSON.stringify({ 
@@ -875,7 +909,6 @@ wss.on('connection', (ws, req) => {
                         room.voteTimer = null;
                         room.isVotingActive = false;
 
-                        // Elegir modo ganador
                         let maxVotes = 0;
                         let selectedMode = 'operaciones';
                         const modesWithVotes = Object.entries(room.votes).filter(([,c]) => c > 0);
@@ -891,14 +924,11 @@ wss.on('connection', (ws, req) => {
                         room.gameMode = selectedMode;
                         room.closestAnswerMode = (selectedMode === 'mas-cercano');
 
-                        // CORREGIDO: Mapear modo seleccionado a modo base para preguntas
                         const baseMode = mapToSupportedMode(selectedMode);
                         
-                        // Generar preguntas FÁCILES para partida normal
                         room.questions = generarPreguntas(baseMode, room.totalQuestions, 'facil');
                         room.questionIndex = 0;
 
-                        // Decidir si activar torneo
                         const totalVotes = Object.values(room.votes).reduce((a, b) => a + b, 0);
                         const totalFinalistChecks = Object.values(room.finalistVotes || {}).reduce((a, b) => a + b, 0);
                         room.isFinalistTournament = totalVotes > 0 && totalFinalistChecks >= Math.ceil(totalVotes / 3);
@@ -908,7 +938,7 @@ wss.on('connection', (ws, req) => {
                         broadcast(data.pin, { 
                             type: 'game_starting', 
                             mode: selectedMode,
-                            baseMode: baseMode, // NUEVO: Informar modo base
+                            baseMode: baseMode,
                             isFinalistTournament: room.isFinalistTournament 
                         });
 
@@ -961,7 +991,7 @@ wss.on('connection', (ws, req) => {
                 const isPlayerFinalist = room.finalists && room.finalists.some(f => f.id === data.playerId);
 
                 if (isTournamentActive) {
-                    if (!isPlayerFinalist) return; // Espectador intentando responder
+                    if (!isPlayerFinalist) return;
                     
                     if (!room.tournamentAnswersThisRound) room.tournamentAnswersThisRound = {};
                     
@@ -975,7 +1005,6 @@ wss.on('connection', (ws, req) => {
                         responseTime: data.responseTime || 0 
                     };
 
-                    // Notificar progreso
                     const answeredCount = Object.keys(room.tournamentAnswersThisRound).length;
                     const totalFinalists = room.finalists.length;
                     
@@ -985,7 +1014,6 @@ wss.on('connection', (ws, req) => {
                         total: totalFinalists 
                     });
 
-                    // Revelar si todos respondieron
                     if (answeredCount === totalFinalists) {
                         console.log(`[Torneo ${data.pin}] Todos respondieron, revelando...`);
                         clearTimeout(room.tournamentRoundTimer);
@@ -993,7 +1021,6 @@ wss.on('connection', (ws, req) => {
                     }
 
                 } else {
-                    // Ronda normal
                     if (!room.isGameRunning) { 
                         ws.send(JSON.stringify({ type:'error', message:'Juego no activo' }));
                         return; 
@@ -1013,7 +1040,6 @@ wss.on('connection', (ws, req) => {
 
                     ws.send(JSON.stringify({ type:'answer_received', message:'Respuesta recibida!' }));
 
-                    // Revelar si todos respondieron
                     const activePlayers = room.players.filter(p => !p.isProfessor);
                     const allActiveAnswered = activePlayers.every(p => room.answersThisRound[p.id] !== undefined);
                     
@@ -1056,7 +1082,6 @@ wss.on('connection', (ws, req) => {
                 const room = rooms[data.pin];
                 if (!room || !room.tournamentStage) return;
                 
-                // CORREGIDO: Enviar la pregunta actual del torneo
                 if (room.tournamentQuestionIndex < room.tournamentQuestions.length) {
                     const q = room.tournamentQuestions[room.tournamentQuestionIndex];
                     if (q) {
@@ -1134,7 +1159,6 @@ wss.on('connection', (ws, req) => {
         }
     });
 
-    // Heartbeat
     ws.pingInterval = setInterval(() => {
         if (ws.readyState === WebSocket.CLOSED) { 
             clearInterval(ws.pingInterval); 
@@ -1170,4 +1194,9 @@ server.listen(PORT, () => {
     console.log(`   - Fácil: ${Object.values(preguntasFaciles).flat().length} preguntas`);
     console.log(`   - Intermedio: ${Object.values(preguntasIntermedias).flat().length} preguntas`);
     console.log(`   - Difícil: ${Object.values(preguntasDificiles).flat().length} preguntas`);
+    console.log(`✅ CORRECCIONES APLICADAS:`);
+    console.log(`   - Flujo del torneo completamente corregido`);
+    console.log(`   - Manejo consistente de finalists vs players`);
+    console.log(`   - Validación robusta en cada etapa`);
+    console.log(`   - Logs detallados para debugging`);
 });

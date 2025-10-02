@@ -1,4 +1,4 @@
-// server.js - SERVIDOR COMPLETO MATH CHALLENGE PRO - CORREGIDO DEFINITIVO
+// server.js - SERVIDOR MATH CHALLENGE PRO - CORRECCIÓN DEFINITIVA DE PUNTOS
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -10,10 +10,6 @@ const wss = new WebSocket.Server({ server });
 
 const PORT = process.env.PORT || 3000;
 const rooms = {};
-
-/* ======================
-   SISTEMA COMPLETO DE PREGUNTAS POR DIFICULTAD
-   ====================== */
 
 // PREGUNTAS FÁCILES (Partida normal)
 const preguntasFaciles = {
@@ -234,6 +230,55 @@ function broadcastToSpectators(pin, data) {
 }
 
 /* ======================
+   FUNCIÓN CRÍTICA CORREGIDA: Reinicio de puntos
+   ====================== */
+
+function resetPlayersForNewGame(room) {
+    if (!room || !room.players) return;
+    
+    console.log(`[Sala ${room.pin}] 🔄 REINICIANDO PUNTOS PARA NUEVO JUEGO`);
+    
+    room.players.forEach(player => {
+        // GUARDAR ESTADÍSTICAS PERMANENTES
+        const permanentStats = {
+            gamesPlayed: player.gamesPlayed || 0,
+            modeStats: player.modeStats || {},
+            achievements: player.achievements || [],
+            favoriteMode: player.favoriteMode || null,
+            id: player.id,
+            name: player.name,
+            avatar: player.avatar,
+            isProfessor: player.isProfessor,
+            isReady: false, // Reset ready state
+            hasVoted: false // Reset vote state
+        };
+
+        // REINICIAR ESTADÍSTICAS TEMPORALES DEL JUEGO
+        player.points = 0;
+        player.streak = 0;
+        player.responseTimes = [];
+        player.history = [];
+        player.hasAnswered = false;
+        player.lastAnswerCorrect = false;
+        player.avgResponseTime = 0;
+        
+        // player.maxStreak se mantiene (es histórico)
+        // player.gamesPlayed se mantiene (es acumulativo)
+
+        // Restaurar estadísticas permanentes
+        Object.assign(player, permanentStats);
+        
+        console.log(`[Sala ${room.pin}] Reiniciado ${player.name}: 0 puntos`);
+    });
+    
+    // Reiniciar también el estado de la sala
+    room.questionIndex = 0;
+    room.answersThisRound = {};
+    room.currentQuestion = null;
+    room.finalRanking = [];
+}
+
+/* ======================
    LÓGICA PRINCIPAL DEL JUEGO - COMPLETAMENTE CORREGIDA
    ====================== */
 
@@ -249,11 +294,13 @@ function computeFinalRanking(room) {
         id: p.id, 
         name: p.name, 
         avatar: p.avatar, 
-        points: p.points, 
-        streak: p.streak, 
-        maxStreak: p.maxStreak,
+        points: p.points || 0,  // ✅ Asegurar que siempre tenga valor
+        streak: p.streak || 0,
+        maxStreak: p.maxStreak || 0,
         avgResponseTime: p.avgResponseTime || 0 
     }));
+    
+    console.log(`[Ranking ${room.pin}] Jugadores: ${sorted.map(p => `${p.name}: ${p.points} pts`).join(', ')}`);
     return sorted;
 }
 
@@ -957,14 +1004,19 @@ wss.on('connection', (ws, req) => {
 
                         const baseMode = mapToSupportedMode(selectedMode);
                         
+                        // GENERAR NUEVAS PREGUNTAS
                         room.questions = generarPreguntas(baseMode, room.totalQuestions, 'facil');
                         room.questionIndex = 0;
 
+                        // Determinar si es torneo
                         const totalVotes = Object.values(room.votes).reduce((a, b) => a + b, 0);
                         const totalFinalistChecks = Object.values(room.finalistVotes || {}).reduce((a, b) => a + b, 0);
                         room.isFinalistTournament = totalVotes > 0 && totalFinalistChecks >= Math.ceil(totalVotes / 3);
 
-                        console.log(`[Sala ${data.pin}] Modo seleccionado: ${selectedMode}, Modo base: ${baseMode}, Torneo: ${room.isFinalistTournament}`);
+                        console.log(`[Sala ${data.pin}] 🎯 Modo seleccionado: ${selectedMode}, Torneo: ${room.isFinalistTournament}`);
+
+                        // ✅ CORRECCIÓN CRÍTICA: REINICIAR PUNTOS ANTES DE COMENZAR
+                        resetPlayersForNewGame(room);
 
                         broadcast(data.pin, { 
                             type: 'game_starting', 
@@ -975,6 +1027,14 @@ wss.on('connection', (ws, req) => {
 
                         setTimeout(() => {
                             room.isGameRunning = true;
+                            
+                            // ✅ ENVIAR RANKING ACTUALIZADO CON PUNTOS CERO
+                            const initialRanking = computeFinalRanking(room);
+                            broadcast(data.pin, { 
+                                type: 'ranking_update', 
+                                players: initialRanking 
+                            });
+
                             broadcast(data.pin, { 
                                 type: 'game_start', 
                                 mode: selectedMode,
@@ -982,6 +1042,7 @@ wss.on('connection', (ws, req) => {
                                 closestAnswerMode: room.closestAnswerMode, 
                                 isFinalistTournament: room.isFinalistTournament 
                             });
+                            
                             startNextQuestion(room);
                         }, 3000);
                     }
@@ -1231,20 +1292,11 @@ app.get('/', (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`🎮 Servidor Math Challenge PRO ejecutándose en puerto ${PORT}`);
-    console.log(`🏆 Sistema de dificultad: FÁCIL → INTERMEDIO → DIFÍCIL`);
-    console.log(`⚡ Modos disponibles: operaciones, informatica, verdadero-falso, misterioso`);
-    console.log(`🔄 Modos mapeados: secuencia→operaciones, potenciacion→operaciones, etc.`);
-    console.log(`🏅 Torneo: 4 semifinalistas → 2 finalistas → Campeón`);
-    console.log(`📚 Preguntas por dificultad:`);
-    console.log(`   - Fácil: ${Object.values(preguntasFaciles).flat().length} preguntas`);
-    console.log(`   - Intermedio: ${Object.values(preguntasIntermedias).flat().length} preguntas`);
-    console.log(`   - Difícil: ${Object.values(preguntasDificiles).flat().length} preguntas`);
+    console.log(`🎮 Servidor Math Challenge PRO CORREGIDO ejecutándose en puerto ${PORT}`);
     console.log(`✅ CORRECCIONES APLICADAS:`);
-    console.log(`   - Flujo del torneo completamente corregido`);
-    console.log(`   - Manejo robusto de finalists vs players`);
-    console.log(`   - Validación mejorada en cada etapa`);
-    console.log(`   - Logs detallados para debugging`);
-    console.log(`   - Sistema de preguntas de torneo funcionando`);
-    console.log(`   - Semifinales y finales operativas`);
+    console.log(`   - Puntos se reinician correctamente entre modos`);
+    console.log(`   - Función resetPlayersForNewGame implementada`);
+    console.log(`   - Ranking siempre muestra puntos actualizados`);
+    console.log(`   - Estado del juego se reinicia completamente`);
+    console.log(`   - Logs mejorados para debugging`);
 });

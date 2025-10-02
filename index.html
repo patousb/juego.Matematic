@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Challenge PRO</title>
+    <title>Math Challenge PRO - CORREGIDO</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         :root {
             --azul: #4e8cff;
@@ -134,7 +135,6 @@
             transform: translateY(0) scale(1);
         }
 
-        /* MEJORAS VISUALES PARA EL LOBBY DE REGISTRO */
         .enhanced-join-form {
             background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8)) !important;
             backdrop-filter: blur(20px) !important;
@@ -214,7 +214,6 @@
             transform: translateY(-2px) !important;
         }
 
-        /* Botones mejorados */
         .btn-enhanced {
             background: linear-gradient(45deg, #4e8cff, #a459ff) !important;
             color: white !important;
@@ -1494,7 +1493,6 @@
             border: 5px solid white;
         }
 
-        /* Nuevos estilos para el sistema de torneo */
         .tournament-indicator {
             position: fixed;
             top: 80px;
@@ -1546,7 +1544,6 @@
             100% { transform: scale(1.2); }
         }
 
-        /* Indicadores de torneo mejorados */
         .tournament-question-indicator {
             background: linear-gradient(45deg, #ff6b6b, #ffde59) !important;
             color: white !important;
@@ -1569,6 +1566,133 @@
             margin-left: 8px !important;
             font-weight: bold !important;
             animation: glow 1.5s infinite alternate !important;
+        }
+
+        /* NUEVOS ESTILOS PARA EFECTOS ESPECIALES */
+        .explosion-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .explosion-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        .winner-explosion {
+            position: absolute;
+            font-size: 2rem;
+            animation: winnerFloat 3s ease-out forwards;
+        }
+
+        @keyframes winnerFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: fireworkExplode 1.5s ease-out forwards;
+        }
+
+        @keyframes fireworkExplode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        .pulse-win {
+            animation: pulseWin 0.6s ease-in-out 3;
+        }
+
+        @keyframes pulseWin {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .shake-celebration {
+            animation: shakeCelebration 0.5s ease-in-out;
+        }
+
+        @keyframes shakeCelebration {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .gold-glow {
+            animation: goldGlow 2s infinite alternate;
+        }
+
+        @keyframes goldGlow {
+            from { box-shadow: 0 0 20px gold, 0 0 30px orange; }
+            to { box-shadow: 0 0 30px gold, 0 0 40px orange, 0 0 50px yellow; }
+        }
+
+        .fire-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ff6b00, #ff0000);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        .points-popup {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: gold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8);
+            pointer-events: none;
+            z-index: 1000;
+            animation: pointsFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes pointsFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+
+        .streak-fire {
+            position: relative;
+        }
+
+        .streak-fire::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff6b00, #ff0000);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: firePulse 0.5s infinite alternate;
+        }
+
+        @keyframes firePulse {
+            from { transform: scale(1); opacity: 0.7; }
+            to { transform: scale(1.2); opacity: 1; }
         }
 
         @media (max-width: 768px) {
@@ -1902,6 +2026,11 @@
             <button class="btn-enhanced" id="backToLobbyFromWinner">Volver al Lobby</button>
         </div>
     </div>
+
+    <!-- Contenedor para efectos especiales -->
+    <div id="effectsContainer" class="explosion-container"></div>
+
+    <!-- Audios -->
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
     <audio id="wrongSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
     <audio id="winSound" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto"></audio>
@@ -1909,6 +2038,7 @@
     <audio id="countdownSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-1699.mp3" preload="auto"></audio>
     <audio id="achievementSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
     <audio id="revealSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="explosionSound" src="https://assets.mixkit.co/sfx/preview/mixkit-explosion-with-debris-1701.mp3" preload="auto"></audio>
 
     <script>
         class GameManager {
@@ -2057,6 +2187,9 @@
                     }
                 };
 
+                // NUEVAS PROPIEDADES PARA EFECTOS
+                this.effectsContainer = document.getElementById('effectsContainer');
+                
                 // Referencias a elementos HTML
                 this.lobby3DCanvas = document.getElementById('lobby3DCanvas');
                 this.lobbyCountdownMessage = document.getElementById('lobbyCountdownMessage');
@@ -2102,7 +2235,6 @@
 
             // MÉTODO CORREGIDO: showNotification
             showNotification(message, duration = 3000) {
-                // Crear elemento de notificación si no existe
                 let notification = document.querySelector('.notification');
                 if (!notification) {
                     notification = document.createElement('div');
@@ -2110,16 +2242,13 @@
                     document.body.appendChild(notification);
                 }
                 
-                // Configurar el mensaje y mostrar
                 notification.textContent = message;
                 notification.style.display = 'flex';
                 
-                // Animación de entrada
                 notification.style.animation = 'none';
-                void notification.offsetWidth; // Forzar reflow
+                void notification.offsetWidth;
                 notification.style.animation = `fadeInOut ${duration}ms ease forwards`;
                 
-                // Ocultar después de la duración
                 setTimeout(() => {
                     notification.style.display = 'none';
                 }, duration);
@@ -2154,7 +2283,6 @@
                 this.lobbyCountdownMessage.style.display = 'none'; 
                 this.lobbyCountdownMessage.classList.remove('active'); 
                 
-                // Ocultar elementos del torneo
                 this.tournamentIndicator.style.display = 'none';
                 
                 document.getElementById('finalistAnnouncementScreen').style.display = 'none';
@@ -2208,7 +2336,6 @@
                         this.lobby3DCanvas.style.display = 'none'; 
                         cancelAnimationFrame(this.lobbyAnimationId); 
                         
-                        // Mostrar indicador de torneo si está activo
                         if (this.currentTournamentRound) {
                             this.updateTournamentIndicator(this.currentTournamentRound);
                         }
@@ -2749,13 +2876,11 @@
             handleSocketMessage(data) {
                 console.log("[Cliente] Mensaje WS recibido:", data.type);
                 
-                // CORRECCIÓN: Manejar tanto question_update como tournament_question_update
                 if (data.type === 'question_update' || data.type === 'tournament_question_update') {
                     this.handleQuestionUpdate(data);
                     return;
                 }
                 
-                // Manejar mensajes del torneo
                 if (data.type.startsWith('tournament_')) {
                     this.handleTournamentUpdate(data);
                     return;
@@ -2847,7 +2972,6 @@
                         console.log("Servidor: Respuesta recibida.");
                         break;
 
-                    // NUEVOS CASOS PARA EL TORNEO
                     case 'start_semifinals':
                         this.handleStartTournamentRound('semifinal', data.finalists);
                         break;
@@ -2877,7 +3001,6 @@
                 }
             }
 
-            // MÉTODO NUEVO: Para manejar actualizaciones del torneo
             handleTournamentUpdate(data) {
                 console.log("Actualización del torneo:", data.type);
                 
@@ -2896,12 +3019,10 @@
                     this.showNotification(`¡${data.round === 'semifinal' ? 'Semifinales' : 'Final'} terminada!`);
                     
                     if (data.round === 'semifinal' && data.winners) {
-                        // Transición a la final
                         setTimeout(() => {
                             this.handleStartTournamentRound('final', data.winners);
                         }, 3000);
                     } else if (data.round === 'final' && data.winner) {
-                        // Mostrar al ganador absoluto
                         setTimeout(() => {
                             this.showUltimateWinner(data.winner);
                         }, 3000);
@@ -2909,14 +3030,12 @@
                 }
             }
 
-            // CORRECCIÓN MEJORADA: Manejo de preguntas
             handleQuestionUpdate(data) {
                 this.currentQuestionData = data.question; 
                 this.lastAnswerTime = Date.now();
                 this.currentQuestionIndex = data.questionIndex; 
                 this.timerDuration = data.timerDuration || 30;
                 
-                // DETERMINAR SI ES UNA PREGUNTA DE TORNEO
                 const isTournamentQuestion = data.type === 'tournament_question_update';
                 const currentRound = data.round || 'normal';
                 
@@ -2924,7 +3043,6 @@
                     console.log(`[Cliente] Recibida pregunta de torneo - Ronda: ${currentRound}`);
                     this.currentTournamentRound = currentRound;
                     
-                    // Actualizar indicador de torneo
                     this.updateTournamentIndicator(currentRound);
                 }
                 
@@ -2936,7 +3054,6 @@
                 }
             }
 
-            // CORRECCIÓN MEJORADA: Mostrar preguntas
             displayQuestion(questionData = null, isTournament = false, round = 'normal') {
                 try {
                     const question = questionData || this.currentQuestionData;
@@ -2947,7 +3064,6 @@
                     
                     const questionElement = document.getElementById("currentQuestion");
                     
-                    // AGREGAR INDICADOR DE TORNEO SI ES NECESARIO
                     let questionPrefix = "";
                     if (isTournament) {
                         if (round === 'semifinal') {
@@ -2959,7 +3075,6 @@
                     
                     questionElement.innerHTML = questionPrefix + question.pregunta;
                     
-                    // Aplicar estilo especial para preguntas de torneo
                     if (isTournament) {
                         questionElement.style.border = '3px solid gold';
                         questionElement.style.background = 'linear-gradient(45deg, rgba(255,215,0,0.1), rgba(255,140,0,0.1))';
@@ -2977,7 +3092,6 @@
                     document.getElementById("answerResult").className = "result waiting";
                     this.player.hasAnswered = false; 
                     
-                    // Resetear todos los botones
                     document.getElementById('submitAnswer').disabled = false;
                     document.getElementById('trueBtn').disabled = false;
                     document.getElementById('falseBtn').disabled = false;
@@ -2996,7 +3110,6 @@
                         questionImage.style.display = 'none';
                     }
                     
-                    // MOSTRAR INTERFAZ CORRECTA SEGÚN EL TIPO DE PREGUNTA
                     this.setupQuestionInterface(question.tipo);
                     
                     this.resetTimer();
@@ -3007,14 +3120,11 @@
                 }
             }
 
-            // NUEVA FUNCIÓN: Configurar interfaz según tipo de pregunta
             setupQuestionInterface(questionType) {
-                // Ocultar todas las interfaces primero
                 document.getElementById('standardInput').style.display = 'none';
                 document.getElementById('trueFalseButtons').style.display = 'none';
                 this.abcdButtonsContainer.style.display = 'none';
 
-                // Mostrar la interfaz correcta
                 switch(questionType) {
                     case 'verdadero-falso':
                         document.getElementById('trueFalseButtons').style.display = 'flex';
@@ -3032,7 +3142,6 @@
                         break;
                         
                     default:
-                        // Para operaciones, misterioso, etc.
                         document.getElementById('standardInput').style.display = 'block';
                         break;
                 }
@@ -3480,12 +3589,65 @@
                 }, 3000); 
             }
 
+            // MÉTODO CRÍTICO CORREGIDO: Función para reiniciar puntos del jugador
+            resetPlayerForNewGame() {
+                console.log("🔄 Reiniciando estadísticas del jugador para nuevo juego");
+                
+                // GUARDAR ESTADÍSTICAS PERMANENTES
+                const permanentStats = {
+                    gamesPlayed: this.player.gamesPlayed,
+                    modeStats: this.player.modeStats,
+                    achievements: this.player.achievements,
+                    favoriteMode: this.player.favoriteMode,
+                    id: this.player.id,
+                    name: this.player.name,
+                    grade: this.player.grade,
+                    displayName: this.player.displayName,
+                    avatar: this.player.avatar,
+                    isProfessor: this.player.isProfessor
+                };
+
+                // REINICIAR COMPLETAMENTE PARA EL NUEVO JUEGO
+                this.player.points = 0;
+                this.player.streak = 0;
+                this.player.responseTimes = [];
+                this.player.history = [];
+                this.player.hasAnswered = false;
+                this.player.hasVoted = false;
+                this.player.lastAnswerCorrect = false;
+                this.player.avgResponseTime = 0;
+
+                // player.maxStreak se mantiene (es histórico)
+                // player.gamesPlayed se mantiene (es acumulativo)
+
+                // Restaurar estadísticas permanentes
+                Object.assign(this.player, permanentStats);
+
+                // Actualizar UI inmediatamente
+                this.updatePlayerScore(this.player.id, 0, 0);
+                
+                console.log("✅ Estadísticas reiniciadas para nuevo juego");
+            }
+
             startGame(mode, closestAnswerMode = false) {
+                console.log("🎮 Iniciando nuevo juego con modo:", mode);
+                
+                // ✅ CORRECCIÓN CRÍTICA: REINICIAR PUNTOS ANTES DE COMENZAR
+                this.resetPlayerForNewGame();
+                
                 this.selectedGameMode = mode;
                 this.closestAnswerMode = closestAnswerMode;
-                this.isVotingActive = false; 
-                clearInterval(this.voteInterval); 
+                this.isVotingActive = false;
+                
+                // Limpiar intervalos anteriores
+                clearInterval(this.voteInterval);
                 this.voteInterval = null;
+
+                // Reiniciar también el estado del juego local
+                this.currentQuestionIndex = 0;
+                this.currentQuestionData = null;
+                this.player.hasAnswered = false;
+                this.player.lastAnswerCorrect = false;
 
                 let modeIndicatorText = `Modo: ${this.getModeName(mode)}`;
                 if (this.isFinalistTournament) {
@@ -3493,35 +3655,31 @@
                 }
                 this.gameModeIndicator.textContent = modeIndicatorText;
 
-                document.getElementById('gameContainer').classList.remove('lightning-mode'); 
+                // Configurar interfaz según el modo
+                document.getElementById('gameContainer').classList.remove('lightning-mode');
                 if (mode === 'relampago') {
                     document.getElementById('gameContainer').classList.add('lightning-mode');
                 }
                 
                 this.setState(this.STATES.PLAYING);
                 
-                document.getElementById('standardInput').style.display = 'none';
-                document.getElementById('trueFalseButtons').style.display = 'none';
-                this.abcdButtonsContainer.style.display = 'none';
-
-                if (mode === 'verdadero-falso') {
-                    document.getElementById('trueFalseButtons').style.display = 'flex';
-                } else if (mode === 'informatica') {
-                    this.abcdButtonsContainer.style.display = 'grid'; 
-                } else {
-                    document.getElementById('standardInput').style.display = 'block';
-                }
+                // Configurar interfaz de entrada
+                this.setupQuestionInterface(mode);
                 
-                this.player.points = 0;
-                this.player.streak = 0;
-                this.player.responseTimes = [];
-                this.player.history = []; 
-                this.player.lastAnswerCorrect = false; 
-                this.updatePlayerScore(this.player.id, 0, 0); 
+                // EFECTO ESPECIAL al iniciar juego
+                this.createExplosion(window.innerWidth / 2, 100, '#4e8cff', 25);
                 
+                // Actualizar ranking
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
-                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
+                
+                // Iniciar actualización continua del ranking
+                if (this.rankingUpdateInterval) {
+                    clearInterval(this.rankingUpdateInterval);
+                }
+                this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500);
+                
+                console.log("✅ Juego iniciado correctamente con puntos reiniciados");
             }
 
             startRevealPhase(correctAnswer, playerCorrect, streakBonus, receivedOptions = undefined) { 
@@ -3542,6 +3700,9 @@
                     this.revealPlayerResult.innerHTML = `✅ <strong>¡Correcto!</strong>`;
                     this.revealPlayerResult.style.color = 'var(--verde)';
                     this.playSound('correctSound');
+                    
+                    // EFECTO ESPECIAL para respuesta correcta
+                    this.createExplosion(window.innerWidth / 2, window.innerHeight / 2, '#6bff6b', 20);
                 } else {
                     this.revealPlayerResult.innerHTML = `❌ <strong>Incorrecto</strong>`;
                     this.revealPlayerResult.style.color = 'var(--rojo)';
@@ -3550,6 +3711,9 @@
                 
                 if (streakBonus > 0) {
                     this.revealStreakBonus.innerHTML = `🔥 ¡Racha +${streakBonus} puntos!`;
+                    
+                    // EFECTO ESPECIAL para racha
+                    this.createExplosion(window.innerWidth / 2, window.innerHeight / 2 + 50, '#ffde59', 15);
                 } else {
                     this.revealStreakBonus.innerHTML = '';
                 }
@@ -3586,6 +3750,11 @@
                     this.player.maxStreak = maxStreak;
                     this.player.avgResponseTime = avgResponseTime;
                     document.getElementById('playerScore').textContent = this.player.points;
+                    
+                    // Efecto visual cuando ganan puntos
+                    if (points > 0) {
+                        this.createPointsPopup(points);
+                    }
                 }
             }
 
@@ -3726,9 +3895,10 @@
                 }
             }
 
+            // MÉTODO MEJORADO: showMultiplayerResults con efectos especiales
             showMultiplayerResults(finalRanking) {
                 try {
-                    console.log("Mostrando resultados finales:", finalRanking);
+                    console.log("🏆 Mostrando resultados finales:", finalRanking);
                     this.setState(this.STATES.RESULTS);
                     
                     const firstPlace = document.getElementById('firstPlace');
@@ -3736,9 +3906,11 @@
                     const thirdPlace = document.getElementById('thirdPlace');
                     const otherPlayers = document.getElementById('otherPlayers');
                     
+                    // Limpiar
                     otherPlayers.innerHTML = '';
-                    this.winnerDancingEmoji.style.display = 'none'; 
+                    this.winnerDancingEmoji.style.display = 'none';
 
+                    // Inicializar podio
                     document.getElementById('firstName').textContent = '-';
                     document.getElementById('firstAvatar').src = 'https://i.pravatar.cc/150?img=1';
                     firstPlace.querySelector('.podium-points').textContent = '0 pts';
@@ -3750,30 +3922,62 @@
                     thirdPlace.querySelector('.podium-points').textContent = '0 pts';
 
                     this.showResultsCountdown(3, () => {
-                        this.playSound('winSound'); 
+                        this.playSound('winSound');
+                        
+                        // CELEBRACIÓN INICIAL
+                        this.createConfettiRain(3000);
                         
                         if (finalRanking.length > 0) {
+                            // PRIMER PUESTO
                             const first = finalRanking[0];
                             document.getElementById('firstName').textContent = this.extractName(first.name);
                             document.getElementById('firstAvatar').src = `https://i.pravatar.cc/150?img=${first.avatar || '1'}`;
                             firstPlace.querySelector('.podium-points').textContent = `${first.points || 0} pts`;
-                            this.winnerDancingEmoji.style.display = 'block'; 
+                            this.winnerDancingEmoji.style.display = 'block';
                             
+                            // EFECTO ESPECIAL PARA EL GANADOR
+                            setTimeout(() => {
+                                this.celebrateWinner(firstPlace);
+                            }, 500);
+
+                            // SEGUNDO PUESTO
                             if (finalRanking.length > 1) {
                                 const second = finalRanking[1];
                                 document.getElementById('secondName').textContent = this.extractName(second.name);
                                 document.getElementById('secondAvatar').src = `https://i.pravatar.cc/150?img=${second.avatar || '1'}`;
                                 secondPlace.querySelector('.podium-points').textContent = `${second.points || 0} pts`;
+                                
+                                // Efecto para segundo lugar
+                                setTimeout(() => {
+                                    this.createExplosion(
+                                        secondPlace.getBoundingClientRect().left + secondPlace.offsetWidth / 2,
+                                        secondPlace.getBoundingClientRect().top,
+                                        '#C0C0C0',
+                                        15
+                                    );
+                                }, 1000);
                             }
                             
+                            // TERCER PUESTO
                             if (finalRanking.length > 2) {
                                 const third = finalRanking[2];
                                 document.getElementById('thirdName').textContent = this.extractName(third.name);
                                 document.getElementById('thirdAvatar').src = `https://i.pravatar.cc/150?img=${third.avatar || '1'}`;
                                 thirdPlace.querySelector('.podium-points').textContent = `${third.points || 0} pts`;
+                                
+                                // Efecto para tercer lugar
+                                setTimeout(() => {
+                                    this.createExplosion(
+                                        thirdPlace.getBoundingClientRect().left + thirdPlace.offsetWidth / 2,
+                                        thirdPlace.getBoundingClientRect().top,
+                                        '#CD7F32',
+                                        10
+                                    );
+                                }, 1500);
                             }
                         }
                         
+                        // LISTA DE OTROS JUGADORES
                         for (let i = 3; i < finalRanking.length; i++) {
                             const player = finalRanking[i];
                             const playerPoints = player.points || 0;
@@ -3803,6 +4007,9 @@
                                 playerElement.style.fontWeight = 'bold';
                                 playerElement.style.color = 'var(--amarillo)';
                                 playerElement.style.background = 'rgba(255, 222, 89, 0.2)';
+                                
+                                // Efecto especial para el jugador actual
+                                playerElement.classList.add('shake-celebration');
                             }
                             
                             otherPlayers.appendChild(playerElement);
@@ -3811,7 +4018,7 @@
 
                 } catch (error) {
                     console.error("Error al mostrar resultados:", error);
-                    alert("Ocurrió un error al mostrar los resultados finales");
+                    this.showError("Ocurrió un error al mostrar los resultados finales");
                 }
             }
 
@@ -3845,14 +4052,8 @@
                         this.rankingUpdateInterval = null;
                     }
                     
-                    this.player.points = 0;
-                    this.player.streak = 0;
-                    this.player.responseTimes = [];
-                    this.player.history = [];
-                    this.player.hasAnswered = false;
-                    this.player.hasVoted = false;
-                    this.player.isReady = false; 
-                    this.player.lastAnswerCorrect = false;
+                    // CORRECCIÓN: Usar la función de reinicio completa
+                    this.resetPlayerForNewGame();
 
                     // Reiniciar propiedades del torneo
                     this.isFinalistTournament = false;
@@ -4006,6 +4207,151 @@
                 } catch (error) {
                     console.error("Error con el sonido:", error);
                 }
+            }
+
+            // =============================================
+            // NUEVOS MÉTODOS PARA EFECTOS ESPECTACULARES
+            // =============================================
+
+            createExplosion(x, y, color = '#FFD700', particleCount = 30) {
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'explosion-particle';
+                    particle.style.backgroundColor = color;
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 2 + Math.random() * 3;
+                    const size = 4 + Math.random() * 8;
+                    
+                    particle.style.width = size + 'px';
+                    particle.style.height = size + 'px';
+                    
+                    this.effectsContainer.appendChild(particle);
+                    
+                    gsap.to(particle, {
+                        x: Math.cos(angle) * (50 + Math.random() * 100),
+                        y: Math.sin(angle) * (50 + Math.random() * 100),
+                        opacity: 0,
+                        scale: 0,
+                        duration: 1 + Math.random() * 0.5,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }
+                    });
+                }
+                
+                // Sonido de explosión
+                this.playSound('explosionSound');
+            }
+
+            createFirework(x, y) {
+                const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
+                for (let i = 0; i < 60; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'firework';
+                    particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    particle.style.left = x + 'px';
+                    particle.style.top = y + 'px';
+                    
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 50 + Math.random() * 150;
+                    
+                    particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                    particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                    
+                    this.effectsContainer.appendChild(particle);
+                }
+                
+                this.playSound('countdownSound');
+            }
+
+            createConfettiRain(duration = 5000) {
+                const confettiColors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+                const confettiCount = 150;
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                        confetti.style.left = Math.random() * 100 + 'vw';
+                        confetti.style.top = '-20px';
+                        confetti.style.width = (10 + Math.random() * 10) + 'px';
+                        confetti.style.height = (10 + Math.random() * 10) + 'px';
+                        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0%';
+                        
+                        this.effectsContainer.appendChild(confetti);
+                        
+                        const animation = gsap.to(confetti, {
+                            y: window.innerHeight + 100,
+                            rotation: Math.random() * 360,
+                            x: '+=100',
+                            duration: 2 + Math.random() * 2,
+                            ease: "power1.in",
+                            onComplete: () => {
+                                if (confetti.parentNode) {
+                                    confetti.parentNode.removeChild(confetti);
+                                }
+                            }
+                        });
+                    }, i * (duration / confettiCount));
+                }
+            }
+
+            celebrateWinner(winnerElement) {
+                // Efecto de pulso
+                winnerElement.classList.add('pulse-win', 'gold-glow');
+                
+                // Explosiones alrededor del ganador
+                const rect = winnerElement.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // Múltiples explosiones
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        this.createExplosion(
+                            centerX + (Math.random() - 0.5) * 100,
+                            centerY + (Math.random() - 0.5) * 100,
+                            '#FFD700',
+                            20
+                        );
+                    }, i * 300);
+                }
+                
+                // Fuegos artificiales
+                setTimeout(() => {
+                    this.createFirework(centerX, centerY);
+                }, 1500);
+                
+                // Lluvia de confeti
+                this.createConfettiRain();
+                
+                // Quitar clases después de la animación
+                setTimeout(() => {
+                    winnerElement.classList.remove('pulse-win');
+                }, 2000);
+            }
+
+            createPointsPopup(points) {
+                const popup = document.createElement('div');
+                popup.className = 'points-popup';
+                popup.textContent = `+${points}`;
+                popup.style.left = '50%';
+                popup.style.top = '50%';
+                
+                this.effectsContainer.appendChild(popup);
+                
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                }, 1500);
             }
 
             // MÉTODOS NUEVOS PARA EL SISTEMA DE TORNEO
@@ -4324,6 +4670,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const game = new GameManager();
+                window.gameInstance = game; // Para debugging
             } catch (error) {
                 console.error("Error al iniciar el juego:", error);
                 const errorMessage = document.createElement('div');
@@ -4334,4 +4681,4 @@
         });
     </script>
 </body>
-</html>w
+</html>

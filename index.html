@@ -134,133 +134,135 @@
             transform: translateY(0) scale(1);
         }
 
-        .join-form {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
+        /* MEJORAS VISUALES PARA EL LOBBY DE REGISTRO */
+        .enhanced-join-form {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8)) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 2px solid rgba(255,255,255,0.3) !important;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+            border-radius: 20px !important;
+            padding: 40px !important;
             width: 100%;
             max-width: 500px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--morado);
         }
 
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
+        .enhanced-join-form h2 {
+            background: linear-gradient(45deg, #4e8cff, #a459ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem !important;
+            margin-bottom: 25px !important;
         }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
+        .avatar-selector-enhanced {
+            display: grid !important;
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 15px !important;
+            margin: 20px 0 !important;
         }
 
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--borde);
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: 'Comic Neue', cursive;
-            transition: all 0.3s;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--morado);
-            box-shadow: var(--neon-morado);
-        }
-
-        .avatar-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin: 15px 0;
-        }
-
-        .avatar-option {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+        .avatar-option-enhanced {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 15px !important;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 3px solid transparent;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease !important;
+            border: 3px solid transparent !important;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
         }
 
-        .avatar-option:hover {
-            transform: scale(1.1);
-            box-shadow: var(--neon-morado);
+        .avatar-option-enhanced:hover {
+            transform: translateY(-5px) scale(1.1) !important;
+            box-shadow: 0 10px 25px rgba(164, 89, 255, 0.3) !important;
         }
 
-        .avatar-option.selected {
-            border-color: var(--morado);
-            transform: scale(1.1);
-            box-shadow: var(--neon-morado);
+        .avatar-option-enhanced.selected {
+            border-color: #a459ff !important;
+            transform: scale(1.1) !important;
+            box-shadow: 0 0 20px rgba(164, 89, 255, 0.5) !important;
         }
 
-        .btn {
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Comic Neue', cursive;
-            margin: 8px;
-            background: linear-gradient(45deg, var(--azul), var(--morado));
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
+        .input-group-enhanced {
+            margin-bottom: 25px !important;
+            text-align: left !important;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        .input-group-enhanced label {
+            display: block !important;
+            margin-bottom: 10px !important;
+            font-weight: bold !important;
+            color: #333 !important;
+            font-size: 1.1rem !important;
+        }
+
+        .input-group-enhanced input {
+            width: 100% !important;
+            padding: 15px !important;
+            border: 2px solid #e0e0e0 !important;
+            border-radius: 12px !important;
+            font-size: 1.1rem !important;
+            font-family: 'Comic Neue', cursive !important;
+            transition: all 0.3s ease !important;
+            background: rgba(255,255,255,0.9) !important;
+        }
+
+        .input-group-enhanced input:focus {
+            outline: none !important;
+            border-color: #a459ff !important;
+            box-shadow: 0 0 0 3px rgba(164, 89, 255, 0.2) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        /* Botones mejorados */
+        .btn-enhanced {
+            background: linear-gradient(45deg, #4e8cff, #a459ff) !important;
+            color: white !important;
+            padding: 15px 30px !important;
+            border: none !important;
+            border-radius: 50px !important;
+            font-size: 1.2rem !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 8px 25px rgba(164, 89, 255, 0.3) !important;
+            position: relative !important;
+            overflow: hidden !important;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: 0.5s;
+            margin: 10px 0;
         }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px var(--sombra);
+        .btn-enhanced:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 35px rgba(164, 89, 255, 0.4) !important;
         }
 
-        .btn:hover::before {
-            left: 100%;
+        .btn-enhanced:active {
+            transform: translateY(-2px) !important;
         }
 
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 5px var(--sombra);
+        .btn-enhanced::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -100% !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+            transition: 0.5s !important;
         }
 
-        .btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
+        .btn-enhanced:hover::before {
+            left: 100% !important;
         }
 
-        .btn-secondary {
-            background: var(--panel);
-            border: 2px solid var(--borde);
-            color: var(--texto);
+        .btn-create {
+            background: linear-gradient(45deg, #ff6b6b, #ffde59) !important;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3) !important;
         }
 
-        .btn-secondary:hover {
-            border-color: var(--morado);
-            box-shadow: var(--neon-morado);
+        .btn-create:hover {
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4) !important;
         }
 
         .error-message {
@@ -297,16 +299,15 @@
             z-index: -1;
         }
 
-        .lobby-container {
-            background: var(--panel);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px var(--sombra);
+        .lobby-container-enhanced {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)) !important;
+            backdrop-filter: blur(25px) !important;
+            border: 2px solid rgba(255,255,255,0.4) !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+            border-radius: 25px !important;
+            padding: 40px !important;
             width: 100%;
             max-width: 800px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 2px solid var(--morado);
             position: relative;
             z-index: 1;
         }
@@ -319,22 +320,28 @@
             margin: 20px 0;
         }
 
-        .player-badge {
-            background: linear-gradient(45deg, var(--azul), var(--morado));
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+        .player-badge-enhanced {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            padding: 12px 20px !important;
+            border-radius: 25px !important;
+            font-weight: bold !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3) !important;
+            transition: all 0.3s ease !important;
+            border: 2px solid transparent !important;
         }
 
-        .player-badge:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--sombra);
+        .player-badge-enhanced:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4) !important;
+        }
+
+        .player-badge-enhanced.host {
+            border-color: #ffde59 !important;
+            background: linear-gradient(135deg, #ffde59, #ff9d00) !important;
         }
 
         .player-avatar {
@@ -1539,6 +1546,31 @@
             100% { transform: scale(1.2); }
         }
 
+        /* Indicadores de torneo mejorados */
+        .tournament-question-indicator {
+            background: linear-gradient(45deg, #ff6b6b, #ffde59) !important;
+            color: white !important;
+            padding: 10px 20px !important;
+            border-radius: 25px !important;
+            font-weight: bold !important;
+            margin-bottom: 15px !important;
+            display: inline-block !important;
+            animation: pulse 2s infinite !important;
+        }
+
+        .finalist-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            background: linear-gradient(45deg, #FFD700, #FFA500) !important;
+            color: white !important;
+            padding: 5px 12px !important;
+            border-radius: 15px !important;
+            font-size: 0.8em !important;
+            margin-left: 8px !important;
+            font-weight: bold !important;
+            animation: glow 1.5s infinite alternate !important;
+        }
+
         @media (max-width: 768px) {
             .mode-buttons {
                 grid-template-columns: 1fr;
@@ -1594,6 +1626,15 @@
                 top: 60px;
                 font-size: 0.9rem;
             }
+
+            .enhanced-join-form {
+                padding: 20px !important;
+                margin: 10px;
+            }
+
+            .avatar-selector-enhanced {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
         }
     </style>
 </head>
@@ -1605,41 +1646,45 @@
 
     <div class="join-screen" id="joinScreen">
         <h1>✨ Juego De Matematicas Pro ✨</h1>
-        <div class="join-form glass-panel neon-border">
-            <h2>¡Únete al juego!</h2>
-            <div class="input-group">
-                <label for="playerName">Tu nombre:</label>
-                <input type="text" id="playerName" placeholder="Ej: Juan" maxlength="20">
+        <div class="enhanced-join-form neon-border">
+            <h2>🎮 ¡Únete a la Aventura! 🎮</h2>
+            <div class="input-group-enhanced">
+                <label for="playerName">👤 Tu nombre épico:</label>
+                <input type="text" id="playerName" placeholder="Ej: Super Matemático" maxlength="20">
             </div>
-            <div class="input-group">
-                <label for="grade">Tu grado:</label>
+            <div class="input-group-enhanced">
+                <label for="grade">🎓 Tu grado escolar:</label>
                 <input type="text" id="grade" placeholder="Ej: 5° Primaria" maxlength="20">
             </div>
-            <div class="input-group">
-                <label for="gamePin">Código PIN:</label>
+            <div class="input-group-enhanced">
+                <label for="gamePin">🔑 Código PIN de la sala:</label>
                 <input type="text" id="gamePin" placeholder="Ej: 1234" maxlength="4">
             </div>
             
-            <div class="input-group">
-                <label>Elige tu avatar:</label>
-                <div class="avatar-selector" id="avatarSelector">
-                    <img src="imagenes/avatar1.png" class="avatar-option" data-avatar="1" alt="avatar 1">
-                    <img src="imagenes/avatar2.png" class="avatar-option" data-avatar="2" alt="avatar 2">
-                    <img src="imagenes/avatar5.png" class="avatar-option" data-avatar="5" alt="avatar 5">
-                    <img src="https://i.pravatar.cc/150?img=4" class="avatar-option" data-avatar="4">
-                    <img src="https://i.pravatar.cc/150?img=6" class="avatar-option" data-avatar="6">
+            <div class="input-group-enhanced">
+                <label>🎭 Elige tu avatar legendario:</label>
+                <div class="avatar-selector-enhanced" id="avatarSelector">
+                    <img src="imagenes/avatar1.png" class="avatar-option-enhanced" data-avatar="1" alt="avatar 1">
+                    <img src="imagenes/avatar2.png" class="avatar-option-enhanced" data-avatar="2" alt="avatar 2">
+                    <img src="imagenes/avatar5.png" class="avatar-option-enhanced" data-avatar="5" alt="avatar 5">
+                    <img src="https://i.pravatar.cc/150?img=4" class="avatar-option-enhanced" data-avatar="4">
+                    <img src="https://i.pravatar.cc/150?img=6" class="avatar-option-enhanced" data-avatar="6">
                 </div>
             </div>
             
-            <button class="btn" id="joinGame">Unirse</button>
-            <button class="btn btn-secondary" id="createGame">Crear nueva sala</button>
+            <button class="btn-enhanced" id="joinGame">
+                🚀 Unirse a la Batalla
+            </button>
+            <button class="btn-enhanced btn-create" id="createGame">
+                🏰 Crear Sala Épica
+            </button>
             <p id="joinError" class="error-message"></p>
         </div>
     </div>
 
     <div class="multiplayer-lobby" id="multiplayerLobby">
         <canvas id="lobby3DCanvas"></canvas>
-        <div class="lobby-container glass-panel">
+        <div class="lobby-container-enhanced">
             <h2>Sala: <span id="lobbyPin">----</span></h2>
             <div class="player-count">Jugadores: <span id="playerCount">0</span>/15</div>
             
@@ -1684,8 +1729,8 @@
             </div>
             
             <div class="player-list" id="multiplayerPlayerList"></div>
-            <button class="btn ready-btn" id="readyBtn">👍 Listo</button>
-            <button class="btn" id="startVoteBtn" style="display:none;">Iniciar Votación</button> 
+            <button class="btn-enhanced ready-btn" id="readyBtn">👍 Listo</button>
+            <button class="btn-enhanced" id="startVoteBtn" style="display:none;">Iniciar Votación</button> 
         </div>
     </div>
 
@@ -1731,7 +1776,7 @@
                     <div class="key" data-number="0">0</div>
                     <div class="key negative" data-number="-">-</div>
                 </div>
-                <button class="btn" id="submitAnswer">Responder 🚀</button>
+                <button class="btn-enhanced" id="submitAnswer">Responder 🚀</button>
                 <p id="answerResult" class="result waiting">Esperando respuesta... 🤔</p>
             </div>
             
@@ -1752,7 +1797,7 @@
             <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <button class="btn" id="reiniciarBtn">🔄 Reiniciar Juego</button>
+        <button class="btn-enhanced" id="reiniciarBtn">🔄 Reiniciar Juego</button>
         <p id="mensajeVictoria" class="result"></p>
     </div>
 
@@ -1786,12 +1831,12 @@
             </div>
         </div>
         <div class="other-players glass-panel" id="otherPlayers"></div>
-        <button class="btn" id="backToLobby">Volver al Lobby</button>
+        <button class="btn-enhanced" id="backToLobby">Volver al Lobby</button>
     </div>
 
     <div class="theme-toggle" id="themeToggle">🌙</div>
     
-    <button class="btn skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
+    <button class="btn-enhanced skip-btn" id="skipQuestion">⏭️ Saltar pregunta</button>
 
     <div class="connection-status connected" id="connectionStatus">🟢 Conectado</div>
 
@@ -1799,13 +1844,13 @@
         <div class="achievement-icon">🏆</div>
         <h3 id="achievementTitle">Logro Desbloqueado</h3>
         <p id="achievementDescription">Descripción del logro</p>
-        <button class="btn" id="closeAchievement">¡Genial!</button>
+        <button class="btn-enhanced" id="closeAchievement">¡Genial!</button>
     </div>
 
     <div class="player-stats glass-panel" id="playerStats">
         <h3>📊 Mis Estadísticas</h3>
         <div id="statsContent"></div>
-        <button class="btn" id="closeStats">Cerrar</button>
+        <button class="btn-enhanced" id="closeStats">Cerrar</button>
     </div>
 
     <div id="revealPhase" class="reveal-phase" style="display: none;">
@@ -1854,7 +1899,7 @@
                 <img id="ultimateWinnerAvatar" class="podium-avatar" style="width: 80px; height: 80px;">
                 <h2 id="ultimateWinnerName">Nombre del Ganador</h2>
             </div>
-            <button class="btn" id="backToLobbyFromWinner">Volver al Lobby</button>
+            <button class="btn-enhanced" id="backToLobbyFromWinner">Volver al Lobby</button>
         </div>
     </div>
     <audio id="correctSound" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" preload="auto"></audio>
@@ -2199,16 +2244,16 @@
                     localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
                 });
                 
-                document.querySelectorAll('.avatar-option').forEach(avatar => {
+                document.querySelectorAll('.avatar-option-enhanced').forEach(avatar => {
                     avatar.addEventListener('click', () => {
-                        document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+                        document.querySelectorAll('.avatar-option-enhanced').forEach(a => a.classList.remove('selected'));
                         avatar.classList.add('selected');
                         this.player.avatar = avatar.dataset.avatar;
                         this.playSound('clickSound');
                     });
                 });
                 
-                document.querySelector('.avatar-option').click();
+                document.querySelector('.avatar-option-enhanced').click();
                 
                 document.getElementById('joinGame').addEventListener('click', () => this.joinGame());
                 document.getElementById('createGame').addEventListener('click', () => this.createGame());
@@ -2669,7 +2714,7 @@
 
             showReconnectButton() {
                 const statusElement = document.getElementById('connectionStatus');
-                statusElement.innerHTML = '🔴 Desconectado <button class="btn btn-secondary" id="reconnectBtn">Reconectar</button>';
+                statusElement.innerHTML = '🔴 Desconectado <button class="btn-enhanced" id="reconnectBtn">Reconectar</button>';
                 const existingBtn = document.getElementById('reconnectBtn');
                 if (existingBtn) {
                      existingBtn.onclick = () => {
@@ -2703,6 +2748,12 @@
 
             handleSocketMessage(data) {
                 console.log("[Cliente] Mensaje WS recibido:", data.type);
+                
+                // CORRECCIÓN: Manejar tanto question_update como tournament_question_update
+                if (data.type === 'question_update' || data.type === 'tournament_question_update') {
+                    this.handleQuestionUpdate(data);
+                    return;
+                }
                 
                 // Manejar mensajes del torneo
                 if (data.type.startsWith('tournament_')) {
@@ -2749,10 +2800,6 @@
                     case 'game_start': 
                         this.isFinalistTournament = data.isFinalistTournament;
                         this.startGame(data.mode, data.closestAnswerMode);
-                        break;
-                        
-                    case 'question_update':
-                        this.handleQuestionUpdate(data);
                         break;
                         
                     case 'game_over':
@@ -2809,10 +2856,6 @@
                         this.handleStartTournamentRound('final', data.finalists);
                         break;
                         
-                    case 'tournament_question_update':
-                        this.handleQuestionUpdate(data);
-                        break;
-                        
                     case 'enter_spectator_mode':
                         this.enterSpectatorMode(data.finalists);
                         break;
@@ -2838,16 +2881,7 @@
             handleTournamentUpdate(data) {
                 console.log("Actualización del torneo:", data.type);
                 
-                if (data.type === 'tournament_question') {
-                    if (this.spectatorMode) {
-                        this.updateSpectatorView({
-                            finalists: this.tournamentFinalists,
-                            question: data.question
-                        });
-                    } else {
-                        this.handleQuestionUpdate(data);
-                    }
-                } else if (data.type === 'tournament_ranking_update') {
+                if (data.type === 'tournament_ranking_update') {
                     this.tournamentFinalists = data.finalists;
                     this.updateLiveRanking();
                     this.highlightFinalists();
@@ -2872,6 +2906,135 @@
                             this.showUltimateWinner(data.winner);
                         }, 3000);
                     }
+                }
+            }
+
+            // CORRECCIÓN MEJORADA: Manejo de preguntas
+            handleQuestionUpdate(data) {
+                this.currentQuestionData = data.question; 
+                this.lastAnswerTime = Date.now();
+                this.currentQuestionIndex = data.questionIndex; 
+                this.timerDuration = data.timerDuration || 30;
+                
+                // DETERMINAR SI ES UNA PREGUNTA DE TORNEO
+                const isTournamentQuestion = data.type === 'tournament_question_update';
+                const currentRound = data.round || 'normal';
+                
+                if (isTournamentQuestion) {
+                    console.log(`[Cliente] Recibida pregunta de torneo - Ronda: ${currentRound}`);
+                    this.currentTournamentRound = currentRound;
+                    
+                    // Actualizar indicador de torneo
+                    this.updateTournamentIndicator(currentRound);
+                }
+                
+                this.displayQuestion(data.question, isTournamentQuestion, currentRound);
+                
+                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
+                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
+                    document.getElementById("progressBar").style.width = `${progreso}%`;
+                }
+            }
+
+            // CORRECCIÓN MEJORADA: Mostrar preguntas
+            displayQuestion(questionData = null, isTournament = false, round = 'normal') {
+                try {
+                    const question = questionData || this.currentQuestionData;
+                    if (!question) {
+                        console.error("No hay datos de pregunta para mostrar");
+                        return;
+                    }
+                    
+                    const questionElement = document.getElementById("currentQuestion");
+                    
+                    // AGREGAR INDICADOR DE TORNEO SI ES NECESARIO
+                    let questionPrefix = "";
+                    if (isTournament) {
+                        if (round === 'semifinal') {
+                            questionPrefix = "<div style='background: linear-gradient(45deg, #4e8cff, #a459ff); color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold;'>🏆 SEMIFINALES</div>";
+                        } else if (round === 'final') {
+                            questionPrefix = "<div style='background: linear-gradient(45deg, #ff6b6b, #ffde59); color: white; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold;'>👑 FINAL DEL TORNEO</div>";
+                        }
+                    }
+                    
+                    questionElement.innerHTML = questionPrefix + question.pregunta;
+                    
+                    // Aplicar estilo especial para preguntas de torneo
+                    if (isTournament) {
+                        questionElement.style.border = '3px solid gold';
+                        questionElement.style.background = 'linear-gradient(45deg, rgba(255,215,0,0.1), rgba(255,140,0,0.1))';
+                    } else {
+                        questionElement.style.border = '';
+                        questionElement.style.background = '';
+                    }
+                    
+                    questionElement.classList.remove('question-animation');
+                    void questionElement.offsetWidth; 
+                    questionElement.classList.add('question-animation');
+                    
+                    document.getElementById("playerAnswer").value = "";
+                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
+                    document.getElementById("answerResult").className = "result waiting";
+                    this.player.hasAnswered = false; 
+                    
+                    // Resetear todos los botones
+                    document.getElementById('submitAnswer').disabled = false;
+                    document.getElementById('trueBtn').disabled = false;
+                    document.getElementById('falseBtn').disabled = false;
+                    document.querySelectorAll('.abcd-btn').forEach(btn => {
+                        btn.disabled = false;
+                        btn.classList.remove('selected-answer');
+                    });
+                    
+                    this.lastAnswerTime = Date.now();
+                    
+                    const questionImage = document.getElementById('questionImage');
+                    if (question.imagen) {
+                        questionImage.src = question.imagen;
+                        questionImage.style.display = 'block';
+                    } else {
+                        questionImage.style.display = 'none';
+                    }
+                    
+                    // MOSTRAR INTERFAZ CORRECTA SEGÚN EL TIPO DE PREGUNTA
+                    this.setupQuestionInterface(question.tipo);
+                    
+                    this.resetTimer();
+                    
+                } catch (error) {
+                    console.error("Error al mostrar pregunta:", error);
+                    this.showError("Error al cargar la pregunta.");
+                }
+            }
+
+            // NUEVA FUNCIÓN: Configurar interfaz según tipo de pregunta
+            setupQuestionInterface(questionType) {
+                // Ocultar todas las interfaces primero
+                document.getElementById('standardInput').style.display = 'none';
+                document.getElementById('trueFalseButtons').style.display = 'none';
+                this.abcdButtonsContainer.style.display = 'none';
+
+                // Mostrar la interfaz correcta
+                switch(questionType) {
+                    case 'verdadero-falso':
+                        document.getElementById('trueFalseButtons').style.display = 'flex';
+                        break;
+                        
+                    case 'informatica':
+                        this.abcdButtonsContainer.style.display = 'grid'; 
+                        const options = this.currentQuestionData.opciones;
+                        if (options) {
+                            document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
+                            document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
+                            document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
+                            document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D;
+                        }
+                        break;
+                        
+                    default:
+                        // Para operaciones, misterioso, etc.
+                        document.getElementById('standardInput').style.display = 'block';
+                        break;
                 }
             }
 
@@ -3004,20 +3167,6 @@
                         pin: this.gamePin,
                         hostId: this.player.id
                     }));
-                }
-            }
-
-            handleQuestionUpdate(data) {
-                this.currentQuestionData = data.question; 
-                this.lastAnswerTime = Date.now();
-                this.currentQuestionIndex = data.questionIndex; 
-                this.timerDuration = data.timerDuration || 30;
-                
-                this.displayQuestion(data.question);
-                
-                if (data.questionIndex !== undefined && data.totalQuestions !== undefined) {
-                    const progreso = ((data.questionIndex + 1) / data.totalQuestions) * 100; 
-                    document.getElementById("progressBar").style.width = `${progreso}%`;
                 }
             }
 
@@ -3154,15 +3303,18 @@
 
                 sortedPlayers.forEach(player => {
                     const playerElement = document.createElement('div');
-                    playerElement.className = 'player-badge';
+                    playerElement.className = 'player-badge-enhanced';
+                    if (player.id === this.player.id) {
+                        playerElement.classList.add('current-player');
+                    }
+                    if (player.isProfessor) {
+                        playerElement.classList.add('host');
+                    }
+                    
                     playerElement.innerHTML = `
                         <img src="https://i.pravatar.cc/150?img=${player.avatar || '1'}" class="player-avatar" onerror="this.src='https://i.pravatar.cc/150?img=1'">
                         <span>${this.extractName(player.name)}</span>
                     `;
-                    
-                    if (player.id === this.player.id) {
-                        playerElement.style.border = '2px solid var(--amarillo)';
-                    }
                     
                     if (player.isProfessor) {
                         playerElement.innerHTML += ' 👨‍🏫';
@@ -3370,110 +3522,6 @@
                 this.lastRanking = [...this.players].sort((a, b) => (b.points || 0) - (a.points || 0));
                 this.updateLiveRanking();
                 this.rankingUpdateInterval = setInterval(() => this.updateLiveRanking(), 500); 
-            }
-
-            displayQuestion(questionData = null) {
-                try {
-                    const question = questionData || this.currentQuestionData;
-                    if (!question) return;
-                    
-                    const questionElement = document.getElementById("currentQuestion");
-                    questionElement.innerHTML = question.pregunta;
-                    
-                    questionElement.classList.remove('question-animation');
-                    void questionElement.offsetWidth; 
-                    questionElement.classList.add('question-animation');
-                    
-                    document.getElementById("playerAnswer").value = "";
-                    document.getElementById("answerResult").textContent = "Esperando respuesta... 🤔";
-                    document.getElementById("answerResult").className = "result waiting";
-                    this.player.hasAnswered = false; 
-                    document.getElementById('submitAnswer').disabled = false; 
-                    this.lastAnswerTime = Date.now();
-                    
-                    const questionImage = document.getElementById('questionImage');
-                    if (question.imagen) {
-                        questionImage.src = question.imagen;
-                        questionImage.style.display = 'block';
-                    } else {
-                        questionImage.style.display = 'none';
-                    }
-                    
-                    document.getElementById('standardInput').style.display = 'none';
-                    document.getElementById('trueFalseButtons').style.display = 'none';
-                    this.abcdButtonsContainer.style.display = 'none';
-
-                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.classList.remove('selected-answer'));
-
-                    if (this.selectedGameMode === 'verdadero-falso') {
-                        document.getElementById('trueFalseButtons').style.display = 'flex';
-                    } else if (this.selectedGameMode === 'informatica') {
-                        this.abcdButtonsContainer.style.display = 'grid'; 
-                        const options = question.opciones;
-                        document.querySelector('.abcd-btn[data-answer="A"] .answer-text').textContent = options.A;
-                        document.querySelector('.abcd-btn[data-answer="B"] .answer-text').textContent = options.B;
-                        document.querySelector('.abcd-btn[data-answer="C"] .answer-text').textContent = options.C;
-                        document.querySelector('.abcd-btn[data-answer="D"] .answer-text').textContent = options.D;
-
-                    } else {
-                        document.getElementById('standardInput').style.display = 'block';
-                    }
-
-                    this.resetTimer();
-                } catch (error) {
-                    console.error("Error al mostrar pregunta:", error);
-                    this.showError("Error al cargar la pregunta.");
-                }
-            }
-            
-            checkAnswer(userAnswer) {
-                try {
-                    if (this.player.hasAnswered) {
-                        console.log("Ya respondiste esta pregunta");
-                        return;
-                    }
-
-                    document.getElementById('submitAnswer').disabled = true;
-                    document.getElementById('trueBtn').disabled = true;
-                    document.getElementById('falseBtn').disabled = true;
-                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = true);
-
-                    this.player.hasAnswered = true;
-                    document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
-                    document.getElementById("answerResult").className = "result waiting";
-
-                    const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
-                    
-                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
-                        this.socket.send(JSON.stringify({
-                            type: 'submit_answer',
-                            pin: this.gamePin,
-                            playerId: this.player.id,
-                            answer: userAnswer,
-                            responseTime: responseTime
-                        }));
-                    }
-                } catch (error) {
-                    console.error("Error al enviar respuesta:", error);
-                    this.showError("Error al enviar la respuesta.");
-                    document.getElementById('submitAnswer').disabled = false;
-                    document.getElementById('trueBtn').disabled = false;
-                    document.getElementById('falseBtn').disabled = false;
-                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
-                    this.player.hasAnswered = false;
-                }
-            }
-
-            submitABCDAnswer(answer) {
-                if (this.player.hasAnswered) return;
-
-                document.querySelectorAll('.abcd-btn').forEach(btn => {
-                    btn.classList.remove('selected-answer');
-                    btn.disabled = true; 
-                });
-                document.querySelector(`.abcd-btn[data-answer="${answer}"]`).classList.add('selected-answer');
-
-                this.checkAnswer(answer);
             }
 
             startRevealPhase(correctAnswer, playerCorrect, streakBonus, receivedOptions = undefined) { 
@@ -3872,6 +3920,72 @@
                 this.checkAnswer(respuesta);
             }
 
+            checkAnswer(userAnswer) {
+                try {
+                    if (this.player.hasAnswered) {
+                        console.log("Ya respondiste esta pregunta");
+                        return;
+                    }
+
+                    // DESHABILITAR BOTONES
+                    document.getElementById('submitAnswer').disabled = true;
+                    document.getElementById('trueBtn').disabled = true;
+                    document.getElementById('falseBtn').disabled = true;
+                    document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = true);
+
+                    this.player.hasAnswered = true;
+                    document.getElementById("answerResult").textContent = "Respuesta enviada. ¡Esperando a los demás!";
+                    document.getElementById("answerResult").className = "result waiting";
+
+                    const responseTime = (Date.now() - this.lastAnswerTime) / 1000;
+                    
+                    // DETERMINAR EL TIPO DE ENVÍO (TORNEO O NORMAL)
+                    let messageType = 'submit_answer';
+                    let additionalData = {};
+                    
+                    if (this.currentTournamentRound && this.currentTournamentRound !== 'normal') {
+                        console.log(`[Cliente] Enviando respuesta de torneo - Ronda: ${this.currentTournamentRound}`);
+                        additionalData.round = this.currentTournamentRound;
+                    }
+                    
+                    if (this.isMultiplayer && this.socket && this.socket.readyState === WebSocket.OPEN) {
+                        this.socket.send(JSON.stringify({
+                            type: messageType,
+                            pin: this.gamePin,
+                            playerId: this.player.id,
+                            answer: userAnswer,
+                            responseTime: responseTime,
+                            ...additionalData
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Error al enviar respuesta:", error);
+                    this.showError("Error al enviar la respuesta.");
+                    this.reEnableAnswerButtons();
+                }
+            }
+
+            submitABCDAnswer(answer) {
+                if (this.player.hasAnswered) return;
+
+                document.querySelectorAll('.abcd-btn').forEach(btn => {
+                    btn.classList.remove('selected-answer');
+                    btn.disabled = true; 
+                });
+                document.querySelector(`.abcd-btn[data-answer="${answer}"]`).classList.add('selected-answer');
+
+                this.checkAnswer(answer);
+            }
+
+            // NUEVA FUNCIÓN: Rehabilitar botones de respuesta
+            reEnableAnswerButtons() {
+                document.getElementById('submitAnswer').disabled = false;
+                document.getElementById('trueBtn').disabled = false;
+                document.getElementById('falseBtn').disabled = false;
+                document.querySelectorAll('.abcd-btn').forEach(btn => btn.disabled = false);
+                this.player.hasAnswered = false;
+            }
+
             handleNetworkError(error, message = "Error de red") {
                 console.error(message, error);
                 this.showNotification(`${message}. Intentando reconectar...`);
@@ -3998,9 +4112,35 @@
                 }
                 
                 this.tournamentIndicator.style.display = 'block';
-                this.tournamentText.textContent = round === 'semifinal' ? 
-                    'Semifinales' : 'Final del Torneo';
-                this.roundBadge.textContent = round === 'semifinal' ? 'Semifinal' : 'Final';
+                
+                let roundText = '';
+                let badgeText = '';
+                
+                switch(round) {
+                    case 'semifinal':
+                        roundText = 'Semifinales';
+                        badgeText = 'Semifinal';
+                        break;
+                    case 'final':
+                        roundText = 'Final del Torneo';
+                        badgeText = 'Final';
+                        break;
+                    default:
+                        roundText = 'Torneo';
+                        badgeText = 'Ronda';
+                }
+                
+                this.tournamentText.textContent = roundText;
+                this.roundBadge.textContent = badgeText;
+                
+                // Actualizar también el indicador de modo de juego
+                if (this.gameModeIndicator) {
+                    let modeText = `Modo: ${this.getModeName(this.selectedGameMode)}`;
+                    if (round !== 'normal') {
+                        modeText += ` | ${roundText}`;
+                    }
+                    this.gameModeIndicator.textContent = modeText;
+                }
                 
                 // Destacar a los jugadores finalistas en el ranking
                 this.highlightFinalists();
@@ -4194,4 +4334,4 @@
         });
     </script>
 </body>
-</html>
+</html>w

@@ -1,4 +1,4 @@
-// server.js - SERVIDOR MATH CHALLENGE PRO COMPLETO CON CORRECCIONES
+// server.js - SERVIDOR MATH CHALLENGE PRO COMPLETO CON TODAS LAS CORRECCIONES
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -235,7 +235,7 @@ const CONFIG = {
   FINALIST_COUNT: 4
 };
 
-// ====================== CLASES MEJORADAS CON CORRECCIONES ======================
+// ====================== CLASES MEJORADAS CON TODAS LAS CORRECCIONES ======================
 
 class Sala {
   constructor(pin, hostId) {
@@ -259,9 +259,11 @@ class Sala {
     this.currentQuestion = null;
     this.timerDuration = CONFIG.QUESTION_DURATION.normal;
     
+    // ====================== CORRECCIÓN: ESTADOS DE TORNEO MEJORADOS ======================
     this.isFinalistTournament = false;
     this.tournamentStarted = false;
     this.tournamentStage = null;
+    this.tournamentGameRunning = false; // NUEVO: Estado específico para torneo
     this.finalists = new Map();
     this.tournamentQuestions = [];
     this.tournamentQuestionIndex = 0;
@@ -302,12 +304,20 @@ class Sala {
     return this.getPlayersArray().filter(p => !p.isProfessor);
   }
 
+  // ====================== CORRECCIÓN: MÉTODOS DE ESTADO DE TORNEO ======================
+  isTournamentGameRunning() {
+    return this.tournamentStarted && this.tournamentGameRunning;
+  }
+
+  isAnyGameRunning() {
+    return this.isGameRunning || this.isTournamentGameRunning();
+  }
+
   updateActivity() {
     this.lastActivity = Date.now();
   }
 
   // ====================== CORRECCIÓN CRÍTICA: SINCRONIZACIÓN MEJORADA ======================
-  
   syncPlayersToAll() {
     const playersUpdate = {
       type: 'players_update',
@@ -389,6 +399,7 @@ class Sala {
       playerCount: this.players.size,
       isGameRunning: this.isGameRunning,
       tournamentStage: this.tournamentStage,
+      tournamentGameRunning: this.tournamentGameRunning,
       createdAt: this.createdAt,
       lastActivity: this.lastActivity
     };
@@ -564,6 +575,8 @@ function getTimerDuration(gameMode, isTournament = false) {
   return CONFIG.QUESTION_DURATION[gameMode] || CONFIG.QUESTION_DURATION.normal;
 }
 
+// ====================== LÓGICA DEL JUEGO COMPLETA ======================
+
 function startNextQuestion(room) {
   if (!room.isGameRunning || room.questionIndex >= room.questions.length) {
     endGame(room.pin);
@@ -614,7 +627,7 @@ function sendRevealPhase(room, isTournament = false) {
   const participants = isTournament ? room.getFinalistsArray() : room.getPlayersArray();
   const roundDuration = isTournament ? room.tournamentTimerDuration : room.timerDuration;
 
-  console.log(`[Revelación ${room.pin}] Procesando ${answersMap.size} respuestas`);
+  console.log(`[Revelación ${room.pin}] Procesando ${answersMap.size} respuestas (Torneo: ${isTournament})`);
 
   participants.forEach(player => {
     const answerData = answersMap.get(player.id);
@@ -697,7 +710,7 @@ function sendRevealPhase(room, isTournament = false) {
   }, 1000);
 }
 
-// ====================== SISTEMA DE TORNEO COMPLETO ======================
+// ====================== SISTEMA DE TORNEO COMPLETO CORREGIDO ======================
 
 function startSemifinals(pin) {
   const room = rooms.get(pin);
@@ -709,6 +722,8 @@ function startSemifinals(pin) {
   room.tournamentStage = 'semifinal';
   room.tournamentQuestionIndex = 0;
   room.tournamentAnswersThisRound.clear();
+  // ====================== CORRECCIÓN: ACTIVAR ESTADO DE JUEGO DE TORNEO ======================
+  room.tournamentGameRunning = true;
 
   const ranking = computeFinalRanking(room.getPlayersArray());
   const top4 = ranking.slice(0, CONFIG.FINALIST_COUNT);
@@ -777,6 +792,8 @@ function startNextTournamentQuestion(room) {
   delete questionForClients.respuesta;
   delete questionForClients.explicacion;
 
+  console.log(`[Torneo ${room.pin}] 🎯 Iniciando pregunta ${room.tournamentQuestionIndex + 1} de ${room.tournamentQuestions.length} (${room.tournamentStage})`);
+
   room.broadcastToFinalists({
     type: 'tournament_question_update',
     question: questionForClients,
@@ -805,6 +822,7 @@ function startNextTournamentQuestion(room) {
 
   clearTimeout(room.tournamentRoundTimer);
   room.tournamentRoundTimer = setTimeout(() => {
+    console.log(`[Torneo ${room.pin}] ⏰ Timeout de pregunta ${room.tournamentQuestionIndex + 1}`);
     sendRevealPhase(room, true);
   }, room.tournamentTimerDuration * 1000);
 }
@@ -815,6 +833,9 @@ function concludeSemifinals(pin) {
 
   console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO SEMIFINALES`);
   
+  // ====================== CORRECCIÓN: DESACTIVAR ESTADO DE JUEGO TEMPORALMENTE ======================
+  room.tournamentGameRunning = false;
+
   const sorted = room.getFinalistsArray().sort((a, b) => b.semifinalPoints - a.semifinalPoints);
   const top2 = sorted.slice(0, 2);
   
@@ -856,7 +877,11 @@ function concludeSemifinals(pin) {
       }))
     });
 
-    setTimeout(() => startNextTournamentQuestion(room), 3000);
+    setTimeout(() => {
+      // ====================== CORRECCIÓN: REACTIVAR ESTADO PARA LA FINAL ======================
+      room.tournamentGameRunning = true;
+      startNextTournamentQuestion(room);
+    }, 3000);
   }, 2000);
 }
 
@@ -866,6 +891,9 @@ function concludeFinal(pin) {
 
   console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO FINAL`);
   
+  // ====================== CORRECCIÓN: DESACTIVAR ESTADO DE JUEGO DE TORNEO ======================
+  room.tournamentGameRunning = false;
+
   const sorted = room.getFinalistsArray().sort((a, b) => b.finalPoints - a.finalPoints);
   const winner = sorted[0];
   
@@ -992,7 +1020,7 @@ function finalizeVoting(room) {
   }, 3000);
 }
 
-// ====================== WEBSOCKET HANDLING COMPLETO CON CORRECCIONES ======================
+// ====================== WEBSOCKET HANDLING COMPLETO CON TODAS LAS CORRECCIONES ======================
 
 wss.on('connection', (ws, req) => {
   const connectionId = uuidv4();
@@ -1102,7 +1130,7 @@ wss.on('connection', (ws, req) => {
     console.error(`[WS ${connectionId}] Error:`, error);
   });
 
-  // ====================== HANDLERS COMPLETOS CON CORRECCIONES ======================
+  // ====================== HANDLER DE CONEXIÓN MEJORADO ======================
 
   async function handleRoomConnection(ws, data, playerId) {
     const { pin, player } = data;
@@ -1117,7 +1145,6 @@ wss.on('connection', (ws, req) => {
     
     console.log(`[Conexión ${pin}] Tipo: ${data.type}, Jugador: ${player.name}, ID: ${playerId}`);
     
-    // CREAR SALA SI NO EXISTE
     if (isCreating) {
       if (room) {
         throw new Error('Sala ya existe');
@@ -1129,7 +1156,6 @@ wss.on('connection', (ws, req) => {
       throw new Error('Sala no existe');
     }
 
-    // VERIFICAR CAPACIDAD
     if (room.players.size >= CONFIG.MAX_PLAYERS && !room.getPlayer(playerId)) {
       throw new Error('Sala llena');
     }
@@ -1137,14 +1163,11 @@ wss.on('connection', (ws, req) => {
     let playerObj = room.getPlayer(playerId);
     let isNewPlayer = false;
 
-    // MANEJO DE JUGADOR EXISTENTE O NUEVO
     if (playerObj) {
-      // JUGADOR EXISTENTE: ACTUALIZAR SOCKET Y DATOS
       console.log(`[Sala ${pin}] 🔄 ${player.name} reconectado`);
       playerObj.socket = ws;
       playerObj.isReady = player.isReady || false;
       
-      // Actualizar datos si es necesario
       if (player.name !== playerObj.name) {
         console.log(`[Sala ${pin}] 📝 ${playerObj.name} cambió nombre a ${player.name}`);
         playerObj.name = player.name;
@@ -1153,7 +1176,6 @@ wss.on('connection', (ws, req) => {
         playerObj.avatar = player.avatar;
       }
     } else {
-      // NUEVO JUGADOR: CREAR INSTANCIA
       playerObj = new Jugador({
         ...player,
         id: playerId,
@@ -1168,7 +1190,6 @@ wss.on('connection', (ws, req) => {
     currentRoom = room;
     const isHost = room.hostId === playerId;
 
-    // ACTUALIZAR ESTADO DE PROFESOR SI ES NECESARIO
     if (isCreating) {
       playerObj.isProfessor = true;
       room.hostId = playerId;
@@ -1176,7 +1197,6 @@ wss.on('connection', (ws, req) => {
 
     console.log(`[Sala ${pin}] 👥 Jugadores actuales:`, room.getPlayersArray().map(p => p.name));
 
-    // PREPARAR RESPUESTA PARA EL CLIENTE
     const response = {
       type: 'room_joined',
       pin: room.pin,
@@ -1196,6 +1216,8 @@ wss.on('connection', (ws, req) => {
       gameMode: room.gameMode,
       closestAnswerMode: room.closestAnswerMode,
       isGameRunning: room.isGameRunning,
+      // ====================== CORRECCIÓN: INCLUIR ESTADO DE TORNEO ======================
+      tournamentGameRunning: room.tournamentGameRunning,
       isVotingActive: room.isVotingActive,
       voteTimeRemaining: room.voteTimeRemaining,
       currentVotes: Object.fromEntries(room.votes),
@@ -1211,8 +1233,7 @@ wss.on('connection', (ws, req) => {
       }))
     };
 
-    // AGREGAR INFORMACIÓN DE PREGUNTA ACTUAL SI EL JUEGO ESTÁ EN CURSO
-    if (room.isGameRunning && room.currentQuestion) {
+    if ((room.isGameRunning || room.tournamentGameRunning) && room.currentQuestion) {
       response.question = {
         pregunta: room.currentQuestion.pregunta,
         tipo: room.currentQuestion.tipo,
@@ -1222,13 +1243,11 @@ wss.on('connection', (ws, req) => {
       response.timerDuration = room.timerDuration;
     }
 
-    // ENVIAR RESPUESTA AL CLIENTE ACTUAL
     console.log(`[Sala ${pin}] 📤 Enviando estado de sala a ${player.name}`);
     ws.send(JSON.stringify(response));
 
     // ====================== CORRECCIÓN CRÍTICA: SINCRONIZACIÓN INMEDIATA ======================
     
-    // NOTIFICAR A OTROS JUGADORES INMEDIATAMENTE
     if (isNewPlayer) {
       console.log(`[Sala ${pin}] 📢 Notificando a otros jugadores sobre ${player.name}`);
       
@@ -1241,16 +1260,14 @@ wss.on('connection', (ws, req) => {
           isProfessor: playerObj.isProfessor,
           isReady: playerObj.isReady
         }
-      }, playerId); // Excluir al jugador actual
+      }, playerId);
     }
 
-    // SINCRONIZAR LISTA COMPLETA DE JUGADORES CON TODOS (INCLUYENDO AL PROFESOR)
     setTimeout(() => {
       room.syncPlayersToAll();
     }, 100);
 
-    // NOTIFICAR AL HOST SI TODOS ESTÁN LISTOS
-    if (isHost && !room.isVotingActive && !room.isGameRunning) {
+    if (isHost && !room.isVotingActive && !room.isAnyGameRunning()) {
       const nonProfessorPlayers = room.getNonProfessorPlayers();
       const allReady = nonProfessorPlayers.length > 0 && nonProfessorPlayers.every(p => p.isReady);
       
@@ -1261,6 +1278,74 @@ wss.on('connection', (ws, req) => {
           message: 'Todos los jugadores están listos. Puedes iniciar la votación.'
         }));
       }
+    }
+  }
+
+  // ====================== HANDLER DE SUBMIT_ANSWER CORREGIDO ======================
+
+  function handleSubmitAnswer(data) {
+    const room = rooms.get(data.pin);
+    if (!room) throw new Error('Sala no existe');
+
+    const isTournament = room.tournamentStarted && room.tournamentStage;
+    
+    // ====================== CORRECCIÓN PRINCIPAL: VERIFICAR ESTADO CORRECTO ======================
+    const gameRunning = isTournament ? room.tournamentGameRunning : room.isGameRunning;
+    
+    if (!gameRunning) {
+      throw new Error('Juego no activo');
+    }
+
+    const player = isTournament ? 
+      room.finalists.get(data.playerId) : 
+      room.getPlayer(data.playerId);
+
+    if (!player) {
+      throw new Error('Jugador no encontrado');
+    }
+
+    if (player.hasAnswered) {
+      throw new Error('Ya respondiste esta pregunta');
+    }
+
+    const answersMap = isTournament ? room.tournamentAnswersThisRound : room.answersThisRound;
+    
+    answersMap.set(data.playerId, {
+      answer: data.answer,
+      responseTime: data.responseTime || 0
+    });
+
+    player.hasAnswered = true;
+
+    console.log(`[${isTournament ? 'Torneo' : 'Juego'} ${room.pin}] 📝 ${player.name} respondió: ${data.answer}`);
+
+    const participants = isTournament ? room.getFinalistsArray() : room.getNonProfessorPlayers();
+    const allAnswered = participants.every(p => answersMap.has(p.id));
+
+    if (allAnswered) {
+      console.log(`[${isTournament ? 'Torneo' : 'Juego'} ${room.pin}] 🎯 Todos respondieron, revelando...`);
+      
+      if (isTournament) {
+        clearTimeout(room.tournamentRoundTimer);
+      } else {
+        clearTimeout(room.roundTimer);
+      }
+      
+      sendRevealPhase(room, isTournament);
+    } else {
+      if (isTournament) {
+        const answeredCount = room.tournamentAnswersThisRound.size;
+        room.broadcastToFinalists({
+          type: 'tournament_progress',
+          answered: answeredCount,
+          total: room.finalists.size
+        });
+      }
+      
+      ws.send(JSON.stringify({ 
+        type: 'answer_received', 
+        message: 'Respuesta recibida correctamente' 
+      }));
     }
   }
 
@@ -1351,11 +1436,9 @@ wss.on('connection', (ws, req) => {
     
     console.log(`[Sala ${room.pin}] ✅ ${player.name} ${data.isReady ? 'listo' : 'no listo'}`);
     
-    // SINCRONIZAR ESTADO CON TODOS INMEDIATAMENTE
     room.syncPlayersToAll();
 
-    // VERIFICAR SI TODOS ESTÁN LISTOS PARA INICIAR VOTACIÓN
-    if (room.hostId === data.playerId && !room.isVotingActive && !room.isGameRunning) {
+    if (room.hostId === data.playerId && !room.isVotingActive && !room.isAnyGameRunning()) {
       const nonProfessorPlayers = room.getNonProfessorPlayers();
       const allReady = nonProfessorPlayers.length > 0 && nonProfessorPlayers.every(p => p.isReady);
       
@@ -1369,131 +1452,6 @@ wss.on('connection', (ws, req) => {
           }));
         }
       }
-    }
-  }
-
-  function handlePlayerDisconnection(pin, playerId) {
-    const room = rooms.get(pin);
-    if (!room) return;
-
-    const player = room.getPlayer(playerId);
-    if (player) {
-      console.log(`[Sala ${pin}] ❌ ${player.name} desconectado`);
-      
-      // MARCAR COMO DESCONECTADO PERO MANTENER EN LA SALA TEMPORALMENTE
-      player.socket = null;
-      player.isReady = false;
-      
-      // NOTIFICAR DESCONEXIÓN
-      room.broadcast({
-        type: 'player_left',
-        playerId: playerId,
-        playerName: player.name
-      });
-
-      // SINCRONIZAR LISTA DE JUGADORES INMEDIATAMENTE
-      room.syncPlayersToAll();
-
-      // SI ERA EL HOST, ASIGNAR NUEVO HOST
-      if (room.hostId === playerId && room.players.size > 0) {
-        const newHost = room.getPlayersArray().find(p => p.socket) || room.getPlayersArray()[0];
-        if (newHost) {
-          room.hostId = newHost.id;
-          newHost.isProfessor = true;
-          
-          console.log(`[Sala ${pin}] 👑 Nuevo host: ${newHost.name}`);
-          
-          room.broadcast({
-            type: 'new_host',
-            newHostId: room.hostId,
-            newHostName: newHost.name
-          });
-        }
-      }
-
-      // ELIMINAR JUGADOR DESCONECTADO DESPUÉS DE 30 SEGUNDOS SI NO SE RECONECTA
-      setTimeout(() => {
-        const currentRoom = rooms.get(pin);
-        if (currentRoom) {
-          const currentPlayer = currentRoom.getPlayer(playerId);
-          if (currentPlayer && !currentPlayer.socket) {
-            console.log(`[Sala ${pin}] 🗑️ Eliminando ${currentPlayer.name} (desconectado por mucho tiempo)`);
-            currentRoom.removePlayer(playerId);
-            
-            // SINCRONIZAR LISTA FINAL
-            currentRoom.syncPlayersToAll();
-
-            // SI LA SALA QUEDA VACÍA, LIMPIAR
-            if (currentRoom.players.size === 0) {
-              currentRoom.cleanup();
-              rooms.delete(pin);
-              console.log(`[Sala ${pin}] 🏁 Eliminada (vacía)`);
-            }
-          }
-        }
-      }, 30000);
-    }
-  }
-
-  function handleSubmitAnswer(data) {
-    const room = rooms.get(data.pin);
-    if (!room) throw new Error('Sala no existe');
-
-    const isTournament = room.tournamentStarted && room.tournamentStage;
-    const player = isTournament ? 
-      room.finalists.get(data.playerId) : 
-      room.getPlayer(data.playerId);
-
-    if (!player) {
-      throw new Error('Jugador no encontrado');
-    }
-
-    if (!room.isGameRunning) {
-      throw new Error('Juego no activo');
-    }
-
-    if (player.hasAnswered) {
-      throw new Error('Ya respondiste esta pregunta');
-    }
-
-    const answersMap = isTournament ? room.tournamentAnswersThisRound : room.answersThisRound;
-    
-    answersMap.set(data.playerId, {
-      answer: data.answer,
-      responseTime: data.responseTime || 0
-    });
-
-    player.hasAnswered = true;
-
-    console.log(`[Sala ${room.pin}] 📝 ${player.name} respondió: ${data.answer}`);
-
-    const participants = isTournament ? room.getFinalistsArray() : room.getNonProfessorPlayers();
-    const allAnswered = participants.every(p => answersMap.has(p.id));
-
-    if (allAnswered) {
-      console.log(`[${isTournament ? 'Torneo' : 'Juego'} ${room.pin}] 🎯 Todos respondieron, revelando...`);
-      
-      if (isTournament) {
-        clearTimeout(room.tournamentRoundTimer);
-      } else {
-        clearTimeout(room.roundTimer);
-      }
-      
-      sendRevealPhase(room, isTournament);
-    } else {
-      if (isTournament) {
-        const answeredCount = room.tournamentAnswersThisRound.size;
-        room.broadcastToFinalists({
-          type: 'tournament_progress',
-          answered: answeredCount,
-          total: room.finalists.size
-        });
-      }
-      
-      ws.send(JSON.stringify({ 
-        type: 'answer_received', 
-        message: 'Respuesta recibida correctamente' 
-      }));
     }
   }
 
@@ -1556,6 +1514,62 @@ wss.on('connection', (ws, req) => {
       }
     }
   }
+
+  function handlePlayerDisconnection(pin, playerId) {
+    const room = rooms.get(pin);
+    if (!room) return;
+
+    const player = room.getPlayer(playerId);
+    if (player) {
+      console.log(`[Sala ${pin}] ❌ ${player.name} desconectado`);
+      
+      player.socket = null;
+      player.isReady = false;
+      
+      room.broadcast({
+        type: 'player_left',
+        playerId: playerId,
+        playerName: player.name
+      });
+
+      room.syncPlayersToAll();
+
+      if (room.hostId === playerId && room.players.size > 0) {
+        const newHost = room.getPlayersArray().find(p => p.socket) || room.getPlayersArray()[0];
+        if (newHost) {
+          room.hostId = newHost.id;
+          newHost.isProfessor = true;
+          
+          console.log(`[Sala ${pin}] 👑 Nuevo host: ${newHost.name}`);
+          
+          room.broadcast({
+            type: 'new_host',
+            newHostId: room.hostId,
+            newHostName: newHost.name
+          });
+        }
+      }
+
+      setTimeout(() => {
+        const currentRoom = rooms.get(pin);
+        if (currentRoom) {
+          const currentPlayer = currentRoom.getPlayer(playerId);
+          if (currentPlayer && !currentPlayer.socket) {
+            console.log(`[Sala ${pin}] 🗑️ Eliminando ${currentPlayer.name} (desconectado por mucho tiempo)`);
+            currentRoom.removePlayer(playerId);
+            
+            currentRoom.syncPlayersToAll();
+
+            if (currentRoom.players.size === 0) {
+              currentRoom.cleanup();
+              rooms.delete(pin);
+              console.log(`[Sala ${pin}] 🏁 Eliminada (vacía)`);
+            }
+          }
+        }
+      }, 30000);
+    }
+  }
 });
 
 // ====================== CONFIGURACIÓN EXPRESS COMPLETA ======================
@@ -1598,6 +1612,7 @@ app.get('/rooms', (req, res) => {
     playerCount: room.players.size,
     isGameRunning: room.isGameRunning,
     tournamentStage: room.tournamentStage,
+    tournamentGameRunning: room.tournamentGameRunning,
     createdAt: room.createdAt,
     lastActivity: room.lastActivity
   }));
@@ -1692,14 +1707,18 @@ process.on('SIGINT', gracefulShutdown);
 
 server.listen(PORT, () => {
   console.log(`🎮 Servidor Math Challenge PRO COMPLETO ejecutándose en puerto ${PORT}`);
-  console.log(`✅ CORRECCIONES APLICADAS:`);
+  console.log(`✅ TODAS LAS CORRECCIONES APLICADAS:`);
   console.log(`   - 🔄 Sincronización inmediata de lista de jugadores`);
   console.log(`   - 👥 Notificaciones de conexión/desconexión mejoradas`);
   console.log(`   - 📢 Broadcast de actualizaciones de estado en tiempo real`);
   console.log(`   - 🎯 Detección automática de todos los jugadores listos`);
   console.log(`   - ❌ Manejo robusto de desconexiones`);
   console.log(`   - 👑 Transferencia automática de host`);
-  console.log(`   - 📊 Logs detallados para diagnóstico`);
+  console.log(`   - 🏆 Estado separado para torneo (tournamentGameRunning)`);
+  console.log(`   - 🔄 Verificación correcta en handleSubmitAnswer para torneos`);
+  console.log(`   - ⏰ Manejo mejorado de timeouts en torneo`);
+  console.log(`   - 📊 Logs detallados de estados de torneo`);
+  console.log(`   - 🎯 Corrección de transiciones entre semifinal y final`);
   console.log(`📊 Total de preguntas cargadas:`);
   Object.keys(BANCOS_PREGUNTAS.facil).forEach(mode => {
     console.log(`   - ${mode}: ${BANCOS_PREGUNTAS.facil[mode].length} (fácil), ${BANCOS_PREGUNTAS.intermedia[mode]?.length || 0} (intermedio), ${BANCOS_PREGUNTAS.dificil[mode]?.length || 0} (difícil)`);

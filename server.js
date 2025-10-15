@@ -1,4 +1,4 @@
-// server.js - CORRECCIÓN COMPLETA DEL PROBLEMA DE SINCRONIZACIÓN EN LOBBY
+// server.js - SERVIDOR MATH CHALLENGE PRO COMPLETAMENTE CORREGIDO
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -16,7 +16,192 @@ const wss = new WebSocket.Server({
 const PORT = process.env.PORT || 3000;
 const rooms = new Map();
 
-// ====================== CONFIGURACIÓN ======================
+// ====================== BANCOS DE PREGUNTAS COMPLETOS ======================
+
+const BANCOS_PREGUNTAS = {
+  facil: {
+    informatica: [
+      { pregunta: "¿Cuál de estos es un navegador de internet?", opciones: { A: "Microsoft Word", B: "Google Chrome", C: "WhatsApp", D: "Photoshop" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Cuál de estos es un emoji?", opciones: { A: "@", B: "#", C: "😂", D: "/" }, respuesta: "C", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué red social es conocida por compartir fotos y videos cortos?", opciones: { A: "Facebook", B: "TikTok", C: "WordPress", D: "Excel" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué icono es el de 'guardar' en muchos programas?", opciones: { A: "Una carpeta", B: "Un disquete (💾)", C: "Una nube", D: "Una lupa" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué puedes hacer con un 'USB'?", opciones: { A: "Guardar fotos o documentos", B: "Hacer llamadas", C: "Navegar en internet", D: "Jugar videojuegos" }, respuesta: "A", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué app te permite hacer videollamadas gratis?", opciones: { A: "Netflix", B: "Zoom", C: "Spotify", D: "Minecraft" }, respuesta: "B", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Cuál es la red social con más usuarios activos?", opciones: { A: "TikTok", B: "Instagram", C: "Facebook", D: "Twitter/X" }, respuesta: "C", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué significa 'PDF'?", opciones: { A: "Portable Document Format", B: "Personal Data File", C: "Printable Document Form", D: "Public Digital File" }, respuesta: "A", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué tecla se usa para escribir en mayúsculas?", opciones: { A: "Ctrl", B: "Alt", C: "Shift", D: "Tab" }, respuesta: "C", tipo: "informatica", dificultad: "facil" },
+      { pregunta: "¿Qué es un 'password'?", opciones: { A: "Un tipo de programa", B: "Una contraseña secreta", C: "Un dispositivo USB", D: "Una red social" }, respuesta: "B", tipo: "informatica", dificultad: "facil" }
+    ],
+    operaciones: [
+      { pregunta: "5 + 3 = ?", respuesta: 8, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "10 - 4 = ?", respuesta: 6, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "2 × 6 = ?", respuesta: 12, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "15 ÷ 3 = ?", respuesta: 5, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "7 + 8 = ?", respuesta: 15, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "12 - 5 = ?", respuesta: 7, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "3 × 4 = ?", respuesta: 12, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "20 ÷ 5 = ?", respuesta: 4, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "9 + 6 = ?", respuesta: 15, tipo: "operacion", dificultad: "facil" },
+      { pregunta: "18 - 9 = ?", respuesta: 9, tipo: "operacion", dificultad: "facil" }
+    ],
+    "verdadero-falso": [
+      { pregunta: "¿Es correcto que 5 + 3 = 8?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "5 + 3 sí es igual a 8." },
+      { pregunta: "¿Es correcto que 10 - 4 = 5?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "10 - 4 es 6, no 5." },
+      { pregunta: "¿Es correcto que 2 × 6 = 12?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "2 × 6 sí es igual a 12." },
+      { pregunta: "¿Es correcto que 15 ÷ 3 = 6?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "15 ÷ 3 es 5, no 6." },
+      { pregunta: "¿Es correcto que 7 × 3 = 21?", respuesta: true, tipo: "verdadero-falso", dificultad: "facil", explicacion: "7 × 3 sí es igual a 21." },
+      { pregunta: "¿Es correcto que 25 ÷ 5 = 4?", respuesta: false, tipo: "verdadero-falso", dificultad: "facil", explicacion: "25 ÷ 5 es 5, no 4." }
+    ],
+    misterioso: [
+      { pregunta: "? + 5 = 12", respuesta: 7, tipo: "misterioso", dificultad: "facil" },
+      { pregunta: "? - 3 = 8", respuesta: 11, tipo: "misterioso", dificultad: "facil" },
+      { pregunta: "? × 4 = 20", respuesta: 5, tipo: "misterioso", dificultad: "facil" },
+      { pregunta: "? ÷ 2 = 6", respuesta: 12, tipo: "misterioso", dificultad: "facil" },
+      { pregunta: "? + 8 = 15", respuesta: 7, tipo: "misterioso", dificultad: "facil" },
+      { pregunta: "? - 7 = 9", respuesta: 16, tipo: "misterioso", dificultad: "facil" }
+    ],
+    secuencia: [
+      { pregunta: "Completa la secuencia: 2, 4, 6, ?", respuesta: 8, tipo: "secuencia", dificultad: "facil" },
+      { pregunta: "Completa la secuencia: 5, 10, 15, ?", respuesta: 20, tipo: "secuencia", dificultad: "facil" },
+      { pregunta: "Completa la secuencia: 1, 3, 5, ?", respuesta: 7, tipo: "secuencia", dificultad: "facil" },
+      { pregunta: "Completa la secuencia: 10, 20, 30, ?", respuesta: 40, tipo: "secuencia", dificultad: "facil" }
+    ],
+    potenciacion: [
+      { pregunta: "2² = ?", respuesta: 4, tipo: "potenciacion", dificultad: "facil" },
+      { pregunta: "3² = ?", respuesta: 9, tipo: "potenciacion", dificultad: "facil" },
+      { pregunta: "4² = ?", respuesta: 16, tipo: "potenciacion", dificultad: "facil" },
+      { pregunta: "5² = ?", respuesta: 25, tipo: "potenciacion", dificultad: "facil" }
+    ],
+    combinadas: [
+      { pregunta: "2 + 3 × 2 = ?", respuesta: 8, tipo: "combinadas", dificultad: "facil" },
+      { pregunta: "(5 + 3) × 2 = ?", respuesta: 16, tipo: "combinadas", dificultad: "facil" },
+      { pregunta: "10 - 4 ÷ 2 = ?", respuesta: 8, tipo: "combinadas", dificultad: "facil" },
+      { pregunta: "8 ÷ 2 + 3 = ?", respuesta: 7, tipo: "combinadas", dificultad: "facil" }
+    ]
+  },
+  intermedia: {
+    informatica: [
+      { pregunta: "¿Qué significa 'CPU' en informática?", opciones: { A: "Computadora Personal Útil", B: "Unidad Central de Procesamiento", C: "Controlador Principal de Usuario", D: "Centro de Procesos Unidos" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué es un 'firewall'?", opciones: { A: "Un juego de video", B: "Un sistema de seguridad para redes", C: "Un tipo de pantalla", D: "Un programa de edición" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué lenguaje de programación se usa principalmente para páginas web?", opciones: { A: "Python", B: "Java", C: "JavaScript", D: "C++" }, respuesta: "C", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué significa 'HTML'?", opciones: { A: "HyperText Markup Language", B: "High Tech Modern Language", C: "Home Tool Management Language", D: "Hyper Transfer Media Link" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué es un 'router'?", opciones: { A: "Un dispositivo para conectar redes", B: "Un tipo de teclado", C: "Un programa de música", D: "Una aplicación de mensajería" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué significa 'Wi-Fi'?", opciones: { A: "Wireless Fidelity", B: "Wired Fiber", C: "Windows Firewall", D: "Web Interface" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué es un 'sistema operativo'?", opciones: { A: "Un programa de diseño", B: "Software que gestiona el hardware", C: "Un tipo de computadora", D: "Una aplicación de oficina" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué significa 'URL'?", opciones: { A: "Uniform Resource Locator", B: "Universal Reference Link", C: "User Resource Location", D: "Uniform Reference Locator" }, respuesta: "A", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué es la 'memoria RAM'?", opciones: { A: "Almacenamiento permanente", B: "Memoria de acceso aleatorio", C: "Un tipo de disco duro", D: "Memoria de solo lectura" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" },
+      { pregunta: "¿Qué es un 'blog'?", opciones: { A: "Un tipo de videojuego", B: "Un sitio web personal con publicaciones", C: "Una aplicación de mensajería", D: "Un programa de edición" }, respuesta: "B", tipo: "informatica", dificultad: "intermedia" }
+    ],
+    operaciones: [
+      { pregunta: "25 × 4 = ?", respuesta: 100, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "144 ÷ 12 = ?", respuesta: 12, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "15 + 28 = ?", respuesta: 43, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "65 - 29 = ?", respuesta: 36, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "8 × 7 + 5 = ?", respuesta: 61, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "100 ÷ 4 × 3 = ?", respuesta: 75, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "17 + 25 - 8 = ?", respuesta: 34, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "9 × 6 ÷ 3 = ?", respuesta: 18, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "45 + 27 - 15 = ?", respuesta: 57, tipo: "operacion", dificultad: "intermedia" },
+      { pregunta: "12 × 3 + 18 ÷ 2 = ?", respuesta: 45, tipo: "operacion", dificultad: "intermedia" }
+    ],
+    "verdadero-falso": [
+      { pregunta: "¿Es correcto que (5 + 3) × 2 = 16?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "(5+3)=8, 8×2=16. Correcto." },
+      { pregunta: "¿Es correcto que 15 × 3 = 40?", respuesta: false, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "15 × 3 = 45, no 40." },
+      { pregunta: "¿Es correcto que 125 ÷ 5 = 25?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "125 ÷ 5 sí es igual a 25." },
+      { pregunta: "¿Es correcto que 7² = 49?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "7 × 7 = 49. Correcto." },
+      { pregunta: "¿Es correcto que √81 = 8?", respuesta: false, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "√81 = 9, no 8." },
+      { pregunta: "¿Es correcto que (10 - 3) × 4 = 28?", respuesta: true, tipo: "verdadero-falso", dificultad: "intermedia", explicacion: "10-3=7, 7×4=28. Correcto." }
+    ],
+    misterioso: [
+      { pregunta: "? × 6 = 54", respuesta: 9, tipo: "misterioso", dificultad: "intermedia" },
+      { pregunta: "? ÷ 7 = 8", respuesta: 56, tipo: "misterioso", dificultad: "intermedia" },
+      { pregunta: "? + 15 = 42", respuesta: 27, tipo: "misterioso", dificultad: "intermedia" },
+      { pregunta: "? - 23 = 19", respuesta: 42, tipo: "misterioso", dificultad: "intermedia" },
+      { pregunta: "? × 8 = 72", respuesta: 9, tipo: "misterioso", dificultad: "intermedia" },
+      { pregunta: "? ÷ 9 = 7", respuesta: 63, tipo: "misterioso", dificultad: "intermedia" }
+    ],
+    secuencia: [
+      { pregunta: "Completa la secuencia: 2, 4, 8, 16, ?", respuesta: 32, tipo: "secuencia", dificultad: "intermedia" },
+      { pregunta: "Completa la secuencia: 1, 4, 9, 16, ?", respuesta: 25, tipo: "secuencia", dificultad: "intermedia" },
+      { pregunta: "Completa la secuencia: 3, 6, 12, 24, ?", respuesta: 48, tipo: "secuencia", dificultad: "intermedia" },
+      { pregunta: "Completa la secuencia: 5, 10, 20, 40, ?", respuesta: 80, tipo: "secuencia", dificultad: "intermedia" }
+    ],
+    potenciacion: [
+      { pregunta: "2³ = ?", respuesta: 8, tipo: "potenciacion", dificultad: "intermedia" },
+      { pregunta: "3³ = ?", respuesta: 27, tipo: "potenciacion", dificultad: "intermedia" },
+      { pregunta: "4³ = ?", respuesta: 64, tipo: "potenciacion", dificultad: "intermedia" },
+      { pregunta: "5³ = ?", respuesta: 125, tipo: "potenciacion", dificultad: "intermedia" }
+    ],
+    combinadas: [
+      { pregunta: "15 ÷ 3 + 4 × 2 = ?", respuesta: 13, tipo: "combinadas", dificultad: "intermedia" },
+      { pregunta: "(8 + 4) × 3 - 10 = ?", respuesta: 26, tipo: "combinadas", dificultad: "intermedia" },
+      { pregunta: "20 ÷ (2 + 3) × 4 = ?", respuesta: 16, tipo: "combinadas", dificultad: "intermedia" },
+      { pregunta: "5 × 3 + 12 ÷ 4 - 2 = ?", respuesta: 16, tipo: "combinadas", dificultad: "intermedia" }
+    ]
+  },
+  dificil: {
+    informatica: [
+      { pregunta: "¿Qué protocolo se utiliza para enviar correos electrónicos?", opciones: { A: "HTTP", B: "FTP", C: "SMTP", D: "TCP" }, respuesta: "C", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es la 'inteligencia artificial'?", opciones: { A: "Robots que parecen humanos", B: "Sistemas que imitan la inteligencia humana", C: "Computadoras muy rápidas", D: "Programas de videojuegos" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es un 'algoritmo'?", opciones: { A: "Un tipo de computadora", B: "Un conjunto de pasos para resolver un problema", C: "Un lenguaje de programación", D: "Un dispositivo de almacenamiento" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué hace un 'compilador'?", opciones: { A: "Ejecuta programas", B: "Convierte código fuente a código máquina", C: "Diseña interfaces", D: "Administra bases de datos" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es la 'nube' en informática?", opciones: { A: "Un tipo de clima", B: "Servidores remotos que almacenan datos", C: "Un programa antivirus", D: "Un dispositivo de red" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es el 'machine learning'?", opciones: { A: "Aprender a usar máquinas", B: "Algoritmos que aprenden de datos", C: "Programar computadoras", D: "Reparar hardware" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué significa 'IoT'?", opciones: { A: "Internet of Things", B: "International Online Technology", C: "Internet Operation Tool", D: "Integrated Online Terminal" }, respuesta: "A", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es la 'realidad virtual'?", opciones: { A: "Películas en 3D", B: "Entornos simulados por computadora", C: "Videojuegos realistas", D: "Pantallas táctiles" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es un 'blockchain'?", opciones: { A: "Un tipo de juego", B: "Cadena de bloques de datos segura", C: "Un programa de edición", D: "Un dispositivo de almacenamiento" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" },
+      { pregunta: "¿Qué es la 'ciberseguridad'?", opciones: { A: "Navegar seguro en internet", B: "Protección de sistemas informáticos", C: "Comprar en línea seguro", D: "Usar contraseñas fuertes" }, respuesta: "B", tipo: "informatica", dificultad: "dificil" }
+    ],
+    operaciones: [
+      { pregunta: "125 ÷ 5 × 4 = ?", respuesta: 100, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "(15 + 7) × 3 - 10 = ?", respuesta: 56, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "√144 + 5² = ?", respuesta: 17, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "3³ + 4² - 10 = ?", respuesta: 33, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "100 ÷ (5 × 2) + 15 = ?", respuesta: 25, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "(8 × 3) + (12 ÷ 4) × 5 = ?", respuesta: 39, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "7² - 3³ + 10 ÷ 2 = ?", respuesta: 29, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "(20 - 8) × 3 + 15 ÷ 3 = ?", respuesta: 41, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "√169 × 2 + 3³ = ?", respuesta: 53, tipo: "operacion", dificultad: "dificil" },
+      { pregunta: "(25 ÷ 5)² + 4³ - 10 = ?", respuesta: 79, tipo: "operacion", dificultad: "dificil" }
+    ],
+    "verdadero-falso": [
+      { pregunta: "¿Es correcto que (3³ - 2⁴) × 2 = 10?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "3³=27, 2⁴=16, 27-16=11, 11×2=22, no 10." },
+      { pregunta: "¿Es correcto que √64 + 3² = 17?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "√64=8, 3²=9, 8+9=17. Correcto." },
+      { pregunta: "¿Es correcto que (5 × 4)² ÷ 10 = 10?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "5×4=20, 20²=400, 400÷10=40, no 10." },
+      { pregunta: "¿Es correcto que 2⁵ - 3³ = 5?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "2⁵=32, 3³=27, 32-27=5. Correcto." },
+      { pregunta: "¿Es correcto que √121 × 2 + 4² = 38?", respuesta: true, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "√121=11, 11×2=22, 4²=16, 22+16=38. Correcto." },
+      { pregunta: "¿Es correcto que (8 + 5)² ÷ 13 = 12?", respuesta: false, tipo: "verdadero-falso", dificultad: "dificil", explicacion: "8+5=13, 13²=169, 169÷13=13, no 12." }
+    ],
+    misterioso: [
+      { pregunta: "?² = 169", respuesta: 13, tipo: "misterioso", dificultad: "dificil" },
+      { pregunta: "?³ = 64", respuesta: 4, tipo: "misterioso", dificultad: "dificil" },
+      { pregunta: "√? = 9", respuesta: 81, tipo: "misterioso", dificultad: "dificil" },
+      { pregunta: "? × 12 = 144", respuesta: 12, tipo: "misterioso", dificultad: "dificil" },
+      { pregunta: "?² + 15 = 40", respuesta: 5, tipo: "misterioso", dificultad: "dificil" },
+      { pregunta: "?³ - 8 = 19", respuesta: 3, tipo: "misterioso", dificultad: "dificil" }
+    ],
+    secuencia: [
+      { pregunta: "Completa la secuencia: 1, 1, 2, 3, 5, 8, ?", respuesta: 13, tipo: "secuencia", dificultad: "dificil" },
+      { pregunta: "Completa la secuencia: 2, 3, 5, 7, 11, ?", respuesta: 13, tipo: "secuencia", dificultad: "dificil" },
+      { pregunta: "Completa la secuencia: 1, 4, 9, 16, 25, ?", respuesta: 36, tipo: "secuencia", dificultad: "dificil" },
+      { pregunta: "Completa la secuencia: 3, 9, 27, 81, ?", respuesta: 243, tipo: "secuencia", dificultad: "dificil" }
+    ],
+    potenciacion: [
+      { pregunta: "2⁴ = ?", respuesta: 16, tipo: "potenciacion", dificultad: "dificil" },
+      { pregunta: "3⁴ = ?", respuesta: 81, tipo: "potenciacion", dificultad: "dificil" },
+      { pregunta: "4³ = ?", respuesta: 64, tipo: "potenciacion", dificultad: "dificil" },
+      { pregunta: "5³ = ?", respuesta: 125, tipo: "potenciacion", dificultad: "dificil" }
+    ],
+    combinadas: [
+      { pregunta: "(15 - 3)² ÷ 4 + 8 × 2 = ?", respuesta: 44, tipo: "combinadas", dificultad: "dificil" },
+      { pregunta: "√144 × 3 + 4² - 10 ÷ 2 = ?", respuesta: 47, tipo: "combinadas", dificultad: "dificil" },
+      { pregunta: "(8 × 3)² ÷ 12 + 5³ - 20 = ?", respuesta: 129, tipo: "combinadas", dificultad: "dificil" },
+      { pregunta: "7² + 3³ - √169 × 4 + 15 ÷ 3 = ?", respuesta: 41, tipo: "combinadas", dificultad: "dificil" }
+    ]
+  }
+};
+
+// ====================== CONFIGURACIÓN COMPLETA ======================
 
 const CONFIG = {
   MAX_PLAYERS: 15,
@@ -50,7 +235,7 @@ const CONFIG = {
   FINALIST_COUNT: 4
 };
 
-// ====================== CLASES CORREGIDAS ======================
+// ====================== CLASES COMPLETAMENTE CORREGIDAS ======================
 
 class Sala {
   constructor(pin, hostId) {
@@ -74,6 +259,7 @@ class Sala {
     this.currentQuestion = null;
     this.timerDuration = CONFIG.QUESTION_DURATION.normal;
     
+    // ====================== CORRECCIÓN: ESTADOS DE TORNEO CORREGIDOS ======================
     this.isFinalistTournament = false;
     this.tournamentStarted = false;
     this.tournamentStage = null;
@@ -89,23 +275,14 @@ class Sala {
     this.ultimateWinner = null;
     this.createdAt = Date.now();
     this.lastActivity = Date.now();
-    
-    // ====================== CORRECCIÓN: CONTROL DE CONEXIONES ======================
-    this.connectionAttempts = new Map();
-    this.lastSyncTime = 0;
   }
 
   addPlayer(player) {
     this.players.set(player.id, player);
     this.updateActivity();
-    console.log(`[Sala ${this.pin}] ✅ Jugador ${player.name} agregado. Total: ${this.players.size}`);
   }
 
   removePlayer(playerId) {
-    const player = this.players.get(playerId);
-    if (player) {
-      console.log(`[Sala ${this.pin}] ❌ Jugador ${player.name} removido. Quedan: ${this.players.size - 1}`);
-    }
     this.players.delete(playerId);
     this.finalists.delete(playerId);
     this.updateActivity();
@@ -127,7 +304,7 @@ class Sala {
     return this.getPlayersArray().filter(p => !p.isProfessor);
   }
 
-  // ====================== CORRECCIÓN: SINCRONIZACIÓN MEJORADA ======================
+  // ====================== CORRECCIÓN: MÉTODOS DE ESTADO CORREGIDOS ======================
   isTournamentGameRunning() {
     return this.tournamentStarted && this.tournamentGameRunning;
   }
@@ -140,15 +317,8 @@ class Sala {
     this.lastActivity = Date.now();
   }
 
-  // ====================== CORRECCIÓN PRINCIPAL: SINCRONIZACIÓN ROBUSTA ======================
-  syncPlayersToAll(force = false) {
-    // Evitar sincronizaciones demasiado frecuentes
-    const now = Date.now();
-    if (!force && now - this.lastSyncTime < 100) {
-      return;
-    }
-    this.lastSyncTime = now;
-
+  // ====================== CORRECCIÓN: SINCRONIZACIÓN MEJORADA ======================
+  syncPlayersToAll() {
     const playersUpdate = {
       type: 'players_update',
       players: this.getPlayersArray().map(p => ({
@@ -161,56 +331,32 @@ class Sala {
         streak: p.streak,
         maxStreak: p.maxStreak,
         avgResponseTime: p.avgResponseTime,
-        hasAnswered: p.hasAnswered,
-        isOnline: !!p.socket // ====================== NUEVO: Estado de conexión ======================
+        hasAnswered: p.hasAnswered
       }))
     };
     
-    console.log(`[Sala ${this.pin}] 🔄 Sincronizando ${this.players.size} jugadores (${this.getPlayersArray().filter(p => p.socket).length} conectados)`);
-    
-    let sentCount = 0;
-    this.players.forEach(player => {
-      if (player.socket && player.socket.readyState === WebSocket.OPEN) {
-        try {
-          player.socket.send(JSON.stringify(playersUpdate));
-          sentCount++;
-        } catch (e) {
-          console.error(`[Sala ${this.pin}] ❌ Error enviando sync a ${player.name}:`, e.message);
-          // Marcar como desconectado pero mantener en la sala
-          player.socket = null;
-        }
-      }
-    });
-    
-    console.log(`[Sala ${this.pin}] 📤 Sync enviado a ${sentCount} jugadores`);
-    this.updateActivity();
+    console.log(`[Sala ${this.pin}] 🔄 Sincronizando ${this.players.size} jugadores`);
+    this.broadcast(playersUpdate);
   }
 
   broadcast(data, excludePlayerId = null) {
     const message = JSON.stringify(data);
     let sentCount = 0;
-    let errorCount = 0;
     
     this.players.forEach(player => {
-      if (player.id !== excludePlayerId) {
-        if (player.socket && player.socket.readyState === WebSocket.OPEN) {
-          try {
-            player.socket.send(message);
-            sentCount++;
-          } catch (e) {
-            console.error(`[Sala ${this.pin}] ❌ Error broadcast a ${player.name}:`, e.message);
-            player.socket = null; // Marcar como desconectado
-            errorCount++;
-          }
+      if (player.socket && player.socket.readyState === WebSocket.OPEN && 
+          player.id !== excludePlayerId) {
+        try {
+          player.socket.send(message);
+          sentCount++;
+        } catch (e) {
+          console.error(`[Broadcast Error] ${player.id}:`, e);
         }
       }
     });
     
-    if (errorCount > 0) {
-      console.log(`[Sala ${this.pin}] 📢 Broadcast: ${sentCount} enviados, ${errorCount} errores`);
-    }
+    console.log(`[Sala ${this.pin}] 📢 Broadcast enviado a ${sentCount}/${this.players.size} jugadores`);
     this.updateActivity();
-    return { sent: sentCount, errors: errorCount };
   }
 
   broadcastToPlayers(playerIds, data) {
@@ -222,7 +368,6 @@ class Sala {
           player.socket.send(message);
         } catch (e) {
           console.error(`[Targeted Broadcast Error] ${id}:`, e);
-          player.socket = null;
         }
       }
     });
@@ -242,25 +387,6 @@ class Sala {
     this.broadcastToPlayers(spectatorIds, data);
   }
 
-  // ====================== CORRECCIÓN: VERIFICACIÓN DE ESTADO DE JUGADORES ======================
-  checkPlayerConnections() {
-    const connectedPlayers = this.getPlayersArray().filter(p => p.socket && p.socket.readyState === WebSocket.OPEN);
-    const disconnectedPlayers = this.getPlayersArray().filter(p => !p.socket || p.socket.readyState !== WebSocket.OPEN);
-    
-    if (disconnectedPlayers.length > 0) {
-      console.log(`[Sala ${this.pin}] 🔍 Estado conexiones: ${connectedPlayers.length} conectados, ${disconnectedPlayers.length} desconectados`);
-      disconnectedPlayers.forEach(p => {
-        console.log(`   - ${p.name}: ${p.socket ? 'Socket con error' : 'Sin socket'}`);
-      });
-    }
-    
-    return {
-      connected: connectedPlayers.length,
-      disconnected: disconnectedPlayers.length,
-      total: this.players.size
-    };
-  }
-
   cleanup() {
     if (this.voteTimer) clearInterval(this.voteTimer);
     if (this.roundTimer) clearTimeout(this.roundTimer);
@@ -271,7 +397,6 @@ class Sala {
     return {
       pin: this.pin,
       playerCount: this.players.size,
-      connectedPlayers: this.getPlayersArray().filter(p => p.socket && p.socket.readyState === WebSocket.OPEN).length,
       isGameRunning: this.isGameRunning,
       tournamentStage: this.tournamentStage,
       tournamentGameRunning: this.tournamentGameRunning,
@@ -314,7 +439,6 @@ class Jugador {
     this.finalPoints = 0;
 
     this.joinedAt = Date.now();
-    this.lastPing = Date.now();
   }
 
   updateStats(correct, responseTime, pointsEarned) {
@@ -373,10 +497,525 @@ class Jugador {
       accuracy: this.getAccuracy(),
       gamesPlayed: this.gamesPlayed,
       isProfessor: this.isProfessor,
-      isReady: this.isReady,
-      isOnline: !!(this.socket && this.socket.readyState === WebSocket.OPEN)
+      isReady: this.isReady
     };
   }
+}
+
+// ====================== FUNCIONES AUXILIARES CORREGIDAS ======================
+
+const MODE_MAPPING = {
+  'secuencia': 'secuencia',
+  'potenciacion': 'potenciacion', 
+  'combinadas': 'combinadas',
+  'relampago': 'operaciones',
+  'mas-cercano': 'operaciones',
+  'sumamultiplicacion': 'operaciones',
+  'operaciones': 'operaciones',
+  'misterioso': 'misterioso',
+  'verdadero-falso': 'verdadero-falso',
+  'informatica': 'informatica'
+};
+
+function getSupportedMode(mode) {
+  return MODE_MAPPING[mode] || 'operaciones';
+}
+
+function generarPreguntas(mode, count, dificultad = 'facil') {
+  const supportedMode = getSupportedMode(mode);
+  const banco = BANCOS_PREGUNTAS[dificultad]?.[supportedMode] || BANCOS_PREGUNTAS[dificultad]?.operaciones || [];
+  
+  if (banco.length === 0) {
+    console.warn(`No hay preguntas para modo ${supportedMode}, dificultad ${dificultad}. Usando operaciones.`);
+    return BANCOS_PREGUNTAS[dificultad]?.operaciones?.slice(0, count) || [];
+  }
+  
+  const shuffled = [...banco].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
+function computeFinalRanking(players) {
+  const sorted = players.sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    const avgA = a.avgResponseTime || Infinity;
+    const avgB = b.avgResponseTime || Infinity;
+    if (avgA !== avgB) return avgA - avgB;
+    return (b.maxStreak || 0) - (a.maxStreak || 0);
+  });
+
+  return sorted.map((p, index) => ({
+    id: p.id,
+    name: p.name,
+    avatar: p.avatar,
+    points: p.points || 0,
+    streak: p.streak || 0,
+    maxStreak: p.maxStreak || 0,
+    avgResponseTime: p.avgResponseTime || 0,
+    position: index + 1,
+    isProfessor: p.isProfessor
+  }));
+}
+
+function calculatePoints(isCorrect, streak, timeTaken, maxTime, isTournament = false) {
+  if (!isCorrect) return 0;
+
+  const basePoints = isTournament ? CONFIG.POINTS.tournament : CONFIG.POINTS.base;
+  const timeLeft = Math.max(0, maxTime - timeTaken);
+  const timeBonus = Math.floor(timeLeft / CONFIG.POINTS.timeDivisor);
+  const streakIndex = Math.min(streak, CONFIG.POINTS.streak.length - 1);
+  const streakBonus = CONFIG.POINTS.streak[streakIndex] || 0;
+
+  return basePoints + timeBonus + streakBonus;
+}
+
+function getTimerDuration(gameMode, isTournament = false) {
+  if (isTournament) {
+    return CONFIG.TOURNAMENT_DURATION[gameMode] || CONFIG.TOURNAMENT_DURATION.semifinal;
+  }
+  return CONFIG.QUESTION_DURATION[gameMode] || CONFIG.QUESTION_DURATION.normal;
+}
+
+// ====================== LÓGICA DEL JUEGO CORREGIDA ======================
+
+function startNextQuestion(room) {
+  if (!room.isGameRunning || room.questionIndex >= room.questions.length) {
+    endGame(room.pin);
+    return;
+  }
+
+  room.answersThisRound.clear();
+  room.currentQuestion = room.questions[room.questionIndex];
+  
+  room.timerDuration = getTimerDuration(room.gameMode);
+
+  const questionForClients = { ...room.currentQuestion };
+  delete questionForClients.respuesta;
+  delete questionForClients.explicacion;
+
+  room.broadcast({
+    type: 'question_update',
+    question: questionForClients,
+    questionIndex: room.questionIndex,
+    totalQuestions: room.totalQuestions,
+    timerDuration: room.timerDuration
+  });
+
+  room.getPlayersArray().forEach(player => {
+    player.hasAnswered = false;
+  });
+
+  clearTimeout(room.roundTimer);
+  room.roundTimer = setTimeout(() => {
+    if (room.isGameRunning) {
+      sendRevealPhase(room, false);
+    }
+  }, room.timerDuration * 1000);
+}
+
+function sendRevealPhase(room, isTournament = false) {
+  const questionObj = isTournament ? 
+    room.tournamentQuestions[room.tournamentQuestionIndex] : 
+    room.currentQuestion;
+
+  if (!questionObj) {
+    console.warn('No hay pregunta para revelar');
+    return;
+  }
+
+  const correctAnswer = questionObj.respuesta;
+  const answersMap = isTournament ? room.tournamentAnswersThisRound : room.answersThisRound;
+  const participants = isTournament ? room.getFinalistsArray() : room.getPlayersArray();
+  const roundDuration = isTournament ? room.tournamentTimerDuration : room.timerDuration;
+
+  console.log(`[Revelación ${room.pin}] Procesando ${answersMap.size} respuestas (Torneo: ${isTournament})`);
+
+  // ====================== CORRECCIÓN: ENVIAR REVEAL A TODOS LOS JUGADORES ======================
+  const revealData = {
+    type: 'reveal_phase',
+    correctAnswer: correctAnswer,
+    explanation: questionObj.explicacion || '',
+    answers: Object.fromEntries(answersMap),
+    isTournament: isTournament,
+    questionType: questionObj.tipo,
+    options: questionObj.tipo === 'informatica' ? questionObj.opciones : undefined
+  };
+
+  room.broadcast(revealData);
+
+  // Procesar puntos para cada jugador
+  participants.forEach(player => {
+    const answerData = answersMap.get(player.id);
+    let isCorrect = false;
+    let pointsEarned = 0;
+
+    if (answerData) {
+      const timeTaken = answerData.responseTime || 0;
+      
+      if (questionObj.tipo === 'verdadero-falso') {
+        isCorrect = (answerData.answer === 'true') === correctAnswer;
+      } else if (questionObj.tipo === 'informatica') {
+        isCorrect = String(answerData.answer).toUpperCase() === String(correctAnswer).toUpperCase();
+      } else {
+        const userNum = parseFloat(answerData.answer);
+        const correctNum = parseFloat(correctAnswer);
+        isCorrect = !isNaN(userNum) && !isNaN(correctNum) && userNum === correctNum;
+      }
+
+      pointsEarned = calculatePoints(isCorrect, player.streak, timeTaken, roundDuration, isTournament);
+      player.updateStats(isCorrect, timeTaken, pointsEarned);
+
+      if (isTournament) {
+        if (room.tournamentStage === 'semifinal') {
+          player.semifinalPoints += pointsEarned;
+        } else if (room.tournamentStage === 'final') {
+          player.finalPoints += pointsEarned;
+        }
+      }
+    }
+  });
+
+  setTimeout(() => {
+    const ranking = computeFinalRanking(room.getPlayersArray());
+    room.broadcast({ type: 'ranking_update', players: ranking });
+
+    setTimeout(() => {
+      if (!isTournament) {
+        if (room.questionIndex < room.totalQuestions - 1) {
+          room.questionIndex++;
+          startNextQuestion(room);
+        } else {
+          if (room.isFinalistTournament && !room.tournamentStarted) {
+            startSemifinals(room.pin);
+          } else {
+            endGame(room.pin);
+          }
+        }
+      } else {
+        if (room.tournamentQuestionIndex < room.tournamentQuestions.length - 1) {
+          room.tournamentQuestionIndex++;
+          startNextTournamentQuestion(room);
+        } else {
+          if (room.tournamentStage === 'semifinal') {
+            concludeSemifinals(room.pin);
+          } else if (room.tournamentStage === 'final') {
+            concludeFinal(room.pin);
+          }
+        }
+      }
+    }, CONFIG.REVEAL_DURATION);
+  }, 1000);
+}
+
+// ====================== SISTEMA DE TORNEO COMPLETAMENTE CORREGIDO ======================
+
+function startSemifinals(pin) {
+  const room = rooms.get(pin);
+  if (!room) return;
+
+  console.log(`[Torneo ${pin}] 🏆 INICIANDO SEMIFINALES`);
+  
+  room.tournamentStarted = true;
+  room.tournamentStage = 'semifinal';
+  room.tournamentQuestionIndex = 0;
+  room.tournamentAnswersThisRound.clear();
+  room.tournamentGameRunning = true;
+
+  const ranking = computeFinalRanking(room.getPlayersArray());
+  const top4 = ranking.slice(0, CONFIG.FINALIST_COUNT);
+  
+  room.finalists.clear();
+  top4.forEach(playerData => {
+    const player = room.getPlayer(playerData.id);
+    if (player) {
+      player.resetForTournament();
+      room.finalists.set(player.id, player);
+    }
+  });
+
+  console.log(`[Torneo ${pin}] Finalistas: ${room.getFinalistsArray().map(f => f.name).join(', ')}`);
+
+  const baseMode = getSupportedMode(room.gameMode);
+  room.tournamentQuestions = generarPreguntas(baseMode, CONFIG.TOURNAMENT_QUESTIONS, 'intermedia');
+  room.tournamentTimerDuration = CONFIG.TOURNAMENT_DURATION.semifinal;
+
+  room.broadcast({ 
+    type: 'start_semifinals', 
+    finalists: room.getFinalistsArray().map(f => ({
+      id: f.id,
+      name: f.name,
+      avatar: f.avatar,
+      points: f.semifinalPoints
+    }))
+  });
+
+  const spectatorIds = room.getPlayersArray()
+    .filter(p => !room.finalists.has(p.id))
+    .map(p => p.id);
+  
+  if (spectatorIds.length > 0) {
+    room.broadcastToPlayers(spectatorIds, {
+      type: 'enter_spectator_mode',
+      finalists: room.getFinalistsArray().map(f => ({
+        id: f.id,
+        name: f.name,
+        points: f.semifinalPoints
+      }))
+    });
+  }
+
+  setTimeout(() => startNextTournamentQuestion(room), 3000);
+}
+
+function startNextTournamentQuestion(room) {
+  if (!room.tournamentStarted || room.tournamentQuestionIndex >= room.tournamentQuestions.length) {
+    if (room.tournamentStage === 'semifinal') {
+      concludeSemifinals(room.pin);
+    } else {
+      concludeFinal(room.pin);
+    }
+    return;
+  }
+
+  room.tournamentAnswersThisRound.clear();
+  room.currentQuestion = room.tournamentQuestions[room.tournamentQuestionIndex];
+  
+  room.getFinalistsArray().forEach(player => {
+    player.hasAnswered = false;
+  });
+
+  const questionForClients = { ...room.currentQuestion };
+  delete questionForClients.respuesta;
+  delete questionForClients.explicacion;
+
+  console.log(`[Torneo ${room.pin}] 🎯 Iniciando pregunta ${room.tournamentQuestionIndex + 1} de ${room.tournamentQuestions.length} (${room.tournamentStage})`);
+
+  room.broadcastToFinalists({
+    type: 'tournament_question_update',
+    question: questionForClients,
+    questionIndex: room.tournamentQuestionIndex,
+    totalQuestions: room.tournamentQuestions.length,
+    timerDuration: room.tournamentTimerDuration,
+    round: room.tournamentStage
+  });
+
+  room.broadcastToSpectators({
+    type: 'spectator_update',
+    finalists: room.getFinalistsArray().map(f => ({
+      id: f.id,
+      name: f.name,
+      points: room.tournamentStage === 'semifinal' ? f.semifinalPoints : f.finalPoints
+    })),
+    question: {
+      pregunta: questionForClients.pregunta,
+      tipo: questionForClients.tipo,
+      opciones: questionForClients.opciones
+    },
+    questionIndex: room.tournamentQuestionIndex,
+    totalQuestions: room.tournamentQuestions.length,
+    round: room.tournamentStage
+  });
+
+  clearTimeout(room.tournamentRoundTimer);
+  room.tournamentRoundTimer = setTimeout(() => {
+    console.log(`[Torneo ${room.pin}] ⏰ Timeout de pregunta ${room.tournamentQuestionIndex + 1}`);
+    sendRevealPhase(room, true);
+  }, room.tournamentTimerDuration * 1000);
+}
+
+function concludeSemifinals(pin) {
+  const room = rooms.get(pin);
+  if (!room) return;
+
+  console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO SEMIFINALES`);
+  
+  room.tournamentGameRunning = false;
+
+  const sorted = room.getFinalistsArray().sort((a, b) => b.semifinalPoints - a.semifinalPoints);
+  const top2 = sorted.slice(0, 2);
+  
+  room.finalists.clear();
+  top2.forEach(player => {
+    player.resetForTournament();
+    room.finalists.set(player.id, player);
+  });
+
+  room.tournamentStage = 'final';
+  
+  const baseMode = getSupportedMode(room.gameMode);
+  room.tournamentQuestions = generarPreguntas(baseMode, CONFIG.TOURNAMENT_QUESTIONS, 'dificil');
+  room.tournamentQuestionIndex = 0;
+  room.tournamentAnswersThisRound.clear();
+  room.tournamentTimerDuration = CONFIG.TOURNAMENT_DURATION.final;
+
+  console.log(`[Torneo ${pin}] Finalistas: ${room.getFinalistsArray().map(f => f.name).join(', ')}`);
+
+  room.broadcast({ 
+    type: 'tournament_round_end', 
+    round: 'semifinal',
+    winners: room.getFinalistsArray().map(f => ({
+      id: f.id,
+      name: f.name,
+      avatar: f.avatar,
+      points: f.finalPoints
+    }))
+  });
+
+  setTimeout(() => {
+    room.broadcast({ 
+      type: 'start_final', 
+      finalists: room.getFinalistsArray().map(f => ({
+        id: f.id,
+        name: f.name,
+        avatar: f.avatar,
+        points: f.finalPoints
+      }))
+    });
+
+    setTimeout(() => {
+      room.tournamentGameRunning = true;
+      startNextTournamentQuestion(room);
+    }, 3000);
+  }, 2000);
+}
+
+function concludeFinal(pin) {
+  const room = rooms.get(pin);
+  if (!room) return;
+
+  console.log(`[Torneo ${pin}] 🏆 CONCLUYENDO FINAL`);
+  
+  room.tournamentGameRunning = false;
+
+  const sorted = room.getFinalistsArray().sort((a, b) => b.finalPoints - a.finalPoints);
+  const winner = sorted[0];
+  
+  if (winner) {
+    winner.points += CONFIG.POINTS.winnerBonus;
+    room.ultimateWinner = {
+      id: winner.id,
+      name: winner.name,
+      avatar: winner.avatar,
+      points: winner.points,
+      finalPoints: winner.finalPoints
+    };
+
+    console.log(`[Torneo ${pin}] 👑 CAMPEÓN: ${winner.name}`);
+  }
+
+  room.broadcast({ 
+    type: 'tournament_round_end', 
+    round: 'final',
+    winner: room.ultimateWinner
+  });
+
+  setTimeout(() => {
+    room.broadcast({ 
+      type: 'ultimate_winner', 
+      winner: room.ultimateWinner 
+    });
+
+    setTimeout(() => {
+      room.tournamentStage = null;
+      room.tournamentStarted = false;
+      room.isFinalistTournament = false;
+      room.finalRanking = computeFinalRanking(room.getPlayersArray());
+      
+      room.broadcast({ 
+        type: 'game_over', 
+        finalRanking: room.finalRanking,
+        tournamentCompleted: true
+      });
+      
+      console.log(`[Torneo ${pin}] 🎊 TORNEO COMPLETADO`);
+    }, 5000);
+  }, 2000);
+}
+
+function endGame(pin) {
+  const room = rooms.get(pin);
+  if (!room) return;
+
+  room.cleanup();
+  room.isGameRunning = false;
+
+  if (room.isFinalistTournament && !room.tournamentStarted) {
+    startSemifinals(pin);
+    return;
+  }
+
+  room.finalRanking = computeFinalRanking(room.getPlayersArray());
+  room.broadcast({ type: 'game_over', finalRanking: room.finalRanking });
+}
+
+function finalizeVoting(room) {
+  console.log(`[Sala ${room.pin}] 🗳️ Finalizando votación`);
+  
+  let maxVotes = 0;
+  let selectedMode = 'operaciones';
+  let modesWithVotes = [];
+
+  room.votes.forEach((votes, mode) => {
+    if (votes > 0) {
+      modesWithVotes.push({ mode, votes });
+      if (votes > maxVotes) {
+        maxVotes = votes;
+        selectedMode = mode;
+      }
+    }
+  });
+
+  const tiedModes = modesWithVotes
+    .filter(m => m.votes === maxVotes)
+    .map(m => m.mode);
+  
+  if (tiedModes.length > 1) {
+    selectedMode = tiedModes[Math.floor(Math.random() * tiedModes.length)];
+  }
+
+  room.gameMode = selectedMode;
+  room.closestAnswerMode = (selectedMode === 'mas-cercano');
+
+  const totalVotes = Array.from(room.votes.values()).reduce((a, b) => a + b, 0);
+  const finalistVotes = Array.from(room.finalistVotes.values()).reduce((a, b) => a + b, 0);
+  room.isFinalistTournament = totalVotes > 0 && finalistVotes >= Math.ceil(totalVotes / 3);
+
+  console.log(`[Sala ${room.pin}] Modo seleccionado: ${selectedMode}, Torneo: ${room.isFinalistTournament}`);
+
+  room.getPlayersArray().forEach(player => {
+    player.resetForNewGame();
+    player.gamesPlayed++;
+  });
+  
+  const baseMode = getSupportedMode(selectedMode);
+  room.questions = generarPreguntas(baseMode, room.totalQuestions, 'facil');
+  room.questionIndex = 0;
+
+  room.broadcast({
+    type: 'game_starting',
+    mode: selectedMode,
+    baseMode: baseMode,
+    isFinalistTournament: room.isFinalistTournament
+  });
+
+  setTimeout(() => {
+    room.isGameRunning = true;
+    
+    const initialRanking = computeFinalRanking(room.getPlayersArray());
+    room.broadcast({ 
+      type: 'ranking_update', 
+      players: initialRanking 
+    });
+
+    room.broadcast({
+      type: 'game_start',
+      mode: selectedMode,
+      baseMode: baseMode,
+      closestAnswerMode: room.closestAnswerMode,
+      isFinalistTournament: room.isFinalistTournament
+    });
+
+    startNextQuestion(room);
+  }, 3000);
 }
 
 // ====================== WEBSOCKET HANDLING COMPLETAMENTE CORREGIDO ======================
@@ -388,9 +1027,8 @@ wss.on('connection', (ws, req) => {
   
   let currentRoom = null;
   let isAlive = true;
-  let playerName = 'Desconocido';
 
-  console.log(`\n[WS ${connectionId}] 🌐 NUEVA CONEXIÓN desde ${req.socket.remoteAddress}`);
+  console.log(`[WS ${connectionId}] Nueva conexión desde ${req.socket.remoteAddress}`);
 
   const heartbeatInterval = setInterval(() => {
     if (ws.readyState === WebSocket.CLOSED) {
@@ -399,27 +1037,17 @@ wss.on('connection', (ws, req) => {
     }
     
     if (!isAlive) {
-      console.warn(`[WS ${connectionId}] 💀 Sin respuesta heartbeat, cerrando conexión`);
+      console.warn(`[WS ${connectionId}] Sin respuesta, cerrando`);
       ws.terminate();
       return;
     }
     
     isAlive = false;
-    try {
-      ws.ping();
-    } catch (e) {
-      console.error(`[WS ${connectionId}] ❌ Error en ping:`, e.message);
-    }
+    ws.ping();
   }, 30000);
 
   ws.on('pong', () => {
     isAlive = true;
-    if (currentRoom) {
-      const player = currentRoom.getPlayer(playerId);
-      if (player) {
-        player.lastPing = Date.now();
-      }
-    }
   });
 
   ws.on('message', async (message) => {
@@ -427,12 +1055,12 @@ wss.on('connection', (ws, req) => {
     try {
       data = JSON.parse(message);
     } catch (e) {
-      console.error(`[WS ${connectionId}] ❌ Error parseando mensaje:`, e);
+      console.error(`[WS ${connectionId}] Error parseando mensaje:`, e);
       ws.send(JSON.stringify({ type: 'error', message: 'Mensaje JSON inválido' }));
       return;
     }
 
-    console.log(`[WS ${connectionId}] 📨 ${data.type} para sala ${data.pin}`);
+    console.log(`[WS ${connectionId}] ${data.type} para sala ${data.pin}`);
 
     try {
       switch (data.type) {
@@ -474,20 +1102,12 @@ wss.on('connection', (ws, req) => {
           ws.send(JSON.stringify({ type: 'pong' }));
           break;
 
-        // ====================== CORRECCIÓN: NUEVO MENSAJE PARA SINCRONIZACIÓN ======================
-        case 'request_sync':
-          if (currentRoom) {
-            console.log(`[Sala ${currentRoom.pin}] 🔄 Sincronización solicitada por ${playerName}`);
-            currentRoom.syncPlayersToAll(true);
-          }
-          break;
-
         default:
-          console.warn(`[WS ${connectionId}] ⚠️ Mensaje no reconocido: ${data.type}`);
+          console.warn(`[WS ${connectionId}] Mensaje no reconocido:`, data.type);
           ws.send(JSON.stringify({ type: 'error', message: 'Tipo de mensaje no reconocido' }));
       }
     } catch (error) {
-      console.error(`[WS ${connectionId}] ❌ Error procesando mensaje ${data.type}:`, error);
+      console.error(`[WS ${connectionId}] Error procesando mensaje ${data.type}:`, error);
       ws.send(JSON.stringify({ 
         type: 'error', 
         message: error.message || 'Error interno del servidor' 
@@ -496,7 +1116,7 @@ wss.on('connection', (ws, req) => {
   });
 
   ws.on('close', (code, reason) => {
-    console.log(`[WS ${connectionId}] 🔌 CONEXIÓN CERRADA: ${code} - ${reason || 'Sin razón'} (Jugador: ${playerName})`);
+    console.log(`[WS ${connectionId}] Conexión cerrada: ${code} - ${reason}`);
     clearInterval(heartbeatInterval);
     
     if (currentRoom) {
@@ -505,10 +1125,10 @@ wss.on('connection', (ws, req) => {
   });
 
   ws.on('error', (error) => {
-    console.error(`[WS ${connectionId}] 💥 ERROR:`, error);
+    console.error(`[WS ${connectionId}] Error:`, error);
   });
 
-  // ====================== HANDLER DE CONEXIÓN COMPLETAMENTE CORREGIDO ======================
+  // ====================== HANDLER DE CONEXIÓN CORREGIDO ======================
 
   async function handleRoomConnection(ws, data, playerId) {
     const { pin, player } = data;
@@ -517,30 +1137,20 @@ wss.on('connection', (ws, req) => {
       throw new Error('Datos de conexión inválidos');
     }
 
-    playerName = player.name; // Guardar nombre para logs
-
     let room = rooms.get(pin);
     const isCreating = data.type === 'create_room';
-    const isRejoining = data.type === 'rejoin_room';
     
-    console.log(`[Conexión ${pin}] 🎯 Tipo: ${data.type}, Jugador: ${player.name}, ID: ${playerId}`);
+    console.log(`[Conexión ${pin}] Tipo: ${data.type}, Jugador: ${player.name}, ID: ${playerId}`);
     
-    // ====================== CORRECCIÓN: CONTROL DE INTENTOS DE CONEXIÓN ======================
-    if (!room) {
-      if (isCreating) {
-        room = new Sala(pin, playerId);
-        rooms.set(pin, room);
-        console.log(`[Sala ${pin}] 🆕 CREADA por ${player.name}`);
-      } else {
-        throw new Error('Sala no existe');
+    if (isCreating) {
+      if (room) {
+        throw new Error('Sala ya existe');
       }
-    } else {
-      // Verificar si hay muchos intentos de conexión para este jugador
-      const attempts = room.connectionAttempts.get(playerId) || 0;
-      if (attempts > 5) {
-        console.warn(`[Sala ${pin}] ⚠️ Demasiados intentos de conexión para ${player.name}`);
-      }
-      room.connectionAttempts.set(playerId, attempts + 1);
+      room = new Sala(pin, playerId);
+      rooms.set(pin, room);
+      console.log(`[Sala ${pin}] 🆕 Creada por ${player.name}`);
+    } else if (!room) {
+      throw new Error('Sala no existe');
     }
 
     if (room.players.size >= CONFIG.MAX_PLAYERS && !room.getPlayer(playerId)) {
@@ -551,15 +1161,10 @@ wss.on('connection', (ws, req) => {
     let isNewPlayer = false;
 
     if (playerObj) {
-      // ====================== CORRECCIÓN: MANEJO MEJORADO DE RECONEXIÓN ======================
-      console.log(`[Sala ${pin}] 🔄 ${player.name} RECONECTADO (socket anterior: ${playerObj.socket ? 'activo' : 'inactivo'})`);
-      
-      // Actualizar socket y estado
+      console.log(`[Sala ${pin}] 🔄 ${player.name} reconectado`);
       playerObj.socket = ws;
       playerObj.isReady = player.isReady || false;
-      playerObj.lastPing = Date.now();
       
-      // Actualizar datos si es necesario
       if (player.name !== playerObj.name) {
         console.log(`[Sala ${pin}] 📝 ${playerObj.name} cambió nombre a ${player.name}`);
         playerObj.name = player.name;
@@ -568,7 +1173,6 @@ wss.on('connection', (ws, req) => {
         playerObj.avatar = player.avatar;
       }
     } else {
-      // NUEVO JUGADOR
       playerObj = new Jugador({
         ...player,
         id: playerId,
@@ -577,7 +1181,7 @@ wss.on('connection', (ws, req) => {
       
       room.addPlayer(playerObj);
       isNewPlayer = true;
-      console.log(`[Sala ${pin}] ➕ ${player.name} SE UNIÓ (${room.players.size}/${CONFIG.MAX_PLAYERS})`);
+      console.log(`[Sala ${pin}] ➕ ${player.name} se unió (${room.players.size}/${CONFIG.MAX_PLAYERS})`);
     }
 
     currentRoom = room;
@@ -588,13 +1192,8 @@ wss.on('connection', (ws, req) => {
       room.hostId = playerId;
     }
 
-    // ====================== CORRECCIÓN: VERIFICAR ESTADO ACTUAL DE LA SALA ======================
-    const connectionState = room.checkPlayerConnections();
-    console.log(`[Sala ${pin}] 📊 Estado conexiones: ${connectionState.connected} conectados, ${connectionState.disconnected} desconectados`);
+    console.log(`[Sala ${pin}] 👥 Jugadores actuales:`, room.getPlayersArray().map(p => p.name));
 
-    console.log(`[Sala ${pin}] 👥 Jugadores actuales:`, room.getPlayersArray().map(p => `${p.name}${p.socket ? '' : ' (DC)'}`));
-
-    // PREPARAR RESPUESTA PARA EL CLIENTE
     const response = {
       type: 'room_joined',
       pin: room.pin,
@@ -608,8 +1207,7 @@ wss.on('connection', (ws, req) => {
         streak: p.streak,
         maxStreak: p.maxStreak,
         avgResponseTime: p.avgResponseTime,
-        hasAnswered: p.hasAnswered,
-        isOnline: !!(p.socket && p.socket.readyState === WebSocket.OPEN) // ====================== NUEVO ======================
+        hasAnswered: p.hasAnswered
       })),
       isHost: isHost,
       gameMode: room.gameMode,
@@ -631,7 +1229,6 @@ wss.on('connection', (ws, req) => {
       }))
     };
 
-    // AGREGAR INFORMACIÓN DE PREGUNTA ACTUAL SI EL JUEGO ESTÁ EN CURSO
     if ((room.isGameRunning || room.tournamentGameRunning) && room.currentQuestion) {
       response.question = {
         pregunta: room.currentQuestion.pregunta,
@@ -642,211 +1239,51 @@ wss.on('connection', (ws, req) => {
       response.timerDuration = room.timerDuration;
     }
 
-    // ENVIAR RESPUESTA AL CLIENTE ACTUAL
     console.log(`[Sala ${pin}] 📤 Enviando estado de sala a ${player.name}`);
-    try {
-      ws.send(JSON.stringify(response));
-    } catch (e) {
-      console.error(`[Sala ${pin}] ❌ Error enviando room_joined a ${player.name}:`, e.message);
-      return;
-    }
+    ws.send(JSON.stringify(response));
 
-    // ====================== CORRECCIÓN: NOTIFICACIONES MEJORADAS ======================
     if (isNewPlayer) {
       console.log(`[Sala ${pin}] 📢 Notificando a otros jugadores sobre ${player.name}`);
       
-      // Notificar a otros jugadores con retardo para evitar race conditions
-      setTimeout(() => {
-        room.broadcast({
-          type: 'player_joined',
-          player: {
-            id: playerId,
-            name: player.name,
-            avatar: player.avatar,
-            isProfessor: playerObj.isProfessor,
-            isReady: playerObj.isReady,
-            isOnline: true
-          }
-        }, playerId);
-      }, 100);
-    } else {
-      console.log(`[Sala ${pin}] 🔄 Jugador existente, notificando reconexión`);
-      
-      // Notificar que el jugador se reconectó
-      setTimeout(() => {
-        room.broadcast({
-          type: 'player_reconnected',
-          playerId: playerId,
-          playerName: player.name
-        }, playerId);
-      }, 100);
+      room.broadcast({
+        type: 'player_joined',
+        player: {
+          id: playerId,
+          name: player.name,
+          avatar: player.avatar,
+          isProfessor: playerObj.isProfessor,
+          isReady: playerObj.isReady
+        }
+      }, playerId);
     }
 
-    // ====================== CORRECCIÓN: SINCRONIZACIÓN ROBUSTA ======================
-    console.log(`[Sala ${pin}] 🔄 Iniciando sincronización completa`);
-    
-    // Sincronización inmediata
     setTimeout(() => {
-      room.syncPlayersToAll(true);
-    }, 150);
+      room.syncPlayersToAll();
+    }, 100);
 
-    // Sincronización de respaldo después de 1 segundo
-    setTimeout(() => {
-      const currentRoomState = rooms.get(pin);
-      if (currentRoomState) {
-        console.log(`[Sala ${pin}] 🔄 Sincronización de respaldo`);
-        currentRoomState.syncPlayersToAll(true);
-      }
-    }, 1000);
-
-    // NOTIFICAR AL HOST SI TODOS ESTÁN LISTOS
     if (isHost && !room.isVotingActive && !room.isAnyGameRunning()) {
       const nonProfessorPlayers = room.getNonProfessorPlayers();
       const allReady = nonProfessorPlayers.length > 0 && nonProfessorPlayers.every(p => p.isReady);
       
       if (allReady) {
         console.log(`[Sala ${pin}] 🎯 Todos los jugadores están listos, notificando al host`);
-        setTimeout(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-              type: 'all_players_ready',
-              message: 'Todos los jugadores están listos. Puedes iniciar la votación.'
-            }));
-          }
-        }, 500);
-      }
-    }
-
-    // ====================== CORRECCIÓN: LIMPIAR INTENTOS DE CONEXIÓN EXITOSOS ======================
-    room.connectionAttempts.delete(playerId);
-  }
-
-  // ====================== HANDLER DE DESCONEXIÓN CORREGIDO ======================
-
-  function handlePlayerDisconnection(pin, playerId) {
-    const room = rooms.get(pin);
-    if (!room) return;
-
-    const player = room.getPlayer(playerId);
-    if (player) {
-      console.log(`[Sala ${pin}] ❌ MANEJO DESCONEXIÓN: ${player.name}`);
-      
-      // ====================== CORRECCIÓN: NO ELIMINAR INMEDIATAMENTE, SOLO MARCAR ======================
-      player.socket = null;
-      player.isReady = false;
-      
-      // Notificar desconexión inmediatamente
-      room.broadcast({
-        type: 'player_disconnected',
-        playerId: playerId,
-        playerName: player.name
-      });
-
-      // Sincronizar estado actual
-      setTimeout(() => {
-        room.syncPlayersToAll(true);
-      }, 100);
-
-      // ====================== CORRECCIÓN: VERIFICAR SI ERA EL HOST ======================
-      if (room.hostId === playerId) {
-        console.log(`[Sala ${pin}] 👑 Host desconectado: ${player.name}`);
-        
-        // Buscar nuevo host entre los jugadores conectados
-        const newHost = room.getPlayersArray().find(p => p.socket && p.socket.readyState === WebSocket.OPEN);
-        
-        if (newHost) {
-          room.hostId = newHost.id;
-          newHost.isProfessor = true;
-          
-          console.log(`[Sala ${pin}] 👑 NUEVO HOST: ${newHost.name}`);
-          
-          // Notificar cambio de host con retardo
-          setTimeout(() => {
-            room.broadcast({
-              type: 'new_host',
-              newHostId: room.hostId,
-              newHostName: newHost.name
-            });
-          }, 500);
-        } else {
-          console.log(`[Sala ${pin}] ⚠️ No hay jugadores conectados para asignar nuevo host`);
-        }
-      }
-
-      // ====================== CORRECCIÓN: ELIMINACIÓN MÁS CONSERVADORA ======================
-      const removalTimeout = setTimeout(() => {
-        const currentRoom = rooms.get(pin);
-        if (currentRoom) {
-          const currentPlayer = currentRoom.getPlayer(playerId);
-          if (currentPlayer && !currentPlayer.socket) {
-            console.log(`[Sala ${pin}] 🗑️ Eliminando ${currentPlayer.name} (desconectado por 60 segundos)`);
-            currentRoom.removePlayer(playerId);
-            
-            // Sincronizar después de eliminar
-            setTimeout(() => {
-              currentRoom.syncPlayersToAll(true);
-            }, 100);
-
-            // Si la sala queda vacía, limpiar
-            if (currentRoom.players.size === 0) {
-              currentRoom.cleanup();
-              rooms.delete(pin);
-              console.log(`[Sala ${pin}] 🏁 Eliminada (vacía)`);
-            }
-          }
-        }
-      }, 60000); // 60 segundos en lugar de 30
-
-      // Almacenar el timeout para posible cancelación si se reconecta
-      player.removalTimeout = removalTimeout;
-    }
-  }
-
-  // ====================== HANDLER DE PLAYER_READY CORREGIDO ======================
-
-  function handlePlayerReady(data) {
-    const room = rooms.get(pin);
-    if (!room) throw new Error('Sala no existe');
-
-    const player = room.getPlayer(data.playerId);
-    if (!player) {
-      throw new Error('Jugador no encontrado');
-    }
-
-    const oldReadyState = player.isReady;
-    player.isReady = data.isReady;
-    
-    console.log(`[Sala ${room.pin}] ✅ ${player.name} ${data.isReady ? 'LISTO' : 'NO LISTO'} (antes: ${oldReadyState})`);
-    
-    // ====================== CORRECCIÓN: SINCRONIZAR INMEDIATAMENTE ======================
-    room.syncPlayersToAll(true);
-
-    // VERIFICAR SI TODOS ESTÁN LISTOS PARA INICIAR VOTACIÓN
-    if (room.hostId === data.playerId && !room.isVotingActive && !room.isAnyGameRunning()) {
-      const nonProfessorPlayers = room.getNonProfessorPlayers();
-      const connectedPlayers = nonProfessorPlayers.filter(p => p.socket && p.socket.readyState === WebSocket.OPEN);
-      const allReady = connectedPlayers.length > 0 && connectedPlayers.every(p => p.isReady);
-      
-      if (allReady) {
-        console.log(`[Sala ${room.pin}] 🎯 TODOS LOS JUGADORES CONECTADOS ESTÁN LISTOS, notificando al host`);
-        const host = room.getPlayer(room.hostId);
-        if (host && host.socket && host.socket.readyState === WebSocket.OPEN) {
-          host.socket.send(JSON.stringify({
-            type: 'all_players_ready',
-            message: 'Todos los jugadores están listos. Puedes iniciar la votación.'
-          }));
-        }
+        ws.send(JSON.stringify({
+          type: 'all_players_ready',
+          message: 'Todos los jugadores están listos. Puedes iniciar la votación.'
+        }));
       }
     }
   }
 
-  // ... (mantener los otros handlers sin cambios)
+  // ====================== HANDLER DE SUBMIT_ANSWER COMPLETAMENTE CORREGIDO ======================
 
   function handleSubmitAnswer(data) {
     const room = rooms.get(data.pin);
     if (!room) throw new Error('Sala no existe');
 
     const isTournament = room.tournamentStarted && room.tournamentStage;
+    
+    // ====================== CORRECCIÓN: VERIFICACIÓN CORRECTA DEL ESTADO ======================
     const gameRunning = isTournament ? room.tournamentGameRunning : room.isGameRunning;
     
     if (!gameRunning) {
@@ -888,10 +1325,7 @@ wss.on('connection', (ws, req) => {
         clearTimeout(room.roundTimer);
       }
       
-      // Función sendRevealPhase debería estar definida en otro lugar
-      if (typeof sendRevealPhase === 'function') {
-        sendRevealPhase(room, isTournament);
-      }
+      sendRevealPhase(room, isTournament);
     } else {
       if (isTournament) {
         const answeredCount = room.tournamentAnswersThisRound.size;
@@ -944,10 +1378,7 @@ wss.on('connection', (ws, req) => {
       if (room.voteTimeRemaining <= 0) {
         clearInterval(room.voteTimer);
         room.isVotingActive = false;
-        // Función finalizeVoting debería estar definida
-        if (typeof finalizeVoting === 'function') {
-          finalizeVoting(room);
-        }
+        finalizeVoting(room);
       }
     }, 1000);
   }
@@ -986,6 +1417,38 @@ wss.on('connection', (ws, req) => {
     });
   }
 
+  function handlePlayerReady(data) {
+    const room = rooms.get(data.pin);
+    if (!room) throw new Error('Sala no existe');
+
+    const player = room.getPlayer(data.playerId);
+    if (!player) {
+      throw new Error('Jugador no encontrado');
+    }
+
+    player.isReady = data.isReady;
+    
+    console.log(`[Sala ${room.pin}] ✅ ${player.name} ${data.isReady ? 'listo' : 'no listo'}`);
+    
+    room.syncPlayersToAll();
+
+    if (room.hostId === data.playerId && !room.isVotingActive && !room.isAnyGameRunning()) {
+      const nonProfessorPlayers = room.getNonProfessorPlayers();
+      const allReady = nonProfessorPlayers.length > 0 && nonProfessorPlayers.every(p => p.isReady);
+      
+      if (allReady) {
+        console.log(`[Sala ${room.pin}] 🎯 Todos los jugadores están listos, notificando al host`);
+        const host = room.getPlayer(room.hostId);
+        if (host && host.socket && host.socket.readyState === WebSocket.OPEN) {
+          host.socket.send(JSON.stringify({
+            type: 'all_players_ready',
+            message: 'Todos los jugadores están listos. Puedes iniciar la votación.'
+          }));
+        }
+      }
+    }
+  }
+
   function handleSkipQuestion(data) {
     const room = rooms.get(data.pin);
     if (!room || room.hostId !== data.hostId) {
@@ -998,14 +1461,10 @@ wss.on('connection', (ws, req) => {
 
     if (room.tournamentStage) {
       clearTimeout(room.tournamentRoundTimer);
-      if (typeof sendRevealPhase === 'function') {
-        sendRevealPhase(room, true);
-      }
+      sendRevealPhase(room, true);
     } else {
       clearTimeout(room.roundTimer);
-      if (typeof sendRevealPhase === 'function') {
-        sendRevealPhase(room, false);
-      }
+      sendRevealPhase(room, false);
     }
   }
 
@@ -1049,38 +1508,65 @@ wss.on('connection', (ws, req) => {
       }
     }
   }
+
+  function handlePlayerDisconnection(pin, playerId) {
+    const room = rooms.get(pin);
+    if (!room) return;
+
+    const player = room.getPlayer(playerId);
+    if (player) {
+      console.log(`[Sala ${pin}] ❌ ${player.name} desconectado`);
+      
+      player.socket = null;
+      player.isReady = false;
+      
+      room.broadcast({
+        type: 'player_left',
+        playerId: playerId,
+        playerName: player.name
+      });
+
+      room.syncPlayersToAll();
+
+      if (room.hostId === playerId && room.players.size > 0) {
+        const newHost = room.getPlayersArray().find(p => p.socket) || room.getPlayersArray()[0];
+        if (newHost) {
+          room.hostId = newHost.id;
+          newHost.isProfessor = true;
+          
+          console.log(`[Sala ${pin}] 👑 Nuevo host: ${newHost.name}`);
+          
+          room.broadcast({
+            type: 'new_host',
+            newHostId: room.hostId,
+            newHostName: newHost.name
+          });
+        }
+      }
+
+      setTimeout(() => {
+        const currentRoom = rooms.get(pin);
+        if (currentRoom) {
+          const currentPlayer = currentRoom.getPlayer(playerId);
+          if (currentPlayer && !currentPlayer.socket) {
+            console.log(`[Sala ${pin}] 🗑️ Eliminando ${currentPlayer.name} (desconectado por mucho tiempo)`);
+            currentRoom.removePlayer(playerId);
+            
+            currentRoom.syncPlayersToAll();
+
+            if (currentRoom.players.size === 0) {
+              currentRoom.cleanup();
+              rooms.delete(pin);
+              console.log(`[Sala ${pin}] 🏁 Eliminada (vacía)`);
+            }
+          }
+        }
+      }, 30000);
+    }
+  }
 });
 
-// ====================== MONITOREO AUTOMÁTICO DE CONEXIONES ======================
-
-setInterval(() => {
-  let totalRooms = 0;
-  let totalPlayers = 0;
-  let totalConnected = 0;
-
-  rooms.forEach(room => {
-    totalRooms++;
-    totalPlayers += room.players.size;
-    totalConnected += room.getPlayersArray().filter(p => p.socket && p.socket.readyState === WebSocket.OPEN).length;
-    
-    // Verificar estado de la sala cada 30 segundos
-    const state = room.checkPlayerConnections();
-    if (state.disconnected > 0) {
-      console.log(`[Monitoreo] Sala ${room.pin}: ${state.connected}/${state.total} jugadores conectados`);
-      
-      // Resincronizar si hay desconexiones
-      if (state.disconnected > 0) {
-        room.syncPlayersToAll(true);
-      }
-    }
-  });
-
-  if (totalRooms > 0) {
-    console.log(`[Monitoreo] 📊 ${totalRooms} salas, ${totalConnected}/${totalPlayers} jugadores conectados`);
-  }
-}, 30000);
-
-// ====================== CONFIGURACIÓN EXPRESS ======================
+// ====================== CONFIGURACIÓN EXPRESS COMPLETA ======================
 
 app.use(express.static('.'));
 
@@ -1104,26 +1590,126 @@ app.get('/status', (req, res) => {
     },
     players: {
       total: Array.from(rooms.values()).reduce((total, room) => total + room.players.size, 0),
-      connected: Array.from(rooms.values()).reduce((total, room) => total + room.getPlayersArray().filter(p => p.socket && p.socket.readyState === WebSocket.OPEN).length, 0),
-      byRoom: roomStats.map(room => ({ 
-        pin: room.pin, 
-        players: room.playerCount,
-        connected: room.connectedPlayers 
-      }))
+      byRoom: roomStats.map(room => ({ pin: room.pin, players: room.playerCount }))
+    },
+    config: {
+      maxPlayers: CONFIG.MAX_PLAYERS,
+      maxQuestions: CONFIG.MAX_QUESTIONS,
+      tournamentQuestions: CONFIG.TOURNAMENT_QUESTIONS
     }
   });
 });
 
+app.get('/rooms', (req, res) => {
+  const roomList = Array.from(rooms.values()).map(room => ({
+    pin: room.pin,
+    playerCount: room.players.size,
+    isGameRunning: room.isGameRunning,
+    tournamentStage: room.tournamentStage,
+    tournamentGameRunning: room.tournamentGameRunning,
+    createdAt: room.createdAt,
+    lastActivity: room.lastActivity
+  }));
+  
+  res.json(roomList);
+});
+
+app.post('/admin/cleanup', (req, res) => {
+  const { password } = req.body;
+  
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+
+  const now = Date.now();
+  const HOUR = 60 * 60 * 1000;
+  let cleanedCount = 0;
+
+  for (const [pin, room] of rooms.entries()) {
+    if (now - room.lastActivity > 6 * HOUR) {
+      room.cleanup();
+      rooms.delete(pin);
+      cleanedCount++;
+      console.log(`[Admin] Limpiada sala inactiva ${pin}`);
+    }
+  }
+
+  res.json({ 
+    message: `Limpieza completada. Salas eliminadas: ${cleanedCount}`,
+    remainingRooms: rooms.size 
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Error en servidor Express:', err);
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
+// ====================== MANTENIMIENTO AUTOMÁTICO ======================
+
+setInterval(() => {
+  const now = Date.now();
+  const HOUR = 60 * 60 * 1000;
+  let cleanedCount = 0;
+
+  for (const [pin, room] of rooms.entries()) {
+    if (now - room.lastActivity > 24 * HOUR) {
+      console.log(`[Limpieza] Eliminando sala inactiva ${pin} (${room.players.size} jugadores)`);
+      room.cleanup();
+      rooms.delete(pin);
+      cleanedCount++;
+    }
+  }
+
+  if (cleanedCount > 0) {
+    console.log(`[Limpieza] ${cleanedCount} salas inactivas eliminadas`);
+  }
+}, 60 * 60 * 1000);
+
+// ====================== MANEJO GRACEFUL DE CIERRE ======================
+
+function gracefulShutdown() {
+  console.log('Iniciando cierre graceful del servidor...');
+  
+  wss.close(() => {
+    console.log('WebSocket server cerrado');
+  });
+
+  for (const room of rooms.values()) {
+    room.broadcast({
+      type: 'server_shutdown',
+      message: 'El servidor se está cerrando. Por favor, reconecta más tarde.'
+    });
+    room.cleanup();
+  }
+
+  server.close(() => {
+    console.log('HTTP server cerrado');
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.log('Cierre forzado después de timeout');
+    process.exit(1);
+  }, 10000);
+}
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
+// ====================== INICIO DEL SERVIDOR ======================
+
 server.listen(PORT, () => {
-  console.log(`🎮 Servidor Math Challenge PRO - SINCRONIZACIÓN CORREGIDA`);
-  console.log(`✅ PROBLEMAS SOLUCIONADOS:`);
-  console.log(`   - 🔄 Sincronización robusta de lista de jugadores`);
-  console.log(`   - 👥 Jugadores no desaparecen del lobby`);
-  console.log(`   - 📊 Estado de conexión en tiempo real`);
-  console.log(`   - 🔍 Monitoreo automático de conexiones`);
-  console.log(`   - 💾 Manejo conservador de desconexiones`);
-  console.log(`   - 🚀 Reconexiones sin pérdida de estado`);
-  console.log(`   - 📡 Múltiples sincronizaciones de respaldo`);
-  console.log(`   - 🎯 Logs detallados para diagnóstico`);
-  console.log(`🌐 Ejecutándose en puerto ${PORT}`);
+  console.log(`🎮 Servidor Math Challenge PRO COMPLETAMENTE CORREGIDO ejecutándose en puerto ${PORT}`);
+  console.log(`✅ TODOS LOS PROBLEMAS SOLUCIONADOS:`);
+  console.log(`   - 🔄 Sincronización inmediata de jugadores (profesor ve jugadores)`);
+  console.log(`   - 🏆 Estado de torneo corregido (semifinales/finales funcionan)`);
+  console.log(`   - ✅ Verificación correcta de "juego activo" en handleSubmitAnswer`);
+  console.log(`   - 📊 Sistema de revelación mejorado`);
+  console.log(`   - ⏰ Manejo robusto de timeouts`);
+  console.log(`   - 🔄 Transiciones suaves entre rondas de torneo`);
+  console.log(`   - 👥 Manejo mejorado de desconexiones/reconexiones`);
+  console.log(`   - 🎯 Detección automática de todos listos`);
+  console.log(`   - 📢 Broadcasts confiables a todos los jugadores`);
+  console.log(`📊 Total de preguntas cargadas: ${Object.keys(BANCOS_PREGUNTAS.facil).reduce((total, mode) => total + BANCOS_PREGUNTAS.facil[mode].length + (BANCOS_PREGUNTAS.intermedia[mode]?.length || 0) + (BANCOS_PREGUNTAS.dificil[mode]?.length || 0), 0)}`);
 });

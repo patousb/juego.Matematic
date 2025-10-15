@@ -1257,9 +1257,20 @@ wss.on('connection', (ws, req) => {
       }, playerId);
     }
 
+    // ====================== SOLUCIÓN: SINCRONIZACIÓN INMEDIATA MEJORADA ======================
+    console.log(`[Sala ${pin}] 🔄 Sincronización inmediata de jugadores`);
+    
+    // Sincronización inmediata y robusta
     setTimeout(() => {
       room.syncPlayersToAll();
     }, 100);
+
+    // Segunda sincronización de respaldo
+    setTimeout(() => {
+      if (room && room.players.has(playerId)) {
+        room.syncPlayersToAll();
+      }
+    }, 500);
 
     if (isHost && !room.isVotingActive && !room.isAnyGameRunning()) {
       const nonProfessorPlayers = room.getNonProfessorPlayers();
@@ -1430,6 +1441,7 @@ wss.on('connection', (ws, req) => {
     
     console.log(`[Sala ${room.pin}] ✅ ${player.name} ${data.isReady ? 'listo' : 'no listo'}`);
     
+    // ====================== SOLUCIÓN: SINCRONIZACIÓN INMEDIATA AL CAMBIAR READY ======================
     room.syncPlayersToAll();
 
     if (room.hostId === data.playerId && !room.isVotingActive && !room.isAnyGameRunning()) {
@@ -1520,6 +1532,7 @@ wss.on('connection', (ws, req) => {
       player.socket = null;
       player.isReady = false;
       
+      // ====================== SOLUCIÓN: SINCRONIZACIÓN INMEDIATA AL DESCONECTARSE ======================
       room.broadcast({
         type: 'player_left',
         playerId: playerId,
@@ -1541,6 +1554,11 @@ wss.on('connection', (ws, req) => {
             newHostId: room.hostId,
             newHostName: newHost.name
           });
+
+          // ====================== SOLUCIÓN: SINCRONIZACIÓN EXTRA AL CAMBIAR HOST ======================
+          setTimeout(() => {
+            room.syncPlayersToAll();
+          }, 200);
         }
       }
 
@@ -1552,6 +1570,7 @@ wss.on('connection', (ws, req) => {
             console.log(`[Sala ${pin}] 🗑️ Eliminando ${currentPlayer.name} (desconectado por mucho tiempo)`);
             currentRoom.removePlayer(playerId);
             
+            // ====================== SOLUCIÓN: SINCRONIZACIÓN FINAL AL ELIMINAR JUGADOR ======================
             currentRoom.syncPlayersToAll();
 
             if (currentRoom.players.size === 0) {
@@ -1711,5 +1730,6 @@ server.listen(PORT, () => {
   console.log(`   - 👥 Manejo mejorado de desconexiones/reconexiones`);
   console.log(`   - 🎯 Detección automática de todos listos`);
   console.log(`   - 📢 Broadcasts confiables a todos los jugadores`);
+  console.log(`   - 🚨 SOLUCIÓN COMPLETA: Jugadores no desaparecen del lobby`);
   console.log(`📊 Total de preguntas cargadas: ${Object.keys(BANCOS_PREGUNTAS.facil).reduce((total, mode) => total + BANCOS_PREGUNTAS.facil[mode].length + (BANCOS_PREGUNTAS.intermedia[mode]?.length || 0) + (BANCOS_PREGUNTAS.dificil[mode]?.length || 0), 0)}`);
 });

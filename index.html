@@ -2854,7 +2854,7 @@
                     card.className = 'finalist-player-card';
                     card.style.animationDelay = `${index * 0.2}s`;
                     card.innerHTML = `
-                        <img src="imagenes/avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='imagenes/avatar1.png'">
+                        <img src="avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='avatar1.png'">
                         <span>${this.extractName(player.name)}</span>
                         <span style="margin-left: auto; font-weight: bold;">0 pts</span>
                     `;

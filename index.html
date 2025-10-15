@@ -3106,7 +3106,7 @@
                     }
                     
                     playerElement.innerHTML = `
-                        <img src="imagenes/avatar${player.avatar || '1'}.png" class="player-avatar" onerror="this.src='imagenes/avatar1.png'">
+                        <img src="avatar${player.avatar || '1'}.png" class="player-avatar" onerror="this.src='avatar1.png'">
                         <span>${this.extractName(player.name)}</span>
                     `;
                     
@@ -3190,7 +3190,7 @@
                             
                             playerElement.innerHTML = `
                                 <div class="player-info">
-                                    <img src="imagenes/avatar${player.avatar || '1'}.png" class="other-avatar" onerror="this.src='imagenes/avatar1.png'">
+                                    <img src="avatar${player.avatar || '1'}.png" class="other-avatar" onerror="this.src='avatar1.png'">
                                     <span>${i + 1}. ${this.extractName(player.name)}</span>
                                 </div>
                                 <span>${player.points || 0} pts</span>
@@ -3241,7 +3241,7 @@
                         
                         playerElement.innerHTML = `
                             <span class="ranking-position">${index + 1}°</span>
-                            <img src="imagenes/avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='imagenes/avatar1.png'">
+                            <img src="avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='avatar1.png'">
                             <span class="ranking-name">${this.extractName(player.name)}</span>
                             <span class="ranking-points">${player.points || 0}${streakBadge}</span>
                         `;
@@ -5223,7 +5223,7 @@
                             
                             item.innerHTML = `
                                 <span class="ranking-position">${index + 1}°</span>
-                                <img src="imagenes/avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='imagenes/avatar1.png'">
+                                <img src="avatar${player.avatar || '1'}.png" class="ranking-avatar" onerror="this.src='avatar1.png'">
                                 <span class="ranking-name">${this.extractName(player.name)}</span>
                                 <span class="ranking-points">${player.points || 0}</span>
                             `;
